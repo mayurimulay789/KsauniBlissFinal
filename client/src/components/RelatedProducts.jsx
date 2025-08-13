@@ -1,0 +1,237 @@
+"use client"
+
+import { useState, useEffect, useMemo } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { motion, AnimatePresence } from "framer-motion"
+import { ShoppingBag, Heart, Star, ArrowDown, ChevronRight } from "lucide-react"
+import { fetchProducts } from "../store/slices/productSlice"
+import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice"
+import {
+  addToWishlist,
+  removeFromWishlist,
+  optimisticAddToWishlist,
+  optimisticRemoveFromWishlist,
+  selectIsAddingToWishlist,
+  selectIsRemovingFromWishlist,
+} from "../store/slices/wishlistSlice"
+import { Link, useNavigate } from "react-router-dom"
+import toast from "react-hot-toast"
+import LoadingSpinner from "../components/LoadingSpinner"
+
+const RelatedProducts = ({ currentProduct }) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  // Access store state
+  const { products, isLoading } = useSelector((state) => state.products)
+  const { items: wishlistItems } = useSelector((state) => state.wishlist)
+  const isAddingToCart = useSelector(selectIsAddingToCart)
+  const isAddingToWishlist = useSelector(selectIsAddingToWishlist)
+  const isRemovingFromWishlist = useSelector(selectIsRemovingFromWishlist)
+
+  // Fetch related products
+  useEffect(() => {
+    if (currentProduct?.category?._id) {
+      dispatch(
+        fetchProducts({
+          category: currentProduct.category._id,
+          limit: 8,
+          exclude: currentProduct._id,
+        }),
+      )
+    }
+  }, [dispatch, currentProduct?.category?._id, currentProduct?._id])
+
+  // Memoize filtered related products
+  const relatedProducts = useMemo(() => {
+    if (!products || !currentProduct) return []
+    return products.filter((p) => p._id !== currentProduct._id).slice(0, 8)
+  }, [products, currentProduct])
+
+  // Handle add to cart
+  const handleAddToCart = async (product, e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    try {
+      const payload = {
+        productId: product._id,
+        quantity: 1,
+        size: product.sizes?.[0]?.size || "",
+        color: product.colors?.[0]?.name || "",
+      }
+
+      dispatch(optimisticAddToCart({
+        product,
+        quantity: 1,
+        size: product.sizes?.[0]?.size || "",
+        color: product.colors?.[0]?.name || "",
+      }))
+
+      const bag = document.getElementById("bag")
+      if (bag) bag.click()
+
+      toast.success(`${product.name} added to cart!`)
+      await dispatch(addToCart(payload)).unwrap()
+    } catch (error) {
+      toast.error(error.message || "Failed to add to cart")
+    }
+  }
+
+  // Handle wishlist toggle
+  const handleWishlist = async (product, e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    try {
+      const isInWishlist = wishlistItems.some((item) => item._id === product._id)
+
+      if (isInWishlist) {
+        dispatch(optimisticRemoveFromWishlist(product._id))
+        const wish = document.getElementById("wish")
+        if (wish) wish.click()
+        toast.success(`${product.name} removed from wishlist!`)
+        await dispatch(removeFromWishlist(product._id)).unwrap()
+      } else {
+        dispatch(optimisticAddToWishlist(product))
+        const wish = document.getElementById("wish")
+        if (wish) wish.click()
+        toast.success(`${product.name} added to wishlist!`)
+        await dispatch(addToWishlist(product)).unwrap()
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to update wishlist")
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="py-8">
+        <LoadingSpinner message="Loading related products..." />
+      </div>
+    )
+  }
+
+  if (relatedProducts.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="px-4 py-8 bg-gray-50">
+      <div className="container mx-auto">
+        {/* Section Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">You Might Also Like</h2>
+            <p className="text-gray-600">
+              Similar products in {currentProduct.category?.name}
+            </p>
+          </div>
+          <Link
+            to={`/products/${currentProduct.category?.slug || ""}`}
+            className="flex items-center text-sm font-medium text-ksauni-red hover:text-ksauni-dark-red"
+          >
+            View All <ChevronRight className="w-4 h-4 ml-1" />
+          </Link>
+        </div>
+
+        {/* Products Grid */}
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          <AnimatePresence>
+            {relatedProducts.map((product) => {
+              const inWishlist = wishlistItems.some((item) => item._id === product._id)
+              const hasDiscount = product.originalPrice && product.originalPrice > product.price
+              const discountPercent = hasDiscount 
+                ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+                : 0
+
+              return (
+                <motion.div
+                  key={product._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="overflow-hidden transition-all duration-300 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md pb-3"
+                >
+                  {/* Product Image */}
+                  <div className="relative aspect-[4/4] overflow-hidden">
+                    <Link to={`/product/${product._id}`}>
+                      <img
+                        src={product.images?.[0]?.url || "/placeholder.svg"}
+                        alt={product.name}
+                        className="object-cover w-full h-full"
+                      />
+                    </Link>
+
+                    {/* Rating Badge */}
+                    {product.rating && product.rating.average > 0 && (
+                      <div className="absolute bottom-2 right-2 flex items-center bg-white/90 px-2 py-1 rounded-full shadow-xs border border-gray-200">
+                        <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
+                        <span className="text-xs font-medium text-gray-800">
+                          {product.rating.average.toFixed(1)}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Wishlist Button */}
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => handleWishlist(product, e)}
+                      disabled={isAddingToWishlist || isRemovingFromWishlist}
+                      className="absolute p-1.5 transition-colors bg-white border rounded-full shadow-sm top-2 right-2 border-gray-200 hover:bg-gray-100 hover:text-red-500 disabled:opacity-50"
+                      aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                    >
+                      <Heart className={`w-4 h-4 ${inWishlist ? "fill-red-500 text-red-500" : "text-gray-400"}`} />
+                    </motion.button>
+                  </div>
+
+                  {/* Product Details */}
+                  <div className="px-3 pt-2">
+                    <Link to={`/product/${product._id}`}>
+                      <h3 className="mb-1 text-sm font-medium text-gray-800 line-clamp-2">
+                        {product.brand}
+                      </h3>
+                      <p className="text-xs text-gray-600 line-clamp-1">{product.name}</p>
+                    </Link>
+
+                    {/* Price Section */}
+                    <div className="flex items-center mt-2 mb-2 space-x-1">
+                      {hasDiscount && (
+                        <>
+                          <span className="flex items-center text-xs font-medium text-green-600">
+                            <ArrowDown className="w-3 h-3 mr-0.5" />
+                            {discountPercent}%
+                          </span>
+                          <span className="text-xs text-gray-500 line-through">₹{product.originalPrice}</span>
+                        </>
+                      )}
+                      <span className="text-sm font-bold text-gray-800">₹{product.price}</span>
+                    </div>
+
+                    {/* Add to Cart Button */}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={(e) => handleAddToCart(product, e)}
+                      disabled={product.stock === 0 || isAddingToCart}
+                      className="w-full py-2 text-xs font-medium text-red-600 transition-colors rounded-lg bg-white border border-red-300 hover:bg-red-600 hover:text-white disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    >
+                      {isAddingToCart ? (
+                        <div className="w-3 h-3 mx-auto border-2 border-red-600 rounded-full border-t-transparent animate-spin" />
+                      ) : (
+                        'Add to Cart'
+                      )}
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default RelatedProducts
