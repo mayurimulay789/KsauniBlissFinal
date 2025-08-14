@@ -841,7 +841,7 @@ const CheckoutPage = () => {
       </div>
 
       {/* Enhanced responsive styles */}
-      <style jsx>{`
+      <style>{`
         @media (min-width: 475px) {
           .xs\\:py-6 {
             padding-top: 1.5rem;

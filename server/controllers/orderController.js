@@ -48,19 +48,22 @@ const createShiprocketOrder = async (order) => {
     const shiprocketOrderResponse = await shiprocketService.createOrder(order);
 
     if (shiprocketOrderResponse.status_code === 1) {
-      // Create shipment
-      const shipmentResponse = await shiprocketService.createShipment(
-        shiprocketOrderResponse.order_id
+      const shipmentId = shiprocketOrderResponse.shipment_id;
+
+      // Assign AWB to shipment
+      const AWBResponse = await shiprocketService.assignAwb(
+        shipmentId,
+        order.courier_company_id
       );
 
-      if (shipmentResponse.status_code === 1) {
+      if (AWBResponse.status_code === 200) {
         // Update order with Shiprocket details
         order.trackingInfo = {
-          trackingNumber: shipmentResponse.awb_code,
-          carrier: shipmentResponse.courier_name || "Shiprocket",
+          trackingNumber: AWBResponse.awb_code,
+          carrier: AWBResponse.courier_name || "Shiprocket",
           shiprocketOrderId: shiprocketOrderResponse.order_id,
-          shipmentId: shipmentResponse.shipment_id,
-          trackingUrl: `https://shiprocket.co/tracking/${shipmentResponse.awb_code}`,
+          shipmentId: AWBResponse.shipment_id,
+          trackingUrl: `https://shiprocket.co/tracking/${AWBResponse.awb_code}`,
           estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
           currentStatus: "Order Confirmed",
           lastUpdate: new Date(),
@@ -69,7 +72,7 @@ const createShiprocketOrder = async (order) => {
         console.log("✅ Shiprocket integration completed successfully");
         return {
           success: true,
-          trackingNumber: shipmentResponse.awb_code,
+          trackingNumber: AWBResponse.awb_code,
           shiprocketOrderId: shiprocketOrderResponse.order_id,
         };
       }
@@ -455,6 +458,7 @@ const placeCodOrder = async (req, res) => {
     const orderData = {
       user: userId,
       orderNumber,
+      courier_company_id: selectedShippingRate.courier_company_id,
       items: validatedItems,
       shippingAddress,
       pricing: { subtotal, shippingCharges, tax, discount, total },

@@ -51,6 +51,9 @@ export const orderAPI = {
   // Get order details
   getOrderDetails: (orderId) => api.get(`/orders/${orderId}`),
 
+  // Get shipping rates
+  getShippingRates: (rateData) => api.post("/orders/shipping-rates", rateData),
+
   // Cancel order
   cancelOrder: (orderId, reason) =>
     api.put(`/orders/${orderId}/cancel`, { reason }),
