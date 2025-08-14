@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Search, Trash2 } from "lucide-react"
-import adminAPI from "../../store/api/adminApi"
+import adminAPI from "../../store/api/adminAPI"
 
 const UsersManagement = () => {
   const [users, setUsers] = useState([])
