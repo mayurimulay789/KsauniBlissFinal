@@ -50,6 +50,19 @@ export const removeCoupon = createAsyncThunk("coupons/removeCoupon", async (_, {
   }
 })
 
+
+// Fetch available coupons for the current user (active & valid date)
+export const fetchAvailableCoupons = createAsyncThunk(
+  "coupons/fetchAvailableCoupons",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/coupons/available")
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch available coupons")
+    }
+  }
+)
 // Fetch all coupons (admin)
 export const fetchAllCoupons = createAsyncThunk("coupons/fetchAllCoupons", async (params, { rejectWithValue }) => {
   try {
@@ -95,6 +108,7 @@ export const deleteCoupon = createAsyncThunk("coupons/deleteCoupon", async (coup
 
 const initialState = {
   coupons: [],
+  availableCoupons: [],
   appliedCoupon: null,
   discount: 0,
   loading: false,
@@ -151,6 +165,20 @@ const couponSlice = createSlice({
         state.success = action.payload.message
       })
       .addCase(applyCoupon.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
+
+      // Fetch available coupons
+      .addCase(fetchAvailableCoupons.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(fetchAvailableCoupons.fulfilled, (state, action) => {
+        state.loading = false
+        state.availableCoupons = action.payload.coupons || []
+      })
+      .addCase(fetchAvailableCoupons.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload
       })

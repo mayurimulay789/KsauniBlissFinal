@@ -72,7 +72,7 @@ const FeaturedCategories = () => {
                         viewport={{ once: true }}
               className=" relative overflow-hidden border border-gray-400 rounded group transition-transform duration-300 transform hover:scale-105"
                       >
-                        <Link to={`/products?category=${category._id}`}>
+                        <Link to={`/products/${category.slug}`}>
                           {/* Rectangle ratio */}
                           <div className="relative w-full aspect-[20/15] overflow-hidden">
                             <img
@@ -126,7 +126,7 @@ const FeaturedCategories = () => {
               viewport={{ once: true }}
               className="relative overflow-hidden border border-gray-200 rounded group transition-transform duration-300 transform hover:scale-105"
             >
-              <Link to={`/products?category=${category._id}`}>
+              <Link to={`/products/${category.slug}`}>
                 <div className="relative w-full aspect-[10/10] overflow-hidden">
                   <img
                     src={

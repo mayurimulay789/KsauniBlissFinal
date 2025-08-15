@@ -130,8 +130,8 @@ const ProductFilters = memo(({
                     <input
                       type="radio"
                       name="category"
-                      checked={filters.category === category._id}
-                      onChange={() => onFilterChange({ category: category._id })}
+                      checked={filters.category === category.slug}
+                      onChange={() => onFilterChange({ category: category.slug })}
                       className="w-4 h-4 border-gray-300 rounded text-ksauni-red focus:ring-ksauni-red"
                     />
                     <span className="ml-2">{category.name}</span>

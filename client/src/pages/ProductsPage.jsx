@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { useSearchParams, useNavigate } from "react-router-dom"
+import { useSearchParams, useNavigate, useParams } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { Filter, X, ShoppingBag } from "lucide-react"
 import { Link } from "react-router-dom"
@@ -11,7 +11,7 @@ import toast from "react-hot-toast"
 // Redux actions
 import { fetchProducts, setFilters, clearFilters } from "../store/slices/productSlice"
 import { fetchCategories } from "../store/slices/categorySlice"
-import { optimisticAddToCart } from "../store/slices/cartSlice"
+import { addToCart, optimisticAddToCart } from "../store/slices/cartSlice"
 import { 
   optimisticAddToWishlist, 
   optimisticRemoveFromWishlist 
@@ -29,7 +29,9 @@ const selectCategories = (state) => state.categories
 const selectAuth = (state) => state.auth
 const selectWishlist = (state) => state.wishlist
 
-const ProductsPage = () => {
+const ProductsPage = () =>
+{
+  const { category: categorySlug } = useParams()
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -59,7 +61,21 @@ const ProductsPage = () => {
     minRating: searchParams.get("minRating") || "",
   }), [searchParams])
 
-  // Initialize filters from URL
+  
+// Legacy redirect: if ?category=<ObjectId> and no slug in path, translate to slug
+useEffect(() => {
+  const legacyId = searchParams.get("category")
+  if (legacyId && categories?.length > 0 && !categorySlug) {
+    const cat = categories.find(c => c._id === legacyId)
+    if (cat?.slug) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete("category")
+      const qs = params.toString()
+      navigate(qs ? `/products/${cat.slug}?${qs}` : `/products/${cat.slug}`, { replace: true })
+    }
+  }
+}, [categories, searchParams, categorySlug, navigate])
+// Initialize filters from URL
   useEffect(() => {
     const urlFilters = getFiltersFromURL()
     dispatch(setFilters(urlFilters))
@@ -126,8 +142,16 @@ const ProductsPage = () => {
   }, [dispatch, navigate, user, wishlistItems])
 
   const handleFilterChange = useCallback((newFilters) => {
-    dispatch(setFilters({ ...filters, ...newFilters }))
-  }, [dispatch, filters])
+  if (Object.prototype.hasOwnProperty.call(newFilters, "category")) {
+    const nextSlug = newFilters.category || ""
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("category")
+    const qs = params.toString()
+    const base = nextSlug ? `/products/${nextSlug}` : `/products`
+    navigate(qs ? `${base}?${qs}` : base)
+  }
+  dispatch(setFilters({ ...filters, ...newFilters }))
+}, [dispatch, filters, navigate, searchParams])
 
   const clearAllFilters = useCallback(() => {
     dispatch(clearFilters())
@@ -228,7 +252,7 @@ const ProductsPage = () => {
         <div className="flex flex-col gap-6 md:flex-row">
           {/* Desktop Filters Sidebar */}
           <aside className="hidden md:block md:w-56 lg:w-64 sticky top-[180px] h-[calc(100vh-180px)] overflow-y-auto">
-            <ProductFilters
+            <ProductFilters key={categorySlug || 'all'}
               filters={filters}
               categories={categories}
               onFilterChange={handleFilterChange}
@@ -316,7 +340,7 @@ const ProductsPage = () => {
               </div>
               
               <div className="p-4 overflow-y-auto max-h-[calc(90vh-60px)]">
-                <ProductFilters
+                <ProductFilters key={categorySlug || 'all'}
                   filters={filters}
                   categories={categories}
                   onFilterChange={handleFilterChange}

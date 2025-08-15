@@ -37,6 +37,7 @@ import {
   validateCoupon,
   removeCoupon,
   clearError as clearCouponError,
+  fetchAvailableCoupons,
 } from "../store/slices/couponSlice";
 import { fetchCart } from "../store/slices/cartSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -57,6 +58,9 @@ const CheckoutPage = () => {
   const cartItems = useSelector(selectCartItems);
   const cartSummary = useSelector(selectCartSummary);
   const appliedCoupon = useSelector(selectAppliedCoupon);
+  const availableCoupons = useSelector(
+    (state) => state.coupons.availableCoupons || []
+  );
   const couponLoading = useSelector(selectCouponLoading);
   const couponError = useSelector(selectCouponError);
   const user = useSelector(selectUser);
@@ -79,6 +83,12 @@ const CheckoutPage = () => {
   const [selectedShippingRate, setSelectedShippingRate] = useState(null);
   const [showShippingCalculator, setShowShippingCalculator] = useState(false);
 
+  // Load available coupons for the logged-in user
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchAvailableCoupons());
+    }
+  }, [dispatch, user]);
   // Memoized functions and values
   const validateAddress = useCallback(() => {
     const errors = {};
@@ -663,7 +673,8 @@ const CheckoutPage = () => {
                     </button>
                   </div>
                 ) : (
-                  <div>
+                  <div className="p-4 bg-white border rounded-lg">
+                    {/* Header / Toggle */}
                     {!showCouponInput ? (
                       <button
                         onClick={() => setShowCouponInput(true)}
@@ -680,30 +691,95 @@ const CheckoutPage = () => {
                             setCouponCode(e.target.value.toUpperCase())
                           }
                           placeholder="Enter promo code"
-                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg xs:text-base focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                          className="flex-1 px-3 py-2 text-sm border rounded-md outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={handleApplyCoupon}
                             disabled={
-                              !couponCode.trim() || couponLoading.validating
+                              !couponCode.trim() || couponLoading?.validating
                             }
-                            className="px-3 py-2 text-sm text-white bg-pink-600 rounded-lg xs:px-4 xs:text-base hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 text-sm font-semibold text-white rounded-md bg-pink-600 disabled:opacity-50"
                           >
-                            {couponLoading.validating ? "Applying..." : "Apply"}
+                            {couponLoading?.validating
+                              ? "Applying..."
+                              : "Apply"}
                           </button>
-                          <button
-                            onClick={() => {
-                              setShowCouponInput(false);
-                              setCouponCode("");
-                            }}
-                            className="px-2 text-gray-500 hover:text-gray-700"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
+                          {appliedCoupon && (
+                            <button
+                              onClick={handleRemoveCoupon}
+                              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                            >
+                              Remove
+                            </button>
+                          )}
                         </div>
                       </div>
                     )}
+
+                    {/* Available Coupons (ALWAYS under the input/toggle) */}
+                    <div className="mt-3 space-y-2">
+                      <div className="text-sm font-semibold text-gray-700">
+                        Available Coupons
+                      </div>
+
+                      {availableCoupons.length === 0 ? (
+                        <div className="text-xs text-gray-500">
+                          No active coupons right now.
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {availableCoupons.map((c) => {
+                            const subtotal = cartSummary?.subtotal || 0;
+                            const min = c.minOrderValue || 0;
+                            const eligible = subtotal >= min;
+                            const shortBy = Math.max(0, min - subtotal);
+
+                            return (
+                              <div
+                                key={c.code}
+                                className="flex items-center justify-between p-2 border rounded-md"
+                              >
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-mono font-semibold">
+                                    {c.code}
+                                  </span>
+                                  {c.description && (
+                                    <span className="text-xs text-gray-600">
+                                      {c.description}
+                                    </span>
+                                  )}
+                                  {min > 0 && (
+                                    <span className="text-xs text-gray-500">
+                                      Min order: ₹{min}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <button
+                                  className="px-3 py-1 text-xs font-semibold text-white rounded bg-pink-600 disabled:opacity-50"
+                                  disabled={!eligible}
+                                  onClick={() => {
+                                    setShowCouponInput(true);
+                                    setCouponCode(c.code);
+                                    const orderValue =
+                                      cartSummary?.subtotal || 0;
+                                    dispatch(
+                                      validateCoupon({
+                                        code: c.code,
+                                        cartTotal: orderValue,
+                                      })
+                                    );
+                                  }}
+                                >
+                                  {eligible ? "Apply" : `Add ₹${shortBy} more`}
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </motion.div>

@@ -51,4 +51,8 @@ router.delete("/:id", deleteProduct);
 // TODO: add auth middleware when integrating
 router.post("/:id/review", addReview);
 
+// routes/product.js
+// router.get("/category/slug/:slug", getProductsByCategorySlug);
+
+
 module.exports = router;

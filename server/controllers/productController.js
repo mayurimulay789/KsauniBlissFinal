@@ -33,20 +33,18 @@ const getProducts = async (req, res) => {
     const query = { isActive: true };
 
     if (category) {
-      if (mongoose.Types.ObjectId.isValid(category)) {
-        query.category = category;
-      } else {
-        const categoryDoc = await Category.findOne({ slug: category }) || await Category.findOne({ name: category });
-        if (categoryDoc) {
-          query.category = categoryDoc._id;
-        } else {
-          return res.status(200).json({
-            success: true,
-            products: [],
-            pagination: { current: Number(page), pages: 0, total: 0 },
-          });
+      let categoryId = category;
+
+      // If it's not a valid ObjectId, treat it as a slug:
+      if (!mongoose.Types.ObjectId.isValid(category)) {
+        const catDoc = await Category.findOne({ slug: category, isActive: true }).select("_id");
+        if (!catDoc) {
+          return res.status(404).json({ success: false, message: "Category not found" });
         }
+        categoryId = catDoc._id;
       }
+
+      query.category = categoryId;
     }
 
     if (tag) query.tags = { $in: [tag] };
@@ -105,6 +103,11 @@ const getProducts = async (req, res) => {
   }
 };
 
+const getProductsByCategorySlug = async (req, res) => {
+  const cat = await Category.findOne({ slug: req.params.slug, isActive: true }).select("_id");
+  if (!cat) return res.status(404).json({ success: false, message: "Category not found" });
+  // then run your usual product query with { category: cat._id }
+};
 
 
 // Get trending products
