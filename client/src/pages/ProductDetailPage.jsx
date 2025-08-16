@@ -10,7 +10,7 @@ import "swiper/css"
 import "swiper/css/free-mode"
 import "swiper/css/navigation"
 import "swiper/css/thumbs"
-import { Heart, Minus, Plus, X, AlertCircle, Ruler, ShoppingCart, Lock } from "lucide-react"
+import { Heart, Minus, Plus, X, AlertCircle, Ruler, ShoppingCart, Lock, Shield, CheckCircle, Award } from "lucide-react"
 
 import { fetchProductById } from "../store/slices/productSlice"
 import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice"
@@ -146,13 +146,13 @@ const ProductDetailPage = () => {
   if (isLoading) return <LoadingSpinner message="Loading product…" />
   if (error || !currentProduct)
     return (
-      <div className="container py-16 mx-auto text-center">
+      <div className="container mx-auto text-center py-16">
         <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-        <h1 className="mb-2 text-2xl font-bold">Product Not Found</h1>
+        <h1 className="text-2xl font-bold mb-2">Product Not Found</h1>
         <p className="mb-8 text-gray-600">It may have been removed.</p>
         <Link
           to="/products"
-          className="px-6 py-3 text-white transition-colors rounded-lg bg-primary hover:bg-primary-dark"
+          className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
         >
           Browse Products
         </Link>
@@ -160,11 +160,11 @@ const ProductDetailPage = () => {
     )
 
   return (
-    <div className="min-h-screen pb-20 bg-gray-50 sm:pb-0">
+    <div className="min-h-screen bg-gray-50 pb-20 sm:pb-0">
       {/* Desktop Breadcrumb - Hidden on mobile */}
-      <div className="hidden py-1 bg-white shadow-sm sm:block">
-        <div className="container px-4 mx-auto sm:px-6">
-          <nav className="flex items-center space-x-2 overflow-x-auto text-sm text-gray-600 whitespace-nowrap">
+      <div className="hidden sm:block bg-white py-1 shadow-sm">
+        <div className="container mx-auto px-4 sm:px-6">
+          <nav className="flex items-center text-sm text-gray-600 space-x-2 overflow-x-auto whitespace-nowrap">
             <Link to="/" className="hover:text-primary">
               Home
             </Link>
@@ -177,17 +177,17 @@ const ProductDetailPage = () => {
               {currentProduct.category?.name}
             </Link>
             <span>/</span>
-            <span className="font-medium text-gray-800">{currentProduct.name}</span>
+            <span className="text-gray-800 font-medium">{currentProduct.name}</span>
           </nav>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container px-4 py-2 mx-auto sm:px-6">
-        <div className="overflow-hidden bg-white shadow-md rounded-xl">
-          <div className="grid grid-cols-1 gap-8 p-6 lg:grid-cols-2">
+      <div className="container mx-auto px-4 sm:px-6 py-2">
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
             {/* Images Section */}
-            <div className="relative space-y-4">
+            <div className="space-y-4 relative">
               {/* Wishlist Button - Top right corner of image */}
               <button
                 onClick={handleWishlistToggle}
@@ -203,7 +203,7 @@ const ProductDetailPage = () => {
               </button>
 
               {/* Mobile Category Label - Bottom left corner of image */}
-              {/* <div className="absolute z-10 px-2 py-1 text-xs text-white rounded lg:hidden bottom-2 left-2 bg-black/70">
+              {/* <div className="lg:hidden absolute bottom-2 left-2 z-10 bg-black/70 text-white px-2 py-1 rounded text-xs">
                 {currentProduct.category?.name}
               </div> */}
 
@@ -219,11 +219,11 @@ const ProductDetailPage = () => {
                 >
                   {currentProduct.images.map((img, idx) => (
                     <SwiperSlide key={idx}>
-                      <div className="relative overflow-hidden bg-gray-100 rounded-lg aspect-square">
+                      <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
                         <img
                           src={img.url || "/placeholder.svg"}
                           alt={currentProduct.name}
-                          className="object-contain w-full h-full cursor-zoom-in"
+                          className="w-full h-full object-contain cursor-zoom-in"
                           loading="lazy"
                           onClick={() => {
                             setSelectedImage(idx)
@@ -231,7 +231,7 @@ const ProductDetailPage = () => {
                           }}
                         />
                         {getDiscountPercentage() > 0 && (
-                          <div className="absolute px-2 py-1 text-xs font-bold text-red-900 bg-white rounded-full top-3 left-3">
+                          <div className="absolute top-3 left-3 bg-white text-xs font-bold px-2 py-1 rounded-full text-red-900">
                             {getDiscountPercentage()}% OFF
                           </div>
                         )}
@@ -250,11 +250,11 @@ const ProductDetailPage = () => {
                 >
                   {currentProduct.images.map((img, idx) => (
                     <SwiperSlide key={idx}>
-                      <div className="overflow-hidden bg-gray-100 border-2 border-transparent rounded-md cursor-pointer aspect-square hover:border-primary">
+                      <div className="aspect-square bg-gray-100 rounded-md overflow-hidden border-2 border-transparent hover:border-primary cursor-pointer">
                         <img
                           src={img.url || "/placeholder.svg"}
                           alt={`${currentProduct.name} ${idx + 1}`}
-                          className="object-cover w-full h-full"
+                          className="w-full h-full object-cover"
                           loading="lazy"
                         />
                       </div>
@@ -265,11 +265,11 @@ const ProductDetailPage = () => {
 
               {/* Desktop Image Display */}
               <div className="hidden lg:block">
-                <div className="relative overflow-hidden bg-gray-50 rounded-xl group">
+                <div className="relative bg-gray-50 rounded-xl overflow-hidden group">
                   <motion.img
                     src={currentProduct.images[selectedImage]?.url}
                     alt={currentProduct.name}
-                    className="object-contain max-w-full max-h-full cursor-zoom-in"
+                    className="max-w-full max-h-full object-contain cursor-zoom-in"
                     onClick={() => setShowImageModal(true)}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -281,13 +281,13 @@ const ProductDetailPage = () => {
                     <>
                       <button 
                         onClick={() => setSelectedImage(prev => (prev - 1 + currentProduct.images.length) % currentProduct.images.length)} 
-                        className="absolute p-2 transition-opacity bg-white rounded-full shadow-md opacity-0 left-4 top-1/2 group-hover:opacity-100 hover:bg-gray-100"
+                        className="absolute left-4 top-1/2 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 hover:bg-gray-100 transition-opacity"
                       >
                         <ChevronLeft className="w-5 h-5" />
                       </button>
                       <button 
                         onClick={() => setSelectedImage(prev => (prev + 1) % currentProduct.images.length)} 
-                        className="absolute p-2 transition-opacity bg-white rounded-full shadow-md opacity-0 right-4 top-1/2 group-hover:opacity-100 hover:bg-gray-100"
+                        className="absolute right-4 top-1/2 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 hover:bg-gray-100 transition-opacity"
                       >
                         <ChevronRight className="w-5 h-5" />
                       </button>
@@ -297,7 +297,7 @@ const ProductDetailPage = () => {
 
                   {getSelectedSizeStock() === 0 && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
-                      <span className="px-4 py-2 font-medium text-gray-800 bg-white rounded-full">Out of Stock</span>
+                      <span className="bg-white text-gray-800 px-4 py-2 rounded-full font-medium">Out of Stock</span>
                     </div>
                   )}
                 </div>
@@ -315,7 +315,7 @@ const ProductDetailPage = () => {
                       <img
                         src={img.url || "/placeholder.svg"}
                         alt={`${currentProduct.name} ${idx + 1}`}
-                        className="object-cover w-full h-full"
+                        className="w-full h-full object-cover"
                         loading="lazy"
                       />
                     </button>
@@ -329,13 +329,13 @@ const ProductDetailPage = () => {
                   <span>{currentProduct.brand || "Ksauni Bliss"}</span>
                 </p>
                 {currentProduct.description && (
-                  <p className="mt-1 text-sm text-gray-600">{currentProduct.description}</p>
+                  <p className="text-sm text-gray-600 mt-1">{currentProduct.description}</p>
                 )}
                 {/* Price under description */}
                 <div className="mt-3">
                   <span className="text-2xl font-bold text-gray-900">₹{currentProduct.price.toLocaleString()}</span>
                   {currentProduct.originalPrice && currentProduct.originalPrice > currentProduct.price && (
-                    <span className="ml-2 text-lg text-gray-500 line-through">
+                    <span className="text-lg text-gray-500 line-through ml-2">
                       ₹{currentProduct.originalPrice.toLocaleString()}
                     </span>
                   )}
@@ -344,11 +344,11 @@ const ProductDetailPage = () => {
                   )}
                 </div>
 
-                <div className="flex gap-2 mt-4">
+                <div className="mt-4 flex gap-2">
                   <button
                     onClick={handleAddToCart}
                     disabled={isAddingToCart || getSelectedSizeStock() === 0}
-                    className="flex items-center justify-center flex-1 gap-2 px-4 py-2 text-sm font-semibold text-gray-800 transition-colors bg-white border-2 border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     ADD TO CART
@@ -356,7 +356,7 @@ const ProductDetailPage = () => {
                   <button
                     onClick={handleBuyNow}
                     disabled={isAddingToCart || getSelectedSizeStock() === 0}
-                    className="flex items-center justify-center flex-1 gap-2 px-4 py-2 text-sm font-semibold text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
                     <Lock className="w-4 h-4" />
                     BUY NOW
@@ -367,7 +367,7 @@ const ProductDetailPage = () => {
               {/* Share Button */}
               {/* <button 
                 onClick={handleShare}
-                className="flex items-center justify-center w-full gap-2 px-4 py-2 mt-4 text-gray-700 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200"
+                className="flex items-center justify-center gap-2 w-full mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700"
               >
                 <Share2 className="w-4 h-4" />
                 <span className="text-sm font-medium">Share this product</span>
@@ -378,18 +378,18 @@ const ProductDetailPage = () => {
             <div className="space-y-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="hidden mb-6 lg:block">
-                    <p className="mb-2 text-2xl font-bold text-gray-900">
+                  <div className="hidden lg:block mb-6">
+                    <p className="text-2xl font-bold text-gray-900 mb-2">
                       <span>{currentProduct.brand || "Ksauni Bliss"}</span>
                     </p>
                     {currentProduct.description && (
-                      <p className="mb-4 text-base text-gray-600">{currentProduct.description}</p>
+                      <p className="text-base text-gray-600 mb-4">{currentProduct.description}</p>
                     )}
                     {/* Price section */}
                     <div className="mb-4">
                       <span className="text-3xl font-bold text-gray-900">₹{currentProduct.price.toLocaleString()}</span>
                       {currentProduct.originalPrice && currentProduct.originalPrice > currentProduct.price && (
-                        <span className="ml-3 text-xl text-gray-500 line-through">
+                        <span className="text-xl text-gray-500 line-through ml-3">
                           ₹{currentProduct.originalPrice.toLocaleString()}
                         </span>
                       )}
@@ -399,25 +399,6 @@ const ProductDetailPage = () => {
                         </span>
                       )}
                     </div>
-
-                    <div className="flex max-w-md gap-3">
-                      <button
-                        onClick={handleAddToCart}
-                        disabled={isAddingToCart || getSelectedSizeStock() === 0}
-                        className="flex items-center justify-center flex-1 gap-2 px-8 py-2 font-semibold text-gray-800 transition-colors bg-white border-2 border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <ShoppingCart className="w-5 h-5" />
-                        ADD TO CART
-                      </button>
-                      <button
-                        onClick={handleBuyNow}
-                        disabled={isAddingToCart || getSelectedSizeStock() === 0}
-                        className="flex items-center justify-center flex-1 gap-2 px-8 py-2 font-semibold text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <Lock className="w-5 h-5" />
-                        BUY NOW
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -425,7 +406,7 @@ const ProductDetailPage = () => {
               {/* Colors */}
               {currentProduct.colors?.length > 0 && (
                 <div>
-                  <h3 className="mb-3 text-lg font-semibold text-gray-800">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
                     Color: <span className="font-normal">{selectedColor}</span>
                   </h3>
                   <div className="flex flex-wrap gap-2">
@@ -444,7 +425,7 @@ const ProductDetailPage = () => {
                         aria-label={`Select color ${color.name}`}
                       >
                         <div
-                          className="w-8 h-8 border border-gray-200 rounded-full"
+                          className="w-8 h-8 rounded-full border border-gray-200"
                           style={{ backgroundColor: color.hex || color.name.toLowerCase() }}
                         />
                       </motion.button>
@@ -462,13 +443,13 @@ const ProductDetailPage = () => {
                     </h3>
                     <button
                       onClick={() => setShowSizeGuide(true)}
-                      className="flex items-center text-sm font-medium text-primary hover:text-primary-dark"
+                      className="text-sm font-medium text-primary hover:text-primary-dark flex items-center"
                     >
                       <Ruler className="w-4 h-4 mr-1" />
                       Size Guide
                     </button>
                   </div>
-                  <div className="grid grid-cols-4 gap-2 p-3 border border-gray-200 sm:grid-cols-5 rounded-xl">
+                  <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 p-3 border border-gray-200 rounded-xl">
                     {currentProduct.sizes.map((s) => (
                       <motion.button
                         key={s.size}
@@ -491,25 +472,25 @@ const ProductDetailPage = () => {
 
               {/* Quantity */}
               <div>
-                <h3 className="mb-3 text-lg font-semibold text-gray-800">Quantity</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Quantity</h3>
                 <div className="flex items-center space-x-4">
-                  <div className="flex items-center overflow-hidden border border-gray-300 rounded-lg">
+                  <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      className="p-2 hover:bg-gray-50 text-gray-600 hover:text-gray-900"
                       disabled={quantity <= 1}
                     >
                       <Minus className="w-4 h-4" />
                     </motion.button>
-                    <span className="px-4 py-2 font-medium border-gray-300 border-x">{quantity}</span>
+                    <span className="px-4 py-2 font-medium border-x border-gray-300">{quantity}</span>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setQuantity(Math.min(getSelectedSizeStock(), quantity + 1))}
                       disabled={quantity >= getSelectedSizeStock()}
-                      className="p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50"
+                      className="p-2 hover:bg-gray-50 text-gray-600 hover:text-gray-900 disabled:opacity-50"
                     >
                       <Plus className="w-4 h-4" />
                     </motion.button>
@@ -519,15 +500,66 @@ const ProductDetailPage = () => {
                   </span>
                 </div>
               </div>
+
+              {/* Product Details Section */}
+              <div className="space-y-4 pt-4 border-t border-gray-200">
+                {currentProduct.material && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Material</h4>
+                    <p className="text-gray-600">{currentProduct.material}</p>
+                  </div>
+                )}
+
+                {currentProduct.fits && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Fit</h4>
+                    <p className="text-gray-600 capitalize">{currentProduct.fits} Fit</p>
+                  </div>
+                )}
+
+                {currentProduct.care && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Care Instructions</h4>
+                    <p className="text-gray-600">{currentProduct.care}</p>
+                  </div>
+                )}
+
+                {currentProduct.productDetails && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Product Details</h4>
+                    <p className="text-gray-600 whitespace-pre-line">{currentProduct.productDetails}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="hidden lg:block pt-4 border-t border-gray-200">
+                <div className="flex gap-3 max-w-md">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={isAddingToCart || getSelectedSizeStock() === 0}
+                    className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    ADD TO CART
+                  </button>
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={isAddingToCart || getSelectedSizeStock() === 0}
+                    className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Lock className="w-5 h-5" />
+                    BUY NOW
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-
 
           {/* Static Design Section */}
           <StaticDesignSection />
 
           {/* Reviews Section */}
-          <div id="reviews" className="px-6 py-8 border-t border-gray-200 bg-gray-50">
+          <div id="reviews" className="border-t border-gray-200 px-6 py-8 bg-gray-50">
             <div className="max-w-4xl mx-auto">
               <ProductReviews productId={currentProduct._id} />
             </div>
@@ -536,7 +568,7 @@ const ProductDetailPage = () => {
 
         {/* Related Products */}
         <div className="mt-12">
-          {/* <h2 className="mb-6 text-2xl font-bold text-gray-900">You may also like</h2> */}
+          {/* <h2 className="text-2xl font-bold text-gray-900 mb-6">You may also like</h2> */}
           <RelatedProducts currentProduct={currentProduct} />
         </div>
       </div>
@@ -545,7 +577,7 @@ const ProductDetailPage = () => {
       <AnimatePresence>
         {showImageModal && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-90"
+            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -560,11 +592,11 @@ const ProductDetailPage = () => {
             >
               <button
                 onClick={() => setShowImageModal(false)}
-                className="absolute right-0 p-2 text-white -top-12 hover:text-gray-300"
+                className="absolute -top-12 right-0 p-2 text-white hover:text-gray-300"
               >
                 <X className="w-6 h-6" />
               </button>
-              <div className="flex items-center justify-center h-full">
+              <div className="h-full flex items-center justify-center">
                 <img
                   src={currentProduct.images[selectedImage]?.url || "/placeholder.svg"}
                   alt={currentProduct.name}
@@ -577,13 +609,13 @@ const ProductDetailPage = () => {
                 <>
                   <button 
                     onClick={() => setSelectedImage(prev => (prev - 1 + currentProduct.images.length) % currentProduct.images.length)} 
-                    className="absolute left-0 p-3 text-white top-1/2 hover:text-gray-300"
+                    className="absolute left-0 top-1/2 p-3 text-white hover:text-gray-300"
                   >
                     <ChevronLeft className="w-8 h-8" />
                   </button>
                   <button 
                     onClick={() => setSelectedImage(prev => (prev + 1) % currentProduct.images.length)} 
-                    className="absolute right-0 p-3 text-white top-1/2 hover:text-gray-300"
+                    className="absolute right-0 top-1/2 p-3 text-white hover:text-gray-300"
                   >
                     <ChevronRight className="w-8 h-8" />
                   </button>
@@ -599,7 +631,7 @@ const ProductDetailPage = () => {
       <AnimatePresence>
         {showSizeGuide && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -620,8 +652,8 @@ const ProductDetailPage = () => {
                   </button>
                 </div>
 
-                <div className="prose-sm prose max-w-none">
-                  <p className="mb-4 text-gray-600">
+                <div className="prose prose-sm max-w-none">
+                  <p className="text-gray-600 mb-4">
                     Use this guide to help determine your correct size. Measurements are in inches.
                   </p>
 
@@ -629,16 +661,16 @@ const ProductDetailPage = () => {
                     <table className="min-w-full border border-gray-200">
                       <thead>
                         <tr className="bg-gray-50">
-                          <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase border-b">
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase border-b">
                             Size
                           </th>
-                          <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase border-b">
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase border-b">
                             Chest
                           </th>
-                          <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase border-b">
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase border-b">
                             Waist
                           </th>
-                          <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase border-b">
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase border-b">
                             Hip
                           </th>
                         </tr>
@@ -678,8 +710,8 @@ const ProductDetailPage = () => {
                     </table>
                   </div>
 
-                  <div className="p-4 mt-6 rounded-lg bg-blue-50">
-                    <h4 className="mb-2 font-medium text-blue-800">How to measure</h4>
+                  <div className="mt-6 bg-blue-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-blue-800 mb-2">How to measure</h4>
                     <ul className="space-y-2 text-sm text-blue-700">
                       <li className="flex items-start">
                         <span className="mr-2">•</span>
@@ -707,85 +739,29 @@ const ProductDetailPage = () => {
 
 const StaticDesignSection = () => {
   return (
-    <div className="px-4 py-6 mt-8 mb-8 bg-white border border-gray-200 shadow-sm rounded-xl sm:px-8">
-      <div className="flex flex-row flex-wrap items-center justify-between max-w-4xl gap-6 mx-auto">
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm mt-8 mb-8 py-6 px-4 sm:px-8">
+      <div className="max-w-4xl mx-auto flex flex-row flex-wrap justify-between items-center gap-6">
         {/* Genuine Products */}
-        <div className="flex flex-col items-center flex-1 space-y-2 text-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            fill="none"
-            viewBox="0 0 48 48"
-            aria-hidden="true"
-          >
-            <circle cx="24" cy="24" r="22" stroke="#EF4444" strokeWidth="3" />
-            <path
-              fill="#EF4444"
-              d="M24 12l5 10 11 2-8 8 2 11-10-5-10 5 2-11-8-8 11-2 5-10z"
-            />
-            <text
-              x="24"
-              y="30"
-              textAnchor="middle"
-              fontSize="8"
-              fontWeight="bold"
-              fill="white"
-              fontFamily="Arial, sans-serif"
-            >
-              ORIGINAL
-            </text>
-          </svg>
+        <div className="flex flex-col items-center text-center space-y-2 flex-1">
+          <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center">
+            <Award className="w-6 h-6 text-red-500" />
+          </div>
           <span className="text-sm font-semibold text-gray-700">Genuine Products</span>
         </div>
 
         {/* 7 Step Quality Check */}
-        <div className="flex flex-col items-center flex-1 space-y-2 text-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            fill="none"
-            viewBox="0 0 48 48"
-            aria-hidden="true"
-          >
-            <circle cx="24" cy="24" r="22" stroke="#EF4444" strokeWidth="3" />
-            <path
-              fill="#EF4444"
-              d="M16 24l6 6 12-12-3-3-9 9-3-3-3 3z"
-            />
-          </svg>
+        <div className="flex flex-col items-center text-center space-y-2 flex-1">
+          <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center">
+            <CheckCircle className="w-6 h-6 text-green-500" />
+          </div>
           <span className="text-sm font-semibold text-gray-700">7 Step Quality Check</span>
         </div>
 
         {/* Secure Payments */}
-        <div className="flex flex-col items-center flex-1 space-y-2 text-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            fill="none"
-            viewBox="0 0 48 48"
-            aria-hidden="true"
-          >
-            <path
-              fill="#EF4444"
-              d="M24 4c-7 0-12 4-12 10v10c0 6 5 14 12 14s12-8 12-14V14c0-6-5-10-12-10z"
-              stroke="#EF4444"
-              strokeWidth="3"
-            />
-            <text
-              x="24"
-              y="30"
-              textAnchor="middle"
-              fontSize="12"
-              fontWeight="bold"
-              fill="#EF4444"
-              fontFamily="Arial, sans-serif"
-            >
-              ₹
-            </text>
-          </svg>
+        <div className="flex flex-col items-center text-center space-y-2 flex-1">
+          <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
+            <Shield className="w-6 h-6 text-blue-500" />
+          </div>
           <span className="text-sm font-semibold text-gray-700">Secure Payments</span>
         </div>
       </div>

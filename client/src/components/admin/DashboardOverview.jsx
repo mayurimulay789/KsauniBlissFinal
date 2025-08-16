@@ -33,33 +33,33 @@ const DashboardOverview = () => {
   const stats = [
     {
       name: "Total Sales",
-      value: `₹${dashboardStats.stats.totalSales.toLocaleString()}`,
+      value: `₹${dashboardStats?.stats?.totalSales?.toLocaleString() ?? 0}`,
       icon: CurrencyRupeeIcon,
-      change: `₹${dashboardStats.stats.dailySales.amount.toLocaleString()}`,
+      change: `₹${dashboardStats?.stats?.dailySales?.amount?.toLocaleString() ?? 0}`,
       changeType: "increase",
       changeLabel: "today",
     },
     {
       name: "Total Orders",
-      value: dashboardStats.stats.totalOrders.toLocaleString(),
+      value: dashboardStats?.stats?.totalOrders?.toLocaleString() ?? 0,
       icon: ShoppingBagIcon,
-      change: `${dashboardStats.stats.dailySales.count}`,
+      change: `${dashboardStats?.stats?.dailySales?.count ?? 0}`,
       changeType: "increase",
       changeLabel: "today",
     },
     {
       name: "Total Users",
-      value: dashboardStats.stats.totalUsers.toLocaleString(),
+      value: dashboardStats?.stats?.totalUsers?.toLocaleString() ?? 0,
       icon: UsersIcon,
       change: "Active users",
       changeType: "neutral",
     },
     {
       name: "Pending Orders",
-      value: dashboardStats.stats.pendingOrders.toLocaleString(),
+      value: dashboardStats?.stats?.pendingOrders?.toLocaleString() ?? 0,
       icon: ClipboardDocumentListIcon,
       change: "Need attention",
-      changeType: dashboardStats.stats.pendingOrders > 0 ? "decrease" : "neutral",
+      changeType: (dashboardStats?.stats?.pendingOrders ?? 0) > 0 ? "decrease" : "neutral",
     },
   ]
 
@@ -72,7 +72,10 @@ const DashboardOverview = () => {
   }
 
   const formatCurrency = (amount) => {
-    return `₹${amount.toLocaleString()}`
+    if (amount === undefined || amount === null || isNaN(amount)) {
+      return "₹0"
+    }
+    return `₹${Number(amount).toLocaleString()}`
   }
 
   const getStatusColor = (status) => {
@@ -97,7 +100,7 @@ const DashboardOverview = () => {
             className="relative px-4 py-5 overflow-hidden bg-white rounded-lg shadow sm:px-6 sm:py-6"
           >
             <dt>
-              <div className="absolute p-3 bg-red-500 rounded-md">
+              <div className="absolute p-3 bg-pink-500 rounded-md">
                 <item.icon className="w-6 h-6 text-white" aria-hidden="true" />
               </div>
               <p className="ml-16 text-sm font-medium text-gray-500 truncate">{item.name}</p>
@@ -140,7 +143,7 @@ const DashboardOverview = () => {
                         </p>
                       </div>
                       <div className="flex flex-col items-end">
-                        <p className="text-sm font-medium text-gray-900">{formatCurrency(order.pricing.total)}</p>
+                        <p className="text-sm font-medium text-gray-900">{formatCurrency(order?.pricing?.total ?? 0)}</p>
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(order.status)}`}
                         >
@@ -165,8 +168,8 @@ const DashboardOverview = () => {
                   <li key={item._id} className="py-4">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center w-10 h-10 bg-red-100 rounded-lg">
-                          <span className="text-sm font-medium text-red-600">#{index + 1}</span>
+                        <div className="flex items-center justify-center w-10 h-10 bg-pink-100 rounded-lg">
+                          <span className="text-sm font-medium text-pink-600">#{index + 1}</span>
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -195,7 +198,7 @@ const DashboardOverview = () => {
                     {new Date(day._id).toLocaleDateString("en-IN", { weekday: "short" })}
                   </div>
                   <div
-                    className="bg-red-500 rounded-t"
+                    className="bg-pink-500 rounded-t"
                     style={{
                       height: `${Math.max((day.sales / Math.max(...dashboardStats.salesChart.map((d) => d.sales))) * 100, 5)}px`,
                       minHeight: "5px",

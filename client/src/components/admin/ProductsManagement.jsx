@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useDispatch } from "react-redux"
-import { Plus, Search, Edit, Trash2, ArrowLeft } from "lucide-react"
+import { Plus, Search, Edit, Trash2 } from "lucide-react"
 import adminAPI from "../../store/api/adminAPI"
 
 const ProductsManagement = () => {
@@ -27,8 +27,11 @@ const ProductsManagement = () => {
 
   const [formData, setFormData] = useState({
     name: "",
-    brand: "KSAUNI BLISS",
     description: "",
+    brand: "KSAUNIBLISS",
+    productDetails: "",
+    material: "",
+    fits: "regular",
     price: "",
     originalPrice: "",
     category: "",
@@ -39,20 +42,6 @@ const ProductsManagement = () => {
     stock: "",
     weight: "",
     dimensions: { length: "", width: "", height: "" },
-    productDetails: [{ label: "", value: "" }],
-    modelSizeFit: {
-      modelHeight: "",
-      modelChest: "",
-      modelWaist: "",
-      modelHips: "",
-      modelSizeWorn: "",
-      fitType: "regular",
-    },
-    materialCare: {
-      material: [""],
-      careInstructions: [""],
-      features: [""],
-    },
   })
 
   const [images, setImages] = useState([])
@@ -73,6 +62,7 @@ const ProductsManagement = () => {
       }
       const response = await adminAPI.getAllProducts(params)
       setProducts(response.data.products)
+      console.log(response.data)
       setPagination(response.data.pagination)
     } catch (error) {
       console.error("Error fetching products:", error)
@@ -142,8 +132,11 @@ const ProductsManagement = () => {
   const resetForm = () => {
     setFormData({
       name: "",
-      brand: "KSAUNI BLISS",
       description: "",
+      brand: "KSAUNIBLISS",
+      productDetails: "",
+      material: "",
+      fits: "regular",
       price: "",
       originalPrice: "",
       category: "",
@@ -154,9 +147,6 @@ const ProductsManagement = () => {
       stock: "",
       weight: "",
       dimensions: { length: "", width: "", height: "" },
-      productDetails: [""],
-      modelSizeFit: "regular",
-      materialCare: [""],
     })
     setImages([])
     setEditingProduct(null)
@@ -164,22 +154,24 @@ const ProductsManagement = () => {
 
   const openEditModal = (product) => {
     setEditingProduct(product)
-    setFormData({
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      originalPrice: product.originalPrice || "",
-      category: product.category._id,
-      subcategory: product.subcategory || "",
-      sizes: product.sizes || [],
-      colors: product.colors || [],
-      tags: product.tags || [],
-      stock: product.stock,
-      weight: product.weight || "",
-      dimensions: product.dimensions || { length: "", width: "", height: "" },
-      modelSizeFit: product.modelSizeFit || { fitType: "regular" },
-      materialCare: product.materialCare || { material: [""], careInstructions: [""], features: [""] },
-    })
+   setFormData({
+  name: product.name,
+  brand: product.brand || "KSAUNIBLISS",
+  productDetails: product.productDetails || "",
+  material: product.material || "",
+  fits: product.fits || "regular",
+  description: product.description,
+  price: product.price,
+  originalPrice: product.originalPrice || "",
+  category: product.category?._id || "",
+  subcategory: product.subcategory || "",
+  sizes: product.sizes || [],
+  colors: product.colors || [],
+  tags: product.tags || [],
+  stock: product.stock,
+  weight: product.weight || "",
+  dimensions: product.dimensions || { length: "", width: "", height: "" },
+})
     setShowModal(true)
   }
 
@@ -222,62 +214,6 @@ const ProductsManagement = () => {
   const removeColor = (index) => {
     const newColors = formData.colors.filter((_, i) => i !== index)
     setFormData({ ...formData, colors: newColors })
-  }
-
-  // Product Details Management
-  const addProductDetail = () => {
-    setFormData({
-      ...formData,
-      productDetails: [...formData.productDetails, { label: "", value: "" }],
-    })
-  }
-
-  const updateProductDetail = (index, field, value) => {
-    const newDetails = [...formData.productDetails]
-    newDetails[index][field] = value
-    setFormData({ ...formData, productDetails: newDetails })
-  }
-
-  const removeProductDetail = (index) => {
-    const newDetails = formData.productDetails.filter((_, i) => i !== index)
-    setFormData({ ...formData, productDetails: newDetails })
-  }
-
-  // Model Size & Fit Management
-  const updateModelSizeFit = (field, value) => {
-    setFormData({
-      ...formData,
-      modelSizeFit: { ...formData.modelSizeFit, [field]: value },
-    })
-  }
-
-  // Material Care Management
-  const addMaterialCareItem = (type) => {
-    const currentItems = formData.materialCare[type] || []
-    setFormData({
-      ...formData,
-      materialCare: {
-        ...formData.materialCare,
-        [type]: [...currentItems, ""],
-      },
-    })
-  }
-
-  const updateMaterialCareItem = (type, index, value) => {
-    const newItems = [...formData.materialCare[type]]
-    newItems[index] = value
-    setFormData({
-      ...formData,
-      materialCare: { ...formData.materialCare, [type]: newItems },
-    })
-  }
-
-  const removeMaterialCareItem = (type, index) => {
-    const newItems = formData.materialCare[type].filter((_, i) => i !== index)
-    setFormData({
-      ...formData,
-      materialCare: { ...formData.materialCare, [type]: newItems },
-    })
   }
 
   return (
@@ -502,16 +438,6 @@ const ProductsManagement = () => {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">Brand</label>
-                    <input
-                      type="text"
-                      value={formData.brand}
-                      onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700">Category</label>
                     <select
                       value={formData.category}
@@ -565,6 +491,65 @@ const ProductsManagement = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Brand</label>
+                    <input
+                      type="text"
+                      value={formData.brand}
+                      onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., KSAUNIBLISS"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Fit</label>
+                    <select
+                      value={formData.fits}
+                      onChange={(e) => setFormData({ ...formData, fits: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Fit</option>
+                      <option value="regular">Regular</option>
+                      <option value="loose">Loose</option>
+                      <option value="oversized">Oversized</option>
+                      <option value="crop">Crop</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Material</label>
+                    <input
+                      type="text"
+                      value={formData.material}
+                      onChange={(e) => setFormData({ ...formData, material: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., Cotton, Polyester"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Product Details</label>
+                  <textarea
+                    value={formData.productDetails}
+                    onChange={(e) => setFormData({ ...formData, productDetails: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    placeholder="Additional product details..."
+                  />
                 </div>
 
                 <div>
@@ -669,149 +654,6 @@ const ProductsManagement = () => {
                         <span className="text-sm capitalize">{tag.replace("-", " ")}</span>
                       </label>
                     ))}
-                  </div>
-                </div>
-
-                {/* Product Details Section */}
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Product Details</label>
-                  {(formData.productDetails || []).map((detail, index) => (
-                    <div key={index} className="flex items-center mb-2 space-x-2">
-                      <input
-                        type="text"
-                        placeholder="Label"
-                        value={detail.label}
-                        onChange={(e) => updateProductDetail(index, "label", e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Value"
-                        value={detail.value}
-                        onChange={(e) => updateProductDetail(index, "value", e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={addProductDetail}
-                    className="text-sm text-blue-600 hover:text-blue-800"
-                  >
-                    + Add Detail
-                  </button>
-                </div>
-
-                {/* Model Size & Fit Section */}
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Model Size & Fit</label>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <select
-                      value={formData.modelSizeFit.fitType}
-                      onChange={(e) => updateModelSizeFit("fitType", e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="regular">Regular</option>
-                      <option value="slim">Slim</option>
-                      <option value="oversized">Oversized</option>
-                      <option value="loose">Loose</option>
-                      <option value="fitted">Fitted</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Material & Care Section */}
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">Material & Care</label>
-
-                  {/* Material */}
-                  <div className="mb-2">
-                    <label className="block mb-1 text-sm font-medium text-gray-600">Material</label>
-                    {(formData.materialCare.material || []).map((item, index) => (
-                      <div key={index} className="flex items-center mb-1 space-x-2">
-                        <input
-                          type="text"
-                          placeholder="Material"
-                          value={item}
-                          onChange={(e) => updateMaterialCareItem("material", index, e.target.value)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeMaterialCareItem("material", index)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => addMaterialCareItem("material")}
-                      className="text-sm text-blue-600 hover:text-blue-800"
-                    >
-                      + Add Material
-                    </button>
-                  </div>
-
-                  {/* Care Instructions */}
-                  <div className="mb-2">
-                    <label className="block mb-1 text-sm font-medium text-gray-600">Care Instructions</label>
-                    {(formData.materialCare.careInstructions || []).map((item, index) => (
-                      <div key={index} className="flex items-center mb-1 space-x-2">
-                        <input
-                          type="text"
-                          placeholder="Care Instruction"
-                          value={item}
-                          onChange={(e) => updateMaterialCareItem("careInstructions", index, e.target.value)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeMaterialCareItem("careInstructions", index)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => addMaterialCareItem("careInstructions")}
-                      className="text-sm text-blue-600 hover:text-blue-800"
-                    >
-                      + Add Care Instruction
-                    </button>
-                  </div>
-
-                  {/* Features */}
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-600">Features</label>
-                    {(formData.materialCare.features || []).map((item, index) => (
-                      <div key={index} className="flex items-center mb-1 space-x-2">
-                        <input
-                          type="text"
-                          placeholder="Feature"
-                          value={item}
-                          onChange={(e) => updateMaterialCareItem("features", index, e.target.value)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeMaterialCareItem("features", index)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => addMaterialCareItem("features")}
-                      className="text-sm text-blue-600 hover:text-blue-800"
-                    >
-                      + Add Feature
-                    </button>
                   </div>
                 </div>
 
