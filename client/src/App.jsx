@@ -35,7 +35,7 @@ import ShippingPage from "./pages/ShippingPage"
 
 // Admin/Digital Marketer pages
 import AdminDashboard from "./pages/admin/AdminDashboard"
-import DigitalMarketerDashboard from "./pages/digitalMarketer/DigitalMarketerDashboard"
+import DigitalMarketerDashboard from "./pages/digitalmarketer/DigitalMarketerDashboard"
 
 // Components
 import Navbar from "./components/Navbar"
