@@ -1,18 +1,23 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import adminAPI from '../api/adminAPI'
 
-// Async thunks
+// Async thunk to fetch all innovations
+
 export const fetchAllInnovations = createAsyncThunk(
   'innovations/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await adminAPI.get('/innovations/admin')
+      const response = await adminAPI.getAllInnovations()
+      console.log('API Response:', response.data) // for debugging
       return response.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch innovations')
     }
   }
 )
+
+
+// Other thunks: create, update, delete (same as before)
 
 export const createInnovation = createAsyncThunk(
   'innovations/create',
@@ -64,35 +69,45 @@ const innovationSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch all innovations
       .addCase(fetchAllInnovations.pending, (state) => {
         state.loading = true
         state.error = null
       })
       .addCase(fetchAllInnovations.fulfilled, (state, action) => {
         state.loading = false
-        state.innovations = action.payload.innovations || action.payload
+        const payload = action.payload
+
+        if (Array.isArray(payload)) {
+          state.innovations = payload
+        } else if (Array.isArray(payload.innovations)) {
+          state.innovations = payload.innovations
+        } else if (Array.isArray(payload.data)) {
+          state.innovations = payload.data
+        } else {
+          state.innovations = []
+        }
       })
       .addCase(fetchAllInnovations.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload
       })
-      
-      // Create innovation
+
+      // Create innovation cases
       .addCase(createInnovation.pending, (state) => {
         state.loading = true
         state.error = null
       })
       .addCase(createInnovation.fulfilled, (state, action) => {
         state.loading = false
-        state.innovations.unshift(action.payload.innovation || action.payload)
+        const newInnovation = action.payload.innovation || action.payload
+        state.innovations.unshift(newInnovation)
       })
       .addCase(createInnovation.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload
       })
-      
-      // Update innovation
+
+      // Update innovation cases
       .addCase(updateInnovation.pending, (state) => {
         state.loading = true
         state.error = null
@@ -109,8 +124,8 @@ const innovationSlice = createSlice({
         state.loading = false
         state.error = action.payload
       })
-      
-      // Delete innovation
+
+      // Delete innovation cases
       .addCase(deleteInnovation.pending, (state) => {
         state.loading = true
         state.error = null

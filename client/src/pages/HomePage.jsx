@@ -20,7 +20,7 @@ import FeaturedHighlight from '../components/FeaturedHighlight'
 import Testimonials from "../components/Testimonials"
 import Popup from "../components/Popup"
 import BrandIndia from "../components/BrandIndia"
-
+import FlatDiscount from "../components/FlatDiscount"
 import {
   fetchTrendingProducts,
   fetchNewArrivals,
@@ -33,6 +33,7 @@ import {
   fetchCategoryBanners,
 } from "../store/slices/bannerSlice"
 import { fetchPopupSetting } from "../store/slices/popupSlice"
+import { fetchAllInnovations } from '../store/slices/innovationSlice'
 
 const HomePage = () => {
   const dispatch = useDispatch()
@@ -89,7 +90,9 @@ const HomePage = () => {
   useEffect(() => {
     dispatch(fetchPopupSetting())
   }, [dispatch])
-
+useEffect(() => {
+  dispatch(fetchAllInnovations())
+}, [dispatch])
   // Show popup immediately on page load or refresh if global setting is true
   // Removed to prevent popup reopening after close
   // useEffect(() => {
@@ -133,6 +136,7 @@ const HomePage = () => {
         <div className="flex flex-col gap-2">
           <div>
             <PromoBanners />
+            <FlatDiscount/>
           </div>
           {/* <CategoryBanner /> */}
             <HeroBanner />

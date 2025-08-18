@@ -6,6 +6,8 @@ import { Plus, Search, Edit, Trash2 } from "lucide-react"
 import { fetchAllInnovations, createInnovation, updateInnovation, deleteInnovation } from "../../store/slices/innovationSlice"
 
 const InnovationManagement = () => {
+  const [filterCategory, setFilterCategory] = useState("");
+  const [viewMode, setViewMode] = useState("grid"); // grid or list
   const dispatch = useDispatch()
   const { innovations: allInnovations, loading: isLoading, error } = useSelector((state) => state.innovations || { innovations: [], loading: false, error: null })
 

@@ -29,7 +29,7 @@ import {
   removeRecentSearch,
   clearRecentSearches,
 } from "../store/slices/searchSlice"
-import logo from '../../public/KasuniLogo.png'
+import logo from "../../public/KasuniLogo.png"
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -80,6 +80,10 @@ const Navbar = () => {
   const navigateToCategory = (categoryId = "") => {
     const base = "/products?"
     navigate(categoryId ? `${base}category=${categoryId}` : base)
+  }
+
+  const navigateToUnder999 = () => {
+    navigate("/products?maxPrice=999")
   }
 
   const handleLogout = () => {
@@ -149,8 +153,8 @@ const Navbar = () => {
     categoriesForMobileScroll.unshift(cydCategory)
   }
 
-  const isProductDetailPage = window.location.pathname.startsWith('/product/')
-  
+  const isProductDetailPage = window.location.pathname.startsWith("/product/")
+
   return (
     <>
       <motion.nav
@@ -168,21 +172,18 @@ const Navbar = () => {
                 {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
               {/* Logo - Adjusted for better display */}
-              <div 
-                onClick={() => navigate("/")} 
-                className="flex items-center cursor-pointer"
-              >
+              <div onClick={() => navigate("/")} className="flex items-center cursor-pointer">
                 <div className="hidden md:block">
-                  <img 
-                    src={logo} 
-                    alt="company logo" 
+                  <img
+                    src={logo || "/placeholder.svg"}
+                    alt="company logo"
                     className="object-contain w-auto h-12" // Changed to h-12 and w-auto for better proportions
                   />
                 </div>
                 <div className="md:hidden">
-                  <img 
-                    src="logo.png" 
-                    alt="company logo" 
+                  <img
+                    src="logo.png"
+                    alt="company logo"
                     className="object-contain w-10 h-10" // Adjusted mobile logo size
                   />
                 </div>
@@ -190,7 +191,9 @@ const Navbar = () => {
             </div>
 
             {/* Search Bar (hidden on mobile in this row, shown below) */}
-            <div className={`hidden md:flex justify-center flex-1 w-full md:w-auto md:max-w-xl mx-4 ${isProductDetailPage ? 'hidden' : ''}`}>
+            <div
+              className={`hidden md:flex justify-center flex-1 w-full md:w-auto md:max-w-xl mx-4 ${isProductDetailPage ? "hidden" : ""}`}
+            >
               <motion.div
                 ref={searchRef}
                 className="relative w-full"
@@ -407,7 +410,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Search Bar - visible only on mobile, below the top row */}
-          <div className={`flex justify-center w-full py-2 md:hidden ${isProductDetailPage ? 'hidden' : ''}`}>
+          <div className={`flex justify-center w-full py-2 md:hidden ${isProductDetailPage ? "hidden" : ""}`}>
             <motion.div
               ref={searchRef}
               className="relative w-full"
@@ -522,7 +525,13 @@ const Navbar = () => {
                 <div
                   key={cat._id}
                   className="flex flex-col items-center flex-shrink-0 text-gray-700 cursor-pointer hover:text-red-600"
-                  onClick={() => navigateToCategory(cat._id)}
+                  onClick={() => {
+                    if (cat._id === "cyd-promo") {
+                      navigateToUnder999()
+                    } else {
+                      navigateToCategory(cat._id)
+                    }
+                  }}
                 >
                   <img
                     src={cat.image?.url || "/placeholder.svg?height=64&width=64&query=category icon"}
@@ -609,7 +618,7 @@ const Navbar = () => {
 
         {/* CYD Under ₹999 */}
         <div
-          onClick={() => navigateToCategory(cydCategory._id)}
+          onClick={() => navigateToUnder999()} // Using price filter instead of category
           className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
         >
           <img src="cyd logo.png" alt="CYD Logo" className="w-7 h-7 mb-0.5 object-contain" />
