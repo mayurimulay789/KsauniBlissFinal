@@ -139,7 +139,9 @@ const CheckoutPage = () => {
       : 99;
     const discount = appliedCoupon?.discountAmount || 0;
     // Removed GST (Tax) calculation as per requirement
-    const total = subtotal + shippingCharges - discount;
+    const total = Math.round(
+      subtotal + shippingCharges - discount
+    );
     return {
       subtotal,
       shippingCharges,
@@ -213,7 +215,6 @@ const CheckoutPage = () => {
 
     dispatch(placeCodOrder(orderData)).then((result) => {
       if (result.type === "order/placeCodOrder/fulfilled") {
-        console.log("COD Order Response:", result.payload);
         navigate(`/order-confirmation/${result.payload.order.id}`);
       } else {
         console.error("COD Order failed:", result.error);

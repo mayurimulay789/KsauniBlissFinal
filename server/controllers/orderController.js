@@ -185,10 +185,9 @@ const createRazorpayOrder = async (req, res) => {
     // Calculate final amounts (kept exactly as you had)
     const shippingCharges = subtotal >= 399 ? 0 : 99;
     const tax = 0;
-    // const total = Math.round(
-    //   subtotal + shippingCharges - discount + shiprocketCharges
-    // );
-    const total = 1;
+    const total = Math.round(
+      subtotal + shippingCharges - discount + shiprocketCharges
+    );
 
     // Generate order number
     const orderNumber = `FH-${Date.now()}`;
@@ -393,7 +392,7 @@ const placeCodOrder = async (req, res) => {
         .json({ success: false, message: "Please select Shipping method" });
     }
 
-    const shiprocketCharges = Number(selectedShippingRate.freight_charge || 0);
+    const shiprocketCharges = selectedShippingRate.freight_charge || 0;
 
     // Validate and calculate using DB prices
     let subtotal = 0;
@@ -478,7 +477,7 @@ const placeCodOrder = async (req, res) => {
 
       // root money fields (cover schemas that require these at root)
       subtotal,
-      shippingCharge: shippingCharges,
+      shippingCharge: shippingCharges + shiprocketCharges,
       discount,
       total,
 
@@ -517,7 +516,7 @@ const placeCodOrder = async (req, res) => {
       order: {
         id: order._id,
         orderNumber: order.orderNumber,
-        total: order.total ?? order.pricing?.total,
+        total: order.total,
         status: order.status,
         trackingNumber: order.trackingInfo?.trackingNumber,
         estimatedDelivery: order.trackingInfo?.estimatedDelivery,
