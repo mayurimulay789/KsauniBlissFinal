@@ -1,14 +1,16 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useEffect, useCallback } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { fetchAllInnovations } from "../../store/slices/innovationSlice"
 
 const InnovationList = () => {
   const dispatch = useDispatch()
-  const { innovations: allInnovations, loading: isLoading, error } = useSelector(
-    (state) => state.innovations || { innovations: [], loading: false, error: null },
-  )
+  const {
+    innovations: allInnovations,
+    loading: isLoading,
+    error,
+  } = useSelector((state) => state.innovations || { innovations: [], loading: false, error: null })
 
   const fetchInnovations = useCallback(() => {
     dispatch(fetchAllInnovations())
@@ -20,7 +22,7 @@ const InnovationList = () => {
 
   // Use actual data from Redux store
   const innovations = allInnovations || []
-  
+
   // Limit to 8 innovations for display
   const displayedInnovations = innovations.slice(0, 8)
 
@@ -43,17 +45,14 @@ const InnovationList = () => {
               {displayedInnovations.map((innovation) => (
                 <div
                   key={innovation._id}
-                  className="relative rounded-lg overflow-hidden shadow-lg group cursor-pointer inline-block align-top w-[400px] flex-shrink-0"
+                  className="relative rounded-lg overflow-hidden group cursor-pointer inline-block align-top w-[280px] flex-shrink-0"
                 >
                   <img
                     src={innovation.image?.url || "/placeholder.svg?height=200&width=400&text=Innovation+Image"}
                     alt={innovation.title}
-                    className="object-cover w-full h-96 transition-transform duration-300 group-hover:scale-105"
+                    className="object-cover w-full h-64 transition-transform duration-300 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center pt-10 px-6 opacity-100 transition-opacity duration-300">
-                    <h3 className="text-white text-lg font-semibold mb-6 text-center px-4">{innovation.title}</h3>
-                    <p className="text-white text-sm text-center px-4 py-2">{innovation.description}</p>
-                  </div>
+                  <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center pt-10 px-6 opacity-100 transition-opacity duration-300"></div>
                 </div>
               ))}
             </div>
@@ -64,12 +63,12 @@ const InnovationList = () => {
               {displayedInnovations.map((innovation) => (
                 <div
                   key={innovation._id}
-                  className="relative rounded-lg overflow-hidden shadow-lg group cursor-pointer inline-block align-top w-[200px] flex-shrink-0"
+                  className="relative rounded-lg overflow-hidden group cursor-pointer inline-block align-top w-[160px] flex-shrink-0"
                 >
                   <img
                     src={innovation.image?.url || "/placeholder.svg?height=200&width=400&text=Innovation+Image"}
                     alt={innovation.title}
-                    className="object-cover w-full h-36 transition-transform duration-300 group-hover:scale-105"
+                    className="object-cover w-full h-28 transition-transform duration-300 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center pt-6 px-4 opacity-100 transition-opacity duration-300">
                     <h3 className="text-white text-md font-semibold mb-3 text-center px-2">{innovation.title}</h3>

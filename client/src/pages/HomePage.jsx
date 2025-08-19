@@ -33,7 +33,8 @@ import {
   fetchCategoryBanners,
 } from "../store/slices/bannerSlice"
 import { fetchPopupSetting } from "../store/slices/popupSlice"
-
+import flatDiscount from "../components/FlatDiscount"
+import FlatDiscount from "../components/FlatDiscount"
 const HomePage = () => {
   const dispatch = useDispatch()
 
@@ -90,41 +91,40 @@ const HomePage = () => {
     dispatch(fetchPopupSetting())
   }, [dispatch])
 
-  // Show popup immediately on page load or refresh if global setting is true
-  // Removed to prevent popup reopening after close
-  // useEffect(() => {
-  //   if (showSalePopup) {
-  //     setPopupVisible(true)
-  //   }
-  // }, [showSalePopup])
-
-  // Show popup immediately on page load or refresh regardless of previous state
-  // Removed to prevent overriding popupVisible state on close
-  // useEffect(() => {
-  //   setPopupVisible(true)
-  // }, [])
-
-  // Set popup banner based on popupBanners and banners
+  // Enhanced popup banner handling with better error management
   useEffect(() => {
     if (popupBanners.length > 0) {
       // Find the first active popup banner
       const activePopup = popupBanners.find(pb => pb.isActive)
+      
       if (activePopup) {
-        // Find banner details from heroBanners or promoBanners
-        const banner =
-          heroBanners.find(b => b._id === activePopup.bannerId) ||
-          promoBanners.find(b => b._id === activePopup.bannerId)
-        setPopupBanner(banner || null)
-        setPopupVisible(!!banner)
+        // Create a comprehensive list of all available banners
+        const allBanners = [...heroBanners, ...promoBanners, ...categoryBanners]
+        
+        // Find banner details from all available banners
+        const banner = allBanners.find(b => b._id === activePopup.bannerId)
+        
+        if (banner) {
+          // Valid banner found
+          setPopupBanner(banner)
+          setPopupVisible(true)
+        } else {
+          // Banner not found - log for debugging but don't show popup
+          console.warn(`Popup banner not found: bannerId ${activePopup.bannerId} is missing from all banner collections`)
+          setPopupBanner(null)
+          setPopupVisible(false)
+        }
       } else {
+        // No active popup found
         setPopupBanner(null)
         setPopupVisible(false)
       }
     } else {
+      // No popup banners configured
       setPopupBanner(null)
       setPopupVisible(false)
     }
-  }, [popupBanners, heroBanners, promoBanners])
+  }, [popupBanners, heroBanners, promoBanners, categoryBanners])
 
   return (
     <div className="min-h-screen bg-white">
@@ -134,6 +134,7 @@ const HomePage = () => {
           <div>
             <PromoBanners />
           </div>
+          <FlatDiscount/>
           {/* <CategoryBanner /> */}
             <HeroBanner />
               <PriceSelection/>

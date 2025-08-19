@@ -50,12 +50,7 @@ const CategoryBanner = () => {
       {/* Category Title */}
       {currentCategory && (
         <div className="mb-4 text-center">
-          <h1 className="text-3xl font-bold text-gray-800 md:text-4xl">
-            {currentCategory.name}
-          </h1>
-          <p className="mt-2 text-gray-600">
-            {currentCategory.description || `Discover our amazing ${currentCategory.name} collection`}
-          </p>
+          
         </div>
       )}
 
@@ -74,20 +69,7 @@ const CategoryBanner = () => {
         />
 
         {/* Banner Content Overlay */}
-        {filteredBanners[currentBanner]?.title && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
-            <div className="absolute text-white bottom-4 left-4 right-4">
-              <h2 className="mb-2 text-xl font-bold md:text-2xl">
-                {filteredBanners[currentBanner].title}
-              </h2>
-              {filteredBanners[currentBanner]?.description && (
-                <p className="text-sm md:text-base opacity-90">
-                  {filteredBanners[currentBanner].description}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
+        
 
         {/* Enhanced Pagination Dots */}
         {filteredBanners.length > 1 && (

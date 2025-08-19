@@ -329,7 +329,11 @@ const ProductDetailPage = () => {
                   <span>{currentProduct.brand || "Ksauni Bliss"}</span>
                 </p>
                 {currentProduct.description && (
-                  <p className="text-sm text-gray-600 mt-1">{currentProduct.description}</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {typeof currentProduct.description === "string"
+                      ? currentProduct.description
+                      : JSON.stringify(currentProduct.description)}
+                  </p>
                 )}
                 {/* Price under description */}
                 <div className="mt-3">
@@ -383,7 +387,11 @@ const ProductDetailPage = () => {
                       <span>{currentProduct.brand || "Ksauni Bliss"}</span>
                     </p>
                     {currentProduct.description && (
-                      <p className="text-base text-gray-600 mb-4">{currentProduct.description}</p>
+                      <p className="text-base text-gray-600 mb-4">
+                        {typeof currentProduct.description === "string"
+                          ? currentProduct.description
+                          : JSON.stringify(currentProduct.description)}
+                      </p>
                     )}
                     {/* Price section */}
                     <div className="mb-4">
@@ -506,28 +514,44 @@ const ProductDetailPage = () => {
                 {currentProduct.material && (
                   <div>
                     <h4 className="text-sm font-semibold text-gray-700 mb-1">Material</h4>
-                    <p className="text-gray-600">{currentProduct.material}</p>
+                    <p className="text-gray-600">
+                      {typeof currentProduct.material === "string"
+                        ? currentProduct.material
+                        : JSON.stringify(currentProduct.material)}
+                    </p>
                   </div>
                 )}
 
                 {currentProduct.fits && (
                   <div>
                     <h4 className="text-sm font-semibold text-gray-700 mb-1">Fit</h4>
-                    <p className="text-gray-600 capitalize">{currentProduct.fits} Fit</p>
+                    <p className="text-gray-600 capitalize">
+                      {typeof currentProduct.fits === "string"
+                        ? `${currentProduct.fits} Fit`
+                        : `${JSON.stringify(currentProduct.fits)} Fit`}
+                    </p>
                   </div>
                 )}
 
                 {currentProduct.care && (
                   <div>
                     <h4 className="text-sm font-semibold text-gray-700 mb-1">Care Instructions</h4>
-                    <p className="text-gray-600">{currentProduct.care}</p>
+                    <p className="text-gray-600">
+                      {typeof currentProduct.care === "string"
+                        ? currentProduct.care
+                        : JSON.stringify(currentProduct.care)}
+                    </p>
                   </div>
                 )}
 
                 {currentProduct.productDetails && (
                   <div>
                     <h4 className="text-sm font-semibold text-gray-700 mb-1">Product Details</h4>
-                    <p className="text-gray-600 whitespace-pre-line">{currentProduct.productDetails}</p>
+                    <p className="text-gray-600 whitespace-pre-line">
+                      {typeof currentProduct.productDetails === "string"
+                        ? currentProduct.productDetails
+                        : JSON.stringify(currentProduct.productDetails)}
+                    </p>
                   </div>
                 )}
               </div>

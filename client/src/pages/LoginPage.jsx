@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { Mail, Phone, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import logo from "../../public/logo.png"
 import {
   registerWithEmail,
   loginWithEmail,
@@ -227,7 +228,7 @@ const LoginPage = () => {
           {/* Header for mobile */}
           <div className="mb-8 text-center lg:hidden">
             <Link to="/" className="inline-block mb-6">
-              <img src="/placeholder.svg?height=80&width=80" alt="Fashion Store Logo" className="h-12 mx-auto" />
+              <img src={logo} alt="KsauniBliss Logo" className="h-12 mx-auto" />
             </Link>
             <h1 className="mb-2 text-3xl font-bold text-gray-800">
               {mode === "login" ? "Welcome Back" : "Create Account"}

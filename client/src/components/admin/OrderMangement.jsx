@@ -255,7 +255,7 @@ const OrdersManagement = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
-                    {formatCurrency(order.pricing.total)}
+                    {order.pricing ? formatCurrency(order.pricing.total) : "N/A"}
                   </td>
                   <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                     <div className="flex space-x-2">
@@ -363,7 +363,8 @@ const OrdersManagement = () => {
                         </span>
                       </p>
                       <p>
-                        <span className="font-medium">Total:</span> {formatCurrency(selectedOrder.pricing.total)}
+                        <span className="font-medium">Total:</span>{" "}
+                        {selectedOrder.pricing ? formatCurrency(selectedOrder.pricing.total) : "N/A"}
                       </p>
                     </div>
                   </div>
@@ -430,32 +431,34 @@ const OrdersManagement = () => {
                   </div>
 
                   {/* Pricing Breakdown */}
-                  <div className="p-4 mt-4 rounded-lg bg-gray-50">
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Subtotal:</span>
-                        <span>{formatCurrency(selectedOrder.pricing.subtotal)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Shipping:</span>
-                        <span>{formatCurrency(selectedOrder.pricing.shippingCharges)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Tax:</span>
-                        <span>{formatCurrency(selectedOrder.pricing.tax)}</span>
-                      </div>
-                      {selectedOrder.pricing.discount > 0 && (
-                        <div className="flex justify-between text-green-600">
-                          <span>Discount:</span>
-                          <span>-{formatCurrency(selectedOrder.pricing.discount)}</span>
+                  {selectedOrder.pricing && (
+                    <div className="p-4 mt-4 rounded-lg bg-gray-50">
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span>Subtotal:</span>
+                          <span>{formatCurrency(selectedOrder.pricing.subtotal || 0)}</span>
                         </div>
-                      )}
-                      <div className="flex justify-between pt-2 text-lg font-medium border-t">
-                        <span>Total:</span>
-                        <span>{formatCurrency(selectedOrder.pricing.total)}</span>
+                        <div className="flex justify-between">
+                          <span>Shipping:</span>
+                          <span>{formatCurrency(selectedOrder.pricing.shippingCharges || 0)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Tax:</span>
+                          <span>{formatCurrency(selectedOrder.pricing.tax || 0)}</span>
+                        </div>
+                        {(selectedOrder.pricing.discount || 0) > 0 && (
+                          <div className="flex justify-between text-green-600">
+                            <span>Discount:</span>
+                            <span>-{formatCurrency(selectedOrder.pricing.discount)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between pt-2 text-lg font-medium border-t">
+                          <span>Total:</span>
+                          <span>{formatCurrency(selectedOrder.pricing.total || 0)}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
