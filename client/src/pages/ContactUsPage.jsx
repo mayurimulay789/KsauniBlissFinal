@@ -22,16 +22,16 @@ const ContactUsPage = () => {
       icon: Phone,
       title: "Call Us",
       description: "Speak directly with our customer service team",
-      value: "+91-9876543210",
-      action: "tel:+919876543210",
+      value: "+919211891719",
+      action: "+919211891719",
       color: "bg-blue-100 text-blue-600",
     },
     {
       icon: Mail,
       title: "Email Us",
       description: "Send us an email and we'll respond within 24 hours",
-      value: "support@kasunibliss.com",
-      action: "mailto:support@kasunibliss.com",
+      value: "ksaunibliss@gmail.com",
+      action: "mailto:ksaunibliss@gmail.com",
       color: "bg-green-100 text-green-600",
     },
     {
@@ -45,8 +45,7 @@ const ContactUsPage = () => {
     {
       icon: MapPin,
       title: "Visit Us",
-      description: "Come visit our flagship store in Mumbai",
-      value: "123 Fashion Street, Mumbai",
+      value: "Ground Floor, Nawada Housing Complex,Dwarka More, Delhi -110059",
       action: "#",
       color: "bg-red-100 text-red-600",
     },
@@ -296,27 +295,7 @@ const ContactUsPage = () => {
               viewport={{ once: true }}
               className="space-y-8"
             >
-              {/* Office Hours */}
-              <div className="p-6 bg-white shadow-lg rounded-xl">
-                <div className="flex items-center mb-4">
-                  <Clock className="w-6 h-6 mr-3 text-red-500" />
-                  <h3 className="text-xl font-semibold text-gray-800">Office Hours</h3>
-                </div>
-                <div className="space-y-2 text-gray-600">
-                  <div className="flex justify-between">
-                    <span>Monday - Friday</span>
-                    <span>9:00 AM - 8:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Saturday</span>
-                    <span>10:00 AM - 6:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Sunday</span>
-                    <span>12:00 PM - 5:00 PM</span>
-                  </div>
-                </div>
-              </div>
+              
 
               {/* Quick FAQ */}
               <div className="p-6 bg-white shadow-lg rounded-xl">
@@ -391,7 +370,8 @@ const ContactUsPage = () => {
               <div className="text-center">
                 <MapPin className="w-16 h-16 mx-auto mb-4 text-red-500" />
                 <h3 className="mb-2 text-xl font-semibold text-gray-800">Kasuni Bliss Flagship Store</h3>
-                <p className="text-gray-600">123 Fashion Street, Bandra West, Mumbai - 400050</p>
+                <p className="text-gray-600">Ground Floor, Nawada Housing Complex,Dwarka More, Delhi -110059
+</p>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   className="px-6 py-2 mt-4 text-white transition-colors bg-red-500 rounded-lg hover:bg-red-600"

@@ -4,18 +4,14 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useSearchParams, useNavigate, useParams } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Filter, X, ShoppingBag } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Filter, X } from "lucide-react"
 import toast from "react-hot-toast"
 
 // Redux actions
 import { fetchProducts, setFilters, clearFilters } from "../store/slices/productSlice"
 import { fetchCategories } from "../store/slices/categorySlice"
 import { addToCart, optimisticAddToCart } from "../store/slices/cartSlice"
-import { 
-  optimisticAddToWishlist, 
-  optimisticRemoveFromWishlist 
-} from "../store/slices/wishlistSlice"
+import { optimisticAddToWishlist, optimisticRemoveFromWishlist } from "../store/slices/wishlistSlice"
 
 // Components
 import ProductFilters from "../components/ProductFilter"
@@ -29,8 +25,7 @@ const selectCategories = (state) => state.categories
 const selectAuth = (state) => state.auth
 const selectWishlist = (state) => state.wishlist
 
-const ProductsPage = () =>
-{
+const ProductsPage = () => {
   const { category: categorySlug } = useParams()
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -44,38 +39,42 @@ const ProductsPage = () =>
   const { items: wishlistItems } = useSelector(selectWishlist)
 
   // Memoized values
-  const activeFiltersCount = useMemo(() => (
-    Object.entries(filters).reduce((count, [key, value]) => {
-      if (Array.isArray(value) ? value.length > 0 : Boolean(value)) {
-        return count + 1
+  const activeFiltersCount = useMemo(
+    () =>
+      Object.entries(filters).reduce((count, [key, value]) => {
+        if (Array.isArray(value) ? value.length > 0 : Boolean(value)) {
+          return count + 1
+        }
+        return count
+      }, 0),
+    [filters],
+  )
+
+  const getFiltersFromURL = useCallback(
+    () => ({
+      category: searchParams.get("category") || "",
+      search: searchParams.get("search") || "",
+      minPrice: searchParams.get("minPrice") || "",
+      maxPrice: searchParams.get("maxPrice") || "",
+      minRating: searchParams.get("minRating") || "",
+    }),
+    [searchParams],
+  )
+
+  // Legacy redirect: if ?category=<ObjectId> and no slug in path, translate to slug
+  useEffect(() => {
+    const legacyId = searchParams.get("category")
+    if (legacyId && categories?.length > 0 && !categorySlug) {
+      const cat = categories.find((c) => c._id === legacyId)
+      if (cat?.slug) {
+        const params = new URLSearchParams(searchParams.toString())
+        params.delete("category")
+        const qs = params.toString()
+        navigate(qs ? `/products/${cat.slug}?${qs}` : `/products/${cat.slug}`, { replace: true })
       }
-      return count
-    }, 0)
-  ), [filters])
-
-  const getFiltersFromURL = useCallback(() => ({
-    category: searchParams.get("category") || "",
-    search: searchParams.get("search") || "",
-    minPrice: searchParams.get("minPrice") || "",
-    maxPrice: searchParams.get("maxPrice") || "",
-    minRating: searchParams.get("minRating") || "",
-  }), [searchParams])
-
-  
-// Legacy redirect: if ?category=<ObjectId> and no slug in path, translate to slug
-useEffect(() => {
-  const legacyId = searchParams.get("category")
-  if (legacyId && categories?.length > 0 && !categorySlug) {
-    const cat = categories.find(c => c._id === legacyId)
-    if (cat?.slug) {
-      const params = new URLSearchParams(searchParams.toString())
-      params.delete("category")
-      const qs = params.toString()
-      navigate(qs ? `/products/${cat.slug}?${qs}` : `/products/${cat.slug}`, { replace: true })
     }
-  }
-}, [categories, searchParams, categorySlug, navigate])
-// Initialize filters from URL
+  }, [categories, searchParams, categorySlug, navigate])
+  // Initialize filters from URL
   useEffect(() => {
     const urlFilters = getFiltersFromURL()
     dispatch(setFilters(urlFilters))
@@ -100,7 +99,8 @@ useEffect(() => {
     dispatch(fetchProducts({ ...cleanFilters, limit: 100 }))
   }, [dispatch, filters, searchParams])
 
-  const handleAddToCart = useCallback(async (product, e) => {
+  const handleAddToCart = useCallback(
+  async (product, e) => {
     e.preventDefault()
     e.stopPropagation()
 
@@ -110,48 +110,73 @@ useEffect(() => {
       return
     }
 
-    dispatch(optimisticAddToCart({
-      product,
+    // ✅ must send productId, not product
+    const cartItem = {
+      productId: product._id,
       quantity: 1,
       size: product.sizes?.[0]?.size || "",
       color: product.colors?.[0]?.name || "",
-    }))
-    
-    toast.success(`${product.name} added to cart!`)
-  }, [dispatch, navigate, user])
-
-  const handleWishlist = useCallback(async (product, e) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    if (!user) {
-      navigate("/login", { state: { from: window.location.pathname } })
-      toast.error("Please login to manage your wishlist")
-      return
     }
 
-    const isInWishlist = wishlistItems.some((item) => item._id === product._id)
-    
-    if (isInWishlist) {
-      dispatch(optimisticRemoveFromWishlist(product._id))
-      toast.success(`${product.name} removed from wishlist!`)
-    } else {
-      dispatch(optimisticAddToWishlist(product))
-      toast.success(`${product.name} added to wishlist!`)
-    }
-  }, [dispatch, navigate, user, wishlistItems])
+    // Optimistic UI update
+    dispatch(
+      optimisticAddToCart({
+        product,
+        quantity: 1,
+        size: cartItem.size,
+        color: cartItem.color,
+      })
+    )
 
-  const handleFilterChange = useCallback((newFilters) => {
-  if (Object.prototype.hasOwnProperty.call(newFilters, "category")) {
-    const nextSlug = newFilters.category || ""
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete("category")
-    const qs = params.toString()
-    const base = nextSlug ? `/products/${nextSlug}` : `/products`
-    navigate(qs ? `${base}?${qs}` : base)
-  }
-  dispatch(setFilters({ ...filters, ...newFilters }))
-}, [dispatch, filters, navigate, searchParams])
+    try {
+      await dispatch(addToCart(cartItem)).unwrap()
+      toast.success(`${product.name} added to cart!`)
+    } catch (error) {
+      toast.error("Failed to add item to cart. Please try again.")
+      console.error("Add to cart error:", error)
+    }
+  },
+  [dispatch, navigate, user]
+)
+
+  const handleWishlist = useCallback(
+    async (product, e) => {
+      e.preventDefault()
+      e.stopPropagation()
+
+      if (!user) {
+        navigate("/login", { state: { from: window.location.pathname } })
+        toast.error("Please login to manage your wishlist")
+        return
+      }
+
+      const isInWishlist = wishlistItems.some((item) => item._id === product._id)
+
+      if (isInWishlist) {
+        dispatch(optimisticRemoveFromWishlist(product._id))
+        toast.success(`${product.name} removed from wishlist!`)
+      } else {
+        dispatch(optimisticAddToWishlist(product))
+        toast.success(`${product.name} added to wishlist!`)
+      }
+    },
+    [dispatch, navigate, user, wishlistItems],
+  )
+
+  const handleFilterChange = useCallback(
+    (newFilters) => {
+      if (Object.prototype.hasOwnProperty.call(newFilters, "category")) {
+        const nextSlug = newFilters.category || ""
+        const params = new URLSearchParams(searchParams.toString())
+        params.delete("category")
+        const qs = params.toString()
+        const base = nextSlug ? `/products/${nextSlug}` : `/products`
+        navigate(qs ? `${base}?${qs}` : base)
+      }
+      dispatch(setFilters({ ...filters, ...newFilters }))
+    },
+    [dispatch, filters, navigate, searchParams],
+  )
 
   const clearAllFilters = useCallback(() => {
     dispatch(clearFilters())
@@ -164,11 +189,10 @@ useEffect(() => {
         <div className="w-full mb-6 rounded-lg ">
           <CategoryBanner />
         </div>
-        
+
         {/* Sticky Filter Header */}
         <div className="sticky top-0 z-30 pt-4 bg-gray-50">
           <div className="flex flex-col justify-between mb-4 md:flex-row md:items-center">
-            
             {/* Mobile Filter Button */}
             <div className="md:hidden">
               <button
@@ -252,7 +276,8 @@ useEffect(() => {
         <div className="flex flex-col gap-6 md:flex-row">
           {/* Desktop Filters Sidebar */}
           <aside className="hidden md:block md:w-56 lg:w-64 sticky top-[180px] h-[calc(100vh-180px)] overflow-y-auto">
-            <ProductFilters key={categorySlug || 'all'}
+            <ProductFilters
+              key={categorySlug || "all"}
               filters={filters}
               categories={categories}
               onFilterChange={handleFilterChange}
@@ -296,8 +321,8 @@ useEffect(() => {
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                 <AnimatePresence>
                   {products.map((product) => (
-                    <ProductCard 
-                      key={product._id} 
+                    <ProductCard
+                      key={product._id}
                       product={product}
                       wishlistItems={wishlistItems}
                       user={user}
@@ -331,23 +356,21 @@ useEffect(() => {
             >
               <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white border-b border-gray-200">
                 <h3 className="text-xl font-bold text-gray-800">Filters</h3>
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className="p-1 rounded-full hover:bg-gray-100"
-                >
+                <button onClick={() => setShowFilters(false)} className="p-1 rounded-full hover:bg-gray-100">
                   <X className="w-6 h-6" />
                 </button>
               </div>
-              
+
               <div className="p-4 overflow-y-auto max-h-[calc(90vh-60px)]">
-                <ProductFilters key={categorySlug || 'all'}
+                <ProductFilters
+                  key={categorySlug || "all"}
                   filters={filters}
                   categories={categories}
                   onFilterChange={handleFilterChange}
                   onClearFilters={clearAllFilters}
                 />
               </div>
-              
+
               <div className="sticky bottom-0 z-10 flex justify-between p-4 bg-white border-t border-gray-200">
                 <button
                   onClick={clearAllFilters}
