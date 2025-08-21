@@ -4,6 +4,22 @@ const Category = require("../models/Category")
 const Order = require("../models/Order")
 const Banner = require("../models/Banner")
 const Coupon = require("../models/Coupon")
+
+// Normalize order document for admin table
+const shapeOrderForAdmin = (o) => {
+  if (!o) return o;
+  const subtotal = o.subtotal ?? (o.pricing && o.pricing.subtotal) ?? 0;
+  const shippingCharge = o.shippingCharge ?? (o.pricing && (o.pricing.shippingCharges ?? o.pricing.shippingCharge)) ?? 0;
+  const discount = o.discount ?? (o.pricing && o.pricing.discount) ?? 0;
+  const total = o.total ?? (o.pricing && o.pricing.total) ?? (subtotal + shippingCharge - discount);
+  const status = (o.status || "").toString().toLowerCase();
+  return {
+    ...o.toObject?.() ?? o,
+    status,
+    pricing: { subtotal, shipping: shippingCharge, discount, total },
+  };
+};
+
 const { uploadToCloudinary } = require("../utils/cloudinary")
 
 // Dashboard Overview Stats
@@ -235,7 +251,7 @@ const getAllOrders = async (req, res) => {
 
     const query = {}
     if (status) {
-      query.status = status
+      query.status = status.toUpperCase()
     }
     if (search) {
       query.$or = [
@@ -261,7 +277,7 @@ const getAllOrders = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      orders,
+      orders: orders.map(shapeOrderForAdmin),
       pagination: {
         currentPage: Number(page),
         totalPages: Math.ceil(totalOrders / limit),
@@ -301,7 +317,7 @@ const updateOrderStatus = async (req, res) => {
       })
     }
 
-    const updateData = { status }
+    const updateData = { status: status.toUpperCase() }
     if (notes) updateData.notes = notes
 
     // Handle tracking info for shipped orders

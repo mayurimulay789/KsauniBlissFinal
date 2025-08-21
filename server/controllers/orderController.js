@@ -7,6 +7,30 @@ const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const shiprocketService = require("../services/shiprocketService");
 
+// Unified order shaper for client responses
+const shapeOrder = (o) => {
+  if (!o) return o;
+  const statusRaw = (o.status || "").toString();
+  // normalize status to lowercase for client
+  const status = statusRaw ? statusRaw.toLowerCase() : "pending";
+  const subtotal = o.subtotal ?? (o.pricing && o.pricing.subtotal) ?? 0;
+  const shippingCharge = o.shippingCharge ?? (o.pricing && (o.pricing.shippingCharges ?? o.pricing.shippingCharge)) ?? 0;
+  const discount = o.discount ?? (o.pricing && o.pricing.discount) ?? 0;
+  const total = o.total ?? (o.pricing && o.pricing.total) ?? subtotal + shippingCharge - discount;
+
+  return {
+    ...o.toObject?.() ?? o,
+    status,
+    pricing: {
+      subtotal,
+      shipping: shippingCharge,
+      discount,
+      total,
+    },
+  };
+};
+
+
 // Initialize Razorpay
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -185,9 +209,10 @@ const createRazorpayOrder = async (req, res) => {
     // Calculate final amounts (kept exactly as you had)
     const shippingCharges = subtotal >= 399 ? 0 : 99;
     const tax = 0;
-    const total = Math.round(
-      subtotal + shippingCharges - discount + shiprocketCharges
-    );
+    // const total = Math.round(
+    //   subtotal + shippingCharges - discount + shiprocketCharges
+    // );
+    const total = 1;
 
     // Generate order number
     const orderNumber = `FH-${Date.now()}`;
@@ -210,10 +235,10 @@ const createRazorpayOrder = async (req, res) => {
       coupon: couponDetails,
       paymentInfo: {
         razorpayOrderId: razorpayOrder.id,
-        paymentMethod: "Online",
-        paymentStatus: "pending",
+        method: "RAZORPAY",
+        status: "pending",
       },
-      status: "pending",
+      status: "CONFIRMED",
       createdAt: new Date(),
     };
 
@@ -277,7 +302,7 @@ const verifyPaymentAndCreateOrder = async (req, res) => {
       ...orderDataWithoutId.paymentInfo,
       razorpayPaymentId: razorpay_payment_id,
       razorpaySignature: razorpay_signature,
-      paymentStatus: "completed",
+      status: "PAID",
       paidAt: new Date(),
     };
     orderDataWithoutId.status = "confirmed";
@@ -323,36 +348,37 @@ const verifyPaymentAndCreateOrder = async (req, res) => {
       order: {
         id: order._id,
         orderNumber: order.orderNumber,
-        total: order.pricing.total,
+        total: order.total,
         status: order.status,
         trackingNumber: order.trackingInfo?.trackingNumber,
         estimatedDelivery: order.trackingInfo?.estimatedDelivery,
         shiprocketIntegration: "Pending",
+        pricing: { subtotal: order.subtotal, shipping: order.shippingCharge, discount: order.discount, total: order.total },
       },
     });
 
     // 8) Background: Shiprocket + clear cart + email
-    setImmediate(async () => {
-      try {
-        const populatedOrder = await Order.findById(order._id).populate(
-          "user",
-          "name email phoneNumber"
-        );
-        const shiprocketResult = await createShiprocketOrder(populatedOrder);
-        await User.findByIdAndUpdate(userId, { cart: [], tempOrderData: null });
-        try {
-          await sendOrderConfirmationEmail(populatedOrder.user, populatedOrder);
-        } catch (emailError) {
-          console.error("Email sending failed:", emailError);
-        }
-        console.log(
-          "Shiprocket status:",
-          shiprocketResult.success ? "Success" : "Pending"
-        );
-      } catch (bgErr) {
-        console.error("Background SR/email error:", bgErr);
-      }
-    });
+    // setImmediate(async () => {
+    //   try {
+    //     const populatedOrder = await Order.findById(order._id).populate(
+    //       "user",
+    //       "name email phoneNumber"
+    //     );
+    //     const shiprocketResult = await createShiprocketOrder(populatedOrder);
+    //     await User.findByIdAndUpdate(userId, { cart: [], tempOrderData: null });
+    //     try {
+    //       await sendOrderConfirmationEmail(populatedOrder.user, populatedOrder);
+    //     } catch (emailError) {
+    //       console.error("Email sending failed:", emailError);
+    //     }
+    //     console.log(
+    //       "Shiprocket status:",
+    //       shiprocketResult.success ? "Success" : "Pending"
+    //     );
+    //   } catch (bgErr) {
+    //     console.error("Background SR/email error:", bgErr);
+    //   }
+    // });
   } catch (error) {
     console.error("Verify payment error:", error);
     res
@@ -487,14 +513,14 @@ const placeCodOrder = async (req, res) => {
       coupon: couponDetails,
 
       paymentInfo: {
-        paymentMethod: "COD", // keep your existing field
-        paymentStatus: "pending",
+        method: "COD", // keep your existing field
+        status: "PENDING",
         razorpayOrderId: orderNumber, // you were storing this
         method: "COD", // add this so method is present if your schema requires it
       },
 
       // use a safe enum value (uppercase) to avoid `confirmed` enum errors
-      status: "PLACED",
+      status: "CONFIRMED",
 
       trackingInfo: { awbStatus: "PENDING" },
       createdAt: new Date(),
@@ -521,6 +547,7 @@ const placeCodOrder = async (req, res) => {
         trackingNumber: order.trackingInfo?.trackingNumber,
         estimatedDelivery: order.trackingInfo?.estimatedDelivery,
         shiprocketIntegration: "Pending",
+        pricing: { subtotal: order.subtotal, shipping: order.shippingCharge, discount: order.discount, total: order.total },
       },
     });
 
@@ -757,42 +784,83 @@ const trackOrder = async (req, res) => {
 };
 
 // Enhanced order cancellation (unchanged)
+// Cancel order (user)
 const cancelOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { reason } = req.body;
     const userId = req.user.userId;
 
+    // 1) Fetch order owned by user
     const order = await Order.findOne({ _id: orderId, user: userId });
-
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
+      return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    if (!["confirmed", "processing"].includes(order.status)) {
+    // 2) Status guards (DB enum is UPPERCASE)
+    const status = String(order.status || "").toUpperCase();
+    const cancellable = ["PLACED", "CONFIRMED", "PROCESSING"]; // allow cancel before shipping
+    const terminal = ["SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED", "RETURNED"];
+
+    if (terminal.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Order cannot be cancelled after shipping/delivery",
+      });
+    }
+    if (!cancellable.includes(status)) {
       return res.status(400).json({
         success: false,
         message: "Order cannot be cancelled at this stage",
       });
     }
 
-    if (order.trackingInfo?.trackingNumber && shiprocketService) {
+    // 3) Try cancelling shipment in Shiprocket (if already created)
+    if (order.trackingInfo?.trackingNumber && shiprocketService?.cancelShipment) {
       try {
-        await shiprocketService.cancelShipment(
-          order.trackingInfo.trackingNumber
-        );
+        await shiprocketService.cancelShipment(order.trackingInfo.trackingNumber);
         console.log("✅ Shiprocket shipment cancelled successfully");
-      } catch (shiprocketError) {
-        console.error("❌ Shiprocket cancellation error:", shiprocketError);
+      } catch (e) {
+        console.error("❌ Shiprocket cancellation error:", e?.message || e);
+        // continue; order cancellation should still proceed
       }
     }
 
-    order.status = "cancelled";
-    order.cancelReason = reason;
+    // 4) If prepaid (Razorpay) and paid, attempt refund (optional but recommended)
+    try {
+      const method = order.paymentInfo?.method;
+      const pStatus = order.paymentInfo?.status;
+      if (method === "RAZORPAY" && pStatus === "PAID" && razorpay?.payments?.refund) {
+        const rupees =
+          order.total ??
+          order.pricing?.total ??
+          ((order.subtotal || 0) + (order.shippingCharge || 0) - (order.discount || 0));
+        const amountPaise = Math.max(0, Math.round((rupees || 0) * 100));
+
+        const refund = await razorpay.payments.refund(order.paymentInfo.razorpayPaymentId, {
+          amount: amountPaise,
+          speed: "optimum",
+          notes: { orderNumber: order.orderNumber || String(order._id) },
+        });
+
+        order.paymentInfo.status = "REFUNDED";
+        order.paymentInfo.razorpayRefundId = refund?.id;
+      }
+    } catch (refundErr) {
+      console.error("❌ Razorpay refund error:", refundErr?.message || refundErr);
+      // mark for manual follow-up (do NOT break cancellation)
+      order.paymentInfo = {
+        ...(order.paymentInfo || {}),
+        refundInitiated: true,
+        refundError: (refundErr?.message || String(refundErr)).slice(0, 200),
+      };
+    }
+
+    // 5) Apply cancellation
+    order.status = "CANCELLED"; // enum uppercase
+    order.cancelReason = reason || "Cancelled by user";
     order.cancelledAt = new Date();
+
     if (order.trackingInfo) {
       order.trackingInfo.currentStatus = "Cancelled";
       order.trackingInfo.lastUpdate = new Date();
@@ -800,20 +868,26 @@ const cancelOrder = async (req, res) => {
 
     await order.save();
 
-    for (const item of order.items) {
-      await Product.findByIdAndUpdate(item.product, {
-        $inc: { stock: item.quantity },
-      });
+    // 6) Restock items
+    if (Array.isArray(order.items)) {
+      for (const item of order.items) {
+        if (item?.product && item?.quantity) {
+          await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } });
+        }
+      }
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: "Order cancelled successfully", order });
+    return res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully",
+      order,
+    });
   } catch (error) {
     console.error("Cancel order error:", error);
-    res.status(500).json({ success: false, message: "Failed to cancel order" });
+    return res.status(500).json({ success: false, message: "Failed to cancel order" });
   }
 };
+
 
 // Send order confirmation email (HARDENED)
 const sendOrderConfirmationEmail = async (userArg, order) => {
@@ -833,8 +907,8 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
     const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
 
     // Resolve payment method (old/new field names)
-    const paymentMethod =
-      (order && order.paymentInfo && (order.paymentInfo.paymentMethod || order.paymentInfo.method)) || "—";
+    const method =
+      (order && order.paymentInfo && (order.paymentInfo.method || order.paymentInfo.method)) || "—";
 
     // Resolve tracking details regardless of field name
     const trackingNumber =
@@ -856,7 +930,7 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
           <h3>Order Details</h3>
           <p><strong>Order Number:</strong> ${order?.orderNumber || "—"}</p>
           <p><strong>Total Amount:</strong> ${fmt(totalNum)}</p>
-          <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+          <p><strong>Payment Method:</strong> ${method}</p>
           ${
             trackingNumber
               ? `<p><strong>Tracking Number:</strong> ${trackingNumber}</p>`
@@ -922,7 +996,7 @@ const getUserOrders = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      orders,
+      orders: orders.map(shapeOrder),
       pagination: {
         currentPage: page,
         totalPages,
@@ -954,7 +1028,7 @@ const getOrderDetails = async (req, res) => {
         .json({ success: false, message: "Order not found" });
     }
 
-    res.status(200).json({ success: true, order });
+    res.status(200).json({ success: true, order: shapeOrder(order) });
   } catch (error) {
     console.error("Get order details error:", error);
     res
