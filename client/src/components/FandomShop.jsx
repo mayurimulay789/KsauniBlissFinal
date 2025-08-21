@@ -9,57 +9,52 @@ const ShopByFandom = () => {
     {
       id: 1,
       name: "Attack on Titan",
-      image: "/Attack On Titan.webp",
-      logo: "/attackontitan.png",
+      image: "/AttackonTitan.webp",
       logoAlt: "Attack On Titan",
     },
     {
       id: 2,
       name: "Solo Leveling Shirt",
-      image: "/SOLO LEVELING.webp",
-      logo: "/ksa1.png",
+      image: "/SoloLeveling.webp",
       logoAlt: "Solo Leveling Logo",
     },
     {
       id: 3,
       name: "Kaijya",
-      image: "/KAIJU NO.8 .webp",
-      logo: "/kaijya.png",
+      image: "/KaijuNo.webp",
       logoAlt: "Geometric Brand Logo",
     },
     {
       id: 4,
       name: "Joker",
-      image: "/JOKER.webp",
-      logo: "/joker.png",
+      image: "/Joker.webp",
       logoAlt: "Gaming Brand Logo",
     },
-    {
-      id: 5,
-      name: "Demon Slayer",
-      image: "/demonslayer.webp",
-      logo: "/demo.png",
-      logoAlt: "Marvel Style Logo",
-    },
-    {
-      id: 6,
-      name: "deathore",
-      image: "/deathnote.webp",
-      logo: "/deathore.png",
-      logoAlt: "Retro Anime Logo",
-    },
+   
+    
     {
       id: 7,
       name: "Naruto",
-      image: "/travisscott.webp",
-      logo: "/ksa.png",
+      image: "/gojo.webp",
       logoAlt: "Naruto",
     },
     {
       id: 8,
       name: "K-Pop Style Tee",
-      image: "/VENOM.webp",
+      image: "/naruto.webp",
       logo: "/wing.png",
+      logoAlt: "K-Pop Style Logo",
+    },
+    {
+      id: 9,
+      name: "K-Pop Style Tee",
+      image: "/venom.webp",
+      logoAlt: "K-Pop Style Logo",
+    },
+    {
+      id: 10,
+      name: "K-Pop Style Tee",
+      image: "/zoro.webp",
       logoAlt: "K-Pop Style Logo",
     },
   ]
@@ -87,23 +82,12 @@ const ShopByFandom = () => {
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}
                     className="object-cover w-40 h-48 sm:w-48 sm:h-56 md:w-56 md:h-64 lg:w-64 lg:h-72"
-                    onError={(e) => {
-                      e.target.src = "/abstract-geometric-tee.png"
-                    }}
+                    
                   />
                   <div className="absolute inset-0 transition-all duration-300 bg-black bg-opacity-0 opacity-0 group-hover:bg-opacity-20 group-hover:opacity-100" />
                 </div>
 
-                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 sm:-bottom-8 md:-bottom-10">
-                  <img
-                    src={product.logo || "/placeholder.svg"}
-                    alt={product.logoAlt}
-                    className="h-12 max-w-[140px] object-contain sm:h-16 sm:max-w-[160px] md:h-20 md:max-w-[180px] lg:h-24 lg:max-w-[200px] filter drop-shadow-lg bg-white rounded-lg p-2"
-                    onError={(e) => {
-                      e.target.src = "/generic-brand-logo.png"
-                    }}
-                  />
-                </div>
+                
               </div>
             </div>
           ))}

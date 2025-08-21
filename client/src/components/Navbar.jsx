@@ -79,6 +79,7 @@ const Navbar = () => {
 
   const navigateToCategory = (categoryId = "") => {
     const base = "/products?"
+    console.log("[v0] Navigating to category:", categoryId) // Added debugging for category navigation
     navigate(categoryId ? `${base}category=${categoryId}` : base)
   }
 

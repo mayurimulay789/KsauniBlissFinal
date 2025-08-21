@@ -50,40 +50,29 @@ const ProductsPage = () => {
     [filters],
   )
 
-  const getFiltersFromURL = useCallback(
-    () => ({
+  const getFiltersFromURL = useCallback(() => {
+    const urlFilters = {
       category: searchParams.get("category") || "",
       search: searchParams.get("search") || "",
       minPrice: searchParams.get("minPrice") || "",
       maxPrice: searchParams.get("maxPrice") || "",
       minRating: searchParams.get("minRating") || "",
-    }),
-    [searchParams],
-  )
-
-  // Legacy redirect: if ?category=<ObjectId> and no slug in path, translate to slug
-  useEffect(() => {
-    const legacyId = searchParams.get("category")
-    if (legacyId && categories?.length > 0 && !categorySlug) {
-      const cat = categories.find((c) => c._id === legacyId)
-      if (cat?.slug) {
-        const params = new URLSearchParams(searchParams.toString())
-        params.delete("category")
-        const qs = params.toString()
-        navigate(qs ? `/products/${cat.slug}?${qs}` : `/products/${cat.slug}`, { replace: true })
-      }
     }
-  }, [categories, searchParams, categorySlug, navigate])
-  // Initialize filters from URL
-  useEffect(() => {
-    const urlFilters = getFiltersFromURL()
-    dispatch(setFilters(urlFilters))
-  }, [getFiltersFromURL, dispatch, searchParams])
+    console.log("[v0] URL search params:", Object.fromEntries(searchParams.entries()))
+    console.log("[v0] Extracted filters from URL:", urlFilters)
+    return urlFilters
+  }, [searchParams])
 
   // Fetch categories once
   useEffect(() => {
     dispatch(fetchCategories())
   }, [dispatch])
+
+  useEffect(() => {
+    const urlFilters = getFiltersFromURL()
+    console.log("[v0] Setting filters from URL:", urlFilters)
+    dispatch(setFilters(urlFilters))
+  }, [getFiltersFromURL, dispatch])
 
   // Fetch products when filters change
   useEffect(() => {
@@ -96,48 +85,50 @@ const ProductsPage = () => {
       return acc
     }, {})
 
+    console.log("[v0] Current filters state:", filters)
+    console.log("[v0] Clean filters for API:", cleanFilters)
     dispatch(fetchProducts({ ...cleanFilters, limit: 100 }))
   }, [dispatch, filters, searchParams])
 
   const handleAddToCart = useCallback(
-  async (product, e) => {
-    e.preventDefault()
-    e.stopPropagation()
+    async (product, e) => {
+      e.preventDefault()
+      e.stopPropagation()
 
-    if (!user) {
-      navigate("/login", { state: { from: window.location.pathname } })
-      toast.error("Please login to add items to cart")
-      return
-    }
+      if (!user) {
+        navigate("/login", { state: { from: window.location.pathname } })
+        toast.error("Please login to add items to cart")
+        return
+      }
 
-    // ✅ must send productId, not product
-    const cartItem = {
-      productId: product._id,
-      quantity: 1,
-      size: product.sizes?.[0]?.size || "",
-      color: product.colors?.[0]?.name || "",
-    }
-
-    // Optimistic UI update
-    dispatch(
-      optimisticAddToCart({
-        product,
+      // ✅ must send productId, not product
+      const cartItem = {
+        productId: product._id,
         quantity: 1,
-        size: cartItem.size,
-        color: cartItem.color,
-      })
-    )
+        size: product.sizes?.[0]?.size || "",
+        color: product.colors?.[0]?.name || "",
+      }
 
-    try {
-      await dispatch(addToCart(cartItem)).unwrap()
-      toast.success(`${product.name} added to cart!`)
-    } catch (error) {
-      toast.error("Failed to add item to cart. Please try again.")
-      console.error("Add to cart error:", error)
-    }
-  },
-  [dispatch, navigate, user]
-)
+      // Optimistic UI update
+      dispatch(
+        optimisticAddToCart({
+          product,
+          quantity: 1,
+          size: cartItem.size,
+          color: cartItem.color,
+        }),
+      )
+
+      try {
+        await dispatch(addToCart(cartItem)).unwrap()
+        toast.success(`${product.name} added to cart!`)
+      } catch (error) {
+        toast.error("Failed to add item to cart. Please try again.")
+        console.error("Add to cart error:", error)
+      }
+    },
+    [dispatch, navigate, user],
+  )
 
   const handleWishlist = useCallback(
     async (product, e) => {
@@ -165,17 +156,9 @@ const ProductsPage = () => {
 
   const handleFilterChange = useCallback(
     (newFilters) => {
-      if (Object.prototype.hasOwnProperty.call(newFilters, "category")) {
-        const nextSlug = newFilters.category || ""
-        const params = new URLSearchParams(searchParams.toString())
-        params.delete("category")
-        const qs = params.toString()
-        const base = nextSlug ? `/products/${nextSlug}` : `/products`
-        navigate(qs ? `${base}?${qs}` : base)
-      }
       dispatch(setFilters({ ...filters, ...newFilters }))
     },
-    [dispatch, filters, navigate, searchParams],
+    [dispatch, filters],
   )
 
   const clearAllFilters = useCallback(() => {

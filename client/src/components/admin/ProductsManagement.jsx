@@ -154,24 +154,24 @@ const ProductsManagement = () => {
 
   const openEditModal = (product) => {
     setEditingProduct(product)
-   setFormData({
-  name: product.name,
-  brand: product.brand || "KSAUNIBLISS",
-  productDetails: product.productDetails || "",
-  material: product.material || "",
-  fits: product.fits || "regular",
-  description: product.description,
-  price: product.price,
-  originalPrice: product.originalPrice || "",
-  category: product.category?._id || "",
-  subcategory: product.subcategory || "",
-  sizes: product.sizes || [],
-  colors: product.colors || [],
-  tags: product.tags || [],
-  stock: product.stock,
-  weight: product.weight || "",
-  dimensions: product.dimensions || { length: "", width: "", height: "" },
-})
+    setFormData({
+      name: product.name || "",
+      brand: product.brand || "KSAUNIBLISS",
+      productDetails: product.productDetails || "",
+      material: product.material || "",
+      fits: product.fits || "regular",
+      description: product.description || "",
+      price: product.price || "",
+      originalPrice: product.originalPrice || "",
+      category: product.category?._id || "",
+      subcategory: product.subcategory || "",
+      sizes: product.sizes || [],
+      colors: product.colors || [],
+      tags: product.tags || [],
+      stock: product.stock || "",
+      weight: product.weight || "",
+      dimensions: product.dimensions || { length: "", width: "", height: "" },
+    })
     setShowModal(true)
   }
 
@@ -522,11 +522,12 @@ const ProductsManagement = () => {
                       onChange={(e) => setFormData({ ...formData, fits: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="">Select Fit</option>
                       <option value="regular">Regular</option>
                       <option value="loose">Loose</option>
                       <option value="oversized">Oversized</option>
                       <option value="crop">Crop</option>
+                      <option value="slim">Slim</option>
+                      <option value="fitted">Fitted</option>
                     </select>
                   </div>
                   <div>

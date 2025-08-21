@@ -4,13 +4,7 @@ import { useState, useEffect, memo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, X, Tag, DollarSign, Star } from "lucide-react"
 
-const ProductFilters = memo(({ 
-  filters, 
-  categories, 
-  onFilterChange, 
-  onClearFilters, 
-  onClose 
-}) => {
+const ProductFilters = memo(({ filters, categories, onFilterChange, onClearFilters, onClose }) => {
   const [expandedSections, setExpandedSections] = useState({
     categories: true,
     price: true,
@@ -21,8 +15,8 @@ const ProductFilters = memo(({
   useEffect(() => {
     if (filters.minRating) {
       // Convert minRating back to selected ratings
-      const rating = parseFloat(filters.minRating)
-      const ratingsToSelect = [4, 3, 2, 1].filter(r => r >= rating)
+      const rating = Number.parseFloat(filters.minRating)
+      const ratingsToSelect = [4, 3, 2, 1].filter((r) => r >= rating)
       setSelectedRatings(ratingsToSelect)
     } else {
       setSelectedRatings([])
@@ -30,7 +24,7 @@ const ProductFilters = memo(({
   }, [filters.minRating])
 
   const toggleSection = (section) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }))
+    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }))
   }
 
   const priceRanges = [
@@ -51,16 +45,16 @@ const ProductFilters = memo(({
   }
 
   const handleRatingChange = (rating) => {
-    const newRatings = selectedRatings.includes(rating) 
-      ? selectedRatings.filter((r) => r !== rating) 
+    const newRatings = selectedRatings.includes(rating)
+      ? selectedRatings.filter((r) => r !== rating)
       : [...selectedRatings, rating]
-    
+
     // Calculate the minimum rating from selected ratings
     const minRating = newRatings.length > 0 ? Math.max(...newRatings) : null
-    
+
     setSelectedRatings(newRatings)
-    onFilterChange({ 
-      minRating: minRating ? minRating.toString() : ""
+    onFilterChange({
+      minRating: minRating ? minRating.toString() : "",
     })
   }
 
@@ -83,7 +77,6 @@ const ProductFilters = memo(({
           </motion.button>
         )}
       </div>
-
 
       <div className="pb-4 border-b border-gray-100">
         <motion.button
@@ -130,8 +123,8 @@ const ProductFilters = memo(({
                     <input
                       type="radio"
                       name="category"
-                      checked={filters.category === category.slug}
-                      onChange={() => onFilterChange({ category: category.slug })}
+                      checked={filters.category === category._id}
+                      onChange={() => onFilterChange({ category: category._id })}
                       className="w-4 h-4 border-gray-300 rounded text-ksauni-red focus:ring-ksauni-red"
                     />
                     <span className="ml-2">{category.name}</span>
@@ -273,4 +266,4 @@ const ProductFilters = memo(({
 
 ProductFilters.displayName = "ProductFilters"
 
-export default ProductFilters;
+export default ProductFilters

@@ -101,18 +101,24 @@ const productSchema = new mongoose.Schema(
       width: Number,
       height: Number,
     },
-    // New fields added
     brand: {
       type: String,
       trim: true,
       default: "",
     },
-    productDetails: [
-      {
-        label: String,
-        value: String,
-      },
-    ],
+    productDetails: {
+      type: String,
+      default: "",
+    },
+    material: {
+      type: String,
+      default: "",
+    },
+    fits: {
+      type: String,
+      enum: ["regular", "slim", "oversized", "loose", "fitted", "crop"],
+      default: "regular",
+    },
     modelSizeFit: {
       modelHeight: String,
       modelChest: String,
