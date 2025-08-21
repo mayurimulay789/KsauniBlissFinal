@@ -2,7 +2,7 @@ import React from "react"
 import { useSelector } from "react-redux"
 import { Link } from "react-router-dom"
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react"
-
+import logo from "../../public/logo.png"
 const Footer = () => {
   const { categories } = useSelector((state) => state.categories || {})
 
@@ -17,7 +17,7 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="flex items-center gap-2 text-lg font-semibold">
               <img
-                src="logo company bg.png"
+                src={logo}
                 alt="Company Logo"
                 className="inline-block w-16 h-auto"
               />

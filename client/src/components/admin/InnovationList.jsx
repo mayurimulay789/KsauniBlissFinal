@@ -70,10 +70,7 @@ const InnovationList = () => {
                     alt={innovation.title}
                     className="object-cover w-full h-28 transition-transform duration-300 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center pt-6 px-4 opacity-100 transition-opacity duration-300">
-                    <h3 className="text-white text-md font-semibold mb-3 text-center px-2">{innovation.title}</h3>
-                    <p className="text-white text-xs text-center px-2 py-2">{innovation.description}</p>
-                  </div>
+                  
                 </div>
               ))}
             </div>

@@ -168,15 +168,29 @@ const getProduct = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     const {
-      name, description, price, originalPrice, category, subcategory,
-      sizes, colors, tags, stock, weight, dimensions,
-    } = req.body;
+      name,
+      description,
+      price,
+      originalPrice,
+      category,
+      subcategory,
+      sizes,
+      colors,
+      tags,
+      stock,
+      weight,
+      dimensions,
+      brand,
+      productDetails,
+      material,
+      fits,
+    } = req.body
 
-    const images = [];
+    const images = []
     if (req.files && req.files.length) {
       for (const file of req.files) {
-        const result = await uploadToCloudinary(file.buffer, "products");
-        images.push({ url: result.secure_url, alt: name });
+        const result = await uploadToCloudinary(file.buffer, "products")
+        images.push({ url: result.secure_url, alt: name })
       }
     }
 
@@ -194,50 +208,92 @@ const createProduct = async (req, res) => {
       stock: Number(stock) || 0,
       weight: weight ? Number(weight) : undefined,
       dimensions: parseJson(dimensions, undefined),
-    });
+      brand: brand || "",
+      productDetails: productDetails || "",
+      material: material || "",
+      fits: fits || "regular",
+    })
 
-    await product.save();
-    await Category.findByIdAndUpdate(category, { $inc: { productCount: 1 } });
+    await product.save()
+    await Category.findByIdAndUpdate(category, { $inc: { productCount: 1 } })
 
-    res.status(201).json({ success: true, message: "Product created successfully", product });
+    res.status(201).json({ success: true, message: "Product created successfully", product })
   } catch (error) {
-    console.error("Create product error:", error);
-    res.status(500).json({ success: false, message: "Failed to create product" });
+    console.error("Create product error:", error)
+    res.status(500).json({ success: false, message: "Failed to create product" })
   }
-};
+}
+;
 
 // Update product (Admin only)
 const updateProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updateData = req.body;
+    const { id } = req.params
+    const updateData = req.body
 
-    const product = await Product.findById(id);
+    const product = await Product.findById(id)
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      return res.status(404).json({ success: false, message: "Product not found" })
     }
 
     if (req.files && req.files.length) {
-      const newImages = [];
+      const newImages = []
       for (const file of req.files) {
-        const result = await uploadToCloudinary(file.buffer, "products");
-        newImages.push({ url: result.secure_url, alt: updateData.name || product.name });
+        const result = await uploadToCloudinary(file.buffer, "products")
+        newImages.push({ url: result.secure_url, alt: updateData.name || product.name })
       }
-      updateData.images = [...product.images, ...newImages];
+      updateData.images = [...product.images, ...newImages]
     }
 
-    updateData.sizes = parseJson(updateData.sizes, product.sizes);
-    updateData.colors = parseJson(updateData.colors, product.colors);
-    updateData.tags = parseJson(updateData.tags, product.tags);
-    updateData.dimensions = parseJson(updateData.dimensions, product.dimensions);
+    if (updateData.sizes) {
+      updateData.sizes = parseJson(updateData.sizes, product.sizes)
+    }
+    if (updateData.colors) {
+      updateData.colors = parseJson(updateData.colors, product.colors)
+    }
+    if (updateData.tags) {
+      updateData.tags = parseJson(updateData.tags, product.tags)
+    }
+    if (updateData.dimensions) {
+      updateData.dimensions = parseJson(updateData.dimensions, product.dimensions)
+    }
 
-    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true, runValidators: true })
-      .populate("category", "name slug");
+    if (updateData.brand !== undefined) {
+      updateData.brand = String(updateData.brand || "")
+    }
+    if (updateData.productDetails !== undefined) {
+      updateData.productDetails = String(updateData.productDetails || "")
+    }
+    if (updateData.material !== undefined) {
+      updateData.material = String(updateData.material || "")
+    }
+    if (updateData.fits !== undefined) {
+      updateData.fits = String(updateData.fits || "regular")
+    }
 
-    res.status(200).json({ success: true, message: "Product updated successfully", product: updatedProduct });
+    if (updateData.price !== undefined) {
+      updateData.price = Number(updateData.price)
+    }
+    if (updateData.originalPrice !== undefined) {
+      updateData.originalPrice = updateData.originalPrice ? Number(updateData.originalPrice) : undefined
+    }
+    if (updateData.stock !== undefined) {
+      updateData.stock = Number(updateData.stock) || 0
+    }
+    if (updateData.weight !== undefined) {
+      updateData.weight = updateData.weight ? Number(updateData.weight) : undefined
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+      strict: true,
+    }).populate("category", "name slug")
+
+    res.status(200).json({ success: true, message: "Product updated successfully", product: updatedProduct })
   } catch (error) {
-    console.error("Update product error:", error);
-    res.status(500).json({ success: false, message: "Failed to update product" });
+    console.error("Update product error:", error)
+    res.status(500).json({ success: false, message: "Failed to update product" })
   }
 };
 

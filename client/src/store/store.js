@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit"
-import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist'
-import storage from 'redux-persist/lib/storage'
+import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist"
+import storage from "redux-persist/lib/storage"
 import authReducer from "./slices/authSlice"
 import productReducer from "./slices/productSlice"
 import categoryReducer from "./slices/categorySlice"
@@ -16,6 +16,7 @@ import digitalMarketerReducer from "./slices/digitalMarketerSlice"
 import searchSlice from "./slices/searchSlice"
 import popupReducer from "./slices/popupSlice"
 import innovationReducer from "./slices/innovationSlice"
+import ksauniTshirtReducer from "./slices/ksauniTshirtSlice"
 
 const innovationPersistConfig = {
   key: "innovations",
@@ -24,7 +25,6 @@ const innovationPersistConfig = {
 }
 
 const persistedInnovationReducer = persistReducer(innovationPersistConfig, innovationReducer)
-
 
 export const store = configureStore({
   reducer: {
@@ -44,13 +44,14 @@ export const store = configureStore({
     search: searchSlice,
     popup: popupReducer,
     innovations: persistedInnovationReducer,
+    ksauniTshirt: ksauniTshirtReducer, // Added missing ksauniTshirt reducer to store
   },
-   middleware: (getDefaultMiddleware) =>
-     getDefaultMiddleware({
-       serializableCheck: {
-         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-       },
-     }),
- })
- 
- export const persistor = persistStore(store)
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
+})
+
+export const persistor = persistStore(store)

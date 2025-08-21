@@ -14,6 +14,7 @@ import BannersManagement from "../../components/admin/BannersManagement"
 import UsersManagement from "../../components/admin/UserMangement"
 import InnovationManagement from "../../components/admin/InnovationManagement"
 import CouponsManagement from "../../components/admin/CouponsManagement"
+import KsauniTshirtManagement from "../../components/admin/KsauniTshirtMangement"
 import { clearError, clearSuccess } from "../../store/slices/adminSlice"
 
 const AdminDashboard = () => {
@@ -59,6 +60,8 @@ const AdminDashboard = () => {
         return "Users Management"
       case "innovations":
         return "Innovation Management"
+        case "ksaunitshirtstyle":
+        return "KsauniTshirtStyle Mangement"
       case "coupons":
         return "Coupons Management"
       default:
@@ -87,6 +90,8 @@ const AdminDashboard = () => {
               <Route path="orders" element={<OrdersManagement />} />
               <Route path="banners" element={<BannersManagement />} />
               <Route path="innovations" element={<InnovationManagement />} />
+                <Route path="ksaunitshirtstyle" element={<KsauniTshirtManagement />} />
+
               {user.role === "admin" && (
                 <>
                   <Route path="users" element={<UsersManagement />} />
