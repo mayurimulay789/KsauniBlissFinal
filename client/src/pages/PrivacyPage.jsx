@@ -1,455 +1,306 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
+import { useState } from "react"
 import {
+  FileText,
   Shield,
-  Eye,
-  Lock,
-  Database,
-  Share2,
-  Settings,
+  CreditCard,
+  Truck,
+  RotateCcw,
   AlertTriangle,
   CheckCircle,
   Globe,
-  Smartphone,
+  ChevronDown,
+  Lock,
+  Eye,
+  Users,
 } from "lucide-react"
 
-import Footer from "../components/Footer"
-
 const PrivacyPage = () => {
+  const [expandedSection, setExpandedSection] = useState(null)
+
   const sections = [
     {
-      id: "introduction",
-      title: "Introduction",
-      icon: Shield,
-      content: `
-        At Kasuni Bliss, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website, use our mobile application, or make a purchase from us.
-
-        We respect your privacy rights and are committed to transparency about our data practices. This policy applies to all users of our services, regardless of location.
-      `,
+      id: "acceptance",
+      title: "Acceptance of Terms",
+      icon: FileText,
+      color: "bg-blue-500",
+      content: `By accessing or using the Ksauni Bliss website (www.ksaunibliss.com), you agree to be bound by these Terms of Service and any other terms that may apply. If you do not agree to these terms, please do not use the website or purchase products.`,
     },
     {
-      id: "information-collect",
-      title: "Information We Collect",
-      icon: Database,
-      content: `
-        Personal Information:
-        • Name, email address, phone number
-        • Billing and shipping addresses
-        • Payment information (processed securely by our payment partners)
-        • Date of birth and gender (optional)
-        • Account credentials and preferences
-
-        Automatically Collected Information:
-        • IP address and device information
-        • Browser type and version
-        • Operating system and device type
-        • Pages visited and time spent on our site
-        • Referring website and search terms
-        • Location data (with your permission)
-
-        Information from Third Parties:
-        • Social media profile information (when you connect accounts)
-        • Information from our business partners and service providers
-        • Public databases and marketing partners
-      `,
-    },
-    {
-      id: "how-we-use",
-      title: "How We Use Your Information",
-      icon: Settings,
-      content: `
-        We use your information for the following purposes:
-
-        Service Provision:
-        • Processing and fulfilling your orders
-        • Managing your account and preferences
-        • Providing customer support and assistance
-        • Sending order confirmations and shipping updates
-
-        Improvement and Personalization:
-        • Personalizing your shopping experience
-        • Recommending products based on your preferences
-        • Analyzing usage patterns to improve our services
-        • Conducting research and analytics
-
-        Communication:
-        • Sending promotional emails and newsletters (with consent)
-        • Notifying you about sales, new products, and special offers
-        • Responding to your inquiries and feedback
-        • Sending important service announcements
-
-        Legal and Security:
-        • Preventing fraud and ensuring security
-        • Complying with legal obligations
-        • Protecting our rights and property
-        • Enforcing our terms and conditions
-      `,
-    },
-    {
-      id: "information-sharing",
-      title: "Information Sharing",
-      icon: Share2,
-      content: `
-        We may share your information in the following circumstances:
-
-        Service Providers:
-        • Payment processors for secure transaction handling
-        • Shipping companies for order delivery
-        • Email service providers for communications
-        • Analytics providers for website improvement
-        • Customer service platforms for support
-
-        Business Transfers:
-        • In case of merger, acquisition, or sale of assets
-        • During business restructuring or reorganization
-        • With successor entities or buyers
-
-        Legal Requirements:
-        • When required by law or legal process
-        • To protect our rights and property
-        • To prevent fraud or illegal activities
-        • To ensure user safety and security
-
-        With Your Consent:
-        • When you explicitly agree to share information
-        • For marketing partnerships (opt-in only)
-        • For social media integrations
-      `,
-    },
-    {
-      id: "data-security",
-      title: "Data Security",
-      icon: Lock,
-      content: `
-        We implement comprehensive security measures to protect your information:
-
-        Technical Safeguards:
-        • SSL encryption for all data transmission
-        • Secure servers with regular security updates
-        • Firewalls and intrusion detection systems
-        • Regular security audits and penetration testing
-        • Access controls and authentication systems
-
-        Operational Safeguards:
-        • Employee training on data protection
-        • Limited access to personal information
-        • Background checks for employees with data access
-        • Incident response procedures
-        • Regular backup and recovery procedures
-
-        Physical Safeguards:
-        • Secure data centers with restricted access
-        • Environmental controls and monitoring
-        • Secure disposal of physical media
-        • Visitor access controls and logging
-
-        Payment Security:
-        • PCI DSS compliance for payment processing
-        • Tokenization of payment information
-        • No storage of complete credit card numbers
-        • Secure payment gateways (Razorpay, Stripe)
-      `,
-    },
-    {
-      id: "your-rights",
-      title: "Your Privacy Rights",
-      icon: CheckCircle,
-      content: `
-        You have the following rights regarding your personal information:
-
-        Access and Portability:
-        • Request a copy of your personal information
-        • Download your data in a portable format
-        • Receive information about how we use your data
-
-        Correction and Updates:
-        • Update your account information at any time
-        • Correct inaccurate or incomplete information
-        • Request verification of data accuracy
-
-        Deletion and Erasure:
-        • Request deletion of your account and data
-        • Right to be forgotten (subject to legal requirements)
-        • Selective deletion of specific information
-
-        Control and Consent:
-        • Opt-out of marketing communications
-        • Manage cookie preferences
-        • Control data sharing with third parties
-        • Withdraw consent for data processing
-
-        To exercise these rights, contact us at privacy@kasunibliss.com
-      `,
-    },
-    {
-      id: "cookies",
-      title: "Cookies and Tracking",
-      icon: Eye,
-      content: `
-        We use cookies and similar technologies to enhance your experience:
-
-        Essential Cookies:
-        • Required for website functionality
-        • Shopping cart and checkout process
-        • User authentication and security
-        • Cannot be disabled
-
-        Performance Cookies:
-        • Website analytics and performance monitoring
-        • Error tracking and debugging
-        • Load time optimization
-        • User behavior analysis
-
-        Functional Cookies:
-        • Remember your preferences and settings
-        • Language and region selection
-        • Personalized content delivery
-        • Social media integration
-
-        Marketing Cookies:
-        • Targeted advertising and promotions
-        • Retargeting and remarketing
-        • Social media advertising
-        • Campaign effectiveness measurement
-
-        You can manage cookie preferences through your browser settings or our cookie consent tool.
-      `,
-    },
-    {
-      id: "international",
-      title: "International Data Transfers",
-      icon: Globe,
-      content: `
-        Your information may be transferred to and processed in countries other than your own:
-
-        Data Transfer Safeguards:
-        • Adequate protection measures in place
-        • Standard contractual clauses with service providers
-        • Compliance with applicable data protection laws
-        • Regular monitoring of transfer arrangements
-
-        Countries We May Transfer Data To:
-        • United States (for cloud services and analytics)
-        • European Union (for some service providers)
-        • Other countries with adequate protection levels
-
-        Your Rights:
-        • Right to object to international transfers
-        • Right to request information about safeguards
-        • Right to file complaints with supervisory authorities
-      `,
-    },
-    {
-      id: "children",
-      title: "Children's Privacy",
-      icon: Shield,
-      content: `
-        We are committed to protecting children's privacy:
-
-        Age Restrictions:
-        • Our services are not intended for children under 13
-        • We do not knowingly collect information from children under 13
-        • Parental consent required for users under 18
-
-        If We Discover Child Information:
-        • We will delete the information immediately
-        • We will notify parents/guardians if possible
-        • We will take steps to prevent future collection
-
-        Parental Rights:
-        • Review information collected from their child
-        • Request deletion of child's information
-        • Refuse further collection or use of child's information
-
-        If you believe we have collected information from a child under 13, please contact us immediately.
-      `,
-    },
-    {
-      id: "updates",
-      title: "Policy Updates",
+      id: "changes",
+      title: "Changes to Terms",
       icon: AlertTriangle,
-      content: `
-        We may update this Privacy Policy from time to time:
-
-        Notification of Changes:
-        • Email notification for significant changes
-        • Website banner for 30 days after updates
-        • Updated "Last Modified" date on this page
-        • Option to review previous versions
-
-        Types of Changes:
-        • Legal requirement updates
-        • New service features or functionality
-        • Changes in data processing practices
-        • Clarifications and improvements
-
-        Your Continued Use:
-        • Constitutes acceptance of updated policy
-        • Right to stop using services if you disagree
-        • Ability to download your data before leaving
-
-        We encourage you to review this policy periodically to stay informed about how we protect your information.
-      `,
+      color: "bg-amber-500",
+      content: `Ksauni Bliss reserves the right to update, modify, or change these Terms of Service at any time. Any changes will take effect immediately upon posting on this page. Please check periodically for updates. Your continued use of the site after changes have been made constitutes your acceptance of the revised terms.`,
+    },
+    {
+      id: "eligibility",
+      title: "Eligibility",
+      icon: Shield,
+      color: "bg-green-500",
+      content: `You must be at least 18 years of age to use this website and make a purchase. If you are under 18, you must have the consent of a parent or guardian to use the site and place orders.`,
+    },
+    {
+      id: "account",
+      title: "Account Responsibility",
+      icon: Users,
+      color: "bg-purple-500",
+      content: `If you create an account on our website, you are responsible for maintaining the confidentiality of your account details, including your username and password. You are also responsible for all activities that occur under your account. If you suspect any unauthorized use of your account, please contact us immediately.`,
+    },
+    {
+      id: "products",
+      title: "Product Information",
+      icon: FileText,
+      color: "bg-indigo-500",
+      content: `We make every effort to provide accurate descriptions, images, and information about the products on our website. However, we cannot guarantee that all product descriptions, pricing, or availability are completely accurate or error-free. Prices and availability are subject to change without notice.`,
+    },
+    {
+      id: "orders",
+      title: "Orders and Payment",
+      icon: CreditCard,
+      color: "bg-emerald-500",
+      content: `When you place an order, you are making an offer to buy the selected items. We reserve the right to accept or decline your order. All prices are listed in INR, and you are responsible for paying any applicable taxes, shipping charges, or duties. We accept various payment methods, including credit/debit cards and other payment processors, as indicated on our site.`,
+    },
+    {
+      id: "shipping",
+      title: "Shipping and Delivery",
+      icon: Truck,
+      color: "bg-orange-500",
+      content: `Ksauni Bliss strives to ship orders promptly. However, shipping times and availability are subject to stock and delivery service providers. Shipping fees are calculated at checkout and may vary depending on your location and the shipping method selected. We are not responsible for any delays caused by third-party delivery services.`,
+    },
+    {
+      id: "returns",
+      title: "Returns and Refunds",
+      icon: RotateCcw,
+      color: "bg-teal-500",
+      content: `Please refer to our Return and Refund Policy for detailed information regarding returns, exchanges, and refunds. By placing an order, you agree to our return and refund conditions.`,
+    },
+    {
+      id: "intellectual",
+      title: "Intellectual Property",
+      icon: Shield,
+      color: "bg-rose-500",
+      content: `All content on the Ksauni Bliss website, including logos, designs, text, images, and trademarks, is the property of Ksauni Bliss or its licensors and is protected by intellectual property laws. You may not use, reproduce, or distribute any of our content without prior written permission.`,
+    },
+    {
+      id: "conduct",
+      title: "User Conduct",
+      icon: AlertTriangle,
+      color: "bg-red-500",
+      content: `By using our website, you agree not to:
+• Engage in any unlawful, fraudulent, or harmful activities.
+• Use the website in a way that could damage, disable, or impair the functionality of the site or interfere with other users.
+• Post or transmit any harmful or offensive content, including viruses, malware, or hate speech.
+• Use the website for unauthorized commercial purposes or solicitations.`,
+    },
+    {
+      id: "liability",
+      title: "Limitation of Liability",
+      icon: Shield,
+      color: "bg-slate-500",
+      content: `Ksauni Bliss is not liable for any indirect, incidental, special, or consequential damages arising from your use of the website or our products. Our liability is limited to the amount you paid for the product(s) in question.`,
+    },
+    {
+      id: "indemnification",
+      title: "Indemnification",
+      icon: Shield,
+      color: "bg-cyan-500",
+      content: `You agree to indemnify and hold harmless Ksauni Bliss, its employees, affiliates, and partners from any claims, damages, or expenses (including legal fees) arising from your use of the website, violation of these terms, or infringement of any third-party rights.`,
+    },
+    {
+      id: "privacy",
+      title: "Privacy",
+      icon: Lock,
+      color: "bg-violet-500",
+      content: `Your privacy is important to us. Please review our Privacy Policy to understand how we collect, use, and protect your personal information.`,
+    },
+    {
+      id: "third-party",
+      title: "Third-Party Links",
+      icon: Globe,
+      color: "bg-lime-500",
+      content: `The Ksauni Bliss website may contain links to third-party websites or services that are not controlled by us. We are not responsible for the content or privacy practices of third-party websites. Clicking on those links is done at your own risk.`,
+    },
+    {
+      id: "governing",
+      title: "Governing Law",
+      icon: FileText,
+      color: "bg-sky-500",
+      content: `These Terms of Service are governed by the laws of India. Any legal action arising from these terms will be subject to the jurisdiction of the courts in India.`,
+    },
+    {
+      id: "dispute",
+      title: "Dispute Resolution",
+      icon: CheckCircle,
+      color: "bg-emerald-600",
+      content: `In the event of any dispute, we encourage you to first contact us directly to resolve the issue. If we are unable to resolve the dispute informally, you agree to submit any unresolved disputes to binding arbitration or mediation, as per the laws in your jurisdiction.`,
+    },
+    {
+      id: "termination",
+      title: "Termination",
+      icon: AlertTriangle,
+      color: "bg-red-600",
+      content: `We reserve the right to suspend or terminate your access to the website if we believe you have violated these terms or engaged in any unauthorized or harmful activity. This includes, but is not limited to, engaging in fraudulent or illegal activities, or violating intellectual property rights.`,
+    },
+    {
+      id: "contact",
+      title: "Contact Information",
+      icon: FileText,
+      color: "bg-blue-600",
+      content: `If you have any questions about these Terms of Service or need assistance, please contact us at support@ksaunibliss.com or call us at +91-9876543210.`,
     },
   ]
 
-  const dataTypes = [
-    { icon: Smartphone, title: "Device Information", description: "Device type, OS, browser details" },
-    { icon: Globe, title: "Location Data", description: "IP-based location, GPS (with permission)" },
-    { icon: Eye, title: "Usage Analytics", description: "Pages visited, time spent, interactions" },
-    { icon: Lock, title: "Security Data", description: "Login attempts, security events" },
-  ]
+  const toggleSection = (sectionId) => {
+    setExpandedSection(expandedSection === sectionId ? null : sectionId)
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Hero Section */}
-      <section className="py-16 bg-gradient-to-br from-red-50 to-red-50">
-        <div className="container px-4 mx-auto">
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 opacity-90"></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=60 height=60 viewBox=0 0 60 60 xmlns=http://www.w3.org/2000/svg%3E%3Cg fill=none fill-rule=evenodd%3E%3Cg fill=%23ffffff fill-opacity=0.1%3E%3Ccircle cx=30 cy=30 r=2/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+
+        <div className="container relative px-4 mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="max-w-3xl mx-auto text-center"
+            className="max-w-4xl mx-auto text-center text-white"
           >
-            <h1 className="mb-6 text-4xl font-bold text-gray-800 md:text-5xl">
-              Privacy <span className="text-red-500">Policy</span>
-            </h1>
-            <p className="mb-8 text-xl text-gray-600">
-              Your privacy is important to us. Learn how we collect, use, and protect your personal information.
-            </p>
-            <div className="inline-block p-4 bg-white rounded-lg shadow-md">
-              <p className="text-sm text-gray-600">
-                <strong>Last Updated:</strong> January 15, 2024
-              </p>
+            <div className="flex items-center justify-center mb-6">
+              <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
+                <Eye className="w-12 h-12" />
+              </div>
             </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Quick Overview */}
-      <section className="py-16 bg-white">
-        <div className="container px-4 mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="mb-8 text-3xl font-bold text-center text-gray-800">Data We Collect</h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {dataTypes.map((type, index) => (
-                <motion.div
-                  key={type.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className="p-6 text-center bg-gray-50 rounded-xl"
-                >
-                  <div className="inline-block p-3 mb-4 bg-orange-100 rounded-full">
-                    <type.icon className="w-6 h-6 text-orange-500" />
-                  </div>
-                  <h3 className="mb-2 font-semibold text-gray-800">{type.title}</h3>
-                  <p className="text-sm text-gray-600">{type.description}</p>
-                </motion.div>
-              ))}
+            <h1 className="mb-6 text-5xl font-bold md:text-6xl">Privacy Policy</h1>
+            <p className="mb-8 text-xl opacity-90 leading-relaxed">
+              Transparency in how we handle your personal information and protect your privacy
+            </p>
+            <div className="inline-flex items-center px-6 py-3 bg-white/20 backdrop-blur-sm rounded-full">
+              <Lock className="w-5 h-5 mr-2" />
+              <span className="text-sm font-medium">Last Updated: January 15, 2024</span>
             </div>
           </motion.div>
         </div>
       </section>
 
       {/* Privacy Policy Content */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16">
         <div className="container px-4 mx-auto">
           <div className="max-w-4xl mx-auto">
-            <div className="space-y-8">
+            {/* Introduction */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="p-8 mb-12 bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border border-white/20"
+            >
+              <div className="flex items-center mb-6">
+                <div className="p-3 mr-4 bg-blue-100 rounded-xl">
+                  <Shield className="w-8 h-8 text-blue-600" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-800">Your Privacy Matters</h2>
+              </div>
+              <p className="text-lg leading-relaxed text-gray-600">
+                Welcome to Ksauni Bliss! By using our website, making purchases, or interacting with our services, you
+                agree to follow these Terms of Service. Please read them carefully to understand your rights and
+                responsibilities.
+              </p>
+            </motion.div>
+
+            {/* Accordion Sections */}
+            <div className="space-y-4">
               {sections.map((section, index) => (
                 <motion.div
                   key={section.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.5 }}
                   viewport={{ once: true }}
-                  className="overflow-hidden bg-white shadow-lg rounded-xl"
+                  className="bg-white/80 backdrop-blur-sm shadow-lg rounded-xl border border-white/20 overflow-hidden"
                 >
-                  <div className="p-8">
-                    <div className="flex items-center mb-6">
-                      <div className="p-3 mr-4 bg-orange-100 rounded-full">
-                        <section.icon className="w-6 h-6 text-orange-500" />
+                  <button
+                    onClick={() => toggleSection(section.id)}
+                    className="w-full p-6 text-left transition-all duration-200 hover:bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className={`p-3 mr-4 ${section.color} rounded-xl`}>
+                          <section.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <h3 className="text-xl font-semibold text-gray-800">{section.title}</h3>
                       </div>
-                      <h3 className="text-2xl font-bold text-gray-800">{section.title}</h3>
+                      <motion.div
+                        animate={{ rotate: expandedSection === section.id ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown className="w-6 h-6 text-gray-400" />
+                      </motion.div>
                     </div>
-                    <div className="leading-relaxed text-gray-600 whitespace-pre-line">{section.content}</div>
-                  </div>
+                  </button>
+
+                  <AnimatePresence>
+                    {expandedSection === section.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-6 pb-6">
+                          <div className="pl-16">
+                            <div className="p-4 bg-gray-50/50 rounded-lg">
+                              <p className="leading-relaxed text-gray-700 whitespace-pre-line">{section.content}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               ))}
             </div>
 
-            {/* Contact Information */}
+            {/* Contact CTA */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="p-8 mt-12 text-white bg-gradient-to-r from-red-500 to-red-500 rounded-xl"
+              className="p-8 mt-12 text-center bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl text-white"
             >
-              <div className="text-center">
-                <Shield className="w-16 h-16 mx-auto mb-6 opacity-90" />
-                <h3 className="mb-4 text-2xl font-bold">Questions About Your Privacy?</h3>
-                <p className="mb-6 text-lg opacity-90">
-                  If you have any questions about this Privacy Policy or our data practices, we're here to help.
-                </p>
-                <div className="grid gap-6 text-left md:grid-cols-2">
-                  <div>
-                    <h4 className="mb-2 font-semibold">Privacy Officer</h4>
-                    <p className="opacity-90">privacy@kasunibliss.com</p>
-                  </div>
-                  <div>
-                    <h4 className="mb-2 font-semibold">Data Protection</h4>
-                    <p className="opacity-90">dpo@kasunibliss.com</p>
-                  </div>
-                  <div>
-                    <h4 className="mb-2 font-semibold">General Inquiries</h4>
-                    <p className="opacity-90">support@kasunibliss.com</p>
-                  </div>
-                  <div>
-                    <h4 className="mb-2 font-semibold">Phone Support</h4>
-                    <p className="opacity-90">+91-9876543210</p>
-                  </div>
+              <div className="flex items-center justify-center mb-4">
+                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                  <FileText className="w-8 h-8" />
                 </div>
               </div>
-            </motion.div>
-
-            {/* Quick Actions */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="p-6 mt-8 bg-white shadow-lg rounded-xl"
-            >
-              <h3 className="mb-4 text-lg font-bold text-gray-800">Quick Actions</h3>
-              <div className="grid gap-4 md:grid-cols-3">
-                <button className="flex items-center p-3 transition-colors rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-500">
-                  <Settings className="w-5 h-5 mr-3" />
-                  <span className="font-medium">Manage Preferences</span>
-                </button>
-                <button className="flex items-center p-3 transition-colors rounded-lg bg-gray-50 hover:bg-red-50 hover:text-red-500">
-                  <Database className="w-5 h-5 mr-3" />
-                  <span className="font-medium">Download My Data</span>
-                </button>
-                <button className="flex items-center p-3 transition-colors rounded-lg bg-gray-50 hover:bg-red-50 hover:text-red-500">
-                  <AlertTriangle className="w-5 h-5 mr-3" />
-                  <span className="font-medium">Delete Account</span>
-                </button>
+              <h3 className="mb-4 text-2xl font-bold">Questions About Our Privacy Policy?</h3>
+              <p className="mb-6 text-lg opacity-90">
+                We're here to help clarify any concerns you may have about how we handle your personal information.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="mailto:support@ksaunibliss.com"
+                  className="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Email Us
+                </a>
+                <a
+                  href="tel:+919876543210"
+                  className="inline-flex items-center px-6 py-3 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-lg hover:bg-white/30 transition-colors"
+                >
+                  Call +91-9876543210
+                </a>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   )
 }

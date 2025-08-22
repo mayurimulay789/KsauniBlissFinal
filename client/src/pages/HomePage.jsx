@@ -14,14 +14,14 @@ import Oversized899 from "../components/Oversized899"
 import PromoBanners from "../components/PromoBanners"
 import CategoryBanner from "../components/CategoryBanner"
 import InnovationList from "../components/admin/InnovationList"
-import KsauniTshirtStyle from "../components/KsauniTshirtStyle"
+import KsauniTshirtStyle from "../components/admin/KsauniTshirtStyle"
 // import FirstUserCoupon from "../components/FirstUserCoupon"
 // import AboutBrand from "../components/AboutBrand"
 import FeaturedHighlight from '../components/FeaturedHighlight'
 import Testimonials from "../components/Testimonials"
 import Popup from "../components/Popup"
 import BrandIndia from "../components/BrandIndia"
-
+import TopPicksShowcase from "../components/TopPicksShowCase"
 import {
   fetchTrendingProducts,
   fetchNewArrivals,
@@ -141,6 +141,7 @@ const HomePage = () => {
               <PriceSelection/>
           <FeaturedCategories />
           <TrendingProducts />
+          {/* <TopPicksShowcase/> */}
           <FandomShop />
              <NewArrivals />
           <Oversized899 />

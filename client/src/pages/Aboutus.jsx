@@ -39,62 +39,9 @@ const AboutUsPage = () => {
     },
   ]
 
-  const team = [
-    {
-      name: "Kasuni Perera",
-      role: "Founder & CEO",
-      image: "/placeholder.svg?height=300&width=300",
-      bio: "Fashion enthusiast with 15+ years in the industry, passionate about making style accessible to everyone.",
-    },
-    {
-      name: "Arjun Sharma",
-      role: "Head of Design",
-      image: "/placeholder.svg?height=300&width=300",
-      bio: "Award-winning designer who brings creativity and innovation to every collection we create.",
-    },
-    {
-      name: "Priya Nair",
-      role: "Operations Director",
-      image: "/placeholder.svg?height=300&width=300",
-      bio: "Operations expert ensuring smooth delivery and exceptional customer service across all touchpoints.",
-    },
-    {
-      name: "Rahul Gupta",
-      role: "Technology Lead",
-      image: "/placeholder.svg?height=300&width=300",
-      bio: "Tech innovator building the future of online fashion retail with cutting-edge solutions.",
-    },
-  ]
+  
 
-  const milestones = [
-    {
-      year: "2016",
-      title: "The Beginning",
-      description:
-        "Kasuni Bliss was founded with a vision to democratize fashion and make style accessible to everyone.",
-    },
-    {
-      year: "2018",
-      title: "First Million",
-      description: "Reached our first million customers and expanded to 50 cities across India.",
-    },
-    {
-      year: "2020",
-      title: "Sustainable Initiative",
-      description: "Launched our eco-friendly collection and committed to sustainable fashion practices.",
-    },
-    {
-      year: "2022",
-      title: "International Expansion",
-      description: "Expanded operations to Southeast Asia and launched our mobile app.",
-    },
-    {
-      year: "2024",
-      title: "Innovation Hub",
-      description: "Opened our design and innovation center, focusing on AI-driven personalization.",
-    },
-  ]
-
+  
   return (
     <div className="min-h-screen bg-white">
 
@@ -180,12 +127,7 @@ const AboutUsPage = () => {
                   make fashion accessible, sustainable, and joyful for everyone.
                 </p>
               </div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="inline-block px-8 py-3 mt-8 font-semibold text-white transition-colors bg-red-500 rounded-lg cursor-pointer hover:bg-red-600"
-              >
-                Join Our Journey
-              </motion.div>
+              
             </motion.div>
 
             <motion.div
@@ -195,7 +137,7 @@ const AboutUsPage = () => {
               viewport={{ once: true }}
               className="relative"
             >
-              <img src="/placeholder.svg?height=500&width=600" alt="Our Story" className="shadow-2xl rounded-2xl" />
+              <img src="https://media.istockphoto.com/id/1428709516/photo/shopping-online-woman-hand-online-shopping-on-laptop-computer-with-virtual-graphic-icon.jpg?s=612x612&w=0&k=20&c=ROAncmFL4lbSQdU4VOhyXu-43ngzfEqHE5ZZAw5FtYk=" alt="Our Story" className="shadow-2xl rounded-2xl" />
               <div className="absolute p-6 bg-white shadow-lg -bottom-6 -left-6 rounded-xl">
                 <div className="flex items-center space-x-3">
                   <div className="p-3 bg-red-100 rounded-full">
@@ -251,90 +193,10 @@ const AboutUsPage = () => {
       </section>
 
       {/* Timeline Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container px-4 mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="mb-16 text-center"
-          >
-            <h2 className="mb-6 text-4xl font-bold text-gray-800">Our Journey</h2>
-            <p className="max-w-3xl mx-auto text-xl text-gray-600">
-              From a small startup to a leading fashion destination - here's how we've grown
-            </p>
-          </motion.div>
-
-          <div className="max-w-4xl mx-auto">
-            {milestones.map((milestone, index) => (
-              <motion.div
-                key={milestone.year}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.2, duration: 0.6 }}
-                viewport={{ once: true }}
-                className={`flex items-center mb-12 ${index % 2 === 0 ? "flex-row" : "flex-row-reverse"}`}
-              >
-                <div className={`flex-1 ${index % 2 === 0 ? "pr-8" : "pl-8"}`}>
-                  <div className={`bg-white p-6 rounded-xl shadow-lg ${index % 2 === 0 ? "text-right" : "text-left"}`}>
-                    <div className="mb-2 text-lg font-bold text-red-500">{milestone.year}</div>
-                    <h3 className="mb-3 text-xl font-semibold text-gray-800">{milestone.title}</h3>
-                    <p className="text-gray-600">{milestone.description}</p>
-                  </div>
-                </div>
-                <div className="z-10 w-4 h-4 bg-red-500 border-4 border-white rounded-full shadow-lg"></div>
-                <div className="flex-1"></div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+     
 
       {/* Team Section */}
-      <section className="py-20 bg-white">
-        <div className="container px-4 mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="mb-16 text-center"
-          >
-            <h2 className="mb-6 text-4xl font-bold text-gray-800">Meet Our Team</h2>
-            <p className="max-w-3xl mx-auto text-xl text-gray-600">
-              The passionate individuals behind Kasuni Bliss who make the magic happen every day
-            </p>
-          </motion.div>
-
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {team.map((member, index) => (
-              <motion.div
-                key={member.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5 }}
-                className="overflow-hidden transition-all duration-300 bg-white shadow-lg rounded-xl hover:shadow-xl"
-              >
-                <div className="overflow-hidden aspect-square">
-                  <img
-                    src={member.image || "/placeholder.svg"}
-                    alt={member.name}
-                    className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="mb-1 text-xl font-semibold text-gray-800">{member.name}</h3>
-                  <div className="mb-3 font-medium text-red-500">{member.role}</div>
-                  <p className="text-sm leading-relaxed text-gray-600">{member.bio}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-br from-red-500 to-red-500">
@@ -351,20 +213,10 @@ const AboutUsPage = () => {
               Be part of our journey to make fashion accessible, sustainable, and joyful for everyone
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 font-semibold text-red-500 transition-colors bg-white rounded-lg hover:bg-gray-100"
-              >
-                Shop Now
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 font-semibold text-white transition-colors border-2 border-white rounded-lg hover:bg-white hover:text-red-500"
-              >
-                Contact Us
-              </motion.button>
+              
+               
+              
+              
             </div>
           </motion.div>
         </div>

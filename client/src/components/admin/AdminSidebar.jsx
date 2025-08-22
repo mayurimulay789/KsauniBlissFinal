@@ -1,114 +1,84 @@
 "use client"
+
 import { Link, useLocation } from "react-router-dom"
 import {
   HomeIcon,
-  ShoppingBagIcon,
+  CubeIcon,
   TagIcon,
-  ClipboardDocumentListIcon,
+  ShoppingBagIcon,
   PhotoIcon,
   UsersIcon,
+  LightBulbIcon,
   TicketIcon,
-  ArrowRightOnRectangleIcon,
+  SparklesIcon, // Replaced ShirtIcon with SparklesIcon as ShirtIcon doesn't exist in Heroicons
 } from "@heroicons/react/24/outline"
-import { useDispatch } from "react-redux"
-import { logout } from "../../store/slices/authSlice"
 
 const AdminSidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
   const location = useLocation()
-  const dispatch = useDispatch()
-
-  const handleLogout = () => {
-    dispatch(logout())
-  }
 
   const navigation = [
-    { name: "Dashboard", href: "/admin/dashboard", icon: HomeIcon, roles: ["admin", "digitalMarketer"] },
-    { name: "Products", href: "/admin/products", icon: ShoppingBagIcon, roles: ["admin"] },
-    { name: "Categories", href: "/admin/categories", icon: TagIcon, roles: ["admin"] },
-    { name: "Orders", href: "/admin/orders", icon: ClipboardDocumentListIcon, roles: ["admin"] },
-    { name: "Banners", href: "/admin/banners", icon: PhotoIcon, roles: ["admin", "digitalMarketer"] },
-    { name: "Innovation Lab", href: "/admin/innovations", icon: PhotoIcon, roles: ["admin", "digitalMarketer"] },
-    { name: "Users", href: "/admin/users", icon: UsersIcon, roles: ["admin"] },
-    { name: "Coupons", href: "/admin/coupons", icon: TicketIcon, roles: ["admin"] },
+    { name: "Dashboard", href: "/admin/dashboard", icon: HomeIcon },
+    { name: "Products", href: "/admin/products", icon: CubeIcon },
+    { name: "Categories", href: "/admin/categories", icon: TagIcon },
+    { name: "Orders", href: "/admin/orders", icon: ShoppingBagIcon },
+    { name: "Banners", href: "/admin/banners", icon: PhotoIcon },
+    { name: "Innovations", href: "/admin/innovations", icon: LightBulbIcon },
+    { name: "Kasuni T-Shirt Style", href: "/admin/ksaunitshirtstyle", icon: SparklesIcon }, // Updated icon to SparklesIcon
   ]
 
-  const filteredNavigation = navigation.filter((item) => item.roles.includes(userRole))
+  // Admin-only navigation items
+  const adminOnlyNavigation = [
+    { name: "Users", href: "/admin/users", icon: UsersIcon },
+    { name: "Coupons", href: "/admin/coupons", icon: TicketIcon },
+  ]
 
-  const isActive = (href) => {
-    return location.pathname === href || (href === "/admin/dashboard" && location.pathname === "/admin")
-  }
+  const allNavigation = userRole === "admin" ? [...navigation, ...adminOnlyNavigation] : navigation
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col px-6 pb-4 overflow-y-auto bg-white shadow-lg grow gap-y-5">
-          {/* Logo */}
-          <div className="flex items-center h-16 shrink-0">
-            <Link to="/" className="flex items-center">
-              <div className="flex items-center justify-center w-8 h-8 bg-red-500 rounded-lg">
-                <span className="text-lg font-bold text-white">F</span>
-              </div>
-              <span className="ml-2 text-xl font-bold text-gray-900">KsauniBliss</span>
-            </Link>
+        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4">
+          <div className="flex h-16 shrink-0 items-center">
+            <h1 className="text-xl font-bold text-white">Admin Panel</h1>
           </div>
-
-          {/* Navigation */}
-          <nav className="flex flex-col flex-1">
-            <ul role="list" className="flex flex-col flex-1 gap-y-7">
+          <nav className="flex flex-1 flex-col">
+            <ul role="list" className="flex flex-1 flex-col gap-y-7">
               <li>
                 <ul role="list" className="-mx-2 space-y-1">
-                  {filteredNavigation.map((item) => (
-                    <li key={item.name}>
-                      <Link
-                        to={item.href}
-                        className={`group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-colors ${
-                          isActive(item.href)
-                            ? "bg-red-50 text-red-600"
-                            : "text-gray-700 hover:text-red-600 hover:bg-red-50"
-                        }`}
-                      >
-                        <item.icon
-                          className={`h-6 w-6 shrink-0 ${
-                            isActive(item.href) ? "text-red-600" : "text-gray-400 group-hover:text-red-600"
+                  {allNavigation.map((item) => {
+                    const isActive = location.pathname === item.href
+                    return (
+                      <li key={item.name}>
+                        <Link
+                          to={item.href}
+                          className={`group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold ${
+                            isActive ? "bg-gray-800 text-white" : "text-gray-400 hover:text-white hover:bg-gray-800"
                           }`}
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </Link>
-                    </li>
-                  ))}
+                        >
+                          <item.icon className="h-6 w-6 shrink-0" />
+                          {item.name}
+                        </Link>
+                      </li>
+                    )
+                  })}
                 </ul>
-              </li>
-
-              {/* Logout */}
-              <li className="mt-auto">
-                <button
-                  onClick={handleLogout}
-                  className="flex w-full p-2 -mx-2 text-sm font-semibold leading-6 text-gray-700 transition-colors rounded-md group gap-x-3 hover:bg-red-50 hover:text-red-600"
-                >
-                  <ArrowRightOnRectangleIcon
-                    className="w-6 h-6 text-gray-400 shrink-0 group-hover:text-red-600"
-                    aria-hidden="true"
-                  />
-                  Logout
-                </button>
               </li>
             </ul>
           </nav>
         </div>
       </div>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile sidebar */}
       <div className={`relative z-50 lg:hidden ${sidebarOpen ? "" : "hidden"}`}>
         <div className="fixed inset-0 bg-gray-900/80" />
         <div className="fixed inset-0 flex">
-          <div className="relative flex flex-1 w-full max-w-xs mr-16">
-            <div className="absolute top-0 flex justify-center w-16 pt-5 left-full">
+          <div className="relative mr-16 flex w-full max-w-xs flex-1">
+            <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
               <button type="button" className="-m-2.5 p-2.5" onClick={() => setSidebarOpen(false)}>
                 <span className="sr-only">Close sidebar</span>
                 <svg
-                  className="w-6 h-6 text-white"
+                  className="h-6 w-6 text-white"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth="1.5"
@@ -118,59 +88,32 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
                 </svg>
               </button>
             </div>
-
-            <div className="flex flex-col px-6 pb-4 overflow-y-auto bg-white grow gap-y-5">
-              {/* Logo */}
-              <div className="flex items-center h-16 shrink-0">
-                <Link to="/" className="flex items-center">
-                  <div className="flex items-center justify-center w-8 h-8 bg-red-500 rounded-lg">
-                    <span className="text-lg font-bold text-white">F</span>
-                  </div>
-                  <span className="ml-2 text-xl font-bold text-gray-900">KsauniBliss</span>
-                </Link>
+            <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4">
+              <div className="flex h-16 shrink-0 items-center">
+                <h1 className="text-xl font-bold text-white">Admin Panel</h1>
               </div>
-
-              {/* Navigation */}
-              <nav className="flex flex-col flex-1">
-                <ul role="list" className="flex flex-col flex-1 gap-y-7">
+              <nav className="flex flex-1 flex-col">
+                <ul role="list" className="flex flex-1 flex-col gap-y-7">
                   <li>
                     <ul role="list" className="-mx-2 space-y-1">
-                      {filteredNavigation.map((item) => (
-                        <li key={item.name}>
-                          <Link
-                            to={item.href}
-                            onClick={() => setSidebarOpen(false)}
-                            className={`group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-colors ${
-                              isActive(item.href)
-                                ? "bg-red-50 text-red-600"
-                                : "text-gray-700 hover:text-red-600 hover:bg-red-50"
-                            }`}
-                          >
-                            <item.icon
-                              className={`h-6 w-6 shrink-0 ${
-                                isActive(item.href) ? "text-red-600" : "text-gray-400 group-hover:text-red-600"
+                      {allNavigation.map((item) => {
+                        const isActive = location.pathname === item.href
+                        return (
+                          <li key={item.name}>
+                            <Link
+                              to={item.href}
+                              onClick={() => setSidebarOpen(false)}
+                              className={`group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold ${
+                                isActive ? "bg-gray-800 text-white" : "text-gray-400 hover:text-white hover:bg-gray-800"
                               }`}
-                              aria-hidden="true"
-                            />
-                            {item.name}
-                          </Link>
-                        </li>
-                      ))}
+                            >
+                              <item.icon className="h-6 w-6 shrink-0" />
+                              {item.name}
+                            </Link>
+                          </li>
+                        )
+                      })}
                     </ul>
-                  </li>
-
-                  {/* Logout */}
-                  <li className="mt-auto">
-                    <button
-                      onClick={handleLogout}
-                      className="flex w-full p-2 -mx-2 text-sm font-semibold leading-6 text-gray-700 transition-colors rounded-md group gap-x-3 hover:bg-red-50 hover:text-red-600"
-                    >
-                      <ArrowRightOnRectangleIcon
-                        className="w-6 h-6 text-gray-400 shrink-0 group-hover:text-red-600"
-                        aria-hidden="true"
-                      />
-                      Logout
-                    </button>
                   </li>
                 </ul>
               </nav>

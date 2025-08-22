@@ -341,4 +341,3 @@ const InnovationManagementEnhanced = () => {
 }
 
 export default InnovationManagementEnhanced
-</create_file>

@@ -1,30 +1,22 @@
 "use client"
 import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
-import axios from "axios"
-import LoadingSpinner from "./LoadingSpinner"
+import { useSelector, useDispatch } from "react-redux"
+import { fetchKsauniTshirts } from "../../store/slices/ksauniTshirtSlice"
+import LoadingSpinner from "../LoadingSpinner"
 
 const KsauniTshirtStyle = () => {
-  const [tshirts, setTshirts] = useState([])
-  const [loading, setLoading] = useState(true)
+  const dispatch = useDispatch()
+  const { tshirts, loading, error } = useSelector((state) => state.ksauniTshirt)
 
   const carouselRef = useRef(null)
   const [currentSlide, setCurrentSlide] = useState(0)
 
   useEffect(() => {
-    fetchKsauniTshirts()
-  }, [])
-
-  const fetchKsauniTshirts = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/api/ksauni-tshirt")
-      setTshirts(response.data.data)
-    } catch (error) {
-      console.error("Error fetching Ksauni Tshirts:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+    dispatch(fetchKsauniTshirts()).catch((error) => {
+      console.error("[v0] KsauniTshirtStyle fetch error:", error)
+    })
+  }, [dispatch])
 
   const handleScroll = () => {
     if (carouselRef.current) {
@@ -36,6 +28,10 @@ const KsauniTshirtStyle = () => {
   }
 
   if (loading) return <LoadingSpinner />
+  if (error) {
+    console.error("[v0] KsauniTshirtStyle Redux error:", error)
+    return null
+  }
   if (!tshirts.length) return null
 
   return (
@@ -68,8 +64,8 @@ const KsauniTshirtStyle = () => {
               >
                 <div className="w-full aspect-[3.5/3.8] bg-gray-100">
                   <img
-                    src={tshirt.image.url || "/placeholder.svg"}
-                    alt={tshirt.image.alt}
+                    src={tshirt.image?.url || "/placeholder.svg"}
+                    alt={tshirt.image?.alt || tshirt.name}
                     className="w-full h-full object-cover"
                   />
                 </div>

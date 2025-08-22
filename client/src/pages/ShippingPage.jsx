@@ -1,67 +1,141 @@
-import React from "react";
-import { Truck, Package, Clock } from "lucide-react";
+import { Truck, Package, Clock, Shield, MapPin, Phone, Mail } from "lucide-react"
 
 const ShippingPage = () => {
   return (
     <div className="max-w-4xl px-4 py-12 mx-auto">
-      <h1 className="mb-8 text-4xl font-bold text-center text-red-600">Shipping Information</h1>
+      <h1 className="mb-8 text-4xl font-bold text-center text-red-600">Shipping Policy</h1>
       <p className="max-w-3xl mx-auto mb-8 text-lg text-center text-gray-700">
-        We offer reliable and fast shipping to ensure your orders reach you on time.
+        At Ksauni Bliss, we're committed to getting your orders to you as quickly and safely as possible. Please read
+        our shipping policy to understand how we handle shipping and delivery.
       </p>
 
       <section className="mb-10">
         <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
-          <Truck className="w-8 h-8 text-blue-600" />
-          Shipping Methods
+          <Clock className="w-8 h-8 text-blue-600" />
+          1. Order Processing Time
         </h2>
-        <ul className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          <li className="flex flex-col items-center p-4 transition-shadow duration-300 border rounded-lg shadow-sm hover:shadow-md">
-            <Package className="w-10 h-10 mb-3 text-green-600" />
-            <h3 className="mb-2 text-lg font-semibold">Standard Shipping</h3>
-            <p className="text-center text-gray-700">Delivered within 5-7 business days.</p>
+        <div className="p-6 bg-blue-50 border-l-4 border-blue-500 rounded-lg">
+          <p className="text-gray-700">
+            All orders are processed within <strong>2-3 business days</strong> from the time of purchase. Orders placed
+            on weekends or holidays will be processed on the next business day.
+          </p>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
+          <Package className="w-8 h-8 text-green-600" />
+          2. Shipping Rates
+        </h2>
+        <p className="text-gray-700">
+          Shipping costs are calculated based on your location and the shipping method you select at checkout. The total
+          shipping fee will be displayed before you complete your order.
+        </p>
+      </section>
+
+      <section className="mb-10">
+        <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
+          <Truck className="w-8 h-8 text-purple-600" />
+          3. Shipping Methods
+        </h2>
+        <p className="mb-6 text-gray-700">We offer several shipping options to suit your needs, including:</p>
+        <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <li className="flex flex-col p-6 transition-shadow duration-300 border rounded-lg shadow-sm hover:shadow-md bg-green-50">
+            <div className="flex items-center gap-3 mb-3">
+              <Package className="w-8 h-8 text-green-600" />
+              <h3 className="text-lg font-semibold text-green-800">Standard Shipping</h3>
+            </div>
+            <p className="text-gray-700">
+              <strong>FREE Delivery</strong> within 5-7 business days.
+            </p>
           </li>
-          <li className="flex flex-col items-center p-4 transition-shadow duration-300 border rounded-lg shadow-sm hover:shadow-md">
-            <Clock className="w-10 h-10 mb-3 text-yellow-600" />
-            <h3 className="mb-2 text-lg font-semibold">Express Shipping</h3>
-            <p className="text-center text-gray-700">Delivered within 2-3 business days.</p>
-          </li>
-          <li className="flex flex-col items-center p-4 transition-shadow duration-300 border rounded-lg shadow-sm hover:shadow-md">
-            <Truck className="w-10 h-10 mb-3 text-red-600" />
-            <h3 className="mb-2 text-lg font-semibold">Overnight Shipping</h3>
-            <p className="text-center text-gray-700">Delivered the next business day.</p>
+          <li className="flex flex-col p-6 transition-shadow duration-300 border rounded-lg shadow-sm hover:shadow-md bg-yellow-50">
+            <div className="flex items-center gap-3 mb-3">
+              <Clock className="w-8 h-8 text-yellow-600" />
+              <h3 className="text-lg font-semibold text-yellow-800">Express Shipping</h3>
+            </div>
+            <p className="text-gray-700">
+              Faster delivery will charge <strong>₹150/-</strong> and will be delivered in 2-3 business days.
+            </p>
           </li>
         </ul>
       </section>
 
       <section className="mb-10">
-        <h2 className="mb-4 text-2xl font-semibold text-red-600">Shipping Charges</h2>
+        <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
+          <Shield className="w-8 h-8 text-orange-600" />
+          4. Shipping Delays
+        </h2>
+        <div className="p-6 bg-orange-50 border-l-4 border-orange-500 rounded-lg">
+          <p className="text-gray-700">
+            While we strive to deliver your order within the stated time frame, occasional delays may occur due to
+            factors like weather conditions, shipping carrier issues, or holidays. We are not responsible for delays
+            caused by third-party carriers, but we'll do our best to help you track down your package.
+          </p>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
+          <Package className="w-8 h-8 text-red-600" />
+          5. Missing or Damaged Packages
+        </h2>
+        <div className="p-6 bg-red-50 border-l-4 border-red-500 rounded-lg">
+          <p className="text-gray-700">
+            If your order arrives damaged or is missing, we require that damaged product photograph and please contact
+            us within <strong>1 day</strong> of receiving your package. We will assist you in resolving the issue,
+            including offering a replacement or refund (where applicable).
+          </p>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
+          <MapPin className="w-8 h-8 text-blue-600" />
+          6. Change of Address
+        </h2>
         <p className="text-gray-700">
-          Shipping charges vary based on the shipping method and your location. Free standard shipping is available on orders over ₹999.
+          If you need to change your shipping address after placing an order, please contact us as soon as possible. We
+          will do our best to accommodate address changes, but once an order has been processed and shipped, we can no
+          longer update the address.
         </p>
       </section>
 
       <section className="mb-10">
-        <h2 className="mb-4 text-2xl font-semibold text-red-600">Order Tracking</h2>
-        <p className="text-gray-700">
-          Once your order is shipped, you will receive a tracking number via email to monitor your shipment.
-        </p>
+        <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
+          <Shield className="w-8 h-8 text-purple-600" />
+          7. Customer Responsibility
+        </h2>
+        <div className="p-6 bg-purple-50 border-l-4 border-purple-500 rounded-lg">
+          <p className="text-gray-700">
+            Please ensure that all shipping details (including your address, phone number, and email) are correct when
+            placing your order. Ksauni Bliss is not responsible for delivery issues due to incorrect or incomplete
+            information provided by the customer.
+          </p>
+        </div>
       </section>
 
-      <section className="mb-10">
-        <h2 className="mb-4 text-2xl font-semibold text-red-600">Delivery Time</h2>
-        <p className="text-gray-700">
-          Delivery times may vary due to factors such as weather, holidays, or carrier delays. We appreciate your patience.
+      <section className="p-6 bg-gray-50 border rounded-lg">
+        <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
+          <Phone className="w-8 h-8 text-green-600" />
+          8. Contact Us
+        </h2>
+        <p className="mb-4 text-gray-700">
+          If you have any questions about shipping or need help with your order, please don't hesitate to contact us:
         </p>
-      </section>
-
-      <section>
-        <h2 className="mb-4 text-2xl font-semibold text-red-600">International Shipping</h2>
-        <p className="text-gray-700">
-          Currently, we only ship within India. International shipping will be available soon.
-        </p>
+        <div className="flex flex-col gap-2 text-gray-700">
+          <div className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-blue-600" />
+            <span>Email: support@ksaunibliss.com</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Phone className="w-5 h-5 text-green-600" />
+            <span>Phone: +91-XXXXXXXXXX</span>
+          </div>
+        </div>
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default ShippingPage;
+export default ShippingPage

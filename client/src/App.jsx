@@ -132,11 +132,11 @@ function App() {
 
             {/* Protected Routes */}
             <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-            <Route path="/orders" element={<ProtectedRoute><MyOrdersPage /></ProtectedRoute>} />
-            <Route path="/wishlist" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
-            <Route path="/order-confirmation/:orderId" element={<ProtectedRoute><OrderConfirmationPage /></ProtectedRoute>} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/orders" element={<MyOrdersPage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
+            <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
 
             {/* Admin Routes */}
             <Route path="/admin/*" element={

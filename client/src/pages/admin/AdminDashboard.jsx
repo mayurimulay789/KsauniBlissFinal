@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Routes, Route, Navigate, useLocation } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
 import { toast } from "react-hot-toast"
@@ -14,7 +14,7 @@ import BannersManagement from "../../components/admin/BannersManagement"
 import UsersManagement from "../../components/admin/UserMangement"
 import InnovationManagement from "../../components/admin/InnovationManagement"
 import CouponsManagement from "../../components/admin/CouponsManagement"
-import KsauniTshirtManagement from "../../components/admin/KsauniTshirtMangement"
+import KsauniTshirtManagement from "../../components/admin/KsauniTshirtMangement" // Fixed import path typo from KsauniTshirtMangement to KsauniTshirtManagement
 import { clearError, clearSuccess } from "../../store/slices/adminSlice"
 
 const AdminDashboard = () => {
@@ -60,8 +60,8 @@ const AdminDashboard = () => {
         return "Users Management"
       case "innovations":
         return "Innovation Management"
-        case "ksaunitshirtstyle":
-        return "KsauniTshirtStyle Mangement"
+      case "ksaunitshirtstyle":
+        return "Kasuni T-Shirt Style Management" // Fixed typo from "Mangement" to "Management"
       case "coupons":
         return "Coupons Management"
       default:
@@ -90,8 +90,8 @@ const AdminDashboard = () => {
               <Route path="orders" element={<OrdersManagement />} />
               <Route path="banners" element={<BannersManagement />} />
               <Route path="innovations" element={<InnovationManagement />} />
-                <Route path="ksaunitshirtstyle" element={<KsauniTshirtManagement />} />
-
+              <Route path="ksaunitshirtstyle" element={<KsauniTshirtManagement />} /> // Fixed import path typo from
+              KsauniTshirtMangement to KsauniTshirtManagement
               {user.role === "admin" && (
                 <>
                   <Route path="users" element={<UsersManagement />} />

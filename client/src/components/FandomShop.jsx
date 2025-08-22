@@ -33,26 +33,26 @@ const ShopByFandom = () => {
    
     
     {
-      id: 7,
+      id: 5,
       name: "Naruto",
-      image: "/gojo.webp",
+      image: "/deathnote.webp",
       logoAlt: "Naruto",
     },
     {
-      id: 8,
+      id: 6,
       name: "K-Pop Style Tee",
       image: "/naruto.webp",
       logo: "/wing.png",
       logoAlt: "K-Pop Style Logo",
     },
     {
-      id: 9,
+      id: 7,
       name: "K-Pop Style Tee",
       image: "/venom.webp",
       logoAlt: "K-Pop Style Logo",
     },
     {
-      id: 10,
+      id: 8,
       name: "K-Pop Style Tee",
       image: "/zoro.webp",
       logoAlt: "K-Pop Style Logo",

@@ -62,6 +62,13 @@ const adminAPI = {
 
   deleteProduct: (productId) => axios.delete(`${API_URL}/admin/products/${productId}`, createAuthHeaders()),
 
+
+  // Top10 Management
+  getAllTop10Products: () => axios.get(`${API_URL}/top10`, createAuthHeaders()),
+  getTop10Product: (id) => axios.get(`${API_URL}/top10/${id}`, createAuthHeaders()),
+  createTop10Product: (data) => axios.post(`${API_URL}/top10`, data, createAuthHeaders()),
+  updateTop10Product: (id, data) => axios.put(`${API_URL}/top10/${id}`, data, createAuthHeaders()),
+  deleteTop10Product: (id) => axios.delete(`${API_URL}/top10/${id}`, createAuthHeaders()),
   // Category Management
   getAllCategories: (params) =>
     axios.get(`${API_URL}/admin/categories`, {
@@ -117,5 +124,6 @@ const adminAPI = {
 
   deleteInnovation: (innovationId) => axios.delete(`${API_URL}/innovations/${innovationId}`, createAuthHeaders()),
 }
+
 
 export default adminAPI

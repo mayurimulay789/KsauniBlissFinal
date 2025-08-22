@@ -4,31 +4,36 @@ import { useSelector } from "react-redux"
 import { useSearchParams } from "react-router-dom"
 
 const CategoryBanner = () => {
-  const { categoryBanners } = useSelector((state) => state.banners)
+  const { banners: allBanners } = useSelector((state) => state.banners)
   const { categories } = useSelector((state) => state.categories)
   const [searchParams] = useSearchParams()
   const [currentBanner, setCurrentBanner] = useState(0)
   const [filteredBanners, setFilteredBanners] = useState([])
 
   const categoryId = searchParams.get("category")
-  
-  // Filter banners based on current category
+
   useEffect(() => {
-    if (categoryId && categoryBanners.length > 0) {
-      const category = categories.find(cat => cat._id === categoryId)
-      if (category) {
-        const banners = categoryBanners.filter(banner => 
-          banner.category === categoryId || banner.category === category.slug
-        )
-        setFilteredBanners(banners)
-      } else {
-        setFilteredBanners([])
-      }
-    } else {
-      // Show all category banners if no specific category is selected
+    if (allBanners && Array.isArray(allBanners)) {
+      const categoryBanners = allBanners.filter((banner) => banner?.type === "category")
+      console.log("[v0] Found category banners:", categoryBanners.length)
+
+      // Log banner structure for debugging
+      categoryBanners.forEach((banner, index) => {
+        if (banner) {
+          console.log(`[v0] Banner ${index}:`, {
+            id: banner._id,
+            type: banner.type,
+            image: banner.image,
+            imageUrl: banner.image?.url,
+          })
+        }
+      })
+
       setFilteredBanners(categoryBanners)
+    } else {
+      setFilteredBanners([])
     }
-  }, [categoryId, categoryBanners, categories])
+  }, [allBanners]) // Use allBanners as dependency instead of categoryBanners
 
   useEffect(() => {
     if (filteredBanners.length > 1) {
@@ -40,38 +45,51 @@ const CategoryBanner = () => {
   }, [filteredBanners.length])
 
   if (!filteredBanners.length) {
-    return null
+    return (
+      <section className="relative w-full px-0 mx-auto mt-0 mb-6 sm:px-6">
+        <div
+          className="relative w-full mx-auto overflow-hidden shadow-lg cursor-pointer rounded-2xl group"
+          style={{
+            border: "3px solid #be7a21ff",
+          }}
+        >
+          <img
+            src="/placeholder-wgz1d.png"
+            alt="Category Banner"
+            className="object-cover w-screen h-24 max-w-full transition-transform duration-500 sm:h-48 md:h-56 lg:h-64 group-hover:scale-105 rounded-2xl"
+          />
+        </div>
+      </section>
+    )
   }
 
-  const currentCategory = categories.find(cat => cat._id === categoryId)
-
   return (
-<section className="relative w-full px-0 mx-auto mt-0 mb-6 sm:px-6">
-      {/* Category Title */}
-      {currentCategory && (
-        <div className="mb-4 text-center">
-          
-        </div>
-      )}
-
-      {/* Main Banner Container */}
+    <section className="relative w-full px-0 mx-auto mt-0 mb-6 sm:px-6">
       <div
         className="relative w-full mx-auto overflow-hidden shadow-lg cursor-pointer rounded-2xl group"
         style={{
           border: "3px solid #be7a21ff",
         }}
       >
-        {/* Banner Image */}
         <img
-          src={filteredBanners[currentBanner]?.image?.url || "/placeholder.svg?height=280&width=1200&query=abstract category banner background"}
-          alt={filteredBanners[currentBanner]?.image?.alt || `${currentCategory?.name || 'Category'} promotional banner`}
+          src={
+            filteredBanners[currentBanner]?.image?.url ||
+            filteredBanners[currentBanner]?.image ||
+            filteredBanners[currentBanner]?.imageUrl ||
+            `/api/uploads/${filteredBanners[currentBanner]?.image || "/placeholder.svg"}` ||
+            "/category-banner.png"
+          }
+          alt={filteredBanners[currentBanner]?.title || "Category promotional banner"}
           className="object-cover w-screen h-24 max-w-full transition-transform duration-500 sm:h-48 md:h-56 lg:h-64 group-hover:scale-105 rounded-2xl"
+          onError={(e) => {
+            console.log("[v0] Image failed to load:", e.target.src)
+            e.target.src = "/fallback-banner.png"
+          }}
+          onLoad={() => {
+            console.log("[v0] Image loaded successfully")
+          }}
         />
 
-        {/* Banner Content Overlay */}
-        
-
-        {/* Enhanced Pagination Dots */}
         {filteredBanners.length > 1 && (
           <div className="absolute z-30 flex space-x-2 transform -translate-x-1/2 bottom-4 left-1/2">
             {filteredBanners.map((_, index) => (

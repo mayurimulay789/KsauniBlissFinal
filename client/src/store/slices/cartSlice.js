@@ -110,7 +110,7 @@ const cartSlice = createSlice({
         state.totalQuantity = totals.totalQuantity
       }
     },
-    // ✅ Add missing optimistic actions
+    // Add missing optimistic actions
     optimisticAddToCart: (state, action) => {
       const { product, quantity = 1, size, color } = action.payload
 
@@ -143,7 +143,7 @@ const cartSlice = createSlice({
       }
       state.totalQuantity = totals.totalQuantity
     },
-    // ✅ Add missing optimistic update quantity
+    // Add missing optimistic update quantity
     optimisticUpdateQuantity: (state, action) => {
       const { itemId, quantity } = action.payload
       const item = state.items.find((item) => item._id === itemId)
@@ -161,7 +161,7 @@ const cartSlice = createSlice({
         state.totalQuantity = totals.totalQuantity
       }
     },
-    // ✅ Add missing optimistic remove from cart
+    // Add missing optimistic remove from cart
     optimisticRemoveFromCart: (state, action) => {
       const itemId = action.payload
       state.items = state.items.filter((item) => item._id !== itemId)
@@ -174,6 +174,26 @@ const cartSlice = createSlice({
         total: totals.total,
       }
       state.totalQuantity = totals.totalQuantity
+    },
+    // Keep existing localStorage functionality
+    loadCartFromStorage: (state) => {
+      const savedCart = localStorage.getItem("guestCart")
+      if (savedCart) {
+        const cart = JSON.parse(savedCart)
+        state.items = cart.items || []
+        state.summary = cart.summary || initialState.summary
+        state.totalQuantity = cart.totalQuantity || 0
+      }
+    },
+    saveCartToStorage: (state) => {
+      localStorage.setItem(
+        "guestCart",
+        JSON.stringify({
+          items: state.items,
+          summary: state.summary,
+          totalQuantity: state.totalQuantity,
+        }),
+      )
     },
   },
   extraReducers: (builder) => {
@@ -188,7 +208,7 @@ const cartSlice = createSlice({
         state.items = action.payload.cart?.items || []
         state.summary = action.payload.cart?.summary || initialState.summary
 
-        // ✅ Calculate totalQuantity
+        // Calculate totalQuantity
         state.totalQuantity = state.items.reduce((total, item) => total + (item.quantity || 0), 0)
         state.lastUpdated = new Date().toISOString()
       })
@@ -206,16 +226,17 @@ const cartSlice = createSlice({
         state.isAddingToCart = false
         state.isLoading = false
 
-        // ✅ Update the cart with returned data
+        // Update the cart with returned data
         if (action.payload.cart) {
           state.items = action.payload.cart.items || []
           state.summary = action.payload.cart.summary || initialState.summary
 
-          // ✅ Calculate totalQuantity for badge
+          // Calculate totalQuantity for badge
           state.totalQuantity = state.items.reduce((total, item) => total + (item.quantity || 0), 0)
         }
 
         state.lastUpdated = new Date().toISOString()
+        cartSlice.caseReducers.saveCartToStorage(state)
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.isAddingToCart = false
@@ -232,12 +253,12 @@ const cartSlice = createSlice({
         state.isUpdatingCart = false
 
         if (action.payload.cart) {
-          // ✅ Update entire cart if server returns full cart
+          // Update entire cart if server returns full cart
           state.items = action.payload.cart.items || []
           state.summary = action.payload.cart.summary || initialState.summary
           state.totalQuantity = state.items.reduce((total, item) => total + (item.quantity || 0), 0)
         } else if (action.payload.cartItem) {
-          // ✅ Update specific item if server returns just the updated item
+          // Update specific item if server returns just the updated item
           const updatedItem = action.payload.cartItem
           const itemIndex = state.items.findIndex((item) => item._id === updatedItem._id)
 
@@ -257,6 +278,7 @@ const cartSlice = createSlice({
         }
 
         state.lastUpdated = new Date().toISOString()
+        cartSlice.caseReducers.saveCartToStorage(state)
       })
       .addCase(updateCartItem.rejected, (state, action) => {
         state.isUpdatingCart = false
@@ -268,7 +290,7 @@ const cartSlice = createSlice({
         state.error = null
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
-        // ✅ Remove item and recalculate
+        // Remove item and recalculate
         state.items = state.items.filter((item) => item._id !== action.payload.itemId)
 
         const totals = calculateTotals(state.items)
@@ -280,6 +302,7 @@ const cartSlice = createSlice({
         }
         state.totalQuantity = totals.totalQuantity
         state.lastUpdated = new Date().toISOString()
+        cartSlice.caseReducers.saveCartToStorage(state)
       })
       .addCase(removeFromCart.rejected, (state, action) => {
         state.error = action.payload
@@ -296,6 +319,7 @@ const cartSlice = createSlice({
         state.summary = initialState.summary
         state.totalQuantity = 0
         state.lastUpdated = new Date().toISOString()
+        cartSlice.caseReducers.saveCartToStorage(state)
       })
       .addCase(clearCart.rejected, (state, action) => {
         state.isLoading = false
@@ -311,6 +335,8 @@ export const {
   optimisticAddToCart,
   optimisticUpdateQuantity,
   optimisticRemoveFromCart,
+  loadCartFromStorage,
+  saveCartToStorage,
 } = cartSlice.actions
 
 export default cartSlice.reducer

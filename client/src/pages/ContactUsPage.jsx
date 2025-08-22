@@ -317,25 +317,7 @@ const ContactUsPage = () => {
               </div>
 
               {/* Social Media */}
-              <div className="p-6 bg-white shadow-lg rounded-xl">
-                <h3 className="mb-4 text-xl font-semibold text-gray-800">Follow Us</h3>
-                <p className="mb-4 text-gray-600">
-                  Stay connected with us on social media for the latest updates, fashion tips, and exclusive offers.
-                </p>
-                <div className="flex space-x-4">
-                  {socialLinks.map((social, index) => (
-                    <motion.a
-                      key={social.label}
-                      href={social.href}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`bg-gray-100 p-3 rounded-full text-gray-600 ${social.color} transition-colors`}
-                    >
-                      <social.icon className="w-5 h-5" />
-                    </motion.a>
-                  ))}
-                </div>
-              </div>
+              
             </motion.div>
           </div>
         </div>

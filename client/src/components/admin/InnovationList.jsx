@@ -28,8 +28,8 @@ const InnovationList = () => {
 
   return (
     <div className="space-y-0">
-      <h1 className="text-base font-bold mb-0 text-left px-4 py-0">
-        <span className="text-black">KSAUNI INOVATION FACTORY</span>
+      <h1 className="text-base font-bold mb-2 text-left px-6 py-3">
+        <span className="text-black px-4">KSAUNI INOVATION FACTORY</span>
       </h1>
       {isLoading ? (
         <div className="flex justify-center py-8">

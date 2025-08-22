@@ -205,7 +205,7 @@ const LoginPage = () => {
               className="flex flex-col items-center space-y-2"
             >
               <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
-                <img src="logo company bg.png" alt="Logo" className="w-20 h-20" />
+                <img src={logo} alt="Logo" className="w-20 h-20" />
               </div>
               {/* <span className="text-5xl font-extrabold tracking-tight">KsauniBliss</span> */}
               <span className="text-lg font-medium tracking-widest uppercase opacity-80">Your Style, Elevated</span>

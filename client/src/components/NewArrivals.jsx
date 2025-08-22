@@ -11,7 +11,8 @@ export default function NewArrivals() {
   const [productsToShow, setProductsToShow] = useState([])
 
   useEffect(() => {
-    setProductsToShow(newArrivals.slice(0, 12)) // Show up to 12
+    const filteredProducts = newArrivals.filter((product) => product.price >= 349)
+    setProductsToShow(filteredProducts.slice(0, 12))
   }, [newArrivals])
 
   if (!productsToShow || productsToShow.length === 0) {
@@ -23,13 +24,8 @@ export default function NewArrivals() {
       <div className="px-3">
         {/* Heading */}
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-[18px] font-bold text-black mb-2">
-            New Arrivals From Rs. 349
-          </h2>
-          <Link
-            to="/products"
-            className="text-black text-[18px] font-bold leading-none"
-          >
+          <h2 className="text-[18px] font-bold text-black mb-2">New Arrivals From Rs. 349</h2>
+          <Link to="/products" className="text-black text-[18px] font-bold leading-none">
             +
           </Link>
         </div>
@@ -39,9 +35,7 @@ export default function NewArrivals() {
           {productsToShow.map((product, index) => {
             const discountPercentage =
               product.originalPrice && product.originalPrice > product.price
-                ? Math.round(
-                    ((product.originalPrice - product.price) / product.originalPrice) * 100
-                  )
+                ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
                 : 0
 
             return (
@@ -75,9 +69,7 @@ export default function NewArrivals() {
 
                 {/* Product Info */}
                 <div className="p-1.5">
-                  <p className="text-[9px] font-bold text-black uppercase">
-                    {product.brand || "EXAMPLE BRAND"}
-                  </p>
+                  <p className="text-[9px] font-bold text-black uppercase">{product.brand || "EXAMPLE BRAND"}</p>
                   <Link to={`/product/${product._id}`}>
                     <h3 className="text-[10px] font-medium text-black leading-tight mb-0.5 line-clamp-2">
                       {product.name}
@@ -86,17 +78,11 @@ export default function NewArrivals() {
 
                   {/* Price */}
                   <div className="flex items-center gap-1">
-                    <span className="text-[10px] font-bold text-black">
-                      ₹{product.price}
-                    </span>
+                    <span className="text-[10px] font-bold text-black">₹{product.price}</span>
                     {discountPercentage > 0 && (
                       <>
-                        <span className="text-[8px] text-gray-500 line-through">
-                          ₹{product.originalPrice}
-                        </span>
-                        <span className="text-[8px] text-green-500 font-semibold">
-                          {discountPercentage}% off
-                        </span>
+                        <span className="text-[8px] text-gray-500 line-through">₹{product.originalPrice}</span>
+                        <span className="text-[8px] text-green-500 font-semibold">{discountPercentage}% off</span>
                       </>
                     )}
                   </div>

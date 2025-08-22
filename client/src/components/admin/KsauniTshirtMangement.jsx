@@ -13,7 +13,7 @@ import {
 
 const KsauniTshirtManagement = () => {
   const dispatch = useDispatch()
-  const { tshirts, loading, error } = useSelector((state) => state.ksauniTshirt)
+  const { tshirts = [], loading, error } = useSelector((state) => state.ksauniTshirt)
 
   const [showModal, setShowModal] = useState(false)
   const [editingTshirt, setEditingTshirt] = useState(null)

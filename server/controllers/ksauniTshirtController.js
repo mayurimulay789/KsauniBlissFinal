@@ -1,4 +1,4 @@
-const KsauniTshirt = require("../models/KsauniTshirt")
+const KsauniTshirt = require("../models/Ksaunitshirt")
 const { uploadToCloudinary } = require("../utils/cloudinary")
 
 // Get all Ksauni T-shirts

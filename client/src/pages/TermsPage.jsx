@@ -1,8 +1,6 @@
-"use client"
-
-import { motion } from "framer-motion"
-import { FileText, Shield, CreditCard, Truck, RotateCcw, AlertTriangle } from "lucide-react"
-
+import React from 'react'
+import { motion } from 'framer-motion'
+import { FileText, Shield, CreditCard, Truck, RotateCcw, AlertTriangle, CheckCircle, Globe } from 'lucide-react'
 
 const TermsPage = () => {
   const sections = [
@@ -10,175 +8,118 @@ const TermsPage = () => {
       id: "acceptance",
       title: "Acceptance of Terms",
       icon: FileText,
-      content: `By accessing and using the Kasuni Bliss website and mobile application, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.`,
+      content: `By accessing or using the Ksauni Bliss website (www.ksaunibliss.com), you agree to be bound by these Terms of Service and any other terms that may apply. If you do not agree to these terms, please do not use the website or purchase products.`,
     },
     {
-      id: "definitions",
-      title: "Definitions",
-      icon: FileText,
-      content: `
-        • "We", "Us", "Our" refers to Kasuni Bliss Fashion Private Limited
-        • "You", "Your", "User" refers to the person accessing our services
-        • "Services" refers to our website, mobile app, and all related services
-        • "Products" refers to all fashion items, accessories, and merchandise sold on our platform
-        • "Account" refers to your registered user account on our platform
-      `,
+      id: "changes",
+      title: "Changes to Terms",
+      icon: AlertTriangle,
+      content: `Ksauni Bliss reserves the right to update, modify, or change these Terms of Service at any time. Any changes will take effect immediately upon posting on this page. Please check periodically for updates. Your continued use of the site after changes have been made constitutes your acceptance of the revised terms.`,
+    },
+    {
+      id: "eligibility",
+      title: "Eligibility",
+      icon: Shield,
+      content: `You must be at least 18 years of age to use this website and make a purchase. If you are under 18, you must have the consent of a parent or guardian to use the site and place orders.`,
     },
     {
       id: "account",
-      title: "User Account & Registration",
+      title: "Account Responsibility",
       icon: Shield,
-      content: `
-        • You must be at least 18 years old to create an account
-        • You are responsible for maintaining the confidentiality of your account
-        • You agree to provide accurate, current, and complete information
-        • You are responsible for all activities that occur under your account
-        • We reserve the right to suspend or terminate accounts that violate our terms
-        • One person may not maintain multiple accounts
-      `,
+      content: `If you create an account on our website, you are responsible for maintaining the confidentiality of your account details, including your username and password. You are also responsible for all activities that occur under your account. If you suspect any unauthorized use of your account, please contact us immediately.`,
+    },
+    {
+      id: "products",
+      title: "Product Information",
+      icon: FileText,
+      content: `We make every effort to provide accurate descriptions, images, and information about the products on our website. However, we cannot guarantee that all product descriptions, pricing, or availability are completely accurate or error-free. Prices and availability are subject to change without notice.`,
     },
     {
       id: "orders",
-      title: "Orders & Pricing",
+      title: "Orders and Payment",
       icon: CreditCard,
-      content: `
-        • All orders are subject to acceptance and availability
-        • Prices are subject to change without notice
-        • We reserve the right to refuse or cancel any order
-        • Payment must be received before order processing
-        • Order confirmation does not guarantee product availability
-        • We may require additional verification for certain orders
-        • Bulk orders may be subject to special terms and conditions
-      `,
+      content: `When you place an order, you are making an offer to buy the selected items. We reserve the right to accept or decline your order. All prices are listed in INR, and you are responsible for paying any applicable taxes, shipping charges, or duties. We accept various payment methods, including credit/debit cards and other payment processors, as indicated on our site.`,
     },
     {
       id: "shipping",
-      title: "Shipping & Delivery",
+      title: "Shipping and Delivery",
       icon: Truck,
-      content: `
-        • Delivery times are estimates and not guaranteed
-        • Risk of loss passes to you upon delivery to the carrier
-        • We are not responsible for delays caused by shipping carriers
-        • Delivery address changes may not be possible after order processing
-        • Additional charges may apply for remote or difficult-to-reach locations
-        • We reserve the right to use alternative shipping methods
-        • Signature confirmation may be required for high-value orders
-      `,
+      content: `Ksauni Bliss strives to ship orders promptly. However, shipping times and availability are subject to stock and delivery service providers. Shipping fees are calculated at checkout and may vary depending on your location and the shipping method selected. We are not responsible for any delays caused by third-party delivery services.`,
     },
     {
       id: "returns",
-      title: "Returns & Refunds",
+      title: "Returns and Refunds",
       icon: RotateCcw,
-      content: `
-        • Returns must be initiated within 30 days of delivery
-        • Items must be unused, unwashed, and in original condition
-        • Original tags and packaging must be intact
-        • Certain items (innerwear, cosmetics, personalized items) are non-returnable
-        • Return shipping is free for defective or incorrect items
-        • Refunds will be processed to the original payment method
-        • Processing time for refunds is 5-7 business days after item receipt
-      `,
+      content: `Please refer to our Return and Refund Policy for detailed information regarding returns, exchanges, and refunds. By placing an order, you agree to our return and refund conditions.`,
     },
     {
       id: "intellectual",
       title: "Intellectual Property",
       icon: Shield,
-      content: `
-        • All content on our platform is protected by copyright and trademark laws
-        • You may not reproduce, distribute, or create derivative works
-        • Product images and descriptions are for reference only
-        • User-generated content may be used by us for marketing purposes
-        • We respect intellectual property rights and expect users to do the same
-        • Report any copyright infringement to our legal team
-      `,
+      content: `All content on the Ksauni Bliss website, including logos, designs, text, images, and trademarks, is the property of Ksauni Bliss or its licensors and is protected by intellectual property laws. You may not use, reproduce, or distribute any of our content without prior written permission.`,
     },
     {
-      id: "prohibited",
-      title: "Prohibited Uses",
+      id: "conduct",
+      title: "User Conduct",
       icon: AlertTriangle,
-      content: `
-        • Using our services for any unlawful purpose
-        • Attempting to gain unauthorized access to our systems
-        • Interfering with the proper functioning of our website
-        • Uploading malicious code or viruses
-        • Harassing other users or our staff
-        • Creating fake accounts or impersonating others
-        • Scraping or data mining our content without permission
-        • Reselling our products without authorization
-      `,
+      content: `By using our website, you agree not to:
+• Engage in any unlawful, fraudulent, or harmful activities.
+• Use the website in a way that could damage, disable, or impair the functionality of the site or interfere with other users.
+• Post or transmit any harmful or offensive content, including viruses, malware, or hate speech.
+• Use the website for unauthorized commercial purposes or solicitations.`,
     },
     {
       id: "liability",
       title: "Limitation of Liability",
       icon: Shield,
-      content: `
-        • Our liability is limited to the maximum extent permitted by law
-        • We are not liable for indirect, incidental, or consequential damages
-        • Our total liability shall not exceed the amount paid for the specific product
-        • We do not warrant that our service will be uninterrupted or error-free
-        • You use our services at your own risk
-        • Some jurisdictions do not allow limitation of liability
-      `,
+      content: `Ksauni Bliss is not liable for any indirect, incidental, special, or consequential damages arising from your use of the website or our products. Our liability is limited to the amount you paid for the product(s) in question.`,
+    },
+    {
+      id: "indemnification",
+      title: "Indemnification",
+      icon: Shield,
+      content: `You agree to indemnify and hold harmless Ksauni Bliss, its employees, affiliates, and partners from any claims, damages, or expenses (including legal fees) arising from your use of the website, violation of these terms, or infringement of any third-party rights.`,
     },
     {
       id: "privacy",
-      title: "Privacy & Data Protection",
+      title: "Privacy",
       icon: Shield,
-      content: `
-        • Your privacy is important to us - see our Privacy Policy for details
-        • We collect and use personal information as described in our Privacy Policy
-        • You consent to the collection and use of your information
-        • We implement appropriate security measures to protect your data
-        • You have rights regarding your personal data under applicable laws
-        • We may share information as required by law or to protect our rights
-      `,
+      content: `Your privacy is important to us. Please review our Privacy Policy to understand how we collect, use, and protect your personal information.`,
     },
     {
-      id: "modifications",
-      title: "Modifications to Terms",
-      icon: FileText,
-      content: `
-        • We reserve the right to modify these terms at any time
-        • Changes will be effective immediately upon posting
-        • Continued use of our services constitutes acceptance of modified terms
-        • We will notify users of significant changes via email or website notice
-        • It is your responsibility to review terms periodically
-        • If you disagree with changes, you must stop using our services
-      `,
+      id: "third-party",
+      title: "Third-Party Links",
+      icon: Globe,
+      content: `The Ksauni Bliss website may contain links to third-party websites or services that are not controlled by us. We are not responsible for the content or privacy practices of third-party websites. Clicking on those links is done at your own risk.`,
     },
     {
       id: "governing",
-      title: "Governing Law & Jurisdiction",
+      title: "Governing Law",
       icon: FileText,
-      content: `
-        • These terms are governed by the laws of India
-        • Any disputes will be subject to the jurisdiction of Mumbai courts
-        • We will attempt to resolve disputes through good faith negotiations
-        • Arbitration may be required for certain disputes
-        • Class action lawsuits are not permitted
-        • You waive the right to trial by jury for any disputes
-      `,
+      content: `These Terms of Service are governed by the laws of India. Any legal action arising from these terms will be subject to the jurisdiction of the courts in India.`,
+    },
+    {
+      id: "dispute",
+      title: "Dispute Resolution",
+      icon: CheckCircle,
+      content: `In the event of any dispute, we encourage you to first contact us directly to resolve the issue. If we are unable to resolve the dispute informally, you agree to submit any unresolved disputes to binding arbitration or mediation, as per the laws in your jurisdiction.`,
+    },
+    {
+      id: "termination",
+      title: "Termination",
+      icon: AlertTriangle,
+      content: `We reserve the right to suspend or terminate your access to the website if we believe you have violated these terms or engaged in any unauthorized or harmful activity. This includes, but is not limited to, engaging in fraudulent or illegal activities, or violating intellectual property rights.`,
     },
     {
       id: "contact",
       title: "Contact Information",
       icon: FileText,
-      content: `
-        For questions about these Terms and Conditions, please contact us:
-        
-        • Email: legal@kasunibliss.com
-        • Phone: +91-9876543210
-        • Address: 123 Fashion Street, Bandra West, Mumbai - 400050
-        • Business Hours: Monday to Friday, 9:00 AM to 6:00 PM IST
-        
-        We will respond to your inquiries within 48 hours during business days.
-      `,
+      content: `If you have any questions about these Terms of Service or need assistance, please contact us at support@ksaunibliss.com or call us at +91-9876543210.`,
     },
   ]
 
   return (
     <div className="min-h-screen bg-gray-50">
-
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-br from-orange-50 to-red-50">
         <div className="container px-4 mx-auto">
@@ -214,14 +155,9 @@ const TermsPage = () => {
               transition={{ duration: 0.6 }}
               className="p-8 mb-8 bg-white shadow-lg rounded-xl"
             >
-              <h2 className="mb-4 text-2xl font-bold text-gray-800">Welcome to Kasuni Bliss</h2>
+              <h2 className="mb-4 text-2xl font-bold text-gray-800">Welcome to Ksauni Bliss</h2>
               <p className="mb-4 leading-relaxed text-gray-600">
-                These Terms and Conditions ("Terms") govern your use of the Kasuni Bliss website and mobile application
-                operated by Kasuni Bliss Fashion Private Limited ("we", "us", or "our").
-              </p>
-              <p className="leading-relaxed text-gray-600">
-                By accessing or using our service, you agree to be bound by these Terms. If you disagree with any part
-                of these terms, then you may not access the service.
+                Welcome to Ksauni Bliss! By using our website, making purchases, or interacting with our services, you agree to follow these Terms of Service. Please read them carefully.
               </p>
             </motion.div>
 
@@ -266,50 +202,15 @@ const TermsPage = () => {
                     read, understood, and agree to be bound by these terms.
                   </p>
                   <p className="leading-relaxed">
-                    If you have any questions about these Terms and Conditions, please contact our legal team at
-                    legal@kasunibliss.com before using our services.
+                    If you have any questions about these Terms and Conditions, please contact us at
+                    support@ksaunibliss.com before using our services.
                   </p>
                 </div>
-              </div>
-            </motion.div>
-
-            {/* Quick Links */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="p-6 mt-8 bg-white shadow-lg rounded-xl"
-            >
-              <h3 className="mb-4 text-lg font-bold text-gray-800">Related Documents</h3>
-              <div className="grid gap-4 md:grid-cols-3">
-                <a
-                  href="/privacy"
-                  className="flex items-center p-3 transition-colors rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-500"
-                >
-                  <Shield className="w-5 h-5 mr-3" />
-                  <span className="font-medium">Privacy Policy</span>
-                </a>
-                <a
-                  href="/contact"
-                  className="flex items-center p-3 transition-colors rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-500"
-                >
-                  <FileText className="w-5 h-5 mr-3" />
-                  <span className="font-medium">Contact Us</span>
-                </a>
-                <a
-                  href="/faq"
-                  className="flex items-center p-3 transition-colors rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-500"
-                >
-                  <FileText className="w-5 h-5 mr-3" />
-                  <span className="font-medium">FAQ</span>
-                </a>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
-
     </div>
   )
 }
