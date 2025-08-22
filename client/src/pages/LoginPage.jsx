@@ -6,6 +6,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { Mail, Phone, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 import logo from "../../public/logo.png"
+import image from "../../public/01.webp"
 import {
   registerWithEmail,
   loginWithEmail,
@@ -185,12 +186,12 @@ const LoginPage = () => {
     setOtpTimer(0)
   }
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex  bg-white">
       {/* Left Section: Branding with Image */}
-      <div className="relative items-center justify-center hidden w-1/2 p-8 overflow-hidden lg:flex">
+      <div className="relative items-center justify-center hidden w-1/2 overflow-hidden lg:flex">
         {/* Background Image */}
         <img
-          src="https://images.bewakoof.com/web/rm-login-desk-v2.jpg" // Placeholder for young girl image
+          src={image || "/placeholder.svg"} // Placeholder for young girl image
           alt="Fashion Model"
           className="absolute inset-0 object-cover w-full h-full"
         />
@@ -205,7 +206,7 @@ const LoginPage = () => {
               className="flex flex-col items-center space-y-2"
             >
               <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
-                <img src={logo} alt="Logo" className="w-20 h-20" />
+                <img src={logo || "/placeholder.svg"} alt="Logo" className="w-20 h-20" />
               </div>
               {/* <span className="text-5xl font-extrabold tracking-tight">KsauniBliss</span> */}
               <span className="text-lg font-medium tracking-widest uppercase opacity-80">Your Style, Elevated</span>
@@ -223,12 +224,12 @@ const LoginPage = () => {
       </div>
 
       {/* Right Section: Login/Register Form */}
-      <div className="flex items-center justify-center w-full p-4 lg:w-1/2">
-        <div className="w-full max-w-md p-8 bg-white shadow-xl rounded-2xl">
+      <div className="flex items-center justify-center w-full lg:w-1/2">
+        <div className="w-full max-w-md p-8 bg-white shadow-xl rounded-2xl m-4 ">
           {/* Header for mobile */}
           <div className="mb-8 text-center lg:hidden">
             <Link to="/" className="inline-block mb-6">
-              <img src={logo} alt="KsauniBliss Logo" className="h-12 mx-auto" />
+              <img src={logo || "/placeholder.svg"} alt="KsauniBliss Logo" className="h-12 mx-auto" />
             </Link>
             <h1 className="mb-2 text-3xl font-bold text-gray-800">
               {mode === "login" ? "Welcome Back" : "Create Account"}
