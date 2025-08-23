@@ -57,7 +57,7 @@ const ShopByFandom = () => {
       logoAlt:"Zoro",
     },
     {
-      id: 8,
+      id: 9,
       name:"Demon Slayer",
       image:"/DemonSlayer.webp",
       logoAlt:"Demon Slayer logo",
