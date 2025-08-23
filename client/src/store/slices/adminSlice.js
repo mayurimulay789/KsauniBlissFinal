@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import adminAPI from "../api/adminAPI"
+import adminAPI from "../api/adminApi"
 
 // Dashboard Stats
 export const fetchDashboardStats = createAsyncThunk("admin/fetchDashboardStats", async (_, { rejectWithValue }) => {
