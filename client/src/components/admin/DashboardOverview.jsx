@@ -143,7 +143,8 @@ const DashboardOverview = () => {
                         </p>
                       </div>
                       <div className="flex flex-col items-end">
-                        <p className="text-sm font-medium text-gray-900">{formatCurrency(order?.pricing?.total ?? 0)}</p>
+                        {/* <p className="text-sm font-medium text-gray-900">{formatCurrency(order?.pricing?.total ?? 0)}</p> */}
+                          <p className="text-sm font-medium text-gray-900">{formatCurrency(order?.total ?? 0)}</p>
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(order.status)}`}
                         >

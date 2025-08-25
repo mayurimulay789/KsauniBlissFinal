@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback,useRef  } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -48,6 +48,8 @@ const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const rzpInstanceRef = useRef(null);
+
   // Use memoized selectors
   const razorpayOrder = useSelector(selectRazorpayOrder);
   const orderSummary = useSelector(selectOrderSummary);
@@ -64,7 +66,6 @@ const CheckoutPage = () => {
   const couponLoading = useSelector(selectCouponLoading);
   const couponError = useSelector(selectCouponError);
   const user = useSelector(selectUser);
-
   const [shippingAddress, setShippingAddress] = useState({
     fullName: user?.name || "",
     phoneNumber: user?.phoneNumber?.replace("+91", "") || "",
@@ -82,6 +83,18 @@ const CheckoutPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedShippingRate, setSelectedShippingRate] = useState(null);
   const [showShippingCalculator, setShowShippingCalculator] = useState(false);
+
+
+   useEffect(() => {
+    return () => {
+      if (rzpInstanceRef.current) {
+        rzpInstanceRef.current.close();
+        rzpInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  
 
   // Load available coupons for the logged-in user
   useEffect(() => {
@@ -151,6 +164,14 @@ const CheckoutPage = () => {
   }, [cartSummary.subtotal, selectedShippingRate, appliedCoupon]);
 
   const handlePlaceOrder = useCallback(() => {
+
+    console.log("calling on;ine order ")
+
+    if (rzpInstanceRef.current) {
+      rzpInstanceRef.current.close();
+      rzpInstanceRef.current = null;
+    }
+
     if (!validateAddress()) {
       alert("Please fill all required address fields");
       return;
@@ -188,6 +209,20 @@ const CheckoutPage = () => {
   ]);
 
   const handlePlaceCodOrder = useCallback(() => {
+
+    
+  console.log("calling cod order ")
+
+    if (rzpInstanceRef.current) {
+      rzpInstanceRef.current.close();
+      rzpInstanceRef.current = null;
+    }
+
+   
+
+    
+
+
     if (!validateAddress()) {
       alert("Please fill all required address fields");
       return;
@@ -213,6 +248,8 @@ const CheckoutPage = () => {
       selectedShippingRate: selectedShippingRate,
     };
 
+    
+
     dispatch(placeCodOrder(orderData)).then((result) => {
       if (result.type === "order/placeCodOrder/fulfilled") {
         navigate(`/order-confirmation/${result.payload.order.id}`);
@@ -233,6 +270,11 @@ const CheckoutPage = () => {
 
   const handleRazorpayPayment = useCallback(() => {
     if (!razorpayOrder) return;
+
+     if (rzpInstanceRef.current) {
+      rzpInstanceRef.current.close();
+      rzpInstanceRef.current = null;
+    }
 
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
@@ -264,14 +306,19 @@ const CheckoutPage = () => {
       },
       modal: {
         ondismiss: () => {
-          dispatch(clearSuccess());
+          if (rzpInstanceRef.current) {
+            rzpInstanceRef.current.close();
+            rzpInstanceRef.current = null;
+          }
+          // dispatch(clearSuccess());
+          
         },
       },
     };
 
     if (window.Razorpay) {
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+      rzpInstanceRef.current = new window.Razorpay(options);
+      rzpInstanceRef.current.open();
     } else {
       console.error("Razorpay SDK not loaded");
       alert("Payment gateway not available. Please try again.");
@@ -585,7 +632,7 @@ const CheckoutPage = () => {
               </motion.div>
 
               {/* Shipping Options - Responsive */}
-              {shippingAddress.pinCode.length === 6 && (
+              {/* {shippingAddress.pinCode.length === 6 && (
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -641,7 +688,7 @@ const CheckoutPage = () => {
                     </div>
                   )}
                 </motion.div>
-              )}
+              )} */}
 
               {/* Coupon Section - Responsive */}
               <motion.div

@@ -29,7 +29,7 @@ import {
   removeRecentSearch,
   clearRecentSearches,
 } from "../store/slices/searchSlice"
-import logo from "../../public/KasuniLogo.png"
+import logo from "../../public/logo company bg.png"
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")

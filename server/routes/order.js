@@ -8,6 +8,7 @@ const {
   cancelOrder,
   trackOrder,
   getShippingRates,
+  fetchAndSetTrackingInfo
 } = require("../controllers/orderController");
 const { protect } = require("../middleware/auth");
 
@@ -18,6 +19,7 @@ router.use(protect);
 
 // Shipping rates route - moved to top for better organization
 router.post('/shipping-rates', getShippingRates)
+router.post('/trackingOrder', fetchAndSetTrackingInfo)
 
 // Order creation routes
 router.post("/create-razorpay-order", createRazorpayOrder);
