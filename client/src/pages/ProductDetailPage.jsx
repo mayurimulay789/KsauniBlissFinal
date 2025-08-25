@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { motion, AnimatePresence } from "framer-motion"
 import { Swiper, SwiperSlide } from "swiper/react"
@@ -31,6 +31,7 @@ import toast from "react-hot-toast"
 const ProductDetailPage = () => {
   const { id } = useParams()
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const { currentProduct, isLoading, error } = useSelector((state) => state.products)
   const { items: wishlistItems } = useSelector((state) => state.wishlist)
@@ -95,8 +96,18 @@ const ProductDetailPage = () => {
   }
 
   const handleBuyNow = async () => {
+    if (currentProduct.sizes?.length && !selectedSize) return toast.error("Please select a size")
+    if (currentProduct.colors?.length && !selectedColor) return toast.error("Please select a color")
+
     await handleAddToCart()
-    // You can add navigation to checkout page here if needed
+    navigate("/checkout", {
+      state: {
+        product: currentProduct,
+        quantity,
+        size: selectedSize,
+        color: selectedColor,
+      },
+    })
   }
 
   const handleWishlistToggle = async () => {
@@ -146,7 +157,7 @@ const ProductDetailPage = () => {
   if (isLoading) return <LoadingSpinner message="Loading product…" />
   if (error || !currentProduct)
     return (
-      <div className="container mx-auto text-center py-16">
+      <div className="text-center">
         <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
         <h1 className="text-2xl font-bold mb-2">Product Not Found</h1>
         <p className="mb-8 text-gray-600">It may have been removed.</p>
@@ -160,10 +171,10 @@ const ProductDetailPage = () => {
     )
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 sm:pb-0">
+    <div className="min-h-screen bg-gray-50 sm:pb-0 pb-20">
       {/* Desktop Breadcrumb - Hidden on mobile */}
       <div className="hidden sm:block bg-white py-1 shadow-sm">
-        <div className="container mx-auto px-4 sm:px-6">
+        <div className="mx-auto px-4 sm:px-6">
           <nav className="flex items-center text-sm text-gray-600 space-x-2 overflow-x-auto whitespace-nowrap">
             <Link to="/" className="hover:text-primary">
               Home
@@ -183,11 +194,11 @@ const ProductDetailPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 py-2">
+      <div className="mx-auto px-4 sm:px-6 py-2">
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
             {/* Images Section */}
-            <div className="space-y-4 relative">
+            <div className=" relative">
               {/* Wishlist Button - Top right corner of image */}
               <button
                 onClick={handleWishlistToggle}
@@ -348,24 +359,7 @@ const ProductDetailPage = () => {
                   )}
                 </div>
 
-                <div className="mt-4 flex gap-2">
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={isAddingToCart || getSelectedSizeStock() === 0}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                  >
-                    <ShoppingCart className="w-4 h-4" />
-                    ADD TO CART
-                  </button>
-                  <button
-                    onClick={handleBuyNow}
-                    disabled={isAddingToCart || getSelectedSizeStock() === 0}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                  >
-                    <Lock className="w-4 h-4" />
-                    BUY NOW
-                  </button>
-                </div>
+                
               </div>
 
               {/* Share Button */}
@@ -510,7 +504,7 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Product Details Section */}
-              <div className="space-y-4 pt-4 border-t border-gray-200">
+              <div className=" pt-1">
                 {currentProduct.material && (
                   <div>
                     <h4 className="text-sm font-semibold text-gray-700 mb-1">Material</h4>
@@ -757,7 +751,35 @@ const ProductDetailPage = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+
+{/* Fixed Mobile Action Bar */}
+<div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 shadow-lg">
+  <div className="flex gap-3 max-w-md mx-auto">
+    
+    {/* Add to Cart */}
+    <button
+      onClick={handleAddToCart}
+      disabled={isAddingToCart || getSelectedSizeStock() === 0}
+      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+    >
+      <ShoppingCart className="w-4 h-4" />
+      ADD TO CART
+    </button>
+
+    {/* Buy Now */}
+    <button
+      onClick={handleBuyNow}
+      disabled={isAddingToCart || getSelectedSizeStock() === 0}
+      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+    >
+      <Lock className="w-4 h-4" />
+      BUY NOW
+    </button>
+
+  </div>
+</div>
+        
+      </div>
   )
 }
 

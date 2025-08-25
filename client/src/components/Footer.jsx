@@ -12,7 +12,7 @@ const Footer = () => {
   return (
     <footer className="text-white bg-gray-900">
       <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 sm:py-12 lg:px-8">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 lg:gap-8">
           {/* Company Info */}
           <div className="space-y-3 sm:space-y-4">
             <h3 className="flex items-center gap-2 text-base font-semibold sm:text-lg">
@@ -77,11 +77,7 @@ const Footer = () => {
                   Contact
                 </Link>
               </li>
-              <li>
-                <Link to="/faq" className="text-white transition-colors duration-200 hover:text-gray-300">
-                  FAQ
-                </Link>
-              </li>
+
               <li>
                 <Link to="/shipping" className="text-white transition-colors duration-200 hover:text-gray-300">
                   Shipping Info

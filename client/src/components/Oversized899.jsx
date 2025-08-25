@@ -3,7 +3,6 @@
 import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
-import { motion } from "framer-motion"
 
 export default function Oversized899() {
   const { products } = useSelector((state) => state.products) || { products: [] }
@@ -130,7 +129,7 @@ export default function Oversized899() {
                   : 0
 
               return (
-                <motion.div
+                <div
                   key={product._id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -186,7 +185,7 @@ export default function Oversized899() {
                       )}
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )
             })
           ) : (

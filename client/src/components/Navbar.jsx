@@ -605,48 +605,52 @@ const Navbar = () => {
       </motion.nav>
 
       {/* Bottom Navigation Bar for Mobile */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-4 gap-0 py-1 bg-white border-t border-gray-200 shadow-lg md:hidden">
-        {/* Home */}
-        <div
-          onClick={() => navigate("/")}
-          className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-red-600 cursor-pointer"
-        >
-          <span className="text-xl font-bold mb-0.5 w-6 h-6">
-            <img src="logo.png" alt="company logo" className="object-contain w-full h-full" />
-          </span>
-          <span>Home</span>
-        </div>
+      {/* Bottom Navigation Bar for Mobile (hidden on product detail page) */}
+{!isProductDetailPage && (
+  <div className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-4 gap-0 py-1 bg-white border-t border-gray-200 shadow-lg md:hidden">
+    {/* Home */}
+    <div
+      onClick={() => navigate("/")}
+      className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-red-600 cursor-pointer"
+    >
+      <span className="text-xl font-bold mb-0.5 w-6 h-6">
+        <img src="logo.png" alt="company logo" className="object-contain w-full h-full" />
+      </span>
+      <span>Home</span>
+    </div>
 
-        {/* CYD Under ₹999 */}
-        <div
-          onClick={() => navigateToUnder999()} // Using price filter instead of category
-          className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
-        >
-          <img src="cyd logo.png" alt="CYD Logo" className="w-7 h-7 mb-0.5 object-contain" />
-          <span>₹999</span>
-        </div>
+    {/* CYD Under ₹999 */}
+    <div
+      onClick={() => navigateToUnder999()}
+      className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
+    >
+      <img src="cyd logo.png" alt="CYD Logo" className="w-7 h-7 mb-0.5 object-contain" />
+      <span>₹999</span>
+    </div>
 
-        {/* T-SHIRTS */}
-        <div
-          onClick={() => navigate("/products?search=regular")}
-          className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
-        >
-          <Shirt className="w-5 h-5 mb-0.5" />
-          <span>T-Shirts</span>
-        </div>
+    {/* T-SHIRTS */}
+    <div
+      onClick={() => navigate("/products?search=regular")}
+      className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
+    >
+      <Shirt className="w-5 h-5 mb-0.5" />
+      <span>T-Shirts</span>
+    </div>
 
-        {/* Profile */}
-        <div
-          onClick={() => {
-            if (token) navigate("/profile")
-            else navigate("/login")
-          }}
-          className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
-        >
-          <User className="w-5 h-5 mb-0.5" />
-          <span>Profile</span>
-        </div>
-      </div>
+    {/* Profile */}
+    <div
+      onClick={() => {
+        if (token) navigate("/profile")
+        else navigate("/login")
+      }}
+      className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
+    >
+      <User className="w-5 h-5 mb-0.5" />
+      <span>Profile</span>
+    </div>
+  </div>
+)}
+
     </>
   )
 }

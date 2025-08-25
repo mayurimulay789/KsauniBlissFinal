@@ -150,9 +150,9 @@ const HomePage = () => {
        
        
         {/* Brand of India Banner - moved to last position before footer */}
-        <div className="px-4 mx-auto max-w-7xl">
-          <div className="my-8">
-            <BrandIndia />
+        <div className=" mx-auto max-w-7xl w-full">
+          <div className="my-8 bg-red-600">
+            <BrandIndia/>
           </div>
         </div>
 

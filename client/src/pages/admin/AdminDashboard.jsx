@@ -106,7 +106,7 @@ const AdminDashboard = () => {
 
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 z-40 bg-white bg-opacity-75 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
     </div>
   )

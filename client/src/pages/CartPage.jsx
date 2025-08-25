@@ -149,7 +149,7 @@ const CartPage = () => {
   }
 
   return (
-    <div className=" bg-white pt-5 md:pt-7">
+    <div className=" bg-white pt-4 md:pt-8">
       <div className="container px-4 py-8 mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -193,7 +193,7 @@ const CartPage = () => {
             </p>
             <Link
               to="/products"
-              className="inline-flex items-center px-6 py-3 space-x-2 text-white transition-colors bg-pink-600 rounded-lg hover:bg-pink-700"
+              className="inline-flex items-center px-6 py-3 space-x-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
             >
               <ShoppingBag className="w-5 h-5" />
               <span>Continue Shopping</span>
