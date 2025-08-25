@@ -128,15 +128,13 @@ const HomePage = () => {
   }, [popupBanners, heroBanners, promoBanners, categoryBanners])
 
   return (
-    <div className="min-h-screen bg-white">
-      <main>
+    <div className="min-h-screen bg-white flex flex-col">
 
-        <div className="flex flex-col gap-2">
-          <div>
+        {/* <div className="flex flex-col"> */}
+          
             <PromoBanners />
-          </div>
+          
           <FlatDiscount/>
-          {/* <CategoryBanner /> */}
             <HeroBanner />
               <PriceSelection/>
           <FeaturedCategories />
@@ -148,7 +146,7 @@ const HomePage = () => {
     
           <InnovationList />
                 <KsauniTshirtStyle />
-        </div>
+        {/* </div> */}
        
        
         {/* Brand of India Banner - moved to last position before footer */}
@@ -165,7 +163,6 @@ const HomePage = () => {
             onClose={() => setPopupVisible(false)}
           />
         )}
-      </main>
     </div>
   )
 }

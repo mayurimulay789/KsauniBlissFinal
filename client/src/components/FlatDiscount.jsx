@@ -8,7 +8,7 @@ const FlatDiscount = () => {
   };
 
   return (
-    <div className="w-full cursor-pointer" onClick={handleClick}>
+    <div className="w-full cursor-pointer px-2 mb-4" onClick={handleClick}>
       <img
         src={discount} // Image from public folder
         alt="Discount Offer"

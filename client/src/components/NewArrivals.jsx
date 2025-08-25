@@ -3,7 +3,6 @@
 import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { motion } from "framer-motion"
 
 export default function NewArrivals() {
   const dispatch = useDispatch()
@@ -20,10 +19,10 @@ export default function NewArrivals() {
   }
 
   return (
-    <section className="bg-white py-3 ml-2 sm:ml-7">
-      <div className="px-3">
+    <section className="bg-white ml-2 sm:ml-4">
+      <div className="px-1">
         {/* Heading */}
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-1">
           <h2 className="text-[18px] font-bold text-black mb-2">New Arrivals From Rs. 349</h2>
           <Link to="/products" className="text-black text-[18px] font-bold leading-none">
             +
@@ -39,7 +38,7 @@ export default function NewArrivals() {
                 : 0
 
             return (
-              <motion.div
+              <div
                 key={product._id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -87,7 +86,7 @@ export default function NewArrivals() {
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )
           })}
         </div>

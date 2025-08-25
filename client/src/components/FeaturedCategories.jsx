@@ -2,7 +2,6 @@
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Link } from "react-router-dom"
-import { motion } from "framer-motion"
 import LoadingSpinner from "./LoadingSpinner"
 import { fetchCategories } from "../store/slices/categorySlice"
 
@@ -20,11 +19,11 @@ const FeaturedCategories = () => {
     categories?.filter((cat) => cat.showOnHomepage)?.slice(0, 6) || []
 
   return (
-    <section className="relative z-20 py-6 bg-white">
-      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <section className="relative z-20 py-1 bg-white">
+      <div className="px-2 mx-auto max-w-7xl sm:px-4 lg:px-6">
         {/* Header */}
        <div className="text-center mb-4">
-          <motion.h1
+          <h1
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -33,8 +32,8 @@ const FeaturedCategories = () => {
           >
             <span className="text-red-600">TOP</span>{" "}
             <span className="text-black">CATEGORY</span>
-          </motion.h1>
-          <motion.p
+          </h1>
+          <p
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -42,7 +41,7 @@ const FeaturedCategories = () => {
             className="text-gray-700 text-xs sm:text-xs font-medium"
           >
             Style for Every Mood, Every Day
-          </motion.p>
+          </p>
         </div>
 
         {/* MOBILE: Horizontal scroll, 2×2 cards per group */}
@@ -64,7 +63,7 @@ const FeaturedCategories = () => {
                 >
                   {groupItems.map((category, index) =>
                     category ? (
-                      <motion.div
+                      <div
                         key={category._id}
                         initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -86,17 +85,17 @@ const FeaturedCategories = () => {
                           </div>
 
                           <div className="p-1 text-start ">
-                            <motion.h3
+                            <h3
                               initial={{ y: 10, opacity: 0 }}
                               animate={{ y: 0, opacity: 1 }}
                               transition={{ delay: 0.1 }}
                               className="text-sm   uppercase pl-1"
                             >
                               {category.name}
-                            </motion.h3>
+                            </h3>
                           </div>
                         </Link>
-                      </motion.div>
+                      </div>
                     ) : (
                       // Placeholder to keep grid height
                       <div key={`placeholder-${index}`} className="aspect-[20/10]" />
@@ -118,7 +117,7 @@ const FeaturedCategories = () => {
           }}
         >
           {featuredCategories.map((category, index) => (
-            <motion.div
+            <div
               key={category._id}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -139,17 +138,17 @@ const FeaturedCategories = () => {
                 </div>
 
                 <div className="p-1 text-start">
-                  <motion.h3
+                  <h3
                     initial={{ y: 10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.12 }}
                     className="pl-1 text-lg  text-gray-900 uppercase"
                   >
                     {category.name}
-                  </motion.h3>
+                  </h3>
                 </div>
               </Link>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

@@ -3,22 +3,14 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-// Axios instance with token interceptor
+// Axios instance (❌ no global interceptor)
 const api = axios.create({ baseURL: API_BASE_URL });
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("fashionhub_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
 // =========================
 // 📝 Async Thunks
 // =========================
 
-// Fetch all banners (admin view)
+// Fetch all banners (admin view or general)
 export const fetchAllBanners = createAsyncThunk(
   "banners/fetchAllBanners",
   async (params, { rejectWithValue }) => {
@@ -28,10 +20,10 @@ export const fetchAllBanners = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch banners");
     }
-  },
+  }
 );
 
-// Fetch hero banners (public)
+// Public banner fetches (no token required)
 export const fetchHeroBanners = createAsyncThunk(
   "banners/fetchHeroBanners",
   async (_, { rejectWithValue }) => {
@@ -41,10 +33,9 @@ export const fetchHeroBanners = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch hero banners");
     }
-  },
+  }
 );
 
-// Fetch promo banners (public)
 export const fetchPromoBanners = createAsyncThunk(
   "banners/fetchPromoBanners",
   async (_, { rejectWithValue }) => {
@@ -54,10 +45,9 @@ export const fetchPromoBanners = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch promo banners");
     }
-  },
+  }
 );
 
-// Fetch category banners (public)
 export const fetchCategoryBanners = createAsyncThunk(
   "banners/fetchCategoryBanners",
   async (_, { rejectWithValue }) => {
@@ -67,63 +57,78 @@ export const fetchCategoryBanners = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch category banners");
     }
-  },
+  }
 );
 
-// Create banner
+// Admin-only actions (token required)
 export const createBanner = createAsyncThunk(
   "banners/createBanner",
   async (bannerData, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("fashionhub_token");
       const response = await api.post("/banners", bannerData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
       });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to create banner");
     }
-  },
+  }
 );
 
-// Update banner
 export const updateBanner = createAsyncThunk(
   "banners/updateBanner",
   async ({ bannerId, bannerData }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("fashionhub_token");
       const response = await api.put(`/banners/${bannerId}`, bannerData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
       });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to update banner");
     }
-  },
+  }
 );
 
-// Delete banner
 export const deleteBanner = createAsyncThunk(
   "banners/deleteBanner",
   async (bannerId, { rejectWithValue }) => {
     try {
-      await api.delete(`/banners/${bannerId}`);
+      const token = localStorage.getItem("fashionhub_token");
+      await api.delete(`/banners/${bannerId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return bannerId;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to delete banner");
     }
-  },
+  }
 );
 
-// Toggle banner status
 export const toggleBannerStatus = createAsyncThunk(
   "banners/toggleBannerStatus",
   async (bannerId, { rejectWithValue }) => {
     try {
-      const response = await api.patch(`/banners/${bannerId}/toggle`);
+      const token = localStorage.getItem("fashionhub_token");
+      const response = await api.patch(`/banners/${bannerId}/toggle`, null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to toggle banner status");
     }
-  },
+  }
 );
 
 // =========================
@@ -153,12 +158,16 @@ const bannerSlice = createSlice({
   name: "banners",
   initialState,
   reducers: {
-    clearError: (state) => { state.error = null; },
-    clearSuccess: (state) => { state.success = null; },
+    clearError: (state) => {
+      state.error = null;
+    },
+    clearSuccess: (state) => {
+      state.success = null;
+    },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch all banners
+      // Fetch all
       .addCase(fetchAllBanners.pending, (state) => {
         state.loadingAll = true;
         state.error = null;
@@ -172,7 +181,7 @@ const bannerSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Fetch hero banners
+      // Hero
       .addCase(fetchHeroBanners.pending, (state) => {
         state.loadingHero = true;
         state.error = null;
@@ -186,7 +195,7 @@ const bannerSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Fetch promo banners
+      // Promo
       .addCase(fetchPromoBanners.pending, (state) => {
         state.loadingPromo = true;
         state.error = null;
@@ -200,7 +209,7 @@ const bannerSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Fetch category banners
+      // Category
       .addCase(fetchCategoryBanners.pending, (state) => {
         state.loadingCategory = true;
         state.error = null;
@@ -214,7 +223,7 @@ const bannerSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Create banner
+      // Create
       .addCase(createBanner.pending, (state) => {
         state.loadingCreate = true;
         state.error = null;
@@ -229,7 +238,7 @@ const bannerSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Update banner
+      // Update
       .addCase(updateBanner.pending, (state) => {
         state.loadingUpdate = true;
         state.error = null;
@@ -238,9 +247,7 @@ const bannerSlice = createSlice({
         state.loadingUpdate = false;
         const updatedBanner = action.payload.banner;
         const index = state.banners.findIndex((b) => b._id === updatedBanner._id);
-        if (index !== -1) {
-          state.banners[index] = updatedBanner;
-        }
+        if (index !== -1) state.banners[index] = updatedBanner;
         state.success = action.payload.message;
       })
       .addCase(updateBanner.rejected, (state, action) => {
@@ -248,7 +255,7 @@ const bannerSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Delete banner
+      // Delete
       .addCase(deleteBanner.pending, (state) => {
         state.loadingDelete = true;
         state.error = null;
@@ -258,6 +265,7 @@ const bannerSlice = createSlice({
         state.banners = state.banners.filter((b) => b._id !== action.payload);
         state.heroBanners = state.heroBanners.filter((b) => b._id !== action.payload);
         state.promoBanners = state.promoBanners.filter((b) => b._id !== action.payload);
+        state.categoryBanners = state.categoryBanners.filter((b) => b._id !== action.payload);
         state.success = "Banner deleted successfully";
       })
       .addCase(deleteBanner.rejected, (state, action) => {
@@ -265,7 +273,7 @@ const bannerSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Toggle banner status
+      // Toggle
       .addCase(toggleBannerStatus.pending, (state) => {
         state.loadingToggle = true;
         state.error = null;
@@ -280,6 +288,7 @@ const bannerSlice = createSlice({
         updateInArray(state.banners);
         updateInArray(state.heroBanners);
         updateInArray(state.promoBanners);
+        updateInArray(state.categoryBanners);
         state.success = action.payload.message;
       })
       .addCase(toggleBannerStatus.rejected, (state, action) => {

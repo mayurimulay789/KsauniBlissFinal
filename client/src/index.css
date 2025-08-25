@@ -355,6 +355,14 @@ img[data-loading="true"] {
 .product-card:hover::before {
   opacity: 1;
 }
+ .scrollbar-hide {
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari, Opera */
+}
 
 .product-card:hover {
   border-color: var(--color-border);

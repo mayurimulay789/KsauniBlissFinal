@@ -90,44 +90,21 @@ const PromoBanners = () => {
   const currentBanner = bannersToShow[currentBannerIndex]
 
   return (
-    <section className="relative w-full mx-auto mt-0 px-4">
-            {/* Main Banner Container */}     {" "}
+    <section className="relative w-full  mt-4 mx-2 px-4">
       <div
-        className="relative overflow-hidden rounded-2xl shadow-lg w-full mx-auto cursor-pointer"
-        style={{
-          border: "3px solid #be7a21ff",
-        }}
-      >
-                {/* Banner Image */}       {" "}
-        <img
-          src={
-            currentBanner?.image?.url ||
-            "/placeholder.svg?height=280&width=1200&query=abstract category banner background"
-          }
-          alt={currentBanner?.title || "Promotional banner"}
-          className="w-full h-36 sm:h-48 md:h-56 lg:h-80 xl:h-96 object-cover"
-        />
-                {/* Enhanced Pagination Dots */}       {" "}
-        {bannersToShow.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-30">
-                       {" "}
-            {bannersToShow.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentBannerIndex(index)}
-                className={`transition-all duration-300 ${
-                  index === currentBannerIndex
-                    ? "w-6 h-2 bg-red-600 rounded-full shadow-lg"
-                    : "w-2 h-2 bg-white/70 hover:bg-white rounded-full shadow-md"
-                }`}
-                aria-label={`Go to banner ${index + 1}`}
-              />
-            ))}
-                     {" "}
-          </div>
-        )}
-             {" "}
-      </div>
+  className="relative overflow-hidden rounded-2xl shadow-lg w-full aspect-[3/1] mx-auto cursor-pointer"
+  style={{ border: "3px solid #be7a21ff" }}
+>
+  <img
+    src={
+      currentBanner?.image?.url ||
+      "/placeholder.svg?height=600&width=1920&text=Fashion+Sale"
+    }
+    alt={currentBanner?.title || "Promotional banner"}
+    className="w-full h-full object-cover"
+  />
+</div>
+
             {/* Coupon Banner */}      {/* <CouponBanner /> */}   {" "}
     </section>
   )

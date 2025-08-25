@@ -628,7 +628,7 @@ const Navbar = () => {
 
         {/* T-SHIRTS */}
         <div
-          onClick={() => navigate("/products?search=t-shirts")}
+          onClick={() => navigate("/products?search=regular")}
           className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
         >
           <Shirt className="w-5 h-5 mb-0.5" />

@@ -115,7 +115,7 @@ const HeroBanner = () => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] lg:min-h-[80vh] bg-gray-900 overflow-hidden"
+        className="relative min-h-[40vh] sm:min-h-[50vh] md:min-h-[60vh] lg:min-h-[70vh] bg-gray-900 overflow-hidden"
         style={{
           background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
         }}
@@ -173,23 +173,17 @@ const HeroBanner = () => {
   }
 
   return (
-    <motion.section
+    <div
       ref={containerRef}
-      className="relative min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] lg:min-h-[80vh] bg-gray-900 overflow-hidden"
+      className="relative min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] lg:min-h-[80vh] bg-white overflow-hidden"
       style={{
         background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
       }}
     >
-      {/* Background */}
-      <div
-        className="absolute inset-0 bg-center bg-cover opacity-10"
-        style={{ backgroundImage: `url('/public/images/hero-background-pattern.png')` }}
-      >
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 via-transparent to-white/5"></div>
-      </div>
+      
 
       {/* Content */}
-      <div className="relative z-10 flex flex-row items-center justify-center h-full px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
+      <div className="relative z-10 flex flex-row items-center justify-center h-full px-2 mx-auto sm:px-4 lg:px-6 max-w-7xl">
         {/* Left Text */}
         <motion.div
           className="flex-1 order-1 mb-8 text-center lg:text-left lg:mb-0 lg:pr-8"
@@ -198,36 +192,31 @@ const HeroBanner = () => {
           animate="visible"
         >
           <motion.div variants={textVariants} custom={0}>
-            <h1 className="mb-4 text-4xl font-bold tracking-wider text-transparent sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text">
-              LUXE
-            </h1>
+            <h4 className="mb-4 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-wider text-transparent bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text">
+  LUXE
+</h4>
+
           </motion.div>
           <motion.p
-            variants={textVariants}
-            custom={1}
-            className="max-w-md mx-auto mb-6 text-base font-light tracking-wide text-white sm:text-lg md:text-xl lg:text-2xl sm:mb-8 lg:mx-0"
-          >
-            Elevate Your Style With <br /> Luxury
-          </motion.p>
-          <motion.div
-            variants={buttonVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover="hover"
-            whileTap="tap"
-          >
-            <Link
-              to="/products"
-              className="inline-flex items-center px-5 py-3 text-sm sm:px-6 sm:py-3 sm:text-base font-medium tracking-wider text-yellow-400 uppercase transition-all duration-300 border border-yellow-400 rounded-none hover:bg-yellow-400 hover:text-black"
-            >
-              Switch to Luxe
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Link>
-          </motion.div>
+  variants={textVariants}
+  custom={1}
+  className="max-w-xs sm:max-w-sm mx-auto mb-4 text-sm sm:text-base md:text-lg lg:text-xl font-light tracking-wide text-white whitespace-nowrap sm:whitespace-normal lg:mx-0"
+>
+  Elevate Your Style With Luxury
+</motion.p>
+
+          <Link
+  to="/products"
+  className="inline-flex items-center px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-base font-medium tracking-wider text-yellow-200 uppercase transition-all duration-300 border-0 sm:border sm:rounded-none hover:bg-yellow-400 hover:text-black"
+>
+  Switch to Luxe
+  <ArrowRight className="w-3 h-3 ml-1" />
+</Link>
+
         </motion.div>
 
         {/* Right Carousel */}
-        <div className="relative flex items-center justify-center flex-3 order-2 w-full h-full">
+<div className="relative flex items-center justify-center flex-3 order-2 w-full h-auto sm:h-full py-1 sm:py-2">
           <div className="relative w-full max-w-full overflow-hidden">
             <div
               ref={carouselRef}
@@ -287,7 +276,7 @@ const HeroBanner = () => {
           </div>
         </div>
       </div>
-    </motion.section>
+    </div>
   )
 }
 

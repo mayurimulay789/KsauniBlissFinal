@@ -82,6 +82,12 @@ const config = {
       },
     },
   },
+  plugins: [require('@tailwindcss/aspect-ratio')],
+
   plugins: [require("tailwindcss-animate")],
+  plugins: [
+  require('tailwind-scrollbar-hide'),
+]
+
 }
 export default config
