@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 const ShopByFandom = () => {
   const navigate = useNavigate()
 
-    const mockProducts = [
+  const mockProducts = [
     {
       id: 1,
       name: "Attack on Titan",
@@ -21,46 +21,44 @@ const ShopByFandom = () => {
     {
       id: 3,
       name: "Kaijya",
-      image:"/KaijuNo.webp",
-      logoAlt:"Geometric Brand Logo",
+      image: "/KaijuNo.webp",
+      logoAlt: "Geometric Brand Logo",
     },
     {
-      id:4,
-      name:"Joker",
-      image:"/Joker.webp",
-      logoAlt:"Joker Logo",
+      id: 4,
+      name: "Joker",
+      image: "/Joker.webp",
+      logoAlt: "Joker Logo",
     },
-   
-    
     {
       id: 5,
-      name:"DeathNote",
-      image:" /DeathNote.webp",
+      name: "DeathNote",
+      image: "/DeathNote.webp", // ✅ removed space
       logoAlt: "DeathNote",
     },
     {
       id: 6,
-      name:"Naruto",
-      image:"/Naruto.webp",
-      logoAlt:"Naruto",
+      name: "Naruto",
+      image: "/Naruto.webp",
+      logoAlt: "Naruto",
     },
     {
-      id:7,
-      name:"Venom",
-      image:"/Venom.webp",
-      logoAlt:"Venom",
+      id: 7,
+      name: "Venom",
+      image: "/Venom.webp",
+      logoAlt: "Venom",
     },
     {
       id: 8,
-      name:"Zoro",
-      image:"/Zoro.webp",
-      logoAlt:"Zoro",
+      name: "Zoro",
+      image: "/Zoro.webp",
+      logoAlt: "Zoro",
     },
     {
       id: 9,
-      name:"Demon Slayer",
-      image:"/DemonSlayer.webp",
-      logoAlt:"Demon Slayer logo",
+      name: "Demon Slayer",
+      image: "/DemonSlayer.webp",
+      logoAlt: "Demon Slayer logo",
     },
   ]
 
@@ -75,23 +73,26 @@ const ShopByFandom = () => {
           <h2 className="text-2xl font-black text-black sm:text-3xl md:text-4xl">
             SHOP BY <span className="text-red-600 italic">FANDOM</span>
           </h2>
-          <p className="mt-2 text-sm text-gray-600 sm:text-base">Shop for every fandom. Every style.</p>
+          <p className="mt-2 text-sm text-gray-600 sm:text-base">
+            Shop for every fandom. Every style.
+          </p>
         </div>
 
         <div className="flex gap-4 overflow-x-auto pb-2 sm:gap-4 md:gap-6 scrollbar-hide">
-          {mockProducts.map((product, index) => (
-            <div key={product.id} className="flex-shrink-0 cursor-pointer group" onClick={handleProductClick}>
+          {mockProducts.map((product) => (
+            <div
+              key={product.id}
+              className="flex-shrink-0 cursor-pointer group"
+              onClick={handleProductClick}
+            >
               <div className="relative mb-2 sm:mb-4 md:mb-6">
                 <div className="relative overflow-hidden transition-all duration-300 rounded-lg shadow-lg hover:shadow-xl group-hover:scale-105">
                   <img
                     src={product.image || "/placeholder.svg"}
-                    alt={product.name}
+                    alt={product.logoAlt}
                     className="object-cover w-40 h-48 sm:w-48 sm:h-56 md:w-56 md:h-64 lg:w-64 lg:h-72"
-                    
                   />
                 </div>
-
-                
               </div>
             </div>
           ))}
