@@ -340,12 +340,12 @@ const CartPage = () => {
                 </div>
 
                 {/* Free Shipping Banner */}
-                {summary.subtotal < 999 && (
+                {summary.subtotal < 399 && (
                   <div className="p-3 mb-6 border border-blue-200 rounded-lg bg-blue-50">
                     <div className="flex items-center space-x-2">
                       <Truck className="w-5 h-5 text-blue-600" />
                       <span className="text-sm text-blue-800">
-                        Add ₹{999 - summary.subtotal} more for free shipping!
+                        Add ₹{399 - summary.subtotal} more for free shipping!
                       </span>
                     </div>
                   </div>

@@ -127,9 +127,9 @@ export default function TopPicksShowcase() {
 
   if (isLoading) {
     return (
-      <div className="w-full bg-white py-2 mb-4 px-4">
+      <div className="w-full bg-white py-4 mb-4 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 py-4">
             <h1 className="text-2xl sm:text-4xl font-black italic">
               TOP 10 <span className="text-red-600">PICKS</span> OF THE WEEK
             </h1>

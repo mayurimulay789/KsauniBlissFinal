@@ -147,7 +147,7 @@ const Navbar = () => {
   const cydCategory = {
     _id: "cyd-promo",
     name: "Under ₹999",
-    image: { url: "cyd logo.png", alt: "CYD logo" },
+    image: { url: "cydlogo.png", alt: "CYD logo" },
   }
 
   if (!categoriesForMobileScroll.some((cat) => cat.name === cydCategory.name)) {
@@ -292,12 +292,12 @@ const Navbar = () => {
             {/* Right-side icons */}
             <div className="flex items-center space-x-4 md:space-x-6">
               {/* Saved icon - visible on mobile, hidden on desktop */}
-              <div
+              {/* <div
                 onClick={() => navigate("/saved-items")}
                 className="relative flex items-center space-x-1 text-gray-700 cursor-pointer hover:text-red-600 md:hidden"
               >
                 <SquarePlus className="w-5 h-5" />
-              </div>
+              </div> */}
 
               {/* Wishlist icon - always visible */}
               <div
@@ -419,7 +419,7 @@ const Navbar = () => {
               animate={searchFocused ? "focused" : "unfocused"}
             >
               <form onSubmit={handleSearch}>
-                <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-4 top-1/2" />
+                <Search className="absolute w-3 h-3 text-gray-400 transform -translate-y-1/2 left-4 top-1/2" />
                 <motion.input
                   type="text"
                   placeholder="Search From Oversized T-Shirt"
@@ -429,7 +429,7 @@ const Navbar = () => {
                   className="w-full py-2 pl-10 pr-10 text-sm placeholder-gray-400 transition-all duration-300 border border-gray-200 rounded-full outline-none bg-gray-50 focus:bg-white focus:ring-2 focus:ring-red-600/20"
                   whileFocus={{ scale: 1.02 }}
                 />
-                <Mic className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 right-4 top-1/2" />
+                <Mic className="absolute w-3 h-3 text-gray-400 transform -translate-y-1/2 right-4 top-1/2" />
               </form>
               <AnimatePresence>
                 {showSearchDropdown && searchFocused && (
@@ -479,7 +479,7 @@ const Navbar = () => {
                       <div className="p-4">
                         {suggestionsLoading ? (
                           <div className="flex items-center justify-center py-4">
-                            <div className="w-5 h-5 border-2 border-gray-300 rounded-full border-t-red-600 animate-spin" />
+                            <div className="w-4 h-4 border-2 border-gray-300 rounded-full border-t-red-600 animate-spin" />
                           </div>
                         ) : suggestions.length > 0 ? (
                           <div className="space-y-2">
@@ -624,13 +624,13 @@ const Navbar = () => {
       onClick={() => navigateToUnder999()}
       className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
     >
-      <img src="cyd logo.png" alt="CYD Logo" className="w-7 h-7 mb-0.5 object-contain" />
+      <img src="cydlogo.png" alt="CYD Logo" className="w-7 h-7 mb-0.5 object-contain" />
       <span>₹999</span>
     </div>
 
     {/* T-SHIRTS */}
     <div
-      onClick={() => navigate("/products?search=regular")}
+      onClick={() => navigate("/products")}
       className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
     >
       <Shirt className="w-5 h-5 mb-0.5" />

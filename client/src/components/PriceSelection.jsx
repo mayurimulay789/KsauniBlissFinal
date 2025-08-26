@@ -22,13 +22,13 @@ const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
   }
 
   return (
-    <div className="relative z-20 w-full py-8 bg-white">
+    <div className="relative z-20 w-full py-5 bg-white">
       {/* Added relative z-20 and py-8 for proper spacing */}
       <div className="px-4 mx-auto max-w-7xl">
         {/* Added container with max-width and padding */}
         {/* Header */}
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl italic font-black sm:text-4xl">
+        <div className="mb-4 text-center">
+          <h1 className="text-xl italic font-black sm:text-4xl">
             <span className="text-red-600">PRICE</span> <span className="text-black">SELECTION</span>
           </h1>
           <p className="text-sm font-medium text-gray-700 sm:text-base">Styles ab Budget mee</p>

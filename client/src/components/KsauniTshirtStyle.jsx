@@ -43,17 +43,10 @@ const KsauniTshirtStyle = () => {
   if (!tshirts.length) return null
 
   return (
-    <section className="py-8 sm:py-16 bg-gray-50">
-      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="mb-2 text-left flex items-center justify-between"
-        >
+    <section className="py-2 sm:py-4 bg-white">
+      <div className="px-2 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        
           <h2 className="text-[18px] font-bold text-black mb-2">KSAUNI TSHIRT STYLE</h2>
-        </motion.div>
 
         <div className="relative">
           <div

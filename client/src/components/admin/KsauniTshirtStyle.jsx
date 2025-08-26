@@ -35,7 +35,7 @@ const KsauniTshirtStyle = () => {
   if (!tshirts.length) return null
 
   return (
-    <section className="py-8 sm:py-16 bg-gray-50">
+    <section className="py-4 sm:py-8 bg-white">
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
