@@ -102,6 +102,21 @@ const tempOrderDataSchema = new mongoose.Schema({
   paymentInfo: paymentInfoSchema,
   status: { type: String, default: "pending" },
   createdAt: { type: Date, default: Date.now },
+  trackingUrl:{ type: String},
+  temp_order_id:{ type: String},
+  trackingInfo: { type:  {
+    awbCode: { type: String, default: null },
+    courierName: { type: String, default: null },
+    awbStatus: {
+      type: String,
+      enum: ["PENDING", "ASSIGNED", "FAILED", "N/A"],
+      default: "PENDING",
+    },
+    awbAssignedAt: { type: Date, default: null },
+    awbError: { type: String, default: null },
+    trackingUrl:{type: String, default: null},
+    message:{type: String, default: null}
+    }, default: () => ({ awbStatus: "PENDING" }) },
 });
 
 // 👤 Main User Schema

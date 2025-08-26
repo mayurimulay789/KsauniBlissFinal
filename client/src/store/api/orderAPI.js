@@ -1,4 +1,5 @@
 import axios from "axios";
+import { trackOrder } from "../slices/orderSlice";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -60,4 +61,5 @@ export const orderAPI = {
 
   //COD order
   placeCodOrder: (orderData) => api.post(`/orders/cod`, orderData),
+  trackOrder: (order) => api.post(`orders/trackingOrder`,order)
 };

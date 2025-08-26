@@ -32,6 +32,7 @@ import OrderConfirmationPage from "./pages/OrderConfirmationPage"
 import CookiesPage from "./pages/CookiesPage"
 import ReturnPage from "./pages/ReturnPage"
 import ShippingPage from "./pages/ShippingPage"
+import OrderDetailsPage from './pages/OrderDetailsPage';
 
 // Admin/Digital Marketer pages
 import AdminDashboard from "./pages/admin/AdminDashboard"
@@ -131,12 +132,14 @@ function App() {
             <Route path="/shipping" element={<ShippingPage />} />
 
             {/* Protected Routes */}
-            <Route path="/cart" element={<CartPage />} />
+            <Route path="/cart" element={<CartPage />}/> 
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/orders" element={<MyOrdersPage />} />
             <Route path="/wishlist" element={<WishlistPage />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
+
+            
 
             {/* Admin Routes */}
             <Route path="/admin/*" element={

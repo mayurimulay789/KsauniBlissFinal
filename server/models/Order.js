@@ -58,6 +58,8 @@ const trackingInfoSchema = new mongoose.Schema(
     },
     awbAssignedAt: { type: Date, default: null },
     awbError: { type: String, default: null },
+    trackingUrl:{type: String, default: null},
+    message:{type: String, default: null}
   },
   { _id: false },
 )
@@ -69,6 +71,9 @@ const trackingInfoSchema = new mongoose.Schema(
 const orderSchema = new mongoose.Schema(
   {
     orderNumber: { type: String, unique: true, index: true }, // e.g. FH-<timestamp>
+    shiprocketShipmentId : {type: Number, unique: true,},
+    shiprocketOrderId: {type: Number, unique: true,},
+    trackingUrl:{type:String, default: null },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
     items: { type: [orderItemSchema], required: true, validate: v => v.length > 0 },
@@ -89,7 +94,7 @@ const orderSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["PLACED", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"],
+      enum: ["PLACED", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED","ABANDONED"],
       default: "PLACED",
       index: true,
     },

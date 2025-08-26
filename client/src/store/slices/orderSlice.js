@@ -62,6 +62,16 @@ export const trackOrder = createAsyncThunk("order/trackOrder", async (orderId, {
   }
 })
 
+
+export const trackOrderInfo = createAsyncThunk("order/fetchAndSetTrackingInfo", async (order, { rejectWithValue }) => {
+  try {
+    const response = await orderAPI.trackOrder(order)
+    return response.data
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to track order")
+  }
+})
+
 export const getShippingRates = createAsyncThunk("order/getShippingRates", async (rateData, { rejectWithValue }) => {
   try {
     const response = await orderAPI.getShippingRates(rateData)
@@ -108,6 +118,9 @@ const initialState = {
     paymentVerified: false,
     orderCancelled: false,
   },
+  tracking: null,
+  trackLoading: false,
+  error: null,
 }
 
 const orderSlice = createSlice({
@@ -254,6 +267,18 @@ const orderSlice = createSlice({
         state.loading.cancelling = false
         state.error = action.payload
       })
+       .addCase(trackOrderInfo.pending, (state) => {
+        state.trackLoading = true;
+        state.error = null;
+      })
+      .addCase(trackOrderInfo.fulfilled, (state, action) => {
+        state.trackLoading = false;
+        state.tracking = action.payload; // full API response
+      })
+      .addCase(trackOrderInfo.rejected, (state, action) => {
+        state.trackLoading = false;
+        state.error = action.payload;
+      });
   },
 })
 
