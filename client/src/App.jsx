@@ -138,6 +138,7 @@ function App() {
             <Route path="/orders" element={<MyOrdersPage />} />
             <Route path="/wishlist" element={<WishlistPage />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
+            <Route path="/order/:orderId" element={<OrderDetailsPage />} /> {/* New Route */}
 
             
 
