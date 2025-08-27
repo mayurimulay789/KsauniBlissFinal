@@ -175,12 +175,12 @@ const CheckoutPage = () => {
 
   const handlePlaceOrder = useCallback(() => {
 
-    console.log("user",user)
-    if (Object.keys(user).length === 0) {
-      navigate("/login", { state: { from: window.location.pathname } })
-      toast.error("Please login to place order")
-      return
-    }
+    // console.log("user",user)
+    // if (Object.keys(user).length === 0) {
+    //   navigate("/login", { state: { from: window.location.pathname } })
+    //   toast.error("Please login to place order")
+    //   return
+    // }
 
 
     console.log("calling on;ine order ")
@@ -231,13 +231,13 @@ const CheckoutPage = () => {
     
   console.log("calling cod order ")
 
-  console.log("user",user)
+  // console.log("user",user)
 
-    if (Object.keys(user).length === 0) {
-          navigate("/login", { state: { from: window.location.pathname } })
-          toast.error("Please login to place order")
-          return
-        }
+    // if (Object.keys(user).length === 0) {
+    //       navigate("/login", { state: { from: window.location.pathname } })
+    //       toast.error("Please login to place order")
+    //       return
+    //     }
   
 
     if (rzpInstanceRef.current) {
