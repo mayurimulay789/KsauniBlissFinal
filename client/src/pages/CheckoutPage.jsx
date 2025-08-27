@@ -43,7 +43,7 @@ import { fetchCart } from "../store/slices/cartSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { PaymentModal } from "./PaymentModal";
 import ShippingRateCalculator from "../components/ShippingRateCalculator";
-
+import { toast } from "react-toastify"
 const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -175,6 +175,14 @@ const CheckoutPage = () => {
 
   const handlePlaceOrder = useCallback(() => {
 
+    console.log("user",user)
+    if (Object.keys(user).length === 0) {
+      navigate("/login", { state: { from: window.location.pathname } })
+      toast.error("Please login to place order")
+      return
+    }
+
+
     console.log("calling on;ine order ")
 
     if (rzpInstanceRef.current) {
@@ -222,6 +230,15 @@ const CheckoutPage = () => {
 
     
   console.log("calling cod order ")
+
+  console.log("user",user)
+
+    if (Object.keys(user).length === 0) {
+          navigate("/login", { state: { from: window.location.pathname } })
+          toast.error("Please login to place order")
+          return
+        }
+  
 
     if (rzpInstanceRef.current) {
       rzpInstanceRef.current.close();
