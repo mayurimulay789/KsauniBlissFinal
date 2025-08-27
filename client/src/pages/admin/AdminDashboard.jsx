@@ -14,8 +14,11 @@ import BannersManagement from "../../components/admin/BannersManagement"
 import UsersManagement from "../../components/admin/UserMangement"
 import InnovationManagement from "../../components/admin/InnovationManagement"
 import CouponsManagement from "../../components/admin/CouponsManagement"
-import KsauniTshirtManagement from "../../components/admin/KsauniTshirtMangement" // Fixed import path typo from KsauniTshirtMangement to KsauniTshirtManagement
+import KsauniTshirtManagement from "../../components/admin/KsauniTshirtMangement"
 import { clearError, clearSuccess } from "../../store/slices/adminSlice"
+
+// ✅ Import your ToastProvider
+import ToastProvider from "../../components/ToastProvider"
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -61,7 +64,7 @@ const AdminDashboard = () => {
       case "innovations":
         return "Innovation Management"
       case "ksaunitshirtstyle":
-        return "Kasuni T-Shirt Style Management" // Fixed typo from "Mangement" to "Management"
+        return "Kasuni T-Shirt Style Management"
       case "coupons":
         return "Coupons Management"
       default:
@@ -71,6 +74,9 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* ✅ Add ToastProvider at top-level */}
+      <ToastProvider />
+
       {/* Sidebar */}
       <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} userRole={user.role} />
 
@@ -90,8 +96,7 @@ const AdminDashboard = () => {
               <Route path="orders" element={<OrdersManagement />} />
               <Route path="banners" element={<BannersManagement />} />
               <Route path="innovations" element={<InnovationManagement />} />
-              <Route path="ksaunitshirtstyle" element={<KsauniTshirtManagement />} /> // Fixed import path typo from
-              KsauniTshirtMangement to KsauniTshirtManagement
+              <Route path="ksaunitshirtstyle" element={<KsauniTshirtManagement />} />
               {user.role === "admin" && (
                 <>
                   <Route path="users" element={<UsersManagement />} />
@@ -106,7 +111,10 @@ const AdminDashboard = () => {
 
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-white bg-opacity-75 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 z-40 bg-white bg-opacity-75 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
     </div>
   )

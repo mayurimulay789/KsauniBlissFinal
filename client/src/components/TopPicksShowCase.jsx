@@ -1,4 +1,3 @@
-"use client"
 
 import { useNavigate } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
@@ -131,7 +130,7 @@ export default function TopPicksShowcase() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8 py-4">
             <h1 className="text-2xl sm:text-4xl font-black italic">
-              TOP 10 <span className="text-red-600">PICKS</span> OF THE WEEK
+              TOP 7 <span className="text-red-600">PICKS</span> OF THE WEEK
             </h1>
             <p className="text-gray-200 text-sm sm:text-base font-small mt-1">
               Best Favorite Styles: Shop the Top Picks
@@ -148,10 +147,10 @@ export default function TopPicksShowcase() {
       <div className="w-full bg-white py-1 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-2xl sm:text-4xl font-black italic">
-            TOP 10 <span className="text-red-600">PICKS</span> OF THE WEEK
+            TOP 7<span className="text-red-600">PICKS</span> OF THE WEEK
           </h1>
           <p className="text-gray-400 text-sm text-muted sm:text-base font-sm ">
-              No top 10 products available at the moment.
+              No top 7 products available at the moment.
           </p>
         </div>
       </div>
@@ -164,7 +163,7 @@ export default function TopPicksShowcase() {
         <div className="flex items-center justify-between mb-6 ">
           <div className="text-center flex-1">
             <h1 className="text-2xl sm:text-4xl font-black italic">
-              TOP 10 <span className="text-red-600">PICKS</span> OF THE WEEK
+              TOP 7 <span className="text-red-600">PICKS</span> OF THE WEEK
             </h1>
             <p className="text-gray-700 text-sm sm:text-base font-medium mt-1">
               Best Favorite Styles: Shop the Top Picks

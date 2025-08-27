@@ -1,4 +1,3 @@
-"use client"
 
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
@@ -197,30 +196,7 @@ const LoginPage = () => {
         />
         {/* Removed Gradient Overlay */}
 
-        <div className="relative z-10 text-center text-white">
-          <Link to="/" className="inline-block mb-6">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="flex flex-col items-center space-y-2"
-            >
-              <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
-                <img src={logo || "/placeholder.svg"} alt="Logo" className="w-20 h-20" />
-              </div>
-              {/* <span className="text-5xl font-extrabold tracking-tight">KsauniBliss</span> */}
-              <span className="text-lg font-medium tracking-widest uppercase opacity-80">Your Style, Elevated</span>
-            </motion.div>
-          </Link>
-          <motion.p
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="mt-4 text-xl font-light"
-          >
-            Discover the latest trends and elevate your wardrobe.
-          </motion.p>
-        </div>
+        
       </div>
 
       {/* Right Section: Login/Register Form */}

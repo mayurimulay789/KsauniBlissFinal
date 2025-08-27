@@ -97,6 +97,7 @@ export const initializeAuth = createAsyncThunk("auth/initializeAuth", async (_, 
         firebaseUser: null
       }
     }
+    
 
     // We have stored data, verify with Firebase
     const user = auth.currentUser

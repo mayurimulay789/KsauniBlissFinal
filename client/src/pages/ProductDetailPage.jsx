@@ -155,20 +155,20 @@ const ProductDetailPage = () => {
   }
 
   if (isLoading) return <LoadingSpinner message="Loading product…" />
-  // if (error || !currentProduct)
-  //   return (
-  //     <div className="text-center">
-  //       <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-  //       <h1 className="text-2xl font-bold mb-2">Product Not Found</h1>
-  //       <p className="mb-8 text-gray-600">It may have been removed.</p>
-  //       <Link
-  //         to="/products"
-  //         className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-  //       >
-  //         Browse Products
-  //       </Link>
-  //     </div>
-  //   )
+  if (error || !currentProduct)
+    return (
+      <div className="text-center">
+        <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+        <h1 className="text-2xl font-bold mb-2">Product Not Found</h1>
+        <p className="mb-8 text-gray-600">It may have been removed.</p>
+        <Link
+          to="/products"
+          className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+        >
+          Browse Products
+        </Link>
+      </div>
+    )
 
   return (
     <div className="min-h-screen bg-gray-50 sm:pb-0 pb-20">

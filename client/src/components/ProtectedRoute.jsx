@@ -10,49 +10,35 @@ const ProtectedRoute = ({ children, adminOnly = false, digitalMarketerOnly = fal
   const dispatch = useDispatch()
   const location = useLocation()
 
-  const { isAuthenticated, user, isLoading, token } = useSelector((state) => state.auth)
+  const { isAuthenticated, user, isLoading, initialized, token } = useSelector(
+    (state) => state.auth
+  )
 
   useEffect(() => {
-    // Check authentication status if we have a token but no user data
-    if ( !user && !isLoading) {
+    // Run only once on app load
+    if (!initialized) {
       dispatch(checkAuth())
     }
-  }, [dispatch,  user, isLoading])
+  }, [dispatch, initialized])
 
-  // Show loading while checking authentication
-  if (isLoading) {
+  // 🚀 Prevent flicker → wait until auth is checked
+  if (isLoading || !initialized) {
     return <LoadingSpinner />
   }
 
   // Redirect to login if not authenticated
-  if (!isAuthenticated ) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
   // Check admin access
-  if (adminOnly && user.role !== "admin") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <h1 className="mb-4 text-2xl font-bold text-gray-800">Access Denied</h1>
-          <p className="mb-6 text-gray-600">You don't have permission to access this page.</p>
-          <Navigate to="/" replace />
-        </div>
-      </div>
-    )
+  if (adminOnly && user?.role !== "admin") {
+    return <Navigate to="/" replace />
   }
 
   // Check digital marketer access
-  if (digitalMarketerOnly && user.role !== "admin" && user.role !== "digitalMarketer") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <h1 className="mb-4 text-2xl font-bold text-gray-800">Access Denied</h1>
-          <p className="mb-6 text-gray-600">You don't have permission to access this page.</p>
-          <Navigate to="/" replace />
-        </div>
-      </div>
-    )
+  if (digitalMarketerOnly && user?.role !== "admin" && user?.role !== "digitalMarketer") {
+    return <Navigate to="/" replace />
   }
 
   return children
