@@ -43,7 +43,7 @@ import { fetchCart } from "../store/slices/cartSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { PaymentModal } from "./PaymentModal";
 import ShippingRateCalculator from "../components/ShippingRateCalculator";
-
+import { toast } from "react-toastify"
 const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -85,7 +85,17 @@ const CheckoutPage = () => {
   const [showShippingCalculator, setShowShippingCalculator] = useState(false);
 
 
-   useEffect(() => {
+ useEffect(() => {
+    // Close existing instance if any
+    // Clear any existing order state when checkout page loads
+   
+    console.log("rzpInstanceRef.current",rzpInstanceRef.current)
+    if (rzpInstanceRef.current) {
+      rzpInstanceRef.current.close();
+      rzpInstanceRef.current = null;
+    }
+
+    // Cleanup on unmount
     return () => {
       if (rzpInstanceRef.current) {
         rzpInstanceRef.current.close();
@@ -165,6 +175,14 @@ const CheckoutPage = () => {
 
   const handlePlaceOrder = useCallback(() => {
 
+    console.log("user",user)
+    if (Object.keys(user).length === 0) {
+      navigate("/login", { state: { from: window.location.pathname } })
+      toast.error("Please login to place order")
+      return
+    }
+
+
     console.log("calling on;ine order ")
 
     if (rzpInstanceRef.current) {
@@ -212,6 +230,15 @@ const CheckoutPage = () => {
 
     
   console.log("calling cod order ")
+
+  console.log("user",user)
+
+    if (Object.keys(user).length === 0) {
+          navigate("/login", { state: { from: window.location.pathname } })
+          toast.error("Please login to place order")
+          return
+        }
+  
 
     if (rzpInstanceRef.current) {
       rzpInstanceRef.current.close();
@@ -306,11 +333,16 @@ const CheckoutPage = () => {
       },
       modal: {
         ondismiss: () => {
-          if (rzpInstanceRef.current) {
-            rzpInstanceRef.current.close();
-            rzpInstanceRef.current = null;
-          }
+          // if (rzpInstanceRef.current) {
+          //   rzpInstanceRef.current.close();
+          //   rzpInstanceRef.current = null;
+          // }
           // dispatch(clearSuccess());
+          console.log("closing razorpay")
+           rzpInstanceRef.current = null;
+           window.location.reload();
+
+           
           
         },
       },
@@ -368,21 +400,21 @@ const CheckoutPage = () => {
   }, [couponError, dispatch]);
 
   // Auto-calculate shipping rates when pincode is entered
-  useEffect(() => {
-    if (shippingAddress.pinCode.length === 6 && cartItems.length > 0) {
-      const totalWeight = cartItems.reduce(
-        (weight, item) => weight + item.quantity * 0.5,
-        0.5
-      );
-      dispatch(
-        getShippingRates({
-          deliveryPincode: shippingAddress.pinCode,
-          weight: totalWeight,
-          cod: 0,
-        })
-      );
-    }
-  }, [shippingAddress.pinCode, cartItems, dispatch]);
+  // useEffect(() => {
+  //   if (shippingAddress.pinCode.length === 6 && cartItems.length > 0) {
+  //     const totalWeight = cartItems.reduce(
+  //       (weight, item) => weight + item.quantity * 0.5,
+  //       0.5
+  //     );
+  //     dispatch(
+  //       getShippingRates({
+  //         deliveryPincode: shippingAddress.pinCode,
+  //         weight: totalWeight,
+  //         cod: 0,
+  //       })
+  //     );
+  //   }
+  // }, [shippingAddress.pinCode, cartItems, dispatch]);
 
   if (!cartItems.length && !orderLoading.creating) {
     return (

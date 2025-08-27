@@ -139,6 +139,8 @@ function App() {
             <Route path="/wishlist" element={<WishlistPage />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
             <Route path="/order/:orderId" element={<OrderDetailsPage />} /> {/* New Route */}
+            <Route path="/order/:orderId" element={<OrderDetailsPage />} /> {/* New Route */}
+
             
 
             {/* Admin Routes */}
