@@ -19,7 +19,7 @@ import {
   selectIsAddingToWishlist,
   selectIsRemovingFromWishlist,
 } from "../store/slices/wishlistSlice"
-import adminAPI from "../store/api/adminApi" // Import the adminAPI
+import adminAPI from "../store/api/adminAPI" // Import the adminAPI
 import LoadingSpinner from "./LoadingSpinner"
 
 export default function TopPicksShowcase() {
