@@ -370,22 +370,40 @@ const CartPage = () => {
                 </Link>
 
                 {/* Trust Badges */}
-                <div className="pt-6 mt-6 border-t">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div className="flex flex-col items-center">
-                      <Shield className="w-6 h-6 mb-2 text-green-600" />
-                      <span className="text-xs text-gray-600">Secure Payment</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <Truck className="w-6 h-6 mb-2 text-blue-600" />
-                      <span className="text-xs text-gray-600">Fast Delivery</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <RotateCcw className="w-6 h-6 mb-2 text-purple-600" />
-                      <span className="text-xs text-gray-600">Easy Returns</span>
-                    </div>
-                  </div>
-                </div>
+                {/* Trust Badges */}
+<div className="pt-6 mt-6 border-t">
+  <div className="grid grid-cols-3 gap-4 text-center">
+    {/* Cash on Delivery */}
+    <div className="flex flex-col items-center">
+      <img
+        src="/COD.png" // 👉 Replace with your PNG file path in public/
+        alt="Cash on Delivery"
+        className="w-10 h-10 mb-2 object-contain"
+      />
+      <span className="text-xs text-gray-600">Cash on Delivery</span>
+    </div>
+
+    {/* 100% Genuine Product */}
+    <div className="flex flex-col items-center">
+      <img
+src="/download.png" //         alt="100% Genuine Product"
+        className="w-10 h-10 mb-2 object-contain"
+      />
+      <span className="text-xs text-gray-600">100% Genuine Product</span>
+    </div>
+
+    {/* Easy Returns & Refund */}
+    <div className="flex flex-col items-center">
+      <img
+        src="/return.png" // 👉 Replace with your PNG file path in public/
+        alt="Easy Returns and Refund"
+        className="w-10 h-10 mb-2 object-contain"
+      />
+      <span className="text-xs text-gray-600">Easy Returns and Refund</span>
+    </div>
+  </div>
+</div>
+
               </motion.div>
             </div>
           </div>

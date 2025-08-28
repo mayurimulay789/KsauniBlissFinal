@@ -789,7 +789,6 @@ const getShippingRates = async (req, res) => {
           });
         }
       } catch (shiprocketError) {
-        console.error("❌ Shiprocket error:", shiprocketError.message);
         // Continue to fallback rates instead of failing
       }
     } else {

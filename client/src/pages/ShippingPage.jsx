@@ -115,25 +115,7 @@ const ShippingPage = () => {
         </div>
       </section>
 
-      <section className="p-6 bg-gray-50 border rounded-lg">
-        <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
-          <Phone className="w-8 h-8 text-green-600" />
-          8. Contact Us
-        </h2>
-        <p className="mb-4 text-gray-700">
-          If you have any questions about shipping or need help with your order, please don't hesitate to contact us:
-        </p>
-        <div className="flex flex-col gap-2 text-gray-700">
-          <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-blue-600" />
-            <span>Email: support@ksaunibliss.com</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Phone className="w-5 h-5 text-green-600" />
-            <span>Phone: +91-XXXXXXXXXX</span>
-          </div>
-        </div>
-      </section>
+      
     </div>
   )
 }

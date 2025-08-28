@@ -110,12 +110,8 @@ const TermsPage = () => {
       icon: AlertTriangle,
       content: `We reserve the right to suspend or terminate your access to the website if we believe you have violated these terms or engaged in any unauthorized or harmful activity. This includes, but is not limited to, engaging in fraudulent or illegal activities, or violating intellectual property rights.`,
     },
-    {
-      id: "contact",
-      title: "Contact Information",
-      icon: FileText,
-      content: `If you have any questions about these Terms of Service or need assistance, please contact us at support@ksaunibliss.com or call us at +91-9876543210.`,
-    },
+    
+  
   ]
 
   return (
@@ -186,28 +182,7 @@ const TermsPage = () => {
             </div>
 
             {/* Important Notice */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="p-8 mt-12 text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-xl"
-            >
-              <div className="flex items-start">
-                <AlertTriangle className="flex-shrink-0 w-8 h-8 mt-1 mr-4" />
-                <div>
-                  <h3 className="mb-3 text-xl font-bold">Important Notice</h3>
-                  <p className="mb-4 leading-relaxed">
-                    These terms and conditions are legally binding. By using our services, you acknowledge that you have
-                    read, understood, and agree to be bound by these terms.
-                  </p>
-                  <p className="leading-relaxed">
-                    If you have any questions about these Terms and Conditions, please contact us at
-                    support@ksaunibliss.com before using our services.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
+            
           </div>
         </div>
       </section>

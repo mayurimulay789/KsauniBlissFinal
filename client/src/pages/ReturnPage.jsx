@@ -57,7 +57,7 @@ const ReturnPage = () => {
                 <div>
                   <strong className="text-gray-900">Return Window:</strong>
                   <span className="text-gray-700 ml-1">
-                    You must initiate the return within <strong>07 days</strong> of receiving your order.
+                    You must initiate the return within <strong>03 days</strong> of receiving your order.
                   </span>
                 </div>
               </div>
@@ -226,26 +226,7 @@ const ReturnPage = () => {
           </section>
 
           {/* Contact Information */}
-          <section className="bg-gray-50 rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Need Help?</h2>
-            <p className="text-gray-700 mb-4">
-              If you have any questions about our return and refund policy, please don't hesitate to contact us.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                to="/contact"
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors text-center"
-              >
-                Contact Support
-              </Link>
-              <Link
-                to="/faq"
-                className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 transition-colors text-center"
-              >
-                View FAQ
-              </Link>
-            </div>
-          </section>
+          
         </div>
       </div>
     </div>
