@@ -74,7 +74,7 @@ const orderSchema = new mongoose.Schema(
     shiprocketShipmentId : {type: Number, unique: true,},
     shiprocketOrderId: {type: Number, unique: true,},
     trackingUrl:{type:String, default: null },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
 
     items: { type: [orderItemSchema], required: true, validate: v => v.length > 0 },
 

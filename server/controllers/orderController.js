@@ -166,9 +166,11 @@ const createShiprocketOrder = async (order) => {
 // Create Razorpay order (unchanged)
 const createRazorpayOrder = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    const { items, shippingAddress, couponCode, selectedShippingRate } =
-      req.body;
+    console.log("create razorpay order", req.user);
+
+    // Allow guest checkout → userId will be null if not logged in
+    const userId = req.user?.userId || null;
+    const { items, shippingAddress, couponCode, selectedShippingRate } = req.body;
 
     // Validate required fields
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -189,13 +191,6 @@ const createRazorpayOrder = async (req, res) => {
         message: "Complete shipping address is required",
       });
     }
-
-    // if (!selectedShippingRate) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Please select Shipping method",
-    //   });
-    // }
 
     // Validate and calculate order total
     let subtotal = 0;
@@ -228,7 +223,7 @@ const createRazorpayOrder = async (req, res) => {
         size: item.size,
         color: item.color || "Default",
         image: product.images[0]?.url,
-        itemTotal, 
+        itemTotal,
       });
     }
 
@@ -256,20 +251,9 @@ const createRazorpayOrder = async (req, res) => {
       }
     }
 
-    // const shiprocketCharges = selectedShippingRate.freight_charge;
-    // Calculate final amounts (kept exactly as you had)
     const shippingCharges = subtotal >= 399 ? 0 : 99;
     const tax = 0;
-    // const total = Math.round(
-    //   subtotal + shippingCharges - discount + shiprocketCharges
-    // );
-
-    const total = Math.round(
-      subtotal + shippingCharges - discount 
-    );
-
-    //todo:need to ask
-    // const total = 1;
+    const total = Math.round(subtotal + shippingCharges - discount);
 
     // Generate order number
     const orderNumber = `FH-${Date.now()}`;
@@ -279,71 +263,60 @@ const createRazorpayOrder = async (req, res) => {
       amount: Math.round(total * 100),
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
-      notes: { userId: userId, couponCode: couponCode || "" },
+      notes: { userId: userId || "guest", couponCode: couponCode || "" },
     });
 
-    // console.log("razorpayOrder",razorpayOrder)
-    // Store temporary order data
-    const tempOrderData = {
-      user: userId,
+    // Create order in DB
+    const order = new Order({
+      user: userId, // will be null for guests
       orderNumber,
-      items: validatedItems.map(({ _id, __v, ...rest }) => rest),
-      shippingAddress,
-      pricing: { subtotal, shippingCharges, tax, discount, total },
-      coupon: couponDetails,
-      paymentInfo: {
-        razorpayOrderId: razorpayOrder.id,
-        method: "RAZORPAY",
-        status: "pending",
-      },
-      status: "CONFIRMED",
-      createdAt: new Date(),
-      total:total,
-      subtotal:subtotal,
-      discount,
-    };
-
-    // const order = new Order({tempOrderData})
-     const order = new Order({
-      user: userId,
-      orderNumber,
-      // courier_company_id: selectedShippingRate.courier_company_id,
       items: validatedItems,
       shippingAddress,
-
-      // root money fields (cover schemas that require these at root)
       subtotal,
-      //shippingCharge: shippingCharges + shiprocketCharges,
-      shippingCharge: shippingCharges ,
-
+      shippingCharge: shippingCharges,
       discount,
       total,
-
-      // keep your existing pricing object too (covers your "old style")
       pricing: { subtotal, shippingCharges, tax, discount, total },
-
       coupon: couponDetails,
-
       paymentInfo: {
         razorpayOrderId: razorpayOrder.id,
         method: "RAZORPAY",
         status: "PENDING",
       },
-
-      // use a safe enum value (uppercase) to avoid `confirmed` enum errors
-      status: "ABANDONED",
-
+      status: "ABANDONED", // safe default
       trackingInfo: { awbStatus: "PENDING" },
       createdAt: new Date(),
     });
 
+
     await order.save();
+    
 
-    // console.log("order",order)
+    // Store temp order only for logged-in users
+    if (userId) {
+      
+      const tempOrderData = {
+        user: userId,
+        orderNumber,
+        items: validatedItems.map(({ _id, __v, ...rest }) => rest),
+        shippingAddress,
+        pricing: { subtotal, shippingCharges, tax, discount, total },
+        coupon: couponDetails,
+        paymentInfo: {
+          razorpayOrderId: razorpayOrder.id,
+          method: "RAZORPAY",
+          status: "pending",
+        },
+        status: "CONFIRMED",
+        createdAt: new Date(),
+        total,
+        subtotal,
+        discount,
+        temp_order_id: order._id,
+      };
 
-    tempOrderData["temp_order_id"] = order._id
-
-    await User.findByIdAndUpdate(userId, { tempOrderData }, { new: true });
+      await User.findByIdAndUpdate(userId, { tempOrderData }, { new: true });
+    }
 
     res.status(200).json({
       success: true,
@@ -356,6 +329,7 @@ const createRazorpayOrder = async (req, res) => {
         orderNumber,
         total,
         items: validatedItems.length,
+        isGuest: !userId, // helpful to know if guest checkout
       },
     });
   } catch (error) {
@@ -364,12 +338,12 @@ const createRazorpayOrder = async (req, res) => {
   }
 };
 
+
 // Enhanced payment verification — now responds first, Shiprocket/email later
 const verifyPaymentAndCreateOrder = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-      req.body;
-    const userId = req.user.userId;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const userId = req.user?.userId || null; // ✅ optional
 
     // 1) Verify Razorpay signature
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
@@ -379,66 +353,56 @@ const verifyPaymentAndCreateOrder = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Payment verification failed" });
+      return res.status(400).json({
+        success: false,
+        message: "Payment verification failed",
+      });
     }
 
-    // 2) Fetch temp order data
-    const user = await User.findById(userId).lean();
-    if (!user?.tempOrderData) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Order data not found" });
+    let order;
+
+    if (userId) {
+      // ✅ Logged-in user flow → get temp order from user
+      const user = await User.findById(userId).lean();
+      if (!user?.tempOrderData) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Order data not found" });
+      }
+
+      const temp_order_id = user.tempOrderData?.temp_order_id;
+      order = await Order.findOne({ _id: temp_order_id, user: userId });
+      if (!order) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Order not found" });
+      }
+    } else {
+      // ✅ Guest flow → find by razorpayOrderId directly
+      order = await Order.findOne({
+        "paymentInfo.razorpayOrderId": razorpay_order_id,
+      });
+      if (!order) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Guest order not found" });
+      }
     }
 
-    // Clean temp data
-    const { _id, __v, ...orderDataWithoutId } = user.tempOrderData;
-    orderDataWithoutId.items = orderDataWithoutId.items.map(
-      ({ _id, __v, ...rest }) => rest
-    );
-
-    // 3) Update payment info
-    orderDataWithoutId.paymentInfo = {
-      ...orderDataWithoutId.paymentInfo,
-      razorpayPaymentId: razorpay_payment_id,
-      razorpaySignature: razorpay_signature,
-      status: "PAID",
-      paidAt: new Date(),
-    };
-    orderDataWithoutId.status = "CONFIRMED";
-
-    // 4) Create order
-    // const order = await Order.create(orderDataWithoutId);
-
-
-    // let _id = tempOrderData[""]
-
-    // console.log("user.tempOrderData",user.tempOrderData)
-
-    let temp_order_id =  user.tempOrderData?.["temp_order_id"]
-
-    // console.log("temp_order_id",temp_order_id)
-
-    const order = await Order.findOne({ _id:  temp_order_id, user: userId });
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
-
+    // 2) Update order payment info
     order.status = "CONFIRMED";
     order.paymentInfo = {
-      ...orderDataWithoutId.paymentInfo,
+      ...order.paymentInfo,
       razorpayPaymentId: razorpay_payment_id,
       razorpaySignature: razorpay_signature,
       status: "PAID",
       paidAt: new Date(),
-      method: "RAZORPAY"
+      method: "RAZORPAY",
     };
 
     await order.save();
-    // console.log("✅ Order updated:", update_order._id);
 
-    // 5) Update stock
+    // 3) Update stock
     await Promise.all(
       order.items.map((item) =>
         Product.findByIdAndUpdate(item.product, {
@@ -447,29 +411,29 @@ const verifyPaymentAndCreateOrder = async (req, res) => {
       )
     );
 
-    // 6) Update coupon usage
-    // if (order.coupon?.code) {
-    //   const coupon = await Coupon.findOne({ code: order.coupon.code });
-    //   if (coupon) {
-    //     coupon.usedCount += 1;
-    //     const userUsage = coupon.usedBy.find(
-    //       (u) => u.user.toString() === userId
-    //     );
-    //     if (userUsage) {
-    //       userUsage.usedCount += 1;
-    //       userUsage.lastUsed = new Date();
-    //     } else {
-    //       coupon.usedBy.push({
-    //         user: userId,
-    //         usedCount: 1,
-    //         lastUsed: new Date(),
-    //       });
-    //     }
-    //     await coupon.save();
-    //   }
-    // }
+    // 4) Update coupon usage (only if logged in and coupon exists)
+    if (userId && order.coupon?.code) {
+      const coupon = await Coupon.findOne({ code: order.coupon.code });
+      if (coupon) {
+        coupon.usedCount += 1;
+        const userUsage = coupon.usedBy.find(
+          (u) => u.user.toString() === userId
+        );
+        if (userUsage) {
+          userUsage.usedCount += 1;
+          userUsage.lastUsed = new Date();
+        } else {
+          coupon.usedBy.push({
+            user: userId,
+            usedCount: 1,
+            lastUsed: new Date(),
+          });
+        }
+        await coupon.save();
+      }
+    }
 
-    // 7) Respond immediately — don't wait for Shiprocket/email
+    // 5) Respond immediately
     res.status(200).json({
       success: true,
       message: "Order placed successfully",
@@ -481,24 +445,46 @@ const verifyPaymentAndCreateOrder = async (req, res) => {
         trackingNumber: order.trackingInfo?.trackingNumber,
         estimatedDelivery: order.trackingInfo?.estimatedDelivery,
         shiprocketIntegration: "Pending",
-        pricing: { subtotal: order.subtotal, shipping: order.shippingCharge, discount: order.discount, total: order.total },
+        pricing: {
+          subtotal: order.subtotal,
+          shipping: order.shippingCharge,
+          discount: order.discount,
+          total: order.total,
+        },
       },
     });
 
-    // 8) Background: Shiprocket + clear cart + email
+    // 6) Background tasks → Shiprocket, email, clear cart (if logged in)
     setImmediate(async () => {
       try {
         const populatedOrder = await Order.findById(order._id).populate(
           "user",
           "name email phoneNumber"
         );
+
         const shiprocketResult = await createShiprocketOrder(populatedOrder);
-        await User.findByIdAndUpdate(userId, { cart: [], tempOrderData: null });
-        try {
-          await sendOrderConfirmationEmail(populatedOrder.user, populatedOrder);
-        } catch (emailError) {
-          console.error("Email sending failed:", emailError);
+
+        if (userId) {
+          await User.findByIdAndUpdate(userId, { cart: [], tempOrderData: null });
+          try {
+            await sendOrderConfirmationEmail(populatedOrder.user, populatedOrder);
+          } catch (emailError) {
+            console.error("Email sending failed:", emailError);
+          }
+        } else {
+          // Guest order → maybe send email if address has email field
+          if (order.shippingAddress?.email) {
+            try {
+              await sendOrderConfirmationEmail(
+                { email: order.shippingAddress.email, name: order.shippingAddress.fullName },
+                populatedOrder
+              );
+            } catch (emailError) {
+              console.error("Guest email sending failed:", emailError);
+            }
+          }
         }
+
         console.log(
           "Shiprocket status:",
           shiprocketResult.success ? "Success" : "Pending"
@@ -509,74 +495,50 @@ const verifyPaymentAndCreateOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Verify payment error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Payment verification failed" });
+    res.status(500).json({ success: false, message: "Payment verification failed" });
   }
 };
+
 
 // COD order — respond first, run Shiprocket/email in background
 const placeCodOrder = async (req, res) => {
   try {
-    
-    const userId = req.user.userId;
-    const { items, shippingAddress, couponCode, selectedShippingRate } =
-      req.body;
+    const userId = req.user?.userId || null; // ✅ allow guest
+    const { items, shippingAddress, couponCode, selectedShippingRate } = req.body;
 
-    // console.log("placing cod order",req.body)
+    // Validate cart
     if (!items || !Array.isArray(items) || items.length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Cart items are required" });
+      return res.status(400).json({ success: false, message: "Cart items are required" });
     }
+
+    // Validate address
     if (
       !shippingAddress ||
       !shippingAddress.fullName ||
       !shippingAddress.phoneNumber ||
       !shippingAddress.pinCode
     ) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Complete shipping address is required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Complete shipping address is required",
+      });
     }
-    //
-    // if (!selectedShippingRate) {
-    //   return res
-    //     .status(400)
-    //     .json({ success: false, message: "Please select Shipping method" });
-    // }
-
-    // const shiprocketCharges = selectedShippingRate.freight_charge || 0;
 
     // Validate and calculate using DB prices
     let subtotal = 0;
     const validatedItems = [];
     for (const it of items) {
-      const product = await Product.findById(it.productId).select(
-        "name price images stock"
-      );
+      const product = await Product.findById(it.productId).select("name price images stock");
       if (!product) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `Product not found: ${it.productId}`,
-          });
+        return res.status(400).json({ success: false, message: `Product not found: ${it.productId}` });
       }
       if (product.stock < it.quantity) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `Insufficient stock for ${product.name}`,
-          });
+        return res.status(400).json({ success: false, message: `Insufficient stock for ${product.name}` });
       }
+
       const quantity = Number(it.quantity || 1);
       const price = Number(product.price || 0);
-      const itemTotal = price * quantity; // REQUIRED by schema
+      const itemTotal = price * quantity;
       subtotal += itemTotal;
 
       validatedItems.push({
@@ -587,27 +549,21 @@ const placeCodOrder = async (req, res) => {
         size: it.size || "",
         color: it.color || "Default",
         image: product.images?.[0],
-        itemTotal, // <-- REQUIRED
+        itemTotal,
       });
     }
 
-    // (Optional) coupon
+    // Coupon logic
     let discount = 0;
     let couponDetails = null;
     if (couponCode) {
       const coupon = await Coupon.findOne({ code: couponCode, isActive: true });
-      if (
-        coupon &&
-        new Date() <= coupon.validUntil &&
-        subtotal >= (coupon.minOrderValue || 0)
-      ) {
+      if (coupon && new Date() <= coupon.validUntil && subtotal >= (coupon.minOrderValue || 0)) {
         discount =
           coupon.discountType === "percentage"
-            ? Math.min(
-                (subtotal * coupon.discountValue) / 100,
-                coupon.maxDiscountAmount || Infinity
-              )
+            ? Math.min((subtotal * coupon.discountValue) / 100, coupon.maxDiscountAmount || Infinity)
             : coupon.discountValue || 0;
+
         couponDetails = {
           code: coupon.code,
           discountAmount: discount,
@@ -616,64 +572,43 @@ const placeCodOrder = async (req, res) => {
       }
     }
 
-    // Shipping & totals
     const shippingCharges = subtotal >= 399 ? 0 : 99;
     const tax = 0;
-    // const total = Math.round(
-    //   subtotal + shippingCharges - discount + shiprocketCharges
-    // );
+    const total = Math.round(subtotal + shippingCharges - discount);
 
-    const total = Math.round(
-      subtotal + shippingCharges - discount 
-    );
-
-
-    // Build order doc with BOTH root amounts and pricing block
+    // Build order
     const orderNumber = `FH-${Date.now()}`;
     const order = new Order({
-      user: userId,
+      user: userId, // ✅ null if guest
       orderNumber,
-      // courier_company_id: selectedShippingRate.courier_company_id,
       items: validatedItems,
       shippingAddress,
-
-      // root money fields (cover schemas that require these at root)
       subtotal,
-      //shippingCharge: shippingCharges + shiprocketCharges,
-      shippingCharge: shippingCharges ,
-
+      shippingCharge: shippingCharges,
       discount,
       total,
-
-      // keep your existing pricing object too (covers your "old style")
       pricing: { subtotal, shippingCharges, tax, discount, total },
-
       coupon: couponDetails,
-
       paymentInfo: {
-        method: "COD", // keep your existing field
+        method: "COD",
         status: "PENDING",
-        razorpayOrderId: orderNumber, // you were storing this
-        method: "COD", // add this so method is present if your schema requires it
+        razorpayOrderId: orderNumber, // keep for consistency
       },
-
-      // use a safe enum value (uppercase) to avoid `confirmed` enum errors
       status: "CONFIRMED",
-
       trackingInfo: { awbStatus: "PENDING" },
       createdAt: new Date(),
     });
 
     await order.save();
 
-    // decrement stock
+    // Decrement stock
     await Promise.all(
       validatedItems.map((it) =>
         Product.findByIdAndUpdate(it.product, { $inc: { stock: -it.quantity } })
       )
     );
 
-    // Respond NOW (prevents blank page)
+    // Respond immediately
     res.status(200).json({
       success: true,
       message: "COD order placed successfully",
@@ -685,61 +620,61 @@ const placeCodOrder = async (req, res) => {
         trackingNumber: order.trackingInfo?.trackingNumber,
         estimatedDelivery: order.trackingInfo?.estimatedDelivery,
         shiprocketIntegration: "Pending",
-        pricing: { subtotal: order.subtotal, shipping: order.shippingCharge, discount: order.discount, total: order.total },
+        pricing: {
+          subtotal: order.subtotal,
+          shipping: order.shippingCharge,
+          discount: order.discount,
+          total: order.total,
+        },
+        isGuest: !userId, // ✅ helpful flag
       },
     });
 
-    // Background: Shiprocket + clear cart + email
+    // Background jobs
     setImmediate(async () => {
       try {
-        const populatedOrder = await Order.findById(order._id).populate(
-          "user",
-          "name email phoneNumber"
-        );
+        const populatedOrder = await Order.findById(order._id).populate("user", "name email phoneNumber");
         const sr = await createShiprocketOrder(populatedOrder).catch((e) => {
-          console.error("Shiprocket (background) error:", e?.message || e);
-          return { success: false, error: e?.message || "Shiprocket failed" };
+          console.error("Shiprocket error:", e?.message || e);
+          return { success: false };
         });
 
-        if (sr.success) {
-          // sr.order contains the updated order with shipmentId, etc.
-          const tempOrderData = sr.order;
-
-          // Update user's tempOrderData instead of clearing cart
-          const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { tempOrderData },
-            { new: true }
-          );
-
-          console.log("✅ User tempOrderData updated:", updatedUser.tempOrderData);
+        if (userId) {
+          // ✅ logged-in user → clear cart + save tempOrderData
+          if (sr.success) {
+            await User.findByIdAndUpdate(userId, { tempOrderData: sr.order }, { new: true });
+          }
+          await User.findByIdAndUpdate(userId, { cart: [], tempOrderData: null });
+          try {
+            await sendOrderConfirmationEmail(populatedOrder.user, populatedOrder);
+          } catch (emailErr) {
+            console.error("Email sending failed:", emailErr?.message || emailErr);
+          }
         } else {
-          console.log("⚠️ Shiprocket order failed:", sr.error);
+          // ✅ guest → send email only if provided
+          if (shippingAddress?.email) {
+            try {
+              await sendOrderConfirmationEmail(
+                { email: shippingAddress.email, name: shippingAddress.fullName },
+                populatedOrder
+              );
+            } catch (emailErr) {
+              console.error("Guest email sending failed:", emailErr?.message || emailErr);
+            }
+          }
         }
 
-        await User.findByIdAndUpdate(userId, { cart: [], tempOrderData: null });
-
-        try {
-          await sendOrderConfirmationEmail(populatedOrder.user, populatedOrder);
-        } catch (emailErr) {
-          console.error("Email sending failed:", emailErr?.message || emailErr);
-        }
-
-        console.log(
-          "Shiprocket status:",
-          sr?.success ? "Success" : "Pending/Failed"
-        );
+        console.log("Shiprocket status:", sr?.success ? "Success" : "Pending/Failed");
       } catch (bgErr) {
-        console.error("Background flow error:", bgErr?.message || bgErr);
+        console.error("Background COD flow error:", bgErr?.message || bgErr);
       }
     });
   } catch (error) {
     console.error("Create COD order error:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Failed to create COD order" });
+    return res.status(500).json({ success: false, message: "Failed to create COD order" });
   }
 };
+
 
 // Get shipping rates for checkout (unchanged)
 const getShippingRates = async (req, res) => {
@@ -1183,14 +1118,20 @@ const getUserOrders = async (req, res) => {
 const getOrderDetails = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const userId = req.user.userId;
+    const userId = req.user?.userId;
 
-    const order = await Order.findOne({ _id: orderId, user: userId }).populate(
+    // Build query dynamically
+    const query = { _id: orderId };
+    if (userId) {
+      query.user = userId;
+    }
+
+    const order = await Order.findOne(query).populate(
       "items.product",
       "name images price"
     );
 
-    console.log("getOrderDetails",order)
+    console.log("getOrderDetails", order);
 
     if (!order) {
       return res
@@ -1206,6 +1147,8 @@ const getOrderDetails = async (req, res) => {
       .json({ success: false, message: "Failed to fetch order details" });
   }
 };
+
+
 
 // Moved getTrackingInfo into a utility function to be called on demand
 // const fetchAndSetTrackingInfo = async (req, res) => {

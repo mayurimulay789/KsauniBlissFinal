@@ -108,10 +108,12 @@ const CheckoutPage = () => {
 
   // Load available coupons for the logged-in user
   useEffect(() => {
-    if (user) {
+    if (Object.keys(user).length != 0) {
+      console.log("user",user)
       dispatch(fetchAvailableCoupons());
     }
   }, [dispatch, user]);
+  
   // Memoized functions and values
   const validateAddress = useCallback(() => {
     const errors = {};
@@ -215,6 +217,17 @@ const CheckoutPage = () => {
       couponCode: appliedCoupon?.code || "",
       selectedShippingRate: selectedShippingRate,
     };
+
+    
+    console.log("orderData",orderData)
+
+
+
+
+
+    
+
+
 
     dispatch(createRazorpayOrder(orderData));
   }, [
@@ -438,6 +451,9 @@ const CheckoutPage = () => {
     );
   }
 
+  console.log("Order Error:", orderError);
+  console.log("Coupon Error:", couponError);
+
   return (
     <div className="min-h-screen py-4 xs:py-6 sm:py-8 bg-gray-50">
       <div className="container px-2 mx-auto xs:px-4">
@@ -456,8 +472,10 @@ const CheckoutPage = () => {
             </p>
           </div>
 
+          
           {/* Error Display - Responsive */}
           {(orderError || couponError) && (
+            
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -805,7 +823,7 @@ const CheckoutPage = () => {
 
                       {availableCoupons.length === 0 ? (
                         <div className="text-xs text-gray-500">
-                          No active coupons right now.
+                          No active coupons right now. (To View Coupons please login)
                         </div>
                       ) : (
                         <div className="space-y-2">

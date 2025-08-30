@@ -13,6 +13,9 @@ const razorpay = new Razorpay({
 // Create Razorpay order
 const createRazorpayOrder = async (req, res) => {
   try {
+
+    console.log("createRazorpayOrder")
+
     const { amount, currency = "INR", receipt, notes } = req.body
 
     if (!amount || amount <= 0) {
@@ -29,7 +32,11 @@ const createRazorpayOrder = async (req, res) => {
       notes: notes || {},
     }
 
+
+
     const razorpayOrder = await razorpay.orders.create(options)
+
+    console.log("razorpayOrder",razorpayOrder)
 
     res.status(200).json({
       success: true,

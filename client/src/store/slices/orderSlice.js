@@ -6,7 +6,9 @@ export const createRazorpayOrder = createAsyncThunk(
   "order/createRazorpayOrder",
   async (orderData, { rejectWithValue }) => {
     try {
+      console.log("create order")
       const response = await orderAPI.createRazorpayOrder(orderData)
+      console.log("response",response)
       return response.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to create Razorpay order")

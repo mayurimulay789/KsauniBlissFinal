@@ -38,9 +38,13 @@ const CartPage = () => {
 
   const [updatingItems, setUpdatingItems] = useState(new Set())
 
+ 
+
   useEffect(() => {
-    dispatch(fetchCart())
-  }, [dispatch])
+    if (user) {
+      dispatch(fetchCart());
+    }
+  }, [user, dispatch]);
 
   const handleQuantityChange = async (itemId, newQuantity) => {
     if (newQuantity < 1 || newQuantity > 10) return

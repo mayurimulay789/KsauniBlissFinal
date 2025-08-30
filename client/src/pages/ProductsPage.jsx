@@ -95,6 +95,8 @@ const ProductsPage = () => {
       e.preventDefault()
       e.stopPropagation()
 
+
+
       // if (!user) {
       //   navigate("/login", { state: { from: window.location.pathname } })
       //   toast.error("Please login to add items to cart")
@@ -117,7 +119,7 @@ const ProductsPage = () => {
           size: cartItem.size,
           color: cartItem.color,
         }),
-      )
+      )    
 
       try {
         await dispatch(addToCart(cartItem)).unwrap()

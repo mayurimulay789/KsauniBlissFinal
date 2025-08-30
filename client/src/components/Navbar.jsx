@@ -50,11 +50,11 @@ const Navbar = () => {
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300)
 
   useEffect(() => {
-    if (token) {
+    if (token && user!=null) {
       dispatch(fetchCart())
       dispatch(fetchWishlist())
     }
-  }, [dispatch, token])
+  }, [user,dispatch, token])
 
   useEffect(() => {
     dispatch(fetchCategories({ showOnHomepage: true }))
