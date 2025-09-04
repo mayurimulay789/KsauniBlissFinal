@@ -169,94 +169,14 @@ const ProductsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container px-4 py-4 pt-8 mx-auto md:pt-10">
+      <div className="px-4 py-2 pt-2 mx-auto md:pt-8">
         {/* Category Banner */}
-        <div className="w-full mb-6 rounded-lg ">
+        <div className="w-full mb-4 rounded-lg ">
           <CategoryBanner />
         </div>
 
         {/* Sticky Filter Header */}
-        <div className="sticky top-0 z-30 pt-4 bg-gray-50">
-          <div className="flex flex-col justify-between mb-4 md:flex-row md:items-center">
-            {/* Mobile Filter Button */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setShowFilters(true)}
-                className="flex items-center px-3 py-2 text-sm font-medium text-white transition-colors rounded-lg bg-ksauni-red hover:bg-ksauni-dark-red"
-                aria-label="Open filters"
-              >
-                <Filter className="w-4 h-4 mr-2" />
-                Filters
-                {activeFiltersCount > 0 && (
-                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-ksauni-dark-red">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Active Filters */}
-          {activeFiltersCount > 0 && (
-            <div className="flex flex-wrap items-center gap-2 py-2 mb-4 bg-gray-50">
-              <span className="text-sm text-gray-600">Active filters:</span>
-              {filters.category && (
-                <span className="inline-flex items-center px-2 py-1 text-xs rounded-full text-ksauni-dark-red bg-ksauni-red/10">
-                  Category: {categories.find((cat) => cat._id === filters.category)?.name || filters.category}
-                  <button
-                    onClick={() => handleFilterChange({ category: "" })}
-                    className="ml-1 hover:text-ksauni-dark-red"
-                    aria-label="Remove category filter"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {filters.search && (
-                <span className="inline-flex items-center px-2 py-1 text-xs rounded-full text-ksauni-dark-red bg-ksauni-red/10">
-                  Search: {filters.search}
-                  <button
-                    onClick={() => handleFilterChange({ search: "" })}
-                    className="ml-1 hover:text-ksauni-dark-red"
-                    aria-label="Remove search filter"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {(filters.minPrice || filters.maxPrice) && (
-                <span className="inline-flex items-center px-2 py-1 text-xs rounded-full text-ksauni-dark-red bg-ksauni-red/10">
-                  Price: ₹{filters.minPrice || 0} - ₹{filters.maxPrice || "∞"}
-                  <button
-                    onClick={() => handleFilterChange({ minPrice: "", maxPrice: "" })}
-                    className="ml-1 hover:text-ksauni-dark-red"
-                    aria-label="Remove price filter"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              {filters.minRating && (
-                <span className="inline-flex items-center px-2 py-1 text-xs rounded-full text-ksauni-dark-red bg-ksauni-red/10">
-                  Rating: {filters.minRating}+ Stars
-                  <button
-                    onClick={() => handleFilterChange({ minRating: "" })}
-                    className="ml-1 hover:text-ksauni-dark-red"
-                    aria-label="Remove rating filter"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              <button
-                onClick={clearAllFilters}
-                className="text-xs font-medium text-ksauni-red hover:text-ksauni-dark-red md:text-sm"
-              >
-                Clear all
-              </button>
-            </div>
-          )}
-        </div>
+        
 
         <div className="flex flex-col gap-6 md:flex-row">
           {/* Desktop Filters Sidebar */}

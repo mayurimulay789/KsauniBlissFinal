@@ -3,16 +3,31 @@
 import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
+import { fetchNewArrivals } from "../store/slices/productSlice" // ✅ import thunk
 
 export default function NewArrivals() {
   const dispatch = useDispatch()
-  const { newArrivals } = useSelector((state) => state.products) || { newArrivals: [] }
+  const { newArrivals, loading } = useSelector((state) => state.products) || {
+    newArrivals: [],
+    loading: false,
+  }
   const [productsToShow, setProductsToShow] = useState([])
 
+  // ✅ Fetch from API when page loads
   useEffect(() => {
-    const filteredProducts = newArrivals.filter((product) => product.price >= 349)
-    setProductsToShow(filteredProducts.slice(0, 12))
+    dispatch(fetchNewArrivals())
+  }, [dispatch])
+
+  // ✅ Update local state whenever newArrivals changes
+  useEffect(() => {
+    if (newArrivals && newArrivals.length > 0) {
+      setProductsToShow(newArrivals)
+    }
   }, [newArrivals])
+
+  if (loading) {
+    return <p className="text-center text-sm text-gray-500">Loading new arrivals...</p>
+  }
 
   if (!productsToShow || productsToShow.length === 0) {
     return null
@@ -23,7 +38,7 @@ export default function NewArrivals() {
       <div className="px-1">
         {/* Heading */}
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-[18px] font-bold text-black mb-2">New Arrivals From Rs. 599</h2>
+          <h2 className="text-[18px] font-bold text-black mb-2">New Arrivals</h2>
           <Link to="/products" className="text-black text-[18px] font-bold leading-none">
             +
           </Link>
@@ -31,7 +46,7 @@ export default function NewArrivals() {
 
         {/* Products Scroll */}
         <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-hide -mx-3 px-3">
-          {productsToShow.map((product, index) => {
+          {productsToShow.map((product) => {
             const discountPercentage =
               product.originalPrice && product.originalPrice > product.price
                 ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -40,19 +55,14 @@ export default function NewArrivals() {
             return (
               <div
                 key={product._id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                viewport={{ once: true }}
                 className="
                   flex-shrink-0 
-                  border border-gray-500/80  hover:border-gray-800/80 transition-colors duration-200
+                  border border-gray-500/80 hover:border-gray-800/80 transition-colors duration-200
                   rounded-[5px] bg-white overflow-hidden shadow-sm
-                  w-[calc(40%-4px)]  
-                  min-[480px]:w-[calc(33.333%-5.33px)]
-                  sm:w-[calc(25%-6px)] 
-                  md:w-[calc(20%-6.4px)] 
-                  lg:w-[calc(16.666%-6.66px)]
+                  w-[calc(50%-4px)]   /* mobile: 2 per row */
+                  sm:w-[calc(33.333%-5.33px)]
+                  md:w-[calc(25%-6px)] 
+                  lg:w-[calc(20%-6.4px)] /* desktop: 5 per row */
                 "
               >
                 {/* Product Image */}
@@ -68,20 +78,22 @@ export default function NewArrivals() {
 
                 {/* Product Info */}
                 <div className="p-1.5">
-                  <p className="text-[9px] font-bold text-black uppercase">{product.brand || "EXAMPLE BRAND"}</p>
+                  <p className="text-[9px] font-semibold text-black uppercase">
+                    {product.brand || "EXAMPLE BRAND"}
+                  </p>
                   <Link to={`/product/${product._id}`}>
-                    <h3 className="text-[10px] font-medium text-black leading-tight mb-0.5 line-clamp-2">
+                    <p className="text-[10px] text-black leading-tight mb-0.5 line-clamp-2 uppercase">
                       {product.name}
-                    </h3>
+                    </p>
                   </Link>
 
                   {/* Price */}
                   <div className="flex items-center gap-1">
-                    <span className="text-[10px] font-bold text-black">₹{product.price}</span>
+                    <span className="text-[12px] font-sans font-bold text-black">₹{product.price}</span>
                     {discountPercentage > 0 && (
                       <>
-                        <span className="text-[8px] text-gray-500 line-through">₹{product.originalPrice}</span>
-                        <span className="text-[8px] text-green-500 font-semibold">{discountPercentage}% off</span>
+                        <span className="text-[10px] text-gray-500 line-through">₹{product.originalPrice}</span>
+                        <span className="text-[10px] text-red-500 font-semibold">{discountPercentage}% off</span>
                       </>
                     )}
                   </div>

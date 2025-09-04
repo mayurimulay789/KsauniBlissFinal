@@ -37,13 +37,13 @@ const InnovationList = () => {
         <div className="py-3 text-center text-gray-500">No innovations found</div>
       ) : (
         <>
-          {/* Desktop View */}
+          {/* Desktop View - 3 items visible */}
           <div className="hidden md:flex justify-center">
-            <div className="flex gap-3 overflow-x-auto scroll-smooth max-w-screen-xl px-4 py-0">
+            <div className="flex gap-4 overflow-x-auto scroll-smooth max-w-screen-xl px-4 py-0">
               {displayedInnovations.map((innovation) => (
                 <div
                   key={innovation._id}
-                  className="relative rounded-lg overflow-hidden group cursor-pointer inline-block align-top w-[280px] flex-shrink-0"
+                  className="relative rounded-lg overflow-hidden group cursor-pointer inline-block align-top w-[30%] min-w-[300px] flex-shrink-0"
                 >
                   <img
                     src={innovation.image?.url || "/placeholder.svg?height=200&width=400&text=Innovation+Image"}
@@ -55,21 +55,23 @@ const InnovationList = () => {
             </div>
           </div>
 
-          {/* Mobile View */}
-          <div className="flex md:hidden justify-center">
-            <div className="flex gap-4 overflow-x-auto scroll-smooth max-w-screen-sm px-4 py-4">
+          {/* Mobile View - 1.5 items visible */}
+          <div className="flex md:hidden justify-start">
+            <div className="flex gap-3 overflow-x-auto scroll-smooth max-w-screen-sm px-1 py-2">
               {displayedInnovations.map((innovation) => (
                 <div
                   key={innovation._id}
-                  className="relative rounded-lg overflow-hidden group cursor-pointer inline-block align-top w-[160px] flex-shrink-0"
+                  className="relative rounded-lg overflow-hidden group cursor-pointer inline-block align-top w-[70%] flex-shrink-0"
                 >
                   <img
                     src={innovation.image?.url || "/placeholder.svg?height=200&width=400&text=Innovation+Image"}
                     alt={innovation.title}
-                    className="object-cover w-full h-28 transition-transform duration-300 group-hover:scale-105"
+                    className="object-cover w-full h-40 transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
               ))}
+              {/* Add empty spacer so half item peeks */}
+              <div className="w-[35%] flex-shrink-0"></div>
             </div>
           </div>
         </>

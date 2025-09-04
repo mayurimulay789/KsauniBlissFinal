@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useDispatch } from "react-redux"
-import { Plus, Search, Edit, Trash2 } from "lucide-react"
+import { Plus, Search, Edit, Trash2, ArrowUp, ArrowDown, Star } from "lucide-react"
 import adminAPI from "../../store/api/adminAPI"
 
 const ProductsManagement = () => {
@@ -97,10 +97,12 @@ const ProductsManagement = () => {
         }
       })
 
-      // Append images
-      images.forEach((image) => {
-        formDataToSend.append("images", image)
+      // Append images in selected order
+      images.forEach((img) => {
+        formDataToSend.append("images", img.file)
       })
+      // Optional: tell backend the intended order by file name
+      formDataToSend.append("imageOrder", JSON.stringify(images.map((img) => img.name)))
 
       if (editingProduct) {
         await adminAPI.updateProduct(editingProduct._id, formDataToSend)
@@ -176,8 +178,13 @@ const ProductsManagement = () => {
   }
 
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files)
-    setImages(files)
+    const files = Array.from(e.target.files || [])
+    const wrapped = files.map((file) => ({
+      file,
+      name: file.name,
+      preview: URL.createObjectURL(file),
+    }))
+    setImages((prev) => [...prev, ...wrapped])
   }
 
   const addSize = () => {
@@ -215,6 +222,52 @@ const ProductsManagement = () => {
     const newColors = formData.colors.filter((_, i) => i !== index)
     setFormData({ ...formData, colors: newColors })
   }
+
+  // small helpers to reorder images and cleanup previews
+  const moveImage = (index, direction) => {
+    setImages((prev) => {
+      const next = [...prev]
+      const target = index + direction
+      if (target < 0 || target >= next.length) return prev
+      const tmp = next[index]
+      next[index] = next[target]
+      next[target] = tmp
+      return next
+    })
+  }
+
+  const setAsFirst = (index) => {
+    setImages((prev) => {
+      if (index <= 0) return prev
+      const next = [...prev]
+      const [item] = next.splice(index, 1)
+      next.unshift(item)
+      return next
+    })
+  }
+
+  const removeImage = (index) => {
+    setImages((prev) => {
+      const next = [...prev]
+      const [removed] = next.splice(index, 1)
+      try {
+        if (removed?.preview) URL.revokeObjectURL(removed.preview)
+      } catch {}
+      return next
+    })
+  }
+
+  // revoke any object URLs on unmount or full replacement
+  useEffect(() => {
+    return () => {
+      images.forEach((img) => {
+        try {
+          if (img?.preview) URL.revokeObjectURL(img.preview)
+        } catch {}
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -563,6 +616,72 @@ const ProductsManagement = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                   />
                   <p className="mt-1 text-sm text-gray-500">Select multiple images for the product</p>
+                  {images.length > 0 && (
+                    <div className="mt-4">
+                      <div className="mb-2 text-sm font-medium text-gray-700">
+                        Arrange images (first will be the cover)
+                      </div>
+                      <div className="flex items-stretch overflow-x-auto gap-3 p-2 -m-2">
+                        {images.map((img, index) => (
+                          <div
+                            key={img.name + index}
+                            className="flex flex-col items-center justify-between p-2 border rounded-md min-w-[110px] max-w-[110px] bg-white"
+                          >
+                            <div className="relative w-[96px] h-[96px] overflow-hidden rounded">
+                              <img
+                                src={img.preview || "/placeholder.svg"}
+                                alt={`preview ${index + 1}`}
+                                className="object-cover w-full h-full"
+                                draggable={false}
+                              />
+                              {index === 0 && (
+                                <span className="absolute top-1 left-1 inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded bg-blue-600 text-white">
+                                  <Star className="w-3 h-3" /> Cover
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 mt-2">
+                              <button
+                                type="button"
+                                onClick={() => moveImage(index, -1)}
+                                className="inline-flex items-center justify-center w-7 h-7 rounded border text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+                                disabled={index === 0}
+                                title="Move up"
+                              >
+                                <ArrowUp className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => moveImage(index, 1)}
+                                className="inline-flex items-center justify-center w-7 h-7 rounded border text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+                                disabled={index === images.length - 1}
+                                title="Move down"
+                              >
+                                <ArrowDown className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setAsFirst(index)}
+                                className="inline-flex items-center justify-center px-2 h-7 rounded border text-gray-700 hover:bg-gray-50"
+                                title="Set as first"
+                              >
+                                First
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="inline-flex items-center justify-center px-2 h-7 rounded border text-red-600 hover:bg-red-50"
+                                title="Remove"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                            <div className="mt-1 text-xs text-gray-500">#{index + 1}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Sizes Section */}

@@ -7,15 +7,6 @@ import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import toast from "react-hot-toast"
 
-import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice"
-import {
-  addToWishlist,
-  removeFromWishlist,
-  optimisticAddToWishlist,
-  optimisticRemoveFromWishlist,
-  selectIsAddingToWishlist,
-  selectIsRemovingFromWishlist,
-} from "../store/slices/wishlistSlice"
 import { fetchTrendingProducts } from "../store/slices/productSlice"
 import LoadingSpinner from "./LoadingSpinner"
 
@@ -23,19 +14,16 @@ export default function TopPicksShowcase() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { trendingProducts = [], isLoading, error } = useSelector((state) => state.products)
-  const { items: wishlistItems } = useSelector((state) => state.wishlist)
-  const isAddingToCart = useSelector(selectIsAddingToCart)
-  const isAddingToWishlist = useSelector(selectIsAddingToWishlist)
-  const isRemovingFromWishlist = useSelector(selectIsRemovingFromWishlist)
 
   const scrollContainerRef = useRef(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
 
+  // ✅ Always fetch fresh trending products on mount
   useEffect(() => {
     if (error) toast.error("Failed to load trending products.")
-    if (!isLoading && trendingProducts.length === 0) dispatch(fetchTrendingProducts())
-  }, [dispatch, isLoading, error, trendingProducts.length])
+    dispatch(fetchTrendingProducts())
+  }, [dispatch, error])
 
   const checkScrollPosition = () => {
     const c = scrollContainerRef.current
@@ -61,52 +49,13 @@ export default function TopPicksShowcase() {
     scrollContainerRef.current.scrollBy({ left: 320, behavior: "smooth" })
   }
 
-  const handleAddToCart = async (product) => {
-    try {
-      const rawSize = product.sizes?.[0]?.size || ""
-      const size = rawSize.includes(",") ? rawSize.split(",")[0].trim() : rawSize
-      const rawColor = product.colors?.[0]?.name || ""
-      const color = rawColor.includes(",") ? rawColor.split(",")[0].trim() : rawColor
-
-      const payload = {
-        productId: product._id,
-        quantity: 1,
-        size: size || undefined,
-        color: color || undefined,
-      }
-
-      dispatch(optimisticAddToCart({ product, quantity: 1, size, color }))
-      toast.success(`${product.name} added to cart!`)
-      await dispatch(addToCart(payload)).unwrap()
-    } catch (err) {
-      toast.error(err?.message || "Failed to add item to cart.")
-    }
-  }
-
-  const handleWishlistToggle = async (product) => {
-    try {
-      const isInWishlist = wishlistItems.some((i) => i._id === product._id)
-      if (isInWishlist) {
-        dispatch(optimisticRemoveFromWishlist(product._id))
-        toast.success(`${product.name} removed from wishlist!`)
-        await dispatch(removeFromWishlist(product._id)).unwrap()
-      } else {
-        dispatch(optimisticAddToWishlist(product))
-        toast.success(`${product.name} added to wishlist!`)
-        await dispatch(addToWishlist(product)).unwrap()
-      }
-    } catch (err) {
-      toast.error(err?.message || "Failed to update wishlist.")
-    }
-  }
-
   if (isLoading) {
     return (
       <div className="w-full bg-white py-1 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-2xl sm:text-4xl font-black italic">
-              TOP 10 <span className="text-red-600">PICKS</span> OF THE WEEK
+            <h1 className="text-xl sm:text-2xl font-black italic">
+              TOP 7 <span className="text-red-600">PICKS</span> OF THE WEEK
             </h1>
             <p className="text-gray-700 text-sm sm:text-base font-medium mt-1">
               Best Favorite Styles: Shop the Top Picks
@@ -120,10 +69,10 @@ export default function TopPicksShowcase() {
 
   if (!trendingProducts.length) {
     return (
-      <div className="w-full bg-white py-1 px-4">
+      <div className="w-full bg-white py-3 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-2xl sm:text-4xl font-black italic">
-            TOP 10 <span className="text-red-600">PICKS</span> OF THE WEEK
+          <h1 className="text-xl sm:text-2xl font-black italic">
+            TOP 7 <span className="text-red-600">PICKS</span> OF THE WEEK
           </h1>
           <p className="text-gray-400 text-sm text-muted sm:text-base font-sm ">
             No trending products available at the moment.
@@ -133,17 +82,18 @@ export default function TopPicksShowcase() {
     )
   }
 
-  const topPicks = trendingProducts.slice(0, 10)
+  // ✅ Limit to exactly 7 picks
+  const topPicks = trendingProducts.slice(0, 7)
 
   return (
-    <div className="w-full bg-white pt-1 pb-2 px-4">
+    <div className="w-full bg-white pt-1 pb-2 px-1">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-6 ">
+        <div className="flex items-center mb-3 ">
           <div className="text-center flex-1">
-            <h1 className="text-2xl sm:text-4xl font-black italic">
-              TOP 10 <span className="text-red-600">PICKS</span> OF THE WEEK
+            <h1 className="text-xl sm:text-2xl font-black">
+              TOP 7 <span className="text-red-600 italic">PICKS</span> OF THE WEEK
             </h1>
-            <p className="text-gray-700 text-sm sm:text-base font-medium mt-1">
+            <p className=" text-gray-600 text-sm sm:text-base mt-1">
               Best Favorite Styles: Shop the Top Picks
             </p>
           </div>
@@ -158,9 +108,8 @@ export default function TopPicksShowcase() {
         </div>
 
         <div className="relative">
-          <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto  scrollbar-hide  ">
+          <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto scrollbar-hide">
             {topPicks.map((product, index) => {
-              const isInWishlist = wishlistItems.some((i) => i._id === product._id)
               const categoryName = product.category?.name || ""
               return (
                 <motion.div
@@ -169,28 +118,30 @@ export default function TopPicksShowcase() {
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.05 }}
                   viewport={{ once: true }}
-                  className="flex-shrink-0 w-[42%] sm:w-48 border border-gray-300 rounded-lg bg-white relative overflow-hidden md:h-[280px]"
-                  // reduced height
+                  className="flex-shrink-0 w-[48%] sm:w-[18%] border border-gray-300 rounded-lg bg-white relative overflow-hidden"
                 >
                   {/* Counter at top right */}
                   <div
-                    className="absolute  right-[-5px] top-[-10px] z-30 font-black text-gray-200"
+                    className="absolute right-[-5px] top-[-10px] z-30 font-black text-gray-200"
                     style={{
                       fontSize: "4rem",
                       WebkitTextStroke: "1.5px black",
                       textStroke: "1.5px black",
-                      lineHeight: 1
+                      lineHeight: 1,
                     }}
                   >
                     {index + 1}
                   </div>
 
                   {/* Inner content */}
-                  <div className="pt-[1px] pl-1 pr-5 flex flex-col h-auto border-t">
-                    <div className="relative aspect-[3/4] overflow-hidden rounded-md  bg-gray-100">
+                  <div className="pt-1 px-1 flex flex-col h-auto border-t">
+                    <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-gray-100">
                       <Link to={`/product/${product._id}`}>
                         <img
-                          src={product.images?.[0]?.url || "/placeholder.svg"}
+                          // ✅ Bust cache using updatedAt timestamp
+                          src={`${product.images?.[0]?.url || "/placeholder.svg"}?t=${new Date(
+                            product.updatedAt
+                          ).getTime()}`}
                           alt={product.name}
                           className="object-cover w-full h-full"
                         />
@@ -198,9 +149,9 @@ export default function TopPicksShowcase() {
 
                       {categoryName && (
                         <div
-                          className="absolute bottom-2 right-1 px-1 py-0.2 text-[9px] font-semibold text-white rounded"
+                          className="absolute bottom-2 right-1 px-1 py-0.5 text-[9px] font-semibold text-white rounded"
                           style={{
-                            background: "linear-gradient(90deg, #000, #555)"
+                            background: "linear-gradient(90deg, #000, #555)",
                           }}
                         >
                           {categoryName}
@@ -209,14 +160,14 @@ export default function TopPicksShowcase() {
                     </div>
 
                     <Link to={`/product/${product._id}`} className="flex-grow">
-                      <h3 className="text-[11px] font-medium text-black mt-1 mr-1 ml-1 line-clamp-2">
+                      <h3 className="text-[11px] text-black mt-1 mx-1 line-clamp-2 uppercase">
                         {product.name}
                       </h3>
                     </Link>
                     <div className="flex items-center justify-between mt-0.5">
                       <span className="text-xs font-bold">₹{product.price}</span>
                       {product.originalPrice && product.originalPrice > product.price && (
-                        <span className="text-[10px] text-gray-500 line-through">
+                        <span className="text-[10px] text-red-500 line-through">
                           ₹{product.originalPrice}
                         </span>
                       )}

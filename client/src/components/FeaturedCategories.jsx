@@ -28,20 +28,15 @@ const FeaturedCategories = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-2xl sm:text-4xl font-black italic"
+            className="text-xl mx-5 sm:text-2xl font-black italic"
           >
             <span className="text-red-600">TOP</span>{" "}
             <span className="text-black">CATEGORY</span>
           </h1>
-          <p
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="text-gray-700 text-xs sm:text-xs font-medium"
-          >
+        
+          <p className="text-gray-600 text-sm sm:text-base font-small mt-1">
             Style for Every Mood, Every Day
-          </p>
+            </p>
         </div>
 
         {/* MOBILE: Horizontal scroll, 2×2 cards per group */}

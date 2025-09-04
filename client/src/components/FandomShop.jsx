@@ -6,60 +6,15 @@ const ShopByFandom = () => {
   const navigate = useNavigate()
 
   const mockProducts = [
-    {
-      id: 1,
-      name: "Attack on Titan",
-      image: "/AttackonTitan.webp",
-      logoAlt: "Attack On Titan",
-    },
-    {
-      id: 2,
-      name: "Solo Leveling Shirt",
-      image: "/SoloLeveling.webp",
-      logoAlt: "Solo Leveling Logo",
-    },
-    {
-      id: 3,
-      name: "Kaijya",
-      image: "/KaijuNo.webp",
-      logoAlt: "Geometric Brand Logo",
-    },
-    {
-      id: 4,
-      name: "Joker",
-      image: "/Joker.webp",
-      logoAlt: "Joker Logo",
-    },
-    {
-      id: 5,
-      name: "DeathNote",
-      image: "/DeathNote.webp", // ✅ removed space
-      logoAlt: "DeathNote",
-    },
-    {
-      id: 6,
-      name: "Naruto",
-      image: "/Naruto.webp",
-      logoAlt: "Naruto",
-    },
-    {
-      id: 7,
-      name: "Venom",
-      image: "/Venom.webp",
-      logoAlt: "Venom",
-    },
-    {
-      id: 8,
-      name: "Zoro",
-      image: "/Zoro.webp",
-      logoAlt: "Zoro",
-    },
-    {
-      id: 9,
-      name: "Demon Slayer",
-      image: "/DemonSlayer.webp",
-      logoAlt: "Demon Slayer logo",
-    },
+    { id: 1, name: "Attack on Titan", image: "/AttackonTitan.webp" },
+    { id: 2, name: "Solo Leveling Shirt", image: "/SoloLeveling.webp" },
+    { id: 3, name: "Kaijya", image: "/KaijuNo.webp" },
+    { id: 4, name: "Joker", image: "/Joker.webp" },
+    { id: 5, name: "DeathNote", image: "/DeathNote.webp" },
+    { id: 6, name: "Naruto", image: "/Naruto.webp" },
+    { id: 7, name: "Venom", image: "/Venom.webp" },
+    { id: 8, name: "Zoro", image: "/Zoro.webp" },
+    { id: 9, name: "Demon Slayer", image: "/DemonSlayer.webp" },
   ]
 
   const handleProductClick = () => {
@@ -67,36 +22,33 @@ const ShopByFandom = () => {
   }
 
   return (
-    <section className="py-4 bg-white sm:py-6">
-      <div className="px-4 mx-auto max-w-7xl">
-        <div className="mb-2 text-center sm:mb-4">
-          <h2 className="text-2xl font-black text-black sm:text-3xl md:text-4xl">
-            SHOP BY <span className="text-red-600 italic">FANDOM</span>
-          </h2>
-          <p className="mt-2 text-sm text-gray-600 sm:text-base">
-            Shop for every fandom. Every style.
-          </p>
-        </div>
+    <section className=" bg-white">
+      <div className="mb-4 text-center">
+        <h3 className="text-xl font-black text-black sm:text-2xl md:text-2xl">
+          SHOP BY <span className="text-red-600 italic">FANDOM</span>
+        </h3>
+        <p className="mt-1 text-sm text-gray-600 sm:text-base">
+          Shop for every fandom. Every style.
+        </p>
+      </div>
 
-        <div className="flex gap-4 overflow-x-auto pb-2 sm:gap-4 md:gap-6 scrollbar-hide">
-          {mockProducts.map((product) => (
-            <div
-              key={product.id}
-              className="flex-shrink-0 cursor-pointer group"
-              onClick={handleProductClick}
-            >
-              <div className="relative mb-2 sm:mb-4 md:mb-6">
-                <div className="relative overflow-hidden transition-all duration-300 rounded-lg shadow-lg hover:shadow-xl group-hover:scale-105">
-                  <img
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.logoAlt}
-                    className="object-cover w-40 h-48 sm:w-48 sm:h-56 md:w-56 md:h-64 lg:w-64 lg:h-72"
-                  />
-                </div>
-              </div>
+      {/* Always horizontal scroll (mobile + desktop) */}
+      <div className="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-red-600 scrollbar-track-gray-200 px-2">
+        {mockProducts.map((product) => (
+          <div
+            key={product.id}
+            className="flex-shrink-0 cursor-pointer group w-[160px] sm:w-[200px] md:w-[220px] lg:w-[240px]"
+            onClick={handleProductClick}
+          >
+            <div className="relative overflow-hidden transition-all duration-300 rounded-lg shadow-md hover:shadow-xl group-hover:scale-105">
+              <img
+                src={product.image || "/placeholder.svg"}
+                alt={product.name}
+                className="object-cover w-full h-[200px] sm:h-[240px] md:h-[280px] lg:h-[300px]"
+              />
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </section>
   )

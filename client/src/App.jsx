@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense, lazy } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { onAuthStateChanged } from "firebase/auth"
@@ -11,34 +11,7 @@ import { validateEnvironment, debugEnvironment } from "./utils/envValidation"
 // Preloader
 import BewkoofStylePreloader from "./components/BewkoofStylePreloader"
 
-// Pages
-import HomePage from "./pages/HomePage"
-import LoginPage from "./pages/LoginPage"
-import ProductsPage from "./pages/ProductsPage"
-import ProductDetailPage from "./pages/ProductDetailPage"
-import CartPage from "./pages/CartPage"
-import CheckoutPage from "./pages/CheckoutPage"
-import ProfilePage from "./pages/ProfilePage"
-import MyOrdersPage from "./pages/MyOrdersPage"
-import WishlistPage from "./pages/WishlistPage"
-import AboutUsPage from "./pages/Aboutus"
-import ContactUsPage from "./pages/ContactUsPage"
-import FAQPage from "./pages/FAQPage"
-import PrivacyPage from "./pages/PrivacyPage"
-import TermsPage from "./pages/TermsPage"
-import SearchResultsPage from "./pages/SearchResultPage"
-import ProductListingPage from "./pages/ProductListingPage"
-import OrderConfirmationPage from "./pages/OrderConfirmationPage"
-import CookiesPage from "./pages/CookiesPage"
-import ReturnPage from "./pages/ReturnPage"
-import ShippingPage from "./pages/ShippingPage"
-import OrderDetailsPage from './pages/OrderDetailsPage';
-
-// Admin/Digital Marketer pages
-import AdminDashboard from "./pages/admin/AdminDashboard"
-import DigitalMarketerDashboard from "./pages/digitalmarketer/DigitalMarketerDashboard"
-
-// Components
+// Components (Navbar/Footer not lazy → always needed)
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 import ProtectedRoute from "./components/ProtectedRoute"
@@ -46,6 +19,33 @@ import ToastProvider from "./components/ToastProvider"
 
 // Styles
 import "./App.css"
+
+// ✅ Lazy loaded pages
+const HomePage = lazy(() => import("./pages/HomePage"))
+const LoginPage = lazy(() => import("./pages/LoginPage"))
+const ProductsPage = lazy(() => import("./pages/ProductsPage"))
+const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"))
+const CartPage = lazy(() => import("./pages/CartPage"))
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage"))
+const ProfilePage = lazy(() => import("./pages/ProfilePage"))
+const MyOrdersPage = lazy(() => import("./pages/MyOrdersPage"))
+const WishlistPage = lazy(() => import("./pages/WishlistPage"))
+const AboutUsPage = lazy(() => import("./pages/Aboutus"))
+const ContactUsPage = lazy(() => import("./pages/ContactUsPage"))
+const FAQPage = lazy(() => import("./pages/FAQPage"))
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"))
+const TermsPage = lazy(() => import("./pages/TermsPage"))
+const SearchResultsPage = lazy(() => import("./pages/SearchResultPage"))
+const ProductListingPage = lazy(() => import("./pages/ProductListingPage"))
+const OrderConfirmationPage = lazy(() => import("./pages/OrderConfirmationPage"))
+const CookiesPage = lazy(() => import("./pages/CookiesPage"))
+const ReturnPage = lazy(() => import("./pages/ReturnPage"))
+const ShippingPage = lazy(() => import("./pages/ShippingPage"))
+const OrderDetailsPage = lazy(() => import("./pages/OrderDetailsPage"))
+
+// Admin/Digital Marketer pages
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"))
+const DigitalMarketerDashboard = lazy(() => import("./pages/digitalmarketer/DigitalMarketerDashboard"))
 
 function App() {
   const dispatch = useDispatch()
@@ -57,21 +57,18 @@ function App() {
     document.body.classList.add("preloader-active")
     const isValidEnvironment = validateEnvironment()
     if (!isValidEnvironment) {
-      console.error("❌ Application cannot start due to missing environment variables")
+      console.error("❌ Missing environment variables")
       return
     }
 
     debugEnvironment()
     console.log("🚀 Fashion E-commerce App started successfully")
 
-    // Initialize auth immediately
     dispatch(initializeAuth())
 
-    // Set up Firebase auth state listener
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         if (firebaseUser) {
-          // User is signed in, update Firebase user in state
           dispatch(setFirebaseUser({
             uid: firebaseUser.uid,
             email: firebaseUser.email,
@@ -81,7 +78,6 @@ function App() {
             photoURL: firebaseUser.photoURL,
           }))
         } else {
-          // User is signed out
           dispatch(logout())
         }
       } catch (error) {
@@ -102,7 +98,6 @@ function App() {
     }, 100)
   }
 
-  // Show preloader until auth is initialized
   if (isLoading || !initialized) {
     return <BewkoofStylePreloader onComplete={handlePreloaderComplete} />
   }
@@ -114,71 +109,70 @@ function App() {
         <NetworkStatus />
         <main className="pt-2 main-content">
           <Navbar />
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/products/:category" element={<ProductsPage />} />
-            <Route path="/product/:id" element={<ProductDetailPage />} />
-            <Route path="/search" element={<SearchResultsPage />} />
-            <Route path="/about" element={<AboutUsPage />} />
-            <Route path="/contact" element={<ContactUsPage />} />
-            <Route path="/faq" element={<FAQPage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/cookies" element={<CookiesPage />} />
-            <Route path="/returns" element={<ReturnPage />} />
-            <Route path="/shipping" element={<ShippingPage />} />
+          <Suspense fallback={<BewkoofStylePreloader />}>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/products/:category" element={<ProductsPage />} />
+              <Route path="/product/:id" element={<ProductDetailPage />} />
+              <Route path="/search" element={<SearchResultsPage />} />
+              <Route path="/about" element={<AboutUsPage />} />
+              <Route path="/contact" element={<ContactUsPage />} />
+              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/cookies" element={<CookiesPage />} />
+              <Route path="/returns" element={<ReturnPage />} />
+              <Route path="/shipping" element={<ShippingPage />} />
 
-            {/* Protected Routes */}
-            <Route path="/cart" element={<CartPage />}/> 
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/orders" element={<MyOrdersPage />} />
-            <Route path="/wishlist" element={<WishlistPage />} />
-            <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
-            <Route path="/order/:orderId" element={<OrderDetailsPage />} /> {/* New Route */}
-            <Route path="/order/:orderId" element={<OrderDetailsPage />} /> {/* New Route */}
+              {/* Protected Routes */}
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/orders" element={<MyOrdersPage />} />
+              <Route path="/wishlist" element={<WishlistPage />} />
+              <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
+              <Route path="/order/:orderId" element={<OrderDetailsPage />} />
 
-            
+              {/* Admin Routes */}
+              <Route path="/admin/*" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
 
-            {/* Admin Routes */}
-            <Route path="/admin/*" element={
-              <ProtectedRoute adminOnly={true}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
+              {/* Digital Marketer Routes */}
+              <Route path="/digitalMarketer/*" element={
+                <ProtectedRoute digitalMarketerOnly={true}>
+                  <DigitalMarketerDashboard />
+                </ProtectedRoute>
+              } />
 
-            {/* Digital Marketer Routes */}
-            <Route path="/digitalMarketer/*" element={
-              <ProtectedRoute digitalMarketerOnly={true}>
-                <DigitalMarketerDashboard />
-              </ProtectedRoute>
-            } />
-
-            {/* 404 */}
-            <Route
-              path="*"
-              element={
-                <div className="flex items-center justify-center min-h-screen bg-gray-50">
-                  <div className="p-8 text-center bg-white shadow-lg rounded-2xl">
-                    <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-500 rounded-full">
-                      <span className="text-2xl font-bold text-white">404</span>
+              {/* 404 */}
+              <Route
+                path="*"
+                element={
+                  <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                    <div className="p-8 text-center bg-white shadow-lg rounded-2xl">
+                      <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-500 rounded-full">
+                        <span className="text-2xl font-bold text-white">404</span>
+                      </div>
+                      <h1 className="mb-2 text-2xl font-bold text-gray-800">Page Not Found</h1>
+                      <p className="mb-4 text-gray-600">The page you're looking for doesn't exist.</p>
+                      <a
+                        href="/"
+                        className="inline-block px-6 py-2 text-white transition-colors bg-blue-500 rounded-lg hover:bg-blue-600"
+                      >
+                        ← Back to Home
+                      </a>
                     </div>
-                    <h1 className="mb-2 text-2xl font-bold text-gray-800">Page Not Found</h1>
-                    <p className="mb-4 text-gray-600">The page you're looking for doesn't exist.</p>
-                    <a
-                      href="/"
-                      className="inline-block px-6 py-2 text-white transition-colors bg-blue-500 rounded-lg hover:bg-blue-600"
-                    >
-                      ← Back to Home
-                    </a>
                   </div>
-                </div>
-              }
-            />
-          </Routes>
+                }
+              />
+            </Routes>
+          </Suspense>
         </main>
         <Footer />
       </div>

@@ -2,11 +2,13 @@
 import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { useSelector, useDispatch } from "react-redux"
+import { useNavigate } from "react-router-dom"
 import { fetchKsauniTshirts } from "../../store/slices/ksauniTshirtSlice"
 import LoadingSpinner from "../LoadingSpinner"
 
 const KsauniTshirtStyle = () => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { tshirts, loading, error } = useSelector((state) => state.ksauniTshirt)
 
   const carouselRef = useRef(null)
@@ -14,7 +16,7 @@ const KsauniTshirtStyle = () => {
 
   useEffect(() => {
     dispatch(fetchKsauniTshirts()).catch((error) => {
-      console.error("[v0] KsauniTshirtStyle fetch error:", error)
+      console.error("[v2] KsauniTshirtStyle fetch error:", error)
     })
   }, [dispatch])
 
@@ -27,31 +29,27 @@ const KsauniTshirtStyle = () => {
     }
   }
 
+  const handleIndividualTshirtClick = (tshirt) => {
+    console.log("[v2] Individual t-shirt clicked:", tshirt)
+    navigate("/products", { state: { selectedTshirt: tshirt } })
+  }
+
   if (loading) return <LoadingSpinner />
   if (error) {
-    console.error("[v0] KsauniTshirtStyle Redux error:", error)
+    console.error("[v2] KsauniTshirtStyle Redux error:", error)
     return null
   }
   if (!tshirts.length) return null
 
   return (
-    <section className="py-4 sm:py-8 bg-white">
-      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="mb-2 text-left flex items-center justify-between"
-        >
-          <h2 className="text-[18px] font-bold text-black mb-2">KSAUNI TSHIRT STYLE</h2>
-        </motion.div>
+    <section className="py-4 bg-white">
+      <div className="px-3 mx-auto max-w-7xl sm:px-6 lg:px-8">
 
         <div className="relative">
           <div
             ref={carouselRef}
             onScroll={handleScroll}
-            className="flex overflow-x-auto gap-2 pb-1 scrollbar-hide -mx-3 px-3"
+            className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide -mx-3 px-3"
           >
             {tshirts.map((tshirt, index) => (
               <motion.div
@@ -59,14 +57,26 @@ const KsauniTshirtStyle = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
-                whileHover={{ scale: 1.02 }}
-                className="flex-shrink-0 border border-gray-500/80 hover:border-gray-800/80 transition-colors duration-200 rounded-[5px] bg-white overflow-hidden shadow-sm w-[calc(40%-4px)] min-[480px]:w-[calc(33.333%-5.33px)] sm:w-[calc(25%-6px)] md:w-[calc(20%-6.4px)] lg:w-[calc(16.666%-6.66px)]"
+                whileHover={{ scale: 1.05 }}
+                onClick={() => handleIndividualTshirtClick(tshirt)}
+                className="
+                  flex-shrink-0 
+                  border border-gray-300 hover:border-gray-600 
+                  rounded-lg bg-white overflow-hidden shadow-md 
+                  transition-all duration-200 cursor-pointer
+                  w-[85%] sm:w-[70%] md:w-[45%] lg:w-[30%]
+                "
               >
-                <div className="w-full aspect-[3.5/3.8] bg-gray-100">
+                {/* ✅ Reduced height by making it wider relative to height */}
+                <div className="w-full aspect-[4/5] bg-gray-100">
                   <img
                     src={tshirt.image?.url || "/placeholder.svg"}
                     alt={tshirt.image?.alt || tshirt.name}
                     className="w-full h-full object-cover"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleIndividualTshirtClick(tshirt)
+                    }}
                   />
                 </div>
               </motion.div>

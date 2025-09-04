@@ -201,20 +201,9 @@ const LoginPage = () => {
 
       {/* Right Section: Login/Register Form */}
       <div className="flex items-center justify-center w-full lg:w-1/2">
-        <div className="w-full max-w-md p-8 bg-white shadow-xl rounded-2xl m-4 ">
+        <div className="w-full max-w-md p-10 bg-white shadow-xl rounded-2xl m-2 ">
           {/* Header for mobile */}
-          <div className="mb-8 text-center lg:hidden">
-            <Link to="/" className="inline-block mb-6">
-              <img src={logo || "/placeholder.svg"} alt="KsauniBliss Logo" className="h-12 mx-auto" />
-            </Link>
-            <h1 className="mb-2 text-3xl font-bold text-gray-800">
-              {mode === "login" ? "Welcome Back" : "Create Account"}
-            </h1>
-            <p className="text-gray-600">
-              {mode === "login" ? "Sign in to your account to continue" : "Join us and start your fashion journey"}
-            </p>
-          </div>
-
+          
           {/* Mode Toggle */}
           <div className="flex p-1 mb-6 bg-gray-100 rounded-lg">
             <button

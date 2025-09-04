@@ -4,7 +4,7 @@ import { useSelector } from "react-redux"
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion"
 import { ChevronLeft, ChevronRight, Sparkles, ArrowRight } from "lucide-react"
 import { Link } from "react-router-dom"
-import hero from "../assets/hero.jpg"
+
 const HeroBanner = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
@@ -14,19 +14,18 @@ const HeroBanner = () => {
 
   const combinedBanners = heroBanners
 
-  // Mouse parallax (future-ready)
+  // Mouse tracking for parallax effects
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
   const springConfig = { damping: 25, stiffness: 700 }
   const mouseXSpring = useSpring(mouseX, springConfig)
   const mouseYSpring = useSpring(mouseY, springConfig)
 
-  // Disable scroll effects (kept for future tweaks)
+  // Scroll-based animations (disabled for spacing issues)
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 0])
   const opacity = useTransform(scrollY, [0, 300], [1, 1])
 
-  // Auto-play carousel
   useEffect(() => {
     if (heroBanners.length > 0 && isAutoPlaying) {
       const timer = setInterval(() => {
@@ -50,15 +49,16 @@ const HeroBanner = () => {
     scrollToSlide(prevIndex)
   }
 
-  // Scroll to specific slide
+  // Scroll carousel to the slide at index
   const scrollToSlide = (index) => {
     if (carouselRef.current) {
       const carousel = carouselRef.current
       let slideWidth = 0
       if (carousel.firstChild) {
         const firstChildWidth = carousel.firstChild.offsetWidth
-        slideWidth = firstChildWidth + 16 // margin included
+        slideWidth = firstChildWidth + 16 // including margin
       }
+
       carousel.scrollTo({
         left: slideWidth * index,
         behavior: "smooth",
@@ -66,7 +66,11 @@ const HeroBanner = () => {
     }
   }
 
-  // Animations
+  const toggleAutoPlay = () => {
+    setIsAutoPlaying(!isAutoPlaying)
+  }
+
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -94,53 +98,64 @@ const HeroBanner = () => {
     visible: {
       scale: 1,
       opacity: 1,
-      transition: { delay: 0.8, duration: 0.5, ease: "easeOut" },
+      transition: {
+        delay: 0.8,
+        duration: 0.5,
+        ease: "easeOut",
+      },
     },
     hover: { scale: 1.05, transition: { duration: 0.3 } },
     tap: { scale: 0.95 },
   }
 
-  // Fallback UI if no banners
+  // Fallback UI if no banners are available
   if (!heroBanners.length) {
     return (
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] lg:min-h-[80vh] bg-gray-900 overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)" }}
+        className="relative min-h-[40vh] sm:min-h-[50vh] md:min-h-[60vh] lg:min-h-[70vh] bg-gray-900 overflow-hidden"
+        style={{
+          background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
+        }}
       >
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-10 bg-center bg-cover"
- style={{
-    backgroundImage:`url(${hero})`, // ⬅️ your image URL
-    backgroundSize: "cover",
-    backgroundPosition: "left center",
-  }}        />
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:20px_20px]" />
+        {/* Background */}
+        <div
+          className="absolute inset-0 bg-center bg-cover opacity-10"
+          style={{ backgroundImage: `url('/public/images/hero-background-pattern.png')` }}
+        >
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 via-transparent to-white/5"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:20px_20px]"></div>
+        </div>
 
         {/* Content */}
-        <div className="relative z-10 flex flex-row items-center justify-center h-full px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="flex-1 text-center lg:text-left lg:pr-8">
+        <div className="relative z-10 flex flex-row items-center justify-center h-full px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
+          <div className="flex-1 order-1 mb-8 text-center lg:text-left lg:mb-0 lg:pr-8">
             <motion.div variants={textVariants} custom={0}>
-              <h1 className="mb-6 text-4xl font-bold tracking-wider text-transparent sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text">
-                LUXE
-              </h1>
+              <h3 className="mt-2 mb-5  pb-8 text-4xl font-bold tracking-wider text-transparent sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text">
+                EXCLUSIVE
+              </h3>
             </motion.div>
-
-            <motion.div variants={buttonVariants} initial="hidden" animate="visible" whileHover="hover" whileTap="tap">
+           
+            <motion.div
+              variants={buttonVariants}
+              initial="hidden"
+              animate="visible"
+              whileHover="hover"
+              whileTap="tap"
+            >
               <Link
                 to="/products"
-                className="inline-flex items-center px-4 py-2 text-sm sm:px-6 sm:py-3 sm:text-base font-medium tracking-wider text-yellow-400 uppercase transition-all duration-300 border border-yellow-400 rounded-none hover:bg-yellow-400 hover:text-black"
+                className="inline-flex items-center px-10 mb-5 py-3 text-sm sm:px-6 sm:py-3 sm:text-base font-medium tracking-wider text-yellow-400 uppercase transition-all duration-300 rounded-none hover:text-black"
               >
-                Talk of the Town
+                Shop Now
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </motion.div>
           </div>
 
-          <div className="flex items-center justify-center flex-1">
+          <div className="flex items-center justify-center flex-1 order-2">
             <div className="text-center text-white/60">
               <Sparkles className="w-12 h-12 mx-auto mb-4 text-yellow-400 sm:w-16 sm:h-16" />
               <p className="text-sm sm:text-base lg:text-lg">Discover Premium Fashion</p>
@@ -151,22 +166,18 @@ const HeroBanner = () => {
     )
   }
 
-  // Main UI
   return (
     <div
       ref={containerRef}
       className="relative min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] lg:min-h-[80vh] bg-white overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)" }}
+      style={{
+        background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
+      }}
     >
+      
 
-      <div className="absolute inset-0 opacity-10 bg-center bg-cover"
- style={{
-    backgroundImage:`url(${hero})`, // ⬅️ your image URL
-    backgroundSize: "cover",
-    backgroundPosition:"left",
-  }}        />
-      <div className="relative z-10 flex flex-row items-center justify-center h-full px-2 mx-auto max-w-7xl sm:px-4 lg:px-6">
-        
+      {/* Content */}
+      <div className="relative z-10 flex flex-row items-center justify-center h-full px-2 mx-auto sm:px-4 lg:px-6 max-w-7xl">
         {/* Left Text */}
         <motion.div
           className="flex-1 order-1 mb-8 text-center lg:text-left lg:mb-0 lg:pr-8"
@@ -175,28 +186,29 @@ const HeroBanner = () => {
           animate="visible"
         >
           <motion.div variants={textVariants} custom={0}>
-            <h4 className="mb-6 py-5 px-5 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-wider text-transparent bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text">
-              LUXE
-            </h4>
-          </motion.div>
+            <h4 className="mb-4 pb-8 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-wider text-transparent bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text">
+  EXCLUSIVE
+</h4>
 
-          <motion.div variants={buttonVariants} initial="hidden" animate="visible" whileHover="hover" whileTap="tap">
-            <Link
-              to="/products"
-              className="inline-flex items-center px-3 py-2 text-xs sm:px-5 sm:py-3 sm:text-base font-medium tracking-wider text-yellow-200 uppercase transition-all duration-300 border-0 sm:border sm:rounded-none hover:bg-yellow-400 hover:text-black"
-            >
-              Talk of the Town
-              <ArrowRight className="w-3 h-3 ml-1 sm:w-4 sm:h-4 sm:ml-2" />
-            </Link>
           </motion.div>
+          
+
+          <Link
+  to="/products"
+  className="inline-flex mb-5 items-center px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-base font-medium tracking-wider text-yellow-200 uppercase transition-all duration-300 border-0 sm:border sm:rounded-none hover:bg-yellow-400 hover:text-black"
+>
+  Shop Now
+  <ArrowRight className="w-3 h-3 ml-1" />
+</Link>
+
         </motion.div>
 
         {/* Right Carousel */}
-        <div className="relative flex items-center justify-center flex-[2] order-2 w-full h-auto sm:h-full py-2">
+<div className="relative flex items-center justify-center flex-3 order-2 w-full h-auto sm:h-full py-1 sm:py-2">
           <div className="relative w-full max-w-full overflow-hidden">
             <div
               ref={carouselRef}
-              className="flex px-2 py-4 space-x-4 overflow-x-scroll scrollbar-hide scroll-smooth"
+              className="flex px-2 py-4 space-x-2 overflow-x-scroll scrollbar-hide scroll-smooth"
               style={{ scrollSnapType: "x mandatory" }}
               onScroll={() => {
                 if (carouselRef.current) {
@@ -226,13 +238,13 @@ const HeroBanner = () => {
                   <img
                     src={banner.image?.url || "/placeholder.svg?height=500&width=400"}
                     alt={banner.title || "Fashion Banner"}
-  className="w-full h-64 sm:h-72 md:h-80 lg:h-96 object-cover max-h-[450px]"
+                    className="w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] 2xl:h-[32rem] object-cover"
                   />
                 </div>
               ))}
             </div>
 
-            {/* Navigation Arrows */}
+            {/* Left Arrow */}
             <button
               onClick={prevSlide}
               className="absolute z-10 p-2 text-black transition-colors duration-300 transform -translate-y-1/2 bg-yellow-400 rounded-full shadow-lg left-2 top-1/2 hover:bg-yellow-500"
@@ -240,6 +252,8 @@ const HeroBanner = () => {
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
+
+            {/* Right Arrow */}
             <button
               onClick={nextSlide}
               className="absolute z-10 p-2 text-black transition-colors duration-300 transform -translate-y-1/2 bg-yellow-400 rounded-full shadow-lg right-2 top-1/2 hover:bg-yellow-500"

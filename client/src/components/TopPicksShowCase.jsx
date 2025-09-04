@@ -129,9 +129,9 @@ export default function TopPicksShowcase() {
       <div className="w-full bg-white py-4 mb-4 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8 py-4">
-            <h1 className="text-2xl sm:text-4xl font-black italic">
+            <h3 className="text-xl sm:text-2xl font-black italic">
               TOP 7 <span className="text-red-600">PICKS</span> OF THE WEEK
-            </h1>
+            </h3>
             <p className="text-gray-200 text-sm sm:text-base font-small mt-1">
               Best Favorite Styles: Shop the Top Picks
             </p>
@@ -146,9 +146,9 @@ export default function TopPicksShowcase() {
     return (
       <div className="w-full bg-white py-1 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-2xl sm:text-4xl font-black italic">
+          <h3 className="text-xl sm:text-2xl font-black italic">
             TOP 7<span className="text-red-600">PICKS</span> OF THE WEEK
-          </h1>
+          </h3>
           <p className="text-gray-400 text-sm text-muted sm:text-base font-sm ">
               No top 7 products available at the moment.
           </p>
@@ -162,7 +162,7 @@ export default function TopPicksShowcase() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6 ">
           <div className="text-center flex-1">
-            <h1 className="text-2xl sm:text-4xl font-black italic">
+            <h1 className="text-xl sm:text-2xl font-black italic">
               TOP 7 <span className="text-red-600">PICKS</span> OF THE WEEK
             </h1>
             <p className="text-gray-700 text-sm sm:text-base font-medium mt-1">

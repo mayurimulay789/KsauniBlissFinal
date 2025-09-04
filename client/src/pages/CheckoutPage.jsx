@@ -442,7 +442,7 @@ const CheckoutPage = () => {
           </p>
           <button
             onClick={() => navigate("/")}
-            className="px-4 py-2 text-sm text-white transition-colors bg-pink-600 rounded-lg xs:px-6 xs:text-base hover:bg-pink-700"
+            className="px-4 py-2 text-sm text-white transition-colors bg-red-700 rounded-lg xs:px-6 xs:text-base hover:bg-red-700"
           >
             Continue Shopping
           </button>
@@ -495,7 +495,7 @@ const CheckoutPage = () => {
                 className="p-4 bg-white rounded-lg shadow-md xs:p-6"
               >
                 <div className="flex items-center mb-4">
-                  <MapPin className="w-4 h-4 mr-2 text-pink-600 xs:w-5 xs:h-5" />
+                  <MapPin className="w-4 h-4 mr-2 text-red-700 xs:w-5 xs:h-5" />
                   <h2 className="text-lg font-semibold xs:text-xl">
                     Shipping Address
                   </h2>
@@ -511,7 +511,7 @@ const CheckoutPage = () => {
                       onChange={(e) =>
                         handleAddressChange("fullName", e.target.value)
                       }
-                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
+                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.fullName
                           ? "border-red-500"
                           : "border-gray-300"
@@ -541,7 +541,7 @@ const CheckoutPage = () => {
                             e.target.value.replace(/\D/g, "").slice(0, 10)
                           )
                         }
-                        className={`w-full px-3 py-2 text-sm xs:text-base border rounded-r-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
+                        className={`w-full px-3 py-2 text-sm xs:text-base border rounded-r-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                           addressErrors.phoneNumber
                             ? "border-red-500"
                             : "border-gray-300"
@@ -565,7 +565,7 @@ const CheckoutPage = () => {
                       onChange={(e) =>
                         handleAddressChange("addressLine1", e.target.value)
                       }
-                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
+                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.addressLine1
                           ? "border-red-500"
                           : "border-gray-300"
@@ -578,7 +578,7 @@ const CheckoutPage = () => {
                       </p>
                     )}
                   </div>
-                  <div className="sm:col-span-2">
+                  {/* <div className="sm:col-span-2">
                     <label className="block mb-1 text-sm font-medium text-gray-700">
                       Address Line 2
                     </label>
@@ -588,10 +588,10 @@ const CheckoutPage = () => {
                       onChange={(e) =>
                         handleAddressChange("addressLine2", e.target.value)
                       }
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg xs:text-base focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg xs:text-base focus:ring-2 focus:ring-red-500 focus:border-red-500"
                       placeholder="Area, Locality (Optional)"
                     />
-                  </div>
+                  </div> */}
                   <div className="sm:col-span-1">
                     <label className="block mb-1 text-sm font-medium text-gray-700">
                       City *
@@ -602,7 +602,7 @@ const CheckoutPage = () => {
                       onChange={(e) =>
                         handleAddressChange("city", e.target.value)
                       }
-                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
+                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.city
                           ? "border-red-500"
                           : "border-gray-300"
@@ -625,7 +625,7 @@ const CheckoutPage = () => {
                       onChange={(e) =>
                         handleAddressChange("state", e.target.value)
                       }
-                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
+                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.state
                           ? "border-red-500"
                           : "border-gray-300"
@@ -651,7 +651,7 @@ const CheckoutPage = () => {
                           e.target.value.replace(/\D/g, "").slice(0, 6)
                         )
                       }
-                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
+                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.pinCode
                           ? "border-red-500"
                           : "border-gray-300"
@@ -674,7 +674,7 @@ const CheckoutPage = () => {
                       onChange={(e) =>
                         handleAddressChange("landmark", e.target.value)
                       }
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg xs:text-base focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg xs:text-base focus:ring-2 focus:ring-red-500 focus:border-red-500"
                       placeholder="Nearby landmark (Optional)"
                     />
                   </div>
@@ -748,7 +748,7 @@ const CheckoutPage = () => {
                 className="p-4 bg-white rounded-lg shadow-md xs:p-6"
               >
                 <div className="flex items-center mb-4">
-                  <Tag className="w-4 h-4 mr-2 text-pink-600 xs:w-5 xs:h-5" />
+                  <Tag className="w-4 h-4 mr-2 text-red-600 xs:w-5 xs:h-5" />
                   <h2 className="text-lg font-semibold xs:text-xl">
                     Promo Code
                   </h2>
@@ -776,7 +776,7 @@ const CheckoutPage = () => {
                     {!showCouponInput ? (
                       <button
                         onClick={() => setShowCouponInput(true)}
-                        className="text-sm font-medium text-pink-600 xs:text-base hover:text-pink-700"
+                        className="text-sm font-medium text-red-600 xs:text-base hover:text-red-700"
                       >
                         Have a promo code? Click here to apply
                       </button>
@@ -789,7 +789,7 @@ const CheckoutPage = () => {
                             setCouponCode(e.target.value.toUpperCase())
                           }
                           placeholder="Enter promo code"
-                          className="flex-1 px-3 py-2 text-sm border rounded-md outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                          className="flex-1 px-3 py-2 text-sm border rounded-md outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                         />
                         <div className="flex gap-2">
                           <button
@@ -797,7 +797,7 @@ const CheckoutPage = () => {
                             disabled={
                               !couponCode.trim() || couponLoading?.validating
                             }
-                            className="px-4 py-2 text-sm font-semibold text-white rounded-md bg-pink-600 disabled:opacity-50"
+                            className="px-4 py-2 text-sm font-semibold text-white rounded-md bg-red-600 disabled:opacity-50"
                           >
                             {couponLoading?.validating
                               ? "Applying..."
@@ -855,7 +855,7 @@ const CheckoutPage = () => {
                                 </div>
 
                                 <button
-                                  className="px-3 py-1 text-xs font-semibold text-white rounded bg-pink-600 disabled:opacity-50"
+                                  className="px-3 py-1 text-xs font-semibold text-white rounded bg-red-600 disabled:opacity-50"
                                   disabled={!eligible}
                                   onClick={() => {
                                     setShowCouponInput(true);
@@ -978,7 +978,7 @@ const CheckoutPage = () => {
                 <button
                   onClick={() => setShowModal(true)}
                   disabled={orderLoading.creating || !cartItems.length}
-                  className="flex items-center justify-center w-full py-2.5 xs:py-3 mt-4 xs:mt-6 text-sm xs:text-base font-semibold text-white bg-pink-600 rounded-lg hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center w-full py-2.5 xs:py-3 mt-4 xs:mt-6 text-sm xs:text-base font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {orderLoading.creating ? (
                     <>

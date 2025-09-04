@@ -12,6 +12,7 @@ const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
     { id: "under549", label: "UNDER", sublabel: "₹549", value: "549", type: "under", route: "/products?maxPrice=549" },
     { id: "under799", label: "UNDER", sublabel: "₹799", value: "799", type: "under", route: "/products?maxPrice=799" },
     { id: "under999", label: "UNDER", sublabel: "₹999", value: "999", type: "under", route: "/products?maxPrice=999" },
+    { id: "under1499", label: "UNDER", sublabel: "₹1499", value: "1499", type: "under", route: "/products?maxPrice=1499" },
   ]
 
   const handleOptionClick = (option) => {
@@ -21,53 +22,76 @@ const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
   }
 
   return (
-    <div className="relative z-20 w-full py-6 bg-white">
+    <div className="relative z-20 w-full  bg-white">
       <div className="px-4 mx-auto max-w-7xl">
         {/* Header */}
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl italic font-black sm:text-3xl md:text-4xl">
+        <div className="mb-2 text-center">
+          <h3 className="text-xl italic font-black sm:text-2xl md:text-3xl uppercase">
             <span className="text-red-600">PRICE</span>{" "}
             <span className="text-black">SELECTION</span>
-          </h1>
-          <p className="text-sm font-medium text-gray-700 sm:text-base">
+          </h3>
+          <p className="text-sm text-gray-600 sm:text-base">
             Styles ab Budget mee
           </p>
         </div>
 
-        {/* Price Grid */}
-        <div className="flex justify-center">
-          <div className="grid w-full max-w-screen-md grid-cols-3 gap-8 sm:grid-cols-3 sm:gap-8">
-            {priceOptions.map((option) => (
-              <motion.button
-                key={option.id}
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleOptionClick(option)}
-                className={`relative cursor-pointer transition-all duration-300 ${
-                  selectedOption === option.id ? "ring-4 ring-red-800" : ""
-                }`}
-              >
-                <div className="bg-red-600 text-white aspect-[3/4] sm:aspect-[4/5] flex flex-col items-center justify-center font-black text-center relative overflow-hidden hover:bg-red-700 transition-colors rounded-lg shadow-md">
-                  
-                  {/* Black border */}
-                  <div className="absolute inset-[6%] border-2 border-black rounded-lg"></div>
+        {/* Price Options → Grid with 4 boxes always */}
+        <div className="grid grid-cols-4 gap-3 sm:gap-6">
+          {priceOptions.map((option) => (
+            <motion.button
+              key={option.id}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => handleOptionClick(option)}
+              className={`relative w-full cursor-pointer transition-all duration-300 ${
+                selectedOption === option.id ? "ring-4 ring-red-800" : ""
+              }`}
+            >
+              <div className="relative bg-red-600 text-white aspect-[4/5] flex flex-col items-center justify-center font-black text-center overflow-hidden hover:bg-red-700 transition-colors rounded-lg shadow-md">
+                {/* White border inside */}
+                <div className="absolute inset-[6%] border-2 border-white rounded-lg z-10"></div>
 
-                  {/* Card content */}
-                  <div className="mb-1 text-lg font-semibold leading-tight sm:text-2xl md:text-3xl">
+                {/* Zigzag Left Side */}
+                <div className="absolute inset-y-0 left-0 w-3 overflow-hidden z-0">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 10 100"
+                    preserveAspectRatio="none"
+                    className="h-full w-full fill-white opacity-40"
+                  >
+                    <path d="M0 0 L10 10 L0 20 L10 30 L0 40 L10 50 L0 60 L10 70 L0 80 L10 90 L0 100 Z" />
+                  </svg>
+                </div>
+
+                {/* Zigzag Right Side */}
+                <div className="absolute inset-y-0 right-0 w-3 overflow-hidden z-0">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 10 100"
+                    preserveAspectRatio="none"
+                    className="h-full w-full fill-white opacity-40"
+                  >
+                    <path d="M10 0 L0 10 L10 20 L0 30 L10 40 L0 50 L10 60 L0 70 L10 80 L0 90 L10 100 Z" />
+                  </svg>
+                </div>
+
+                {/* Card Content */}
+                <div className="z-20">
+                  <div className="mb-1 text-md sm:text-lg md:text-2xl font-semibold leading-tight uppercase">
                     {option.label}
                   </div>
-                  <div className="mb-3 text-base font-medium sm:text-lg md:text-xl">
+                  <div className="mb-2 text-[20px] sm:text-base md:text-lg font-medium">
                     {option.sublabel}
                   </div>
 
                   {/* Arrow */}
-                  <div className="flex items-center justify-center w-5 h-5 bg-white rounded-full sm:w-6 sm:h-6">
-                    <ArrowRight className="w-4 h-4 text-red-800" />
+                  <div className="flex items-center justify-center w-5 h-5 bg-white rounded-full sm:w-6 sm:h-6 mx-auto">
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-red-800" />
                   </div>
                 </div>
-              </motion.button>
-            ))}
-          </div>
+              </div>
+            </motion.button>
+          ))}
         </div>
       </div>
     </div>

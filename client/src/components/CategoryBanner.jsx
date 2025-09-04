@@ -31,7 +31,7 @@ const CategoryBanner = () => {
   // ⛔ Show nothing or fallback if loading fails
   if (loadingCategory || error) {
     return (
-      <section className="relative w-full px-0 mx-auto mt-0 mb-6 sm:px-6">
+      <section className="relative w-full px-0 mx-auto mt-0 mb-3 sm:px-6">
         <div className="relative w-full mx-auto overflow-hidden shadow-lg rounded-2xl">
           <img
             src="/placeholder-wgz1d.png"
@@ -46,7 +46,7 @@ const CategoryBanner = () => {
   // ❓ Fallback if no banners are available
   if (!categoryBanners.length) {
     return (
-      <section className="relative w-full px-0 mx-auto mt-0 mb-6 sm:px-6">
+      <section className="relative w-full px-0 mx-auto mt-0 mb-2 sm:px-6">
         <div
           className="relative w-full mx-auto overflow-hidden shadow-lg rounded-2xl"
           style={{ border: "3px solid #be7a21ff" }}
@@ -64,7 +64,7 @@ const CategoryBanner = () => {
   const current = categoryBanners[currentBanner]
 
   return (
-    <section className="relative w-full px-0 mx-auto mt-0 mb-6 sm:px-6">
+    <section className="relative w-full px-0 mx-auto mt-0 mb-4 sm:px-6">
       <div
         className="relative w-full mx-auto overflow-hidden shadow-lg cursor-pointer rounded-2xl group"
         style={{ border: "3px solid #be7a21ff" }}

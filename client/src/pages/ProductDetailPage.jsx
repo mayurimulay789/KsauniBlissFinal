@@ -5,12 +5,13 @@ import { useParams, Link, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { motion, AnimatePresence } from "framer-motion"
 import { Swiper, SwiperSlide } from "swiper/react"
-import { FreeMode, Navigation, Thumbs } from "swiper/modules"
+import { FreeMode, Navigation, Thumbs, Pagination } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/free-mode"
 import "swiper/css/navigation"
 import "swiper/css/thumbs"
-import { Heart, Minus, Plus, X, AlertCircle, Ruler, ShoppingCart, Lock, Shield, CheckCircle, Award } from "lucide-react"
+import "swiper/css/pagination"
+import { Heart, Minus, Plus, X, AlertCircle, Ruler, ShoppingCart, Lock, Shield } from "lucide-react"
 
 import { fetchProductById } from "../store/slices/productSlice"
 import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice"
@@ -72,6 +73,27 @@ const ProductDetailPage = () => {
     const sizeData = currentProduct.sizes.find((s) => s.size === selectedSize)
     return sizeData?.stock || 0
   }
+  const tagText =
+    (Array.isArray(currentProduct?.tags) && currentProduct.tags[0]) ||
+    (currentProduct?.isTrending && "TRENDING") ||
+    (currentProduct?.isNewArrival && "NEW ARRIVAL") ||
+     (currentProduct?.isFeatured && "FEATURED") ||
+
+    "DESIGN OF THE WEEK"
+
+  const fitText =
+    typeof currentProduct?.fits === "string"
+      ? `${currentProduct.fits} FIT`
+      : currentProduct?.fits
+        ? `${String(currentProduct.fits)} FIT`
+        : "REGULAR FIT"
+
+  const materialText =
+    typeof currentProduct?.material === "string"
+      ? currentProduct.material
+      : currentProduct?.material
+        ? String(currentProduct.material)
+        : "COTTON"
 
   const handleAddToCart = async () => {
     if (currentProduct.sizes?.length && !selectedSize) return toast.error("Please select a size")
@@ -154,6 +176,14 @@ const ProductDetailPage = () => {
     }
   }
 
+  const handleViewSimilar = () => {
+    if (currentProduct?.category?.slug) {
+      navigate(`/products?category=${currentProduct.category.slug}`)
+    } else {
+      navigate("/products")
+    }
+  }
+
   if (isLoading) return <LoadingSpinner message="Loading product…" />
   if (error || !currentProduct)
     return (
@@ -171,10 +201,10 @@ const ProductDetailPage = () => {
     )
 
   return (
-    <div className="min-h-screen bg-gray-50 sm:pb-0 pb-20">
+    <div className=" bg-gray-50 sm:pb-0 pb-10">
       {/* Desktop Breadcrumb - Hidden on mobile */}
-      <div className="hidden sm:block bg-white py-1 shadow-sm">
-        <div className="mx-auto px-4 sm:px-6">
+      <div className="hidden sm:block bg-white py-5 shadow-sm">
+        <div className="mx-auto px-2 sm:px-6">
           <nav className="flex items-center text-sm text-gray-600 space-x-2 overflow-x-auto whitespace-nowrap">
             <Link to="/" className="hover:text-primary">
               Home
@@ -213,43 +243,58 @@ const ProductDetailPage = () => {
                 <Heart id="wish" className={`w-6 h-6 ${isInWishlist ? "fill-current" : ""}`} />
               </button>
 
-              {/* Mobile Category Label - Bottom left corner of image */}
-              {/* <div className="lg:hidden absolute bottom-2 left-2 z-10 bg-black/70 text-white px-2 py-1 rounded text-xs">
-                {currentProduct.category?.name}
-              </div> */}
-
-              {/* Mobile Swiper */}
-              <div className="lg:hidden">
+              {/* Mobile Swiper - full bleed */}
+              <div className="lg:hidden relative -mx-6 rounded-xl">
                 <Swiper
-                  spaceBetween={10}
-                  // Remove navigation arrows on mobile swiper
-                  // navigation
+                  spaceBetween={0}
                   thumbs={{ swiper: thumbsSwiper }}
-                  modules={[FreeMode, Navigation, Thumbs]}
-                  className="rounded-lg"
+                  pagination={{ clickable: true, dynamicBullets: true }}
+                  modules={[FreeMode, Navigation, Thumbs, Pagination]}
+                  className="rounded-none mobile-swiper"
                 >
                   {currentProduct.images.map((img, idx) => (
                     <SwiperSlide key={idx}>
-                      <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
+                      <div className="relative bg-black rounded-none overflow-hidden mb-2">
                         <img
                           src={img.url || "/placeholder.svg"}
                           alt={currentProduct.name}
-                          className="w-full h-full object-contain cursor-zoom-in"
+                          className="w-full aspect-[3/4] object-cover cursor-zoom-in"
                           loading="lazy"
                           onClick={() => {
                             setSelectedImage(idx)
                             setShowImageModal(true)
                           }}
                         />
-                        {getDiscountPercentage() > 0 && (
-                          <div className="absolute top-3 left-3 bg-white text-xs font-bold px-2 py-1 rounded-full text-red-900">
-                            {getDiscountPercentage()}% OFF
+                        {/* Discount badge removed on mobile to match requested UI */}
+
+                        <div className="absolute bottom-6 left-2 right-2 flex items-center justify-between gap-2">
+                          <button
+                            onClick={handleViewSimilar}
+                            className="px-3 py-1 rounded-full bg-white/90 text-gray-900 text-xs font-semibold shadow"
+                          >
+                            VIEW SIMILAR
+                          </button>
+
+                          <div className="px-3 py-1 rounded-full bg-black/80 text-white text-xs font-semibold flex items-center gap-2">
+                            <span className="uppercase">
+                              {currentProduct?.category?.name ? String(currentProduct.category.name) : "REGULAR"}
+                            </span>
+                            {currentProduct?.ratingAvg ? (
+                              <span className="inline-flex items-center gap-1">
+                                {"⭐"} {Number(currentProduct.ratingAvg).toFixed(1)}
+                                {currentProduct?.ratingCount ? (
+                                  <span className="opacity-80">/{currentProduct.ratingCount}</span>
+                                ) : null}
+                              </span>
+                            ) : null}
                           </div>
-                        )}
+                        </div>
                       </div>
                     </SwiperSlide>
                   ))}
                 </Swiper>
+
+                {/* Thumbs */}
                 <Swiper
                   onSwiper={setThumbsSwiper}
                   spaceBetween={8}
@@ -257,11 +302,11 @@ const ProductDetailPage = () => {
                   freeMode={true}
                   watchSlidesProgress={true}
                   modules={[FreeMode, Navigation, Thumbs]}
-                  className="mt-2"
+                  className="mt-2 px-2"
                 >
                   {currentProduct.images.map((img, idx) => (
                     <SwiperSlide key={idx}>
-                      <div className="aspect-square bg-gray-100 rounded-md overflow-hidden border-2 border-transparent hover:border-primary cursor-pointer">
+                      <div className="aspect-auto bg-gray-100 rounded-xl overflow-hidden border-transparent hover:border-primary cursor-pointer">
                         <img
                           src={img.url || "/placeholder.svg"}
                           alt={`${currentProduct.name} ${idx + 1}`}
@@ -336,14 +381,14 @@ const ProductDetailPage = () => {
 
               {/* Brand Name Under Product Image */}
               <div className="mt-4 text-left lg:hidden">
-                <p className="text-xl font-bold text-gray-900">
+                <p className="text-md font-semibold text-gray-900">
                   <span>{currentProduct.brand || "Ksauni Bliss"}</span>
                 </p>
-                {currentProduct.description && (
+                {currentProduct.name && (
                   <p className="text-sm text-gray-600 mt-1">
-                    {typeof currentProduct.description === "string"
-                      ? currentProduct.description
-                      : JSON.stringify(currentProduct.description)}
+                    {typeof currentProduct.name === "string"
+                      ? currentProduct.name
+                      : JSON.stringify(currentProduct.name)}
                   </p>
                 )}
                 {/* Price under description */}
@@ -358,8 +403,6 @@ const ProductDetailPage = () => {
                     <span className="ml-2 text-sm font-medium text-green-600">{getDiscountPercentage()}% OFF</span>
                   )}
                 </div>
-
-                
               </div>
 
               {/* Share Button */}
@@ -373,22 +416,20 @@ const ProductDetailPage = () => {
             </div>
 
             {/* Product Info */}
-            <div className="space-y-6">
+            <div className="space-y-1">
               <div className="flex items-start justify-between">
-                <div>
-                  <div className="hidden lg:block mb-6">
-                    <p className="text-2xl font-bold text-gray-900 mb-2">
+                  <div className="hidden lg:block mb-2">
+                    <p className="text-lg font-semibold text-gray-900">
                       <span>{currentProduct.brand || "Ksauni Bliss"}</span>
                     </p>
                     {currentProduct.description && (
-                      <p className="text-base text-gray-600 mb-4">
+                      <p className="text-base text-gray-600 mb-2">
                         {typeof currentProduct.description === "string"
                           ? currentProduct.description
                           : JSON.stringify(currentProduct.description)}
                       </p>
                     )}
                     {/* Price section */}
-                    <div className="mb-4">
                       <span className="text-3xl font-bold text-gray-900">₹{currentProduct.price.toLocaleString()}</span>
                       {currentProduct.originalPrice && currentProduct.originalPrice > currentProduct.price && (
                         <span className="text-xl text-gray-500 line-through ml-3">
@@ -401,13 +442,27 @@ const ProductDetailPage = () => {
                         </span>
                       )}
                     </div>
+                </div>
+  <div className="lg:hidden -mt-2">
+                <div className="grid grid-cols-3 gap-2">
+                  {/* Tags */}
+                  <div className="w-full text-center text-[10px] sm:text-xs font-semibold uppercase tracking-wide px-2 py-2 rounded-xl bg-amber-50 text-gray-900 border border-amber-100">
+                    {String(tagText).replace(/-/g, " ")}
+                  </div>
+                  {/* Fits */}
+                  <div className="w-full text-center text-[10px] sm:text-xs font-semibold uppercase tracking-wide px-2 py-2 rounded-xl bg-gray-100 text-gray-800">
+                    {String(fitText).replace(/-/g, " ")}
+                  </div>
+                  {/* Material */}
+                  <div className="w-full text-center text-[10px] sm:text-xs font-semibold uppercase tracking-wide px-2 py-2 rounded-xl bg-white text-gray-800 border border-gray-400">
+                    {String(materialText).replace(/-/g, " ")}
                   </div>
                 </div>
               </div>
 
               {/* Colors */}
               {currentProduct.colors?.length > 0 && (
-                <div>
+                <div className="pt-3">
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">
                     Color: <span className="font-normal">{selectedColor}</span>
                   </h3>
@@ -439,9 +494,9 @@ const ProductDetailPage = () => {
               {/* Sizes */}
               {currentProduct.sizes?.length > 0 && (
                 <div>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-3 pt-1">
                     <h3 className="text-lg font-semibold text-gray-800">
-                      Size: <span className="font-normal">{selectedSize}</span>
+                      Size: <span className="font-normal rounded-sm">{selectedSize}</span>
                     </h3>
                     <button
                       onClick={() => setShowSizeGuide(true)}
@@ -457,9 +512,9 @@ const ProductDetailPage = () => {
                         key={s.size}
                         onClick={() => setSelectedSize(s.size)}
                         disabled={s.stock === 0}
-                        className={`px-3 py-2 rounded-lg border font-medium text-sm ${
+                        className={`px-4 py-2 border border-gray-300 rounded-xl font-medium text-sm ${
                           selectedSize === s.size
-                            ? "border-primary bg-primary/10 text-primary"
+                            ? "border-primary rounded bg-primary/10 text-primary"
                             : s.stock === 0
                               ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
                               : "border-gray-300 hover:border-primary hover:text-primary"
@@ -469,6 +524,9 @@ const ProductDetailPage = () => {
                       </motion.button>
                     ))}
                   </div>
+                  <span className="text-sm py-3 mb-3 mx-2 font-semibold text-gray-600">
+                    {getSelectedSizeStock()} available{selectedSize && ` in ${selectedSize}`}
+                  </span>
                 </div>
               )}
 
@@ -497,18 +555,24 @@ const ProductDetailPage = () => {
                       <Plus className="w-4 h-4" />
                     </motion.button>
                   </div>
-                  <span className="text-sm text-gray-600">
-                    {getSelectedSizeStock()} available{selectedSize && ` in ${selectedSize}`}
-                  </span>
                 </div>
               </div>
-
+{currentProduct.productDetails && (
+                  <div className="pt-1">
+                    <h2 className="text-md font-bold text-gray-700 mb-1">Product Details</h2>
+                    <p className="text-gray-600 whitespace-pre-line">
+                      {typeof currentProduct.productDetails === "string"
+                        ? currentProduct.productDetails
+                        : JSON.stringify(currentProduct.productDetails)}
+                    </p>
+                  </div>
+                )}
               {/* Product Details Section */}
               <div className=" pt-1">
                 {currentProduct.material && (
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Material</h4>
-                    <p className="text-gray-600">
+                    <h2 className="text-md font-bold text-gray-700 mb-1">Material & Care</h2>
+                    <p className="text-gray-600 whitespace-pre-line">
                       {typeof currentProduct.material === "string"
                         ? currentProduct.material
                         : JSON.stringify(currentProduct.material)}
@@ -518,8 +582,8 @@ const ProductDetailPage = () => {
 
                 {currentProduct.fits && (
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Fit</h4>
-                    <p className="text-gray-600 capitalize">
+                    <h2 className="text-md font-bold text-gray-700 mb-1">Model Size and Fits</h2>
+                    <p className="text-gray-600 whitespace-pre-line">
                       {typeof currentProduct.fits === "string"
                         ? `${currentProduct.fits} Fit`
                         : `${JSON.stringify(currentProduct.fits)} Fit`}
@@ -529,7 +593,7 @@ const ProductDetailPage = () => {
 
                 {currentProduct.care && (
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Care Instructions</h4>
+                    <h2 className="text-md font-bold text-gray-700 mb-1">Care Instructions</h2>
                     <p className="text-gray-600">
                       {typeof currentProduct.care === "string"
                         ? currentProduct.care
@@ -538,16 +602,7 @@ const ProductDetailPage = () => {
                   </div>
                 )}
 
-                {currentProduct.productDetails && (
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Product Details</h4>
-                    <p className="text-gray-600 whitespace-pre-line">
-                      {typeof currentProduct.productDetails === "string"
-                        ? currentProduct.productDetails
-                        : JSON.stringify(currentProduct.productDetails)}
-                    </p>
-                  </div>
-                )}
+                
               </div>
 
               <div className="hidden lg:block pt-4 border-t border-gray-200">
@@ -555,7 +610,7 @@ const ProductDetailPage = () => {
                   <button
                     onClick={handleAddToCart}
                     disabled={isAddingToCart || getSelectedSizeStock() === 0}
-                    className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShoppingCart className="w-5 h-5" />
                     ADD TO CART
@@ -563,9 +618,9 @@ const ProductDetailPage = () => {
                   <button
                     onClick={handleBuyNow}
                     disabled={isAddingToCart || getSelectedSizeStock() === 0}
-                    className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-red-600 text-black font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Lock className="w-5 h-5" />
+                    <img src="/buynow1.svg" className="w-8 h-8" />
                     BUY NOW
                   </button>
                 </div>
@@ -577,11 +632,15 @@ const ProductDetailPage = () => {
           <StaticDesignSection />
 
           {/* Reviews Section */}
-          <div id="reviews" className="border-t border-gray-200 px-6 py-8 bg-gray-50">
-            <div className="max-w-4xl mx-auto">
-              <ProductReviews productId={currentProduct._id} />
-            </div>
-          </div>
+          <div
+  id="reviews"
+  className="border-t border-gray-200 rounded-xl sm:rounded-xl px-4 sm:px-6 py-6 sm:py-8 bg-white"
+>
+  <div className="w-full sm:max-w-4xl mx-auto rounded-full">
+    <ProductReviews productId={currentProduct._id} />
+  </div>
+</div>
+
         </div>
 
         {/* Related Products */}
@@ -635,7 +694,7 @@ const ProductDetailPage = () => {
                     onClick={() => setSelectedImage(prev => (prev + 1) % currentProduct.images.length)} 
                     className="absolute right-0 top-1/2 p-3 text-white hover:text-gray-300"
                   >
-                    <ChevronRight className="w-8 h-8" />
+                    <ChevronRight className="w-8 h-8 text-gray-500" />
                   </button>
                 </>
               )}
@@ -752,67 +811,107 @@ const ProductDetailPage = () => {
         )}
       </AnimatePresence>
 
-{/* Fixed Mobile Action Bar */}
-<div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 shadow-lg">
-  <div className="flex gap-3 max-w-md mx-auto">
-    
-    {/* Add to Cart */}
-    <button
-      onClick={handleAddToCart}
-      disabled={isAddingToCart || getSelectedSizeStock() === 0}
-      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-    >
-      <ShoppingCart className="w-4 h-4" />
-      ADD TO CART
-    </button>
+      {/* Fixed Mobile Action Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 shadow-lg">
+        <div className="flex gap-3 max-w-md mx-auto">
+          {/* View Similar */}
+          
 
-    {/* Buy Now */}
-    <button
-      onClick={handleBuyNow}
-      disabled={isAddingToCart || getSelectedSizeStock() === 0}
-      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-    >
-      <Lock className="w-4 h-4" />
-      BUY NOW
-    </button>
+          {/* Add to Cart */}
+          <button
+            onClick={handleAddToCart}
+            disabled={isAddingToCart || getSelectedSizeStock() === 0}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            ADD TO CART
+          </button>
 
-  </div>
-</div>
-        
-      </div>
-  )
-}
-
-const StaticDesignSection = () => {
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm mt-8 mb-8 py-6 px-4 sm:px-8">
-      <div className="max-w-4xl mx-auto flex flex-row flex-wrap justify-between items-center gap-6">
-        {/* Genuine Products */}
-        <div className="flex flex-col items-center text-center space-y-2 flex-1">
-          <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center">
-            <Award className="w-6 h-6 text-red-500" />
-          </div>
-          <span className="text-sm font-semibold text-gray-700">Genuine Products</span>
-        </div>
-
-        {/* 7 Step Quality Check */}
-        <div className="flex flex-col items-center text-center space-y-2 flex-1">
-          <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-6 h-6 text-green-500" />
-          </div>
-          <span className="text-sm font-semibold text-gray-700">7 Step Quality Check</span>
-        </div>
-
-        {/* Secure Payments */}
-        <div className="flex flex-col items-center text-center space-y-2 flex-1">
-          <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
-            <Shield className="w-6 h-6 text-blue-500" />
-          </div>
-          <span className="text-sm font-semibold text-gray-700">Secure Payments</span>
+          {/* Buy Now */}
+          <button
+            onClick={handleBuyNow}
+            disabled={isAddingToCart || getSelectedSizeStock() === 0}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          >
+            <img src="/buynow1.svg" className="w-8 h-8 rounded-lg" />
+            BUY NOW
+          </button>
         </div>
       </div>
     </div>
   )
 }
+
+// const StaticDesignSection = () => {
+//   return (
+//     <div className="bg-white border border-gray-200 rounded-xl shadow-sm mt-2 mb-2 py-4 px-4 sm:px-8">
+//       <div className="max-w-4xl mx-auto flex flex-row flex-nowrap items-center justify-center gap-1 sm:gap-2 lg:gap-3">
+//         {/* Genuine Products */}
+//         <div className="flex flex-col items-center text-center space-y-2">
+//           <img src="/Genuine.svg" alt="100% Genuine Product" className="w-13 h-13 object-cover" />
+//           <span className="text-xs text-gray-800">Genuine Products</span>
+//         </div>
+//         {/* 7 Step Quality Check */}
+//         <div className="flex flex-col items-center text-center space-y-2">
+//           <img src="/Quality.svg" alt="Easy Returns and Refund" className="w-13 h-13 object-cover" />
+//           <span className="text-xs text-gray-800 text-wrap">7 Step Quality Check</span>
+//         </div>
+//         {/* Secure Payments */}
+//         <div className="flex flex-col items-center text-center">
+//           <img src="/cod.svg" alt="Cash on Delivery" className="w-13 h-13 object-cover" />
+//           <span className="text-xs text-gray-800">Cash Payment</span>
+//         </div>
+//       </div>
+//     </div>
+//   )
+// }
+const StaticDesignSection = () => {
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm mt-2 mb-2 py-4 px-4 sm:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-center gap-6 sm:gap-12">
+          {/* Genuine Products */}
+          <div className="flex flex-col items-center text-center">
+            <img
+              src="/Genuine.svg"
+              alt="100% Genuine Product"
+              className="w-16 h-16 object-contain" // bigger size
+            />
+            <span className="text-xs sm:text-sm text-gray-800 mt-1">
+              Genuine Products
+            </span>
+          </div>
+
+          {/* 7 Step Quality Check */}
+          <div className="flex flex-col items-center text-center">
+            <img
+              src="/Quality.svg"
+              alt="7 Step Quality Check"
+              className="w-16 h-16 object-contain"
+            />
+            <span className="text-xs sm:text-sm text-gray-800 mt-1">
+              7 Step Quality Check
+            </span>
+          </div>
+
+          {/* Cash Payment */}
+          <div className="flex flex-col items-center text-center">
+            <img
+              src="/Cod.svg"
+              alt="Cash Payment"
+              className="w-16 h-16 object-contain"
+            />
+            <span className="text-xs sm:text-sm text-gray-800 mt-1">
+              Cash Payment
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+
 
 export default ProductDetailPage

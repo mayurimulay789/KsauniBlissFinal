@@ -136,6 +136,8 @@ const HomePage = () => {
           
           <FlatDiscount/>
             <HeroBanner />
+            <KsauniTshirtStyle />
+
               <PriceSelection/>
           <FeaturedCategories />
           <TrendingProducts />
@@ -145,7 +147,6 @@ const HomePage = () => {
           <Oversized899 />
     
           <InnovationList />
-                <KsauniTshirtStyle />
         {/* </div> */}
        
        

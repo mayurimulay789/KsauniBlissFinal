@@ -380,7 +380,7 @@ const CartPage = () => {
     {/* Cash on Delivery */}
     <div className="flex flex-col items-center">
       <img
-        src="/COD.png" // 👉 Replace with your PNG file path in public/
+        src="/Cod.svg" // 👉 Replace with your PNG file path in public/
         alt="Cash on Delivery"
         className="w-10 h-10 mb-2 object-contain"
       />
@@ -390,7 +390,7 @@ const CartPage = () => {
     {/* 100% Genuine Product */}
     <div className="flex flex-col items-center">
       <img
-src="/download.png" //         alt="100% Genuine Product"
+src="/Genuine.svg" //         alt="100% Genuine Product"
         className="w-10 h-10 mb-2 object-contain"
       />
       <span className="text-xs text-gray-600">100% Genuine Product</span>
@@ -399,7 +399,7 @@ src="/download.png" //         alt="100% Genuine Product"
     {/* Easy Returns & Refund */}
     <div className="flex flex-col items-center">
       <img
-        src="/return.png" // 👉 Replace with your PNG file path in public/
+        src="/Quality.svg" // 👉 Replace with your PNG file path in public/
         alt="Easy Returns and Refund"
         className="w-10 h-10 mb-2 object-contain"
       />

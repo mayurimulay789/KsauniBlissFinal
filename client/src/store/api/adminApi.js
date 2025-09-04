@@ -125,4 +125,4 @@ const adminAPI = {
     axios.delete(`${API_URL}/innovations/${innovationId}`, createAuthHeaders()),
 }
 
-export default adminAPI
+export default adminAPI;

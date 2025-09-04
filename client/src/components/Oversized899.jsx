@@ -9,110 +9,75 @@ export default function Oversized899() {
   const [productsToShow, setProductsToShow] = useState([])
 
   useEffect(() => {
-    // Filter products that are specifically from oversized category AND price >= 899
-    const filteredProducts = products.filter(product => {
+    const filteredProducts = products.filter((product) => {
       if (!product) return false
-      
-      const price = Number(product.price) || 0
-      if (price < 899) return false
 
-      // Exact oversized category check - only return true for actual oversized products
       let isOversized = false
-      
-      // Check category field - must be exactly "oversized" or contain it as primary category
-      if (product.category) {
-        const categoryStr = String(product.category).toLowerCase().trim()
-        isOversized = categoryStr === 'oversized' || categoryStr.includes('oversized')
+
+      // Category string
+      if (product.category && typeof product.category === "string") {
+        const categoryStr = product.category.toLowerCase().trim()
+        isOversized = categoryStr.includes("oversized")
       }
-      
-      // Check category object name
-      if (!isOversized && product.category && typeof product.category === 'object') {
-        const categoryName = String(product.category.name || '').toLowerCase().trim()
-        isOversized = categoryName === 'oversized' || categoryName.includes('oversized')
+
+      // Category object
+      if (!isOversized && product.category && typeof product.category === "object") {
+        const categoryName = String(product.category.name || "").toLowerCase().trim()
+        isOversized = categoryName.includes("oversized")
       }
-      
-      // Check categoryName field
+
+      // categoryName field
       if (!isOversized && product.categoryName) {
         const categoryNameStr = String(product.categoryName).toLowerCase().trim()
-        isOversized = categoryNameStr === 'oversized' || categoryNameStr.includes('oversized')
+        isOversized = categoryNameStr.includes("oversized")
       }
-      
-      // Check subcategory - only if it's actually "oversized"
+
+      // subcategory
       if (!isOversized && product.subcategory) {
         const subcategoryStr = String(product.subcategory).toLowerCase().trim()
-        isOversized = subcategoryStr === 'oversized' || subcategoryStr.includes('oversized')
+        isOversized = subcategoryStr.includes("oversized")
       }
-      
-      // Check categories array - must contain "oversized"
+
+      // categories array
       if (!isOversized && Array.isArray(product.categories)) {
-        isOversized = product.categories.some(cat => {
-          if (typeof cat === 'string') {
-            const catStr = cat.toLowerCase().trim()
-            return catStr === 'oversized' || catStr.includes('oversized')
+        isOversized = product.categories.some((cat) => {
+          if (typeof cat === "string") {
+            return cat.toLowerCase().trim().includes("oversized")
           }
-          if (cat && typeof cat === 'object') {
-            const catName = String(cat.name || '').toLowerCase().trim()
-            return catName === 'oversized' || catName.includes('oversized')
+          if (cat && typeof cat === "object") {
+            return String(cat.name || "").toLowerCase().trim().includes("oversized")
           }
           return false
         })
       }
 
+      // fits
+      if (!isOversized) {
+        if (Array.isArray(product.fits)) {
+          isOversized = product.fits.some((f) => String(f).toLowerCase().trim().includes("oversized"))
+        } else if (product.fits) {
+          isOversized = String(product.fits).toLowerCase().trim().includes("oversized")
+        }
+      }
+
+      // tags
+      if (!isOversized && Array.isArray(product.tags)) {
+        isOversized = product.tags.some((t) => String(t).toLowerCase().trim().includes("oversized"))
+      }
+
       return isOversized
     })
-    
-    setProductsToShow(filteredProducts.slice(0, 7))
-  }, [products])
 
-  // Debug: Show what's being filtered
-  useEffect(() => {
-    if (products.length > 0) {
-      console.log('All products:', products.length)
-      
-      const allCategories = [...new Set(products.map(p => {
-        const cat = p.category || p.categoryName || 'unknown'
-        return typeof cat === 'string' ? cat : (cat?.name || 'unknown')
-      }))]
-      console.log('All categories:', allCategories)
-      
-      const oversizedProducts = products.filter(p => {
-        const price = Number(p.price) || 0
-        if (price < 899) return false
-        
-        const categoryFields = [
-          p.category,
-          p.categoryName,
-          p.subcategory,
-          ...(Array.isArray(p.categories) ? p.categories : [])
-        ].filter(Boolean)
-        
-        return categoryFields.some(field => {
-          const str = String(typeof field === 'object' ? field.name || field : field).toLowerCase()
-          return str.includes('oversized')
-        })
-      })
-      
-      console.log('Oversized products >= 899:', oversizedProducts.length)
-      console.log('Oversized products:', oversizedProducts.map(p => ({
-        name: p.name,
-        category: p.category || p.categoryName,
-        price: p.price
-      })))
-    }
+    setProductsToShow(filteredProducts.slice(0, 7))
   }, [products])
 
   return (
     <section className="bg-white py-3 ml-2 sm:ml-7">
-      <div className="px-3">
+      <div className="px-1">
         {/* Heading */}
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-[18px] font-bold text-black mb-2">
-            Oversized Products From Rs. 899
-          </h2>
-          <Link
-            to="/products"
-            className="text-black text-[18px] font-bold leading-none"
-          >
+          <h3 className="text-[16px] uppercase font-bold text-black mb-2">Oversized Products</h3>
+          <Link to="/products" className="text-black text-[18px] leading-none">
             +
           </Link>
         </div>
@@ -120,37 +85,31 @@ export default function Oversized899() {
         {/* Products Scroll */}
         <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-hide -mx-3 px-3">
           {productsToShow.length > 0 ? (
-            productsToShow.map((product, index) => {
+            productsToShow.map((product) => {
               const discountPercentage =
                 product.originalPrice && product.originalPrice > product.price
-                  ? Math.round(
-                      ((product.originalPrice - product.price) / product.originalPrice) * 100
-                    )
+                  ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
                   : 0
 
               return (
                 <div
                   key={product._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  viewport={{ once: true }}
                   className="
                     flex-shrink-0 
-                    border border-gray-500/80  hover:border-gray-800/80 transition-colors duration-200
+                    border border-gray-500/80 hover:border-gray-800/80 transition-colors duration-200
                     rounded-[5px] bg-white overflow-hidden shadow-sm
-                    w-[calc(40%-4px)]  
-                    min-[480px]:w-[calc(33.333%-5.33px)]
-                    sm:w-[calc(25%-6px)] 
-                    md:w-[calc(20%-6.4px)] 
-                    lg:w-[calc(16.666%-6.66px)]
+                    w-[calc(50%-4px)]   /* mobile: 2 items */
+                    sm:w-[calc(20%-6px)] /* desktop: 5 items */
                   "
                 >
                   {/* Product Image */}
                   <Link to={`/product/${product._id}`}>
                     <div className="w-full aspect-[3.5/3.8] bg-gray-100">
                       <img
-                        src={product.images?.[0]?.url || "/placeholder.svg"}
+                        src={
+                          product.images?.[0]?.url ||
+                          "/placeholder.svg?height=400&width=400&query=product%20image%20placeholder"
+                        }
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />
@@ -159,28 +118,20 @@ export default function Oversized899() {
 
                   {/* Product Info */}
                   <div className="p-1.5">
-                    <p className="text-[9px] font-bold text-black uppercase">
-                      {product.brand || "EXAMPLE BRAND"}
-                    </p>
+                    <p className="text-[9px] font-semibold text-black uppercase">{product.brand || "EXAMPLE BRAND"}</p>
                     <Link to={`/product/${product._id}`}>
-                      <h3 className="text-[10px] font-medium text-black leading-tight mb-0.5 line-clamp-2">
+                      <p className="text-[10px] text-black uppercase leading-tight mb-0.5 line-clamp-2">
                         {product.name}
-                      </h3>
+                      </p>
                     </Link>
 
                     {/* Price */}
                     <div className="flex items-center gap-1">
-                      <span className="text-[10px] font-bold text-black">
-                        ₹{product.price}
-                      </span>
+                      <span className="text-[12px] text-black font-bold">₹{product.price}</span>
                       {discountPercentage > 0 && (
                         <>
-                          <span className="text-[8px] text-gray-500 line-through">
-                            ₹{product.originalPrice}
-                          </span>
-                          <span className="text-[8px] text-green-500 font-semibold">
-                            {discountPercentage}% off
-                          </span>
+                          <span className="text-[10px] text-gray-500 line-through">₹{product.originalPrice}</span>
+                          <span className="text-[10px] text-red-500 font-semibold">{discountPercentage}% off</span>
                         </>
                       )}
                     </div>
@@ -189,9 +140,7 @@ export default function Oversized899() {
               )
             })
           ) : (
-            <div className="text-center py-8 text-gray-500 w-full">
-              No oversized products available from ₹899
-            </div>
+            <div className="text-center py-8 text-gray-500 w-full">No oversized products available from ₹899</div>
           )}
         </div>
       </div>
