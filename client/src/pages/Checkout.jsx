@@ -88,6 +88,10 @@ const CheckoutPage = () => {
  useEffect(() => {
     // Close existing instance if any
     // Clear any existing order state when checkout page loads
+
+    dispatch(removeCoupon());
+    setCouponCode("");
+    setShowCouponInput(false);
    
     console.log("rzpInstanceRef.current",rzpInstanceRef.current)
     if (rzpInstanceRef.current) {
