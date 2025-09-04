@@ -2,27 +2,37 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
+import { useDispatch } from "react-redux"
 import { ArrowRight } from "lucide-react"
+import { fetchProducts } from "../store/slices/productSlice"
 
 const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
   const [selectedOption, setSelectedOption] = useState(selectedPrice || null)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const priceOptions = [
-    { id: "under549", label: "UNDER", sublabel: "₹549", value: "549", type: "under", route: "/products?maxPrice=549" },
-    { id: "under799", label: "UNDER", sublabel: "₹799", value: "799", type: "under", route: "/products?maxPrice=799" },
-    { id: "under999", label: "UNDER", sublabel: "₹999", value: "999", type: "under", route: "/products?maxPrice=999" },
-    { id: "under1499", label: "UNDER", sublabel: "₹1499", value: "1499", type: "under", route: "/products?maxPrice=1499" },
+    { id: "under549", label: "UNDER", sublabel: "₹549", value: 549 },
+    { id: "under799", label: "UNDER", sublabel: "₹799", value: 799 },
+    { id: "under999", label: "UNDER", sublabel: "₹999", value: 999 },
+    { id: "under1499", label: "UNDER", sublabel: "₹1499", value: 1499 },
   ]
 
   const handleOptionClick = (option) => {
     setSelectedOption(option.id)
+
+    // ✅ Call parent if provided
     if (onPriceSelect) onPriceSelect(option)
-    navigate(option.route)
+
+    // ✅ Trigger Redux fetch with filter
+    dispatch(fetchProducts({ maxPrice: option.value }))
+
+    // ✅ Navigate with query param for persistence
+    navigate(`/products?maxPrice=${option.value}`)
   }
 
   return (
-    <div className="relative z-20 w-full  bg-white">
+    <div className="relative z-20 w-full bg-white">
       <div className="px-4 mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-2 text-center">
@@ -35,7 +45,7 @@ const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
           </p>
         </div>
 
-        {/* Price Options → Grid with 4 boxes always */}
+        {/* Price Options → Grid with 4 boxes */}
         <div className="grid grid-cols-4 gap-3 sm:gap-6">
           {priceOptions.map((option) => (
             <motion.button
@@ -51,7 +61,7 @@ const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
                 {/* White border inside */}
                 <div className="absolute inset-[6%] border-2 border-white rounded-lg z-10"></div>
 
-                {/* Zigzag Left Side */}
+                {/* Zigzag Left */}
                 <div className="absolute inset-y-0 left-0 w-3 overflow-hidden z-0">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +73,7 @@ const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
                   </svg>
                 </div>
 
-                {/* Zigzag Right Side */}
+                {/* Zigzag Right */}
                 <div className="absolute inset-y-0 right-0 w-3 overflow-hidden z-0">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -75,7 +85,7 @@ const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
                   </svg>
                 </div>
 
-                {/* Card Content */}
+                {/* Content */}
                 <div className="z-20">
                   <div className="mb-1 text-md sm:text-lg md:text-2xl font-semibold leading-tight uppercase">
                     {option.label}
@@ -83,8 +93,6 @@ const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
                   <div className="mb-2 text-[20px] sm:text-base md:text-lg font-medium">
                     {option.sublabel}
                   </div>
-
-                  {/* Arrow */}
                   <div className="flex items-center justify-center w-5 h-5 bg-white rounded-full sm:w-6 sm:h-6 mx-auto">
                     <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-red-800" />
                   </div>

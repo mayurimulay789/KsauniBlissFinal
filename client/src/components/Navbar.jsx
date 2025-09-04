@@ -1,23 +1,10 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
 import { motion, AnimatePresence } from "framer-motion"
-import {
-  Menu,
-  X,
-  ChevronDown,
-  Search,
-  ShoppingBag,
-  User,
-  Heart,
-  Mic,
-  Clock,
-  Trash2,
-  SquarePlus,
-  Shirt,
-} from "lucide-react"
+import { Menu, X, ChevronDown, Search, ShoppingBag, User, Heart, Mic, Clock, Trash2, Shirt } from "lucide-react"
 import { useDebounce } from "use-debounce"
 import { logout } from "../store/slices/authSlice"
 import { fetchCategories } from "../store/slices/categorySlice"
@@ -40,6 +27,7 @@ const Navbar = () => {
 
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const location = useLocation()
 
   const { user, token } = useSelector((state) => state.auth || {})
   const { categories } = useSelector((state) => state.categories || {})
@@ -50,11 +38,11 @@ const Navbar = () => {
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300)
 
   useEffect(() => {
-    if (token && user!=null) {
+    if (token && user != null) {
       dispatch(fetchCart())
       dispatch(fetchWishlist())
     }
-  }, [user,dispatch, token])
+  }, [user, dispatch, token])
 
   useEffect(() => {
     dispatch(fetchCategories({ showOnHomepage: true }))
@@ -79,7 +67,7 @@ const Navbar = () => {
 
   const navigateToCategory = (categoryId = "") => {
     const base = "/products?"
-    console.log("[v0] Navigating to category:", categoryId) // Added debugging for category navigation
+    console.log("[v0] Navigating to category:", categoryId)
     navigate(categoryId ? `${base}category=${categoryId}` : base)
   }
 
@@ -155,6 +143,7 @@ const Navbar = () => {
   }
 
   const isProductDetailPage = window.location.pathname.startsWith("/product/")
+  const isCartPage = location.pathname === "/cart"
 
   return (
     <>
@@ -175,18 +164,10 @@ const Navbar = () => {
               {/* Logo - Adjusted for better display */}
               <div onClick={() => navigate("/")} className="flex items-center cursor-pointer">
                 <div className="hidden md:block">
-                  <img
-                    src={logo || "/placeholder.svg"}
-                    alt="company logo"
-                    className="object-contain w-auto h-12" // Changed to h-12 and w-auto for better proportions
-                  />
+                  <img src={logo || "/placeholder.svg"} alt="company logo" className="object-contain w-auto h-12" />
                 </div>
                 <div className="md:hidden">
-                  <img
-                    src="logo.png"
-                    alt="company logo"
-                    className="object-contain w-10 h-10" // Adjusted mobile logo size
-                  />
+                  <img src="logo.png" alt="company logo" className="object-contain w-10 h-10" />
                 </div>
               </div>
             </div>
@@ -507,20 +488,22 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Category Navigation */}
-          <div className="items-center justify-center hidden px-4 py-3 space-x-6 overflow-x-auto border-t border-gray-200 md:flex scrollbar-hide">
-            {categories.map((cat) => (
-              <div
-                key={cat._id}
-                onClick={() => navigateToCategory(cat._id)}
-                className="flex-shrink-0 font-medium text-gray-700 transition-colors duration-200 cursor-pointer hover:text-red-600 whitespace-nowrap"
-              >
-                {cat.name}
-              </div>
-            ))}
-          </div>
+          {!isCartPage && (
+            <div className="items-center justify-center hidden px-4 py-3 space-x-6 overflow-x-auto border-t border-gray-200 md:flex scrollbar-hide">
+              {categories.map((cat) => (
+                <div
+                  key={cat._id}
+                  onClick={() => navigateToCategory(cat._id)}
+                  className="flex-shrink-0 font-medium text-gray-700 transition-colors duration-200 cursor-pointer hover:text-red-600 whitespace-nowrap"
+                >
+                  {cat.name}
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Mobile Horizontal Category Navigation */}
-          {!isProductDetailPage && (
+          {!isProductDetailPage && !isCartPage && (
             <div className="flex py-3 space-x-4 overflow-x-auto border-t border-gray-200 md:hidden scrollbar-hide">
               {categoriesForMobileScroll.map((cat) => (
                 <div
@@ -605,52 +588,45 @@ const Navbar = () => {
       </motion.nav>
 
       {/* Bottom Navigation Bar for Mobile */}
-      {/* Bottom Navigation Bar for Mobile (hidden on product detail page) */}
-{!isProductDetailPage && (
-  <div className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-4 gap-0 py-1 bg-white border-t border-gray-200 shadow-lg md:hidden">
-    {/* Home */}
-    <div
-      onClick={() => navigate("/")}
-      className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-red-600 cursor-pointer"
-    >
-      <span className="text-xl font-bold mb-0.5 w-6 h-6">
-        <img src="logo.png" alt="company logo" className="object-contain w-full h-full" />
-      </span>
-      <span>Home</span>
-    </div>
+      {!isProductDetailPage && !isCartPage && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-4 gap-0 py-1 bg-white border-t border-gray-200 shadow-lg md:hidden">
+          <div
+            onClick={() => navigate("/")}
+            className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-red-600 cursor-pointer"
+          >
+            <span className="text-xl font-bold mb-0.5 w-6 h-6">
+              <img src="logo.png" alt="company logo" className="object-contain w-full h-full" />
+            </span>
+            <span>Home</span>
+          </div>
 
-    {/* CYD Under ₹999 */}
-    <div
-      onClick={() => navigateToUnder999()}
-      className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
-    >
-      <img src="cydlogo.png" alt="CYD Logo" className="w-7 h-7 mb-0.5 object-contain" />
-      <span>₹999</span>
-    </div>
+          <div
+            onClick={() => navigateToUnder999()}
+            className="flex flex-col items-center justify-center px-1 py-1 text-[22px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
+          >
+        <img src="/Cyd.svg" alt="CYD Logo" className="w-9 h-9 mb-5 object-contain"/>
+          </div>
 
-    {/* T-SHIRTS */}
-    <div
-      onClick={() => navigate("/products")}
-      className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
-    >
-      <Shirt className="w-5 h-5 mb-0.5" />
-      <span>T-Shirts</span>
-    </div>
+          <div
+            onClick={() => navigate("/products")}
+            className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
+          >
+            <Shirt className="w-5 h-5 mb-0.5" />
+            <span>T-Shirts</span>
+          </div>
 
-    {/* Profile */}
-    <div
-      onClick={() => {
-        if (token) navigate("/profile")
-        else navigate("/login")
-      }}
-      className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
-    >
-      <User className="w-5 h-5 mb-0.5" />
-      <span>Profile</span>
-    </div>
-  </div>
-)}
-
+          <div
+            onClick={() => {
+              if (token) navigate("/profile")
+              else navigate("/login")
+            }}
+            className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
+          >
+            <User className="w-5 h-5 mb-0.5" />
+            <span>Profile</span>
+          </div>
+        </div>
+      )}
     </>
   )
 }

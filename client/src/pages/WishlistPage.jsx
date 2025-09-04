@@ -209,7 +209,7 @@ const WishlistPage = () => {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800 md:text-3xl">My Wishlist</h1>
+              <h1 className="text-2xl font-bold text-gray-800 md:text-3xl rounded-xl">My Wishlist</h1> 
               <p className="text-gray-600">
                 {items.length} {items.length === 1 ? "item" : "items"} saved for later
               </p>
@@ -245,8 +245,9 @@ const WishlistPage = () => {
           </motion.div>
         ) : (
           /* Wishlist Items */
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <AnimatePresence>
+<div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+
+<AnimatePresence>
               {items.map((product, index) => (
                 <motion.div
                   key={product._id}
@@ -262,7 +263,7 @@ const WishlistPage = () => {
                       <img
                         src={product.images?.[0]?.url || "/placeholder.svg?height=300&width=225"}
                         alt={product.name}
-                        className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                        className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105 rounded-xl"
                       />
                     </Link>
 

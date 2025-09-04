@@ -135,7 +135,7 @@ export default function TopPicksShowcase() {
 
                   {/* Inner content */}
                   <div className="pt-1 px-1 flex flex-col h-auto border-t">
-                    <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-gray-100">
+                    <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-100">
                       <Link to={`/product/${product._id}`}>
                         <img
                           // ✅ Bust cache using updatedAt timestamp

@@ -23,7 +23,7 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
           <img
             src={product.images?.[0]?.url || "/placeholder.svg"}
             alt={product.name}
-            className="object-cover w-full h-full"
+            className="object-cover w-full h-full rounded-xl"
             loading="lazy"
           />
         </Link>

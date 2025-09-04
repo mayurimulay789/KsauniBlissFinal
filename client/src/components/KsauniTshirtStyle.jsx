@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { useSelector, useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { fetchKsauniTshirts } from "../../store/slices/ksauniTshirtSlice"
 import LoadingSpinner from "../LoadingSpinner"
 
@@ -21,13 +22,24 @@ const KsauniTshirtStyle = () => {
     })
   }, [dispatch])
 
-  // Handle scroll progress (optional)
+  // Handle scroll progress
   const handleScroll = () => {
     if (carouselRef.current) {
       const scrollLeft = carouselRef.current.scrollLeft
       const itemWidth = carouselRef.current.firstChild?.offsetWidth + 16 || 0
       const index = Math.round(scrollLeft / itemWidth)
       setCurrentSlide(index)
+    }
+  }
+
+  // Scroll function for buttons
+  const scrollBy = (direction) => {
+    if (carouselRef.current) {
+      const itemWidth = carouselRef.current.firstChild?.offsetWidth + 16 || 0
+      carouselRef.current.scrollBy({
+        left: direction === "left" ? -itemWidth : itemWidth,
+        behavior: "smooth",
+      })
     }
   }
 
@@ -44,19 +56,26 @@ const KsauniTshirtStyle = () => {
   if (!tshirts.length) return null
 
   return (
-    <section className="py-4 bg-white">
-      <div className="px-2 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <section className="py-2 bg-white">
+      <div className="px-1 mx-auto max-w-7xl sm:px-6 lg:px-8">
         {/* Section Heading */}
-        <h2 className="text-[20px] font-bold text-black mb-4">
-          KSAUNI TSHIRT STYLE
-        </h2>
 
-        {/* Scrollable Carousel */}
+        {/* Carousel Wrapper */}
         <div className="relative">
+          {/* Left Button */}
+          <button
+            onClick={() => scrollBy("left")}
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white shadow rounded-full hover:bg-gray-100"
+            aria-label="Scroll Left"
+          >
+            <ChevronLeft className="w-6 h-6 text-gray-600" />
+          </button>
+
+          {/* Scrollable Carousel */}
           <div
             ref={carouselRef}
             onScroll={handleScroll}
-            className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide -mx-3 px-3"
+            className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide -mx-3 px-3 scroll-smooth"
           >
             {tshirts.map((tshirt, index) => (
               <motion.div
@@ -71,17 +90,18 @@ const KsauniTshirtStyle = () => {
                   border border-gray-300 hover:border-gray-600 
                   rounded-lg bg-white overflow-hidden shadow-md 
                   transition-all duration-200 cursor-pointer
-                  w-[65%]    /* Mobile: ~1.5 items */
-                  sm:w-[48%] /* Tablet: 2 items */
-                  lg:w-[30%] /* Desktop: 3 items */
+                  w-[48%]    /* Mobile: 2 items per screen */
+                  sm:w-[45%] /* Small tablets: ~2 items */
+                  md:w-[31%] /* Tablets: 3 items */
+                  lg:w-[23%] /* Desktop: 4 items */
                 "
               >
-                {/* Image container */}
-                <div className="w-full aspect-[3/5] bg-gray-100">
+                {/* Image container with reduced height */}
+                <div className="w-full aspect-[2/4] bg-gray-100">
                   <img
                     src={tshirt.image?.url || "/placeholder.svg"}
                     alt={tshirt.image?.alt || tshirt.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-lg"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleIndividualTshirtClick(tshirt)
@@ -91,6 +111,15 @@ const KsauniTshirtStyle = () => {
               </motion.div>
             ))}
           </div>
+
+          {/* Right Button */}
+          <button
+            onClick={() => scrollBy("right")}
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white shadow rounded-full hover:bg-gray-100"
+            aria-label="Scroll Right"
+          >
+            <ChevronRight className="w-6 h-6 text-gray-600" />
+          </button>
         </div>
       </div>
     </section>

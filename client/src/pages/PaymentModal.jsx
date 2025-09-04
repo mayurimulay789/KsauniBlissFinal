@@ -13,7 +13,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount }) => {
         <div className="flex border-b">
           <button
             className={`flex-1 py-2 text-center ${
-              tab === "online" ? "font-bold border-b-2 border-pink-600" : ""
+              tab === "online" ? "font-bold border-b-2 border-red-600" : ""
             }`}
             onClick={() => setTab("online")}
           >
@@ -21,7 +21,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount }) => {
           </button>
           <button
             className={`flex-1 py-2 text-center ${
-              tab === "cod" ? "font-bold border-b-2 border-pink-600" : ""
+              tab === "cod" ? "font-bold border-b-2 border-red-600" : ""
             }`}
             onClick={() => setTab("cod")}
           >
@@ -35,7 +35,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount }) => {
             <>
               <p className="mb-4">Amount: ₹{amount}</p>
               <button
-                className="flex items-center justify-center w-full py-2 text-white bg-pink-600 rounded"
+                className="flex items-center justify-center w-full py-2 text-white bg-red-600 rounded"
                 onClick={() => {
                   onOnline();
                   onClose();

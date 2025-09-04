@@ -11,7 +11,7 @@ import "swiper/css/free-mode"
 import "swiper/css/navigation"
 import "swiper/css/thumbs"
 import "swiper/css/pagination"
-import { Heart, Minus, Plus, X, AlertCircle, Ruler, ShoppingCart, Lock, Shield } from "lucide-react"
+import { Heart, Minus, Plus, X, AlertCircle, Ruler, ShoppingCart } from "lucide-react"
 
 import { fetchProductById } from "../store/slices/productSlice"
 import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice"
@@ -56,7 +56,7 @@ const ProductDetailPage = () => {
 
   useEffect(() => {
     if (currentProduct) {
-      if (currentProduct.sizes?.length > 0) setSelectedSize(currentProduct.sizes[0].size)
+      // if (currentProduct.sizes?.length > 0) setSelectedSize(currentProduct.sizes[0].size)
       if (currentProduct.colors?.length > 0) setSelectedColor(currentProduct.colors[0].name)
     }
   }, [currentProduct])
@@ -77,8 +77,7 @@ const ProductDetailPage = () => {
     (Array.isArray(currentProduct?.tags) && currentProduct.tags[0]) ||
     (currentProduct?.isTrending && "TRENDING") ||
     (currentProduct?.isNewArrival && "NEW ARRIVAL") ||
-     (currentProduct?.isFeatured && "FEATURED") ||
-
+    (currentProduct?.isFeatured && "FEATURED") ||
     "DESIGN OF THE WEEK"
 
   const fitText =
@@ -254,7 +253,7 @@ const ProductDetailPage = () => {
                 >
                   {currentProduct.images.map((img, idx) => (
                     <SwiperSlide key={idx}>
-                      <div className="relative bg-black rounded-none overflow-hidden mb-2">
+                      <div className="relative bg-black rounded-xl overflow-hidden mb-2">
                         <img
                           src={img.url || "/placeholder.svg"}
                           alt={currentProduct.name}
@@ -418,32 +417,30 @@ const ProductDetailPage = () => {
             {/* Product Info */}
             <div className="space-y-1">
               <div className="flex items-start justify-between">
-                  <div className="hidden lg:block mb-2">
-                    <p className="text-lg font-semibold text-gray-900">
-                      <span>{currentProduct.brand || "Ksauni Bliss"}</span>
+                <div className="hidden lg:block mb-2">
+                  <p className="text-lg font-semibold text-gray-900">
+                    <span>{currentProduct.brand || "Ksauni Bliss"}</span>
+                  </p>
+                  {currentProduct.description && (
+                    <p className="text-base text-gray-600 mb-2">
+                      {typeof currentProduct.description === "string"
+                        ? currentProduct.description
+                        : JSON.stringify(currentProduct.description)}
                     </p>
-                    {currentProduct.description && (
-                      <p className="text-base text-gray-600 mb-2">
-                        {typeof currentProduct.description === "string"
-                          ? currentProduct.description
-                          : JSON.stringify(currentProduct.description)}
-                      </p>
-                    )}
-                    {/* Price section */}
-                      <span className="text-3xl font-bold text-gray-900">₹{currentProduct.price.toLocaleString()}</span>
-                      {currentProduct.originalPrice && currentProduct.originalPrice > currentProduct.price && (
-                        <span className="text-xl text-gray-500 line-through ml-3">
-                          ₹{currentProduct.originalPrice.toLocaleString()}
-                        </span>
-                      )}
-                      {getDiscountPercentage() > 0 && (
-                        <span className="ml-3 text-base font-medium text-green-600">
-                          {getDiscountPercentage()}% OFF
-                        </span>
-                      )}
-                    </div>
+                  )}
+                  {/* Price section */}
+                  <span className="text-3xl font-bold text-gray-900">₹{currentProduct.price.toLocaleString()}</span>
+                  {currentProduct.originalPrice && currentProduct.originalPrice > currentProduct.price && (
+                    <span className="text-xl text-gray-500 line-through ml-3">
+                      ₹{currentProduct.originalPrice.toLocaleString()}
+                    </span>
+                  )}
+                  {getDiscountPercentage() > 0 && (
+                    <span className="ml-3 text-base font-medium text-green-600">{getDiscountPercentage()}% OFF</span>
+                  )}
                 </div>
-  <div className="lg:hidden -mt-2">
+              </div>
+              <div className="lg:hidden -mt-2">
                 <div className="grid grid-cols-3 gap-2">
                   {/* Tags */}
                   <div className="w-full text-center text-[10px] sm:text-xs font-semibold uppercase tracking-wide px-2 py-2 rounded-xl bg-amber-50 text-gray-900 border border-amber-100">
@@ -496,7 +493,7 @@ const ProductDetailPage = () => {
                 <div>
                   <div className="flex items-center justify-between mb-3 pt-1">
                     <h3 className="text-lg font-semibold text-gray-800">
-                      Size: <span className="font-normal rounded-sm">{selectedSize}</span>
+                      Size: <span className="font-normal rounded-sm">{selectedSize || "Please select"}</span>
                     </h3>
                     <button
                       onClick={() => setShowSizeGuide(true)}
@@ -525,7 +522,9 @@ const ProductDetailPage = () => {
                     ))}
                   </div>
                   <span className="text-sm py-3 mb-3 mx-2 font-semibold text-gray-600">
-                    {getSelectedSizeStock()} available{selectedSize && ` in ${selectedSize}`}
+                    {selectedSize
+                      ? `${getSelectedSizeStock()} available in ${selectedSize}`
+                      : "Please select a size to see availability"}
                   </span>
                 </div>
               )}
@@ -534,7 +533,7 @@ const ProductDetailPage = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">Quantity</h3>
                 <div className="flex items-center space-x-4">
-                  <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                  <div className="flex items-center border border-gray-300 rounded-xl overflow-hidden">
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
@@ -557,16 +556,16 @@ const ProductDetailPage = () => {
                   </div>
                 </div>
               </div>
-{currentProduct.productDetails && (
-                  <div className="pt-1">
-                    <h2 className="text-md font-bold text-gray-700 mb-1">Product Details</h2>
-                    <p className="text-gray-600 whitespace-pre-line">
-                      {typeof currentProduct.productDetails === "string"
-                        ? currentProduct.productDetails
-                        : JSON.stringify(currentProduct.productDetails)}
-                    </p>
-                  </div>
-                )}
+              {currentProduct.productDetails && (
+                <div className="pt-1">
+                  <h2 className="text-md font-bold text-gray-700 mb-1">Product Details</h2>
+                  <p className="text-gray-600 whitespace-pre-line">
+                    {typeof currentProduct.productDetails === "string"
+                      ? currentProduct.productDetails
+                      : JSON.stringify(currentProduct.productDetails)}
+                  </p>
+                </div>
+              )}
               {/* Product Details Section */}
               <div className=" pt-1">
                 {currentProduct.material && (
@@ -601,8 +600,6 @@ const ProductDetailPage = () => {
                     </p>
                   </div>
                 )}
-
-                
               </div>
 
               <div className="hidden lg:block pt-4 border-t border-gray-200">
@@ -610,7 +607,7 @@ const ProductDetailPage = () => {
                   <button
                     onClick={handleAddToCart}
                     disabled={isAddingToCart || getSelectedSizeStock() === 0}
-                  className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShoppingCart className="w-5 h-5" />
                     ADD TO CART
@@ -618,7 +615,7 @@ const ProductDetailPage = () => {
                   <button
                     onClick={handleBuyNow}
                     disabled={isAddingToCart || getSelectedSizeStock() === 0}
-                    className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-red-600 text-black font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <img src="/buynow1.svg" className="w-8 h-8" />
                     BUY NOW
@@ -633,14 +630,13 @@ const ProductDetailPage = () => {
 
           {/* Reviews Section */}
           <div
-  id="reviews"
-  className="border-t border-gray-200 rounded-xl sm:rounded-xl px-4 sm:px-6 py-6 sm:py-8 bg-white"
->
-  <div className="w-full sm:max-w-4xl mx-auto rounded-full">
-    <ProductReviews productId={currentProduct._id} />
-  </div>
-</div>
-
+            id="reviews"
+            className="border-t border-gray-200 rounded-xl sm:rounded-xl px-4 sm:px-6 py-6 sm:py-8 bg-white"
+          >
+            <div className="w-full sm:max-w-4xl mx-auto rounded-full">
+              <ProductReviews productId={currentProduct._id} />
+            </div>
+          </div>
         </div>
 
         {/* Related Products */}
@@ -815,7 +811,12 @@ const ProductDetailPage = () => {
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 shadow-lg">
         <div className="flex gap-3 max-w-md mx-auto">
           {/* View Similar */}
-          
+          <button
+            onClick={handleViewSimilar}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          >
+            VIEW SIMILAR
+          </button>
 
           {/* Add to Cart */}
           <button
@@ -868,50 +869,11 @@ const ProductDetailPage = () => {
 const StaticDesignSection = () => {
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm mt-2 mb-2 py-4 px-4 sm:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-center gap-6 sm:gap-12">
-          {/* Genuine Products */}
-          <div className="flex flex-col items-center text-center">
-            <img
-              src="/Genuine.svg"
-              alt="100% Genuine Product"
-              className="w-16 h-16 object-contain" // bigger size
-            />
-            <span className="text-xs sm:text-sm text-gray-800 mt-1">
-              Genuine Products
-            </span>
-          </div>
-
-          {/* 7 Step Quality Check */}
-          <div className="flex flex-col items-center text-center">
-            <img
-              src="/Quality.svg"
-              alt="7 Step Quality Check"
-              className="w-16 h-16 object-contain"
-            />
-            <span className="text-xs sm:text-sm text-gray-800 mt-1">
-              7 Step Quality Check
-            </span>
-          </div>
-
-          {/* Cash Payment */}
-          <div className="flex flex-col items-center text-center">
-            <img
-              src="/Cod.svg"
-              alt="Cash Payment"
-              className="w-16 h-16 object-contain"
-            />
-            <span className="text-xs sm:text-sm text-gray-800 mt-1">
-              Cash Payment
-            </span>
-          </div>
-        </div>
+      <div className="max-w-8xl mx-auto">
+        <img src="/badge.jpeg" className="rounded-xl" />
       </div>
     </div>
   )
 }
-
-
-
 
 export default ProductDetailPage
