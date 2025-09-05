@@ -38,7 +38,7 @@ export default function NewArrivals() {
       <div className="px-1">
         {/* Heading */}
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-[18px] font-bold text-black mb-2">New Arrivals</h2>
+          <h2 className="text-[18px] font-bold text-black mb-2 pt-3 mx-1">New Arrivals</h2>
           <Link to="/products" className="text-black text-[18px] font-bold leading-none">
             +
           </Link>

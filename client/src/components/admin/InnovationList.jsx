@@ -43,7 +43,7 @@ const InnovationList = () => {
               {displayedInnovations.map((innovation) => (
                 <div
                   key={innovation._id}
-                  className="relative rounded-xl overflow-hidden group cursor-pointer inline-block align-top w-[30%] min-w-[300px] flex-shrink-0"
+                  className="relative overflow-hidden group cursor-pointer inline-block align-top w-[30%] min-w-[300px] flex-shrink-0"
                 >
                   <img
                     src={innovation.image?.url || "/placeholder.svg?height=200&width=400&text=Innovation+Image"}
@@ -61,7 +61,7 @@ const InnovationList = () => {
               {displayedInnovations.map((innovation) => (
                 <div
                   key={innovation._id}
-                  className="relative rounded-xl overflow-hidden group cursor-pointer inline-block align-top w-[70%] flex-shrink-0"
+                  className="relative overflow-hidden group cursor-pointer inline-block align-top w-[70%] flex-shrink-0"
                 >
                   <img
                     src={innovation.image?.url || "/placeholder.svg?height=200&width=400&text=Innovation+Image"}

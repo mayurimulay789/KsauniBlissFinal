@@ -2,7 +2,18 @@
 
 import { useState, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
-import { Star, ThumbsUp, Plus, X, Camera, CheckCircle, AlertCircle, ChevronDown, ChevronUp, MoreHorizontal } from "lucide-react"
+import {
+  Star,
+  ThumbsUp,
+  Plus,
+  X,
+  Camera,
+  CheckCircle,
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  MoreHorizontal,
+} from "lucide-react"
 import { fetchProductReviews, likeReview } from "../store/slices/reviewSlice"
 import { formatDistanceToNow } from "date-fns"
 import reviewAPI from "../store/api/reviewAPI"
@@ -32,6 +43,8 @@ const ProductReviews = ({ productId }) => {
   })
   const [images, setImages] = useState([])
   const [expandedReviews, setExpandedReviews] = useState({})
+  const [showAllReviews, setShowAllReviews] = useState(false)
+  const REVIEWS_TO_SHOW = 5
 
   useEffect(() => {
     if (productId) {
@@ -79,9 +92,9 @@ const ProductReviews = ({ productId }) => {
   }
 
   const toggleReviewExpansion = (reviewId) => {
-    setExpandedReviews(prev => ({
+    setExpandedReviews((prev) => ({
       ...prev,
-      [reviewId]: !prev[reviewId]
+      [reviewId]: !prev[reviewId],
     }))
   }
 
@@ -135,6 +148,16 @@ const ProductReviews = ({ productId }) => {
       </div>
     )
   }
+
+  const getDisplayedReviews = () => {
+    if (showAllReviews || currentProductReviews.length <= REVIEWS_TO_SHOW) {
+      return currentProductReviews
+    }
+    return currentProductReviews.slice(0, REVIEWS_TO_SHOW)
+  }
+
+  const displayedReviews = getDisplayedReviews()
+  const hasMoreReviews = currentProductReviews.length > REVIEWS_TO_SHOW
 
   if (loading) {
     return (
@@ -308,105 +331,127 @@ const ProductReviews = ({ productId }) => {
             <p className="text-gray-400 text-xs mt-1">Be the first to share your experience!</p>
           </div>
         ) : (
-          currentProductReviews.map((review) => (
-            <div
-              key={review._id}
-              className="bg-white rounded-lg border border-gray-200 overflow-hidden"
-            >
-              {/* Review Header */}
-              <div className="flex items-start justify-between p-3 border-b border-gray-200">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                    {review.user?.name?.charAt(0) || "U"}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1">
-                      {renderStars(review.rating, "w-3 h-3")}
-                      <span className="text-xs text-gray-500">
-                        {formatDistanceToNow(new Date(review.createdAt))} ago
-                      </span>
+          <>
+            {displayedReviews.map((review) => (
+              <div key={review._id} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                {/* Review Header */}
+                <div className="flex items-start justify-between p-3 border-b border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                      {review.user?.name?.charAt(0) || "U"}
                     </div>
-                    <p className="text-xs text-gray-600">{review.user?.name || "Anonymous"}</p>
+                    <div>
+                      <div className="flex items-center gap-1">
+                        {renderStars(review.rating, "w-3 h-3")}
+                        <span className="text-xs text-gray-500">
+                          {formatDistanceToNow(new Date(review.createdAt))} ago
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600">{review.user?.name || "Anonymous"}</p>
+                    </div>
                   </div>
+
+                  <button
+                    onClick={() => handleLikeReview(review._id)}
+                    className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                  >
+                    <ThumbsUp className="w-3 h-3" />
+                    {review.likes?.length || 0}
+                  </button>
                 </div>
 
-                <button
-                  onClick={() => handleLikeReview(review._id)}
-                  className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                >
-                  <ThumbsUp className="w-3 h-3" />
-                  {review.likes?.length || 0}
-                </button>
-              </div>
+                {/* Review Content */}
+                <div className="p-3">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-1">{review.title}</h4>
 
-              {/* Review Content */}
-              <div className="p-3">
-                <h4 className="text-sm font-semibold text-gray-900 mb-1">{review.title}</h4>
-                
-                <div className="relative">
-                  <p className={`text-xs text-gray-700 ${expandedReviews[review._id] ? '' : 'line-clamp-2'}`}>
-                    {review.comment}
-                  </p>
-                  {review.comment.length > 100 && (
-                    <button 
-                      onClick={() => toggleReviewExpansion(review._id)}
-                      className="text-xs text-blue-600 hover:text-blue-800 mt-1 flex items-center"
-                    >
-                      {expandedReviews[review._id] ? 'Show less' : (
-                        <>
-                          <span>Read more</span>
-                          <MoreHorizontal className="w-3 h-3 ml-0.5" />
-                        </>
+                  <div className="relative">
+                    <p className={`text-xs text-gray-700 ${expandedReviews[review._id] ? "" : "line-clamp-2"}`}>
+                      {review.comment}
+                    </p>
+                    {review.comment.length > 100 && (
+                      <button
+                        onClick={() => toggleReviewExpansion(review._id)}
+                        className="text-xs text-blue-600 hover:text-blue-800 mt-1 flex items-center"
+                      >
+                        {expandedReviews[review._id] ? (
+                          "Show less"
+                        ) : (
+                          <>
+                            <span>Read more</span>
+                            <MoreHorizontal className="w-3 h-3 ml-0.5" />
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Pros and Cons */}
+                  {(review.pros || review.cons) && (
+                    <div className="grid grid-cols-1 gap-2 mt-2">
+                      {review.pros && (
+                        <div className="bg-green-50 border border-green-200 rounded p-2">
+                          <div className="flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-600" />
+                            <span className="text-xs font-semibold text-green-800">Pros</span>
+                          </div>
+                          <p className="text-xs text-green-700 mt-0.5">{review.pros}</p>
+                        </div>
                       )}
-                    </button>
+                      {review.cons && (
+                        <div className="bg-red-50 border border-red-200 rounded p-2">
+                          <div className="flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3 text-red-600" />
+                            <span className="text-xs font-semibold text-red-800">Cons</span>
+                          </div>
+                          <p className="text-xs text-red-700 mt-0.5">{review.cons}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Review Images */}
+                  {review.images?.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {review.images.slice(0, 3).map((img, idx) => (
+                        <img
+                          key={idx}
+                          src={img || "/placeholder.svg"}
+                          alt={`Review image ${idx + 1}`}
+                          className="w-12 h-12 object-cover rounded border border-gray-200 hover:scale-105 transition-transform cursor-pointer"
+                        />
+                      ))}
+                      {review.images.length > 3 && (
+                        <div className="w-12 h-12 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xs text-gray-500">
+                          +{review.images.length - 3}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
-
-                {/* Pros and Cons */}
-                {(review.pros || review.cons) && (
-                  <div className="grid grid-cols-1 gap-2 mt-2">
-                    {review.pros && (
-                      <div className="bg-green-50 border border-green-200 rounded p-2">
-                        <div className="flex items-center gap-1">
-                          <CheckCircle className="w-3 h-3 text-green-600" />
-                          <span className="text-xs font-semibold text-green-800">Pros</span>
-                        </div>
-                        <p className="text-xs text-green-700 mt-0.5">{review.pros}</p>
-                      </div>
-                    )}
-                    {review.cons && (
-                      <div className="bg-red-50 border border-red-200 rounded p-2">
-                        <div className="flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3 text-red-600" />
-                          <span className="text-xs font-semibold text-red-800">Cons</span>
-                        </div>
-                        <p className="text-xs text-red-700 mt-0.5">{review.cons}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Review Images */}
-                {review.images?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {review.images.slice(0, 3).map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img || "/placeholder.svg"}
-                        alt={`Review image ${idx + 1}`}
-                        className="w-12 h-12 object-cover rounded border border-gray-200 hover:scale-105 transition-transform cursor-pointer"
-                      />
-                    ))}
-                    {review.images.length > 3 && (
-                      <div className="w-12 h-12 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xs text-gray-500">
-                        +{review.images.length - 3}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
-            </div>
-          ))
+            ))}
+
+            {hasMoreReviews && (
+              <div className="flex justify-center pt-4">
+                <button
+                  onClick={() => setShowAllReviews(!showAllReviews)}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-sm"
+                >
+                  {showAllReviews ? (
+                    <>
+                      <ChevronUp className="w-4 h-4" />
+                      Show Less Reviews
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4" />
+                      Show More Reviews ({currentProductReviews.length - REVIEWS_TO_SHOW} more)
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

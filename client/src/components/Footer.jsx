@@ -13,8 +13,8 @@ const Footer = () => {
         <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 lg:gap-8">
           {/* Company Info */}
           <div className="space-y-3 sm:space-y-4">
-            <h3 className="flex items-center gap-2 text-base font-semibold sm:text-lg">
-              <img src="/logo.webp" alt="Company Logo" className="inline-block"/>
+            <h3 className="flex items-center text-base font-semibold sm:text-lg">
+              <img src="/logo.webp" alt="Company Logo" className=" w-20 h-15 mx-5"/>
             </h3>
             <p className="text-xs leading-relaxed text-white sm:text-sm">
               Your one-stop destination for trendy and affordable fashion. Discover the latest styles and express your
@@ -48,7 +48,7 @@ const Footer = () => {
                 displayCategories.map((cat) => (
                   <li key={cat._id}>
                     <Link
-                      to={`/products/${cat.slug}`}
+                      to={`/products/${cat.id}`}
                       className="text-white transition-colors duration-200 hover:text-gray-300"
                     >
                       {cat.name}

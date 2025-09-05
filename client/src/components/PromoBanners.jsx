@@ -5,7 +5,9 @@ import { useDispatch, useSelector } from "react-redux"
 import { fetchPromoBanners } from "../store/slices/bannerSlice"
 import LoadingSpinner from "./LoadingSpinner"
 
-// Utility function for countdown
+// ---------------------
+// Utility: Countdown Timer
+// ---------------------
 const calculateTimeLeft = (targetDate) => {
   const difference = +new Date(targetDate) - +new Date()
   let timeLeft = {}
@@ -24,12 +26,12 @@ const PromoBanners = () => {
   const dispatch = useDispatch()
   const { promoBanners, isLoading } = useSelector((state) => state.banners)
 
-  // Fetch promo banners on component mount
+  // Fetch promo banners on mount
   useEffect(() => {
     dispatch(fetchPromoBanners())
   }, [dispatch])
 
-  // Set a target date for the countdown
+  // Countdown logic
   const targetDate = "2024-12-13T00:00:00"
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(targetDate))
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
@@ -42,7 +44,7 @@ const PromoBanners = () => {
     return () => clearTimeout(timer)
   })
 
-  // Auto-rotate banners every 5 seconds
+  // Auto-rotate banners every 5s
   useEffect(() => {
     if (promoBanners && promoBanners.length > 1) {
       const interval = setInterval(() => {
@@ -52,21 +54,24 @@ const PromoBanners = () => {
     }
   }, [promoBanners])
 
-  // Prepare countdown timer components
+  // Countdown UI
   const timerComponents = []
   Object.keys(timeLeft).forEach((interval) => {
-    if (!timeLeft[interval] && timeLeft[interval] !== 0) {
-      return
-    }
+    if (!timeLeft[interval] && timeLeft[interval] !== 0) return
     timerComponents.push(
       <div
         key={interval}
-        className="flex flex-col items-center justify-center w-6 h-6 border rounded bg-white/20 backdrop-blur-sm border-white/30 sm:w-7 sm:h-7"
+        className="flex flex-col items-center justify-center 
+                   w-7 h-7 border rounded bg-white/20 backdrop-blur-sm border-white/30
+                   sm:w-8 sm:h-8"
       >
-               {" "}
-        <span className="text-xs font-bold text-white sm:text-sm">{String(timeLeft[interval]).padStart(2, "0")}</span> 
-              <span className="text-[10px] uppercase text-white/80">{interval.slice(0, 1)}</span>     {" "}
-      </div>,
+        <span className="text-xs font-bold text-white sm:text-sm">
+          {String(timeLeft[interval]).padStart(2, "0")}
+        </span>
+        <span className="text-[10px] uppercase text-white/80">
+          {interval.slice(0, 1)}
+        </span>
+      </div>
     )
   })
 
@@ -74,14 +79,14 @@ const PromoBanners = () => {
     return <LoadingSpinner />
   }
 
-  // Get active banners or use default
+  // Active banners or fallback
   const activeBanners = promoBanners?.filter((banner) => banner.isActive) || []
   const defaultBanner = {
     _id: "default-deal",
     title: "SHOPPERS STOP",
     subtitle: "MIN. 30% OFF",
     description: "Discover amazing deals on premium fashion brands",
-    image: { url: "/placeholder.svg?height=200&width=300&text=Fashion+Sale" },
+    image: { url: "/placeholder.svg?height=600&width=1920&text=Fashion+Sale" },
     buttonText: "SHOP NOW",
     buttonLink: "/products?deal=true",
     brandLogo: "/placeholder.svg?height=40&width=80&text=BRAND",
@@ -89,23 +94,34 @@ const PromoBanners = () => {
   const bannersToShow = activeBanners.length > 0 ? activeBanners : [defaultBanner]
   const currentBanner = bannersToShow[currentBannerIndex]
 
+  // ---------------------
+  // UI
+  // ---------------------
   return (
-    <section className="relative w-full  mt-4 mx-2 px-4">
+    <section className="relative w-full mt-4 px-2 sm:px-4">
       <div
-  className="relative overflow-hidden rounded-2xl shadow-lg w-full aspect-[3/1] mx-auto cursor-pointer"
-  style={{ border: "3px solid #be7a21ff" }}
->
-  <img
-    src={
-      currentBanner?.image?.url ||
-      "/placeholder.svg?height=600&width=1920&text=Fashion+Sale"
-    }
-    alt={currentBanner?.title || "Promotional banner"}
-    className="w-full h-full object-cover"
-  />
-</div>
+        className="relative overflow-hidden rounded-2xl shadow-lg w-full max-w-[1200px] mx-auto cursor-pointer"
+        style={{ border: "3px solid #be7a21" }}
+      >
+        {/* Banner Image */}
+        <img
+          src={
+            currentBanner?.image?.url ||
+            "/placeholder.svg?height=600&width=1920&text=Fashion+Sale"
+          }
+          alt={currentBanner?.title || "Promotional banner"}
+          className="w-full h-auto object-cover rounded-2xl"
+          width={1200}  // ✅ Explicit width for optimization
+          height={400}  // ✅ Approximate height (browser adjusts if different)
+        />
 
-            {/* Coupon Banner */}      {/* <CouponBanner /> */}   {" "}
+        {/* Countdown Timer (optional) */}
+        {timerComponents.length > 0 && (
+          <div className="absolute bottom-2 right-2 flex gap-1 sm:gap-2">
+            {timerComponents}
+          </div>
+        )}
+      </div>
     </section>
   )
 }

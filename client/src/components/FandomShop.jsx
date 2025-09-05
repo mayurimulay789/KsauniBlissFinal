@@ -6,12 +6,12 @@ const ShopByFandom = () => {
   const navigate = useNavigate()
 
   const mockProducts = [
-    { id: 1, name: "Attack on Titan", image: "/AttackonTitan.webp" },
-    { id: 2, name: "Solo Leveling Shirt", image: "/SoloLeveling.webp" },
-    { id: 3, name: "Kaijya", image: "/KaijuNo.webp" },
-    { id: 4, name: "Joker", image: "/Joker.webp" },
-    { id: 5, name: "DeathNote", image: "/DeathNote.webp" },
-    { id: 6, name: "Naruto", image: "/Naruto.webp" },
+    { id: 1, name: "Joker", image: "/Joker.webp" },
+    { id: 2, name: "DeathNote", image: "/DeathNote.webp" },
+    { id: 3, name: "Naruto", image: "/Naruto.webp" },
+    { id: 4, name: "Attack on Titan", image: "/AttackonTitan.webp" },
+    { id: 5, name: "Solo Leveling Shirt", image: "/SoloLeveling.webp" },
+    { id: 6, name: "Kaijya", image: "/KaijuNo.webp" },
     { id: 7, name: "Venom", image: "/Venom.webp" },
     { id: 8, name: "Zoro", image: "/Zoro.webp" },
     { id: 9, name: "Demon Slayer", image: "/DemonSlayer.webp" },

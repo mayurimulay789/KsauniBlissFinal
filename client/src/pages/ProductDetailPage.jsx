@@ -223,9 +223,9 @@ const ProductDetailPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="mx-auto px-4 sm:px-6 py-2">
+      <div className="mx-auto px-4 sm:px-4 py-2">
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-4 sm:p-4">
             {/* Images Section */}
             <div className=" relative">
               {/* Wishlist Button - Top right corner of image */}
@@ -637,12 +637,11 @@ const ProductDetailPage = () => {
               <ProductReviews productId={currentProduct._id} />
             </div>
           </div>
-        </div>
 
-        {/* Related Products */}
-        <div className="mt-12">
-          {/* <h2 className="text-2xl font-bold text-gray-900 mb-6">You may also like</h2> */}
-          <RelatedProducts currentProduct={currentProduct} />
+          {/* Related Products */}
+          <div className="border-t border-gray-200 px-4 sm:px-6 py-6 sm:py-8 bg-white">
+            <RelatedProducts currentProduct={currentProduct} />
+          </div>
         </div>
       </div>
 
@@ -811,12 +810,6 @@ const ProductDetailPage = () => {
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 shadow-lg">
         <div className="flex gap-3 max-w-md mx-auto">
           {/* View Similar */}
-          <button
-            onClick={handleViewSimilar}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-          >
-            VIEW SIMILAR
-          </button>
 
           {/* Add to Cart */}
           <button
@@ -843,29 +836,6 @@ const ProductDetailPage = () => {
   )
 }
 
-// const StaticDesignSection = () => {
-//   return (
-//     <div className="bg-white border border-gray-200 rounded-xl shadow-sm mt-2 mb-2 py-4 px-4 sm:px-8">
-//       <div className="max-w-4xl mx-auto flex flex-row flex-nowrap items-center justify-center gap-1 sm:gap-2 lg:gap-3">
-//         {/* Genuine Products */}
-//         <div className="flex flex-col items-center text-center space-y-2">
-//           <img src="/Genuine.svg" alt="100% Genuine Product" className="w-13 h-13 object-cover" />
-//           <span className="text-xs text-gray-800">Genuine Products</span>
-//         </div>
-//         {/* 7 Step Quality Check */}
-//         <div className="flex flex-col items-center text-center space-y-2">
-//           <img src="/Quality.svg" alt="Easy Returns and Refund" className="w-13 h-13 object-cover" />
-//           <span className="text-xs text-gray-800 text-wrap">7 Step Quality Check</span>
-//         </div>
-//         {/* Secure Payments */}
-//         <div className="flex flex-col items-center text-center">
-//           <img src="/cod.svg" alt="Cash on Delivery" className="w-13 h-13 object-cover" />
-//           <span className="text-xs text-gray-800">Cash Payment</span>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
 const StaticDesignSection = () => {
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm mt-2 mb-2 py-4 px-4 sm:px-8">

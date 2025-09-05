@@ -169,7 +169,6 @@ const HeroBanner = () => {
   return (
     <div
       ref={containerRef}
-      className="relative min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] lg:min-h-[80vh] bg-white overflow-hidden"
       style={{
         background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
       }}

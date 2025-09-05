@@ -73,9 +73,9 @@ export default function Oversized899() {
 
   return (
     <section className="bg-white py-3 ml-2 sm:ml-7">
-      <div className="px-1">
+      <div>
         {/* Heading */}
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-1">
           <h3 className="text-[16px] uppercase font-bold text-black mb-2">Oversized Products</h3>
           <Link to="/products" className="text-black text-[18px] leading-none">
             +
@@ -83,7 +83,7 @@ export default function Oversized899() {
         </div>
 
         {/* Products Scroll */}
-        <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-hide -mx-3 px-3">
+        <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-hide -mx-3 px-1">
           {productsToShow.length > 0 ? (
             productsToShow.map((product) => {
               const discountPercentage =
