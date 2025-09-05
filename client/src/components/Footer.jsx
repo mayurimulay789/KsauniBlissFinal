@@ -1,7 +1,6 @@
 import { useSelector } from "react-redux"
 import { Link } from "react-router-dom"
 import { Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react"
-import logo from "../../public/logo1.webp"
 const Footer = () => {
   const { categories } = useSelector((state) => state.categories || {})
 
@@ -15,7 +14,7 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-3 sm:space-y-4">
             <h3 className="flex items-center gap-2 text-base font-semibold sm:text-lg">
-              <img src={logo || "/placeholder.svg"} alt="Company Logo" className="inline-block"/>
+              <img src="/logo.webp" alt="Company Logo" className="inline-block"/>
             </h3>
             <p className="text-xs leading-relaxed text-white sm:text-sm">
               Your one-stop destination for trendy and affordable fashion. Discover the latest styles and express your

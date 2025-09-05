@@ -604,7 +604,7 @@ const Navbar = () => {
             onClick={() => navigateToUnder999()}
             className="flex flex-col items-center justify-center px-1 py-1 text-[4px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
           >
-        <img src="/Cyd.svg" alt="CYD Logo"/>
+        <img src="/cyd.svg" alt="CYD Logo"/>
 
           </div>
 
