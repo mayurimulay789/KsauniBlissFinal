@@ -32,7 +32,7 @@ import {
 import { PaymentModal } from "./PaymentModal";
 
 import { fetchCart } from "../store/slices/cartSlice"
-import LoadingSpinner from "../components/LoadingSpinner"
+import Preloader from "../components/Preloader"
 const CheckoutPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -939,7 +939,7 @@ const CheckoutPage = () => {
           >
             {orderLoading.creating ? (
               <>
-                <LoadingSpinner size="sm" className="mr-2" />
+                <Preloader  className="mr-2" />
                 Processing...
               </>
             ) : (

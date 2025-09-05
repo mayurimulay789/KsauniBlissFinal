@@ -16,7 +16,7 @@ import {
 import { addToWishlist, optimisticAddToWishlist } from "../store/slices/wishlistSlice"
 import LoadingSpinner from "../components/LoadingSpinner"
 import toast from "react-hot-toast"
-
+import Preloader from "../components/Preloader"
 const CartPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -125,7 +125,7 @@ const CartPage = () => {
   if (isLoading && items.length === 0) {
     return (
       <div className="pt-28 md:pt-32">
-        <LoadingSpinner message="Loading your cart..." />
+        <Preloader message="Loading your cart..." />
       </div>
     )
   }
@@ -173,7 +173,7 @@ const CartPage = () => {
             </p>
             <Link
               to="/products"
-              className="inline-flex items-center px-6 py-3 space-x-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
+              className="inline-flex items-center px-6 py-3 space-x-2 text-white transition-colors bg-red-600 rounded-xl hover:bg-red-700"
             >
               <ShoppingBag className="w-5 h-5" />
               <span>Continue Shopping</span>

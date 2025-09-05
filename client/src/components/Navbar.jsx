@@ -135,7 +135,7 @@ const Navbar = () => {
   const cydCategory = {
     _id: "cyd-promo",
     name: "Under ₹999",
-    image: { url: "cydlogo.png", alt: "CYD logo" },
+    image: { url: "cydlogo.jpeg", alt: "CYD logo" },
   }
 
   if (!categoriesForMobileScroll.some((cat) => cat.name === cydCategory.name)) {
@@ -602,9 +602,10 @@ const Navbar = () => {
 
           <div
             onClick={() => navigateToUnder999()}
-            className="flex flex-col items-center justify-center px-1 py-1 text-[22px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
+            className="flex flex-col items-center justify-center px-1 py-1 text-[4px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
           >
-        <img src="/Cyd.svg" alt="CYD Logo" className="w-9 h-9 mb-5 object-contain"/>
+        <img src="/Cyd.svg" alt="CYD Logo"/>
+
           </div>
 
           <div

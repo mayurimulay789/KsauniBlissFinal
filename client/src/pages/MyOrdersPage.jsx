@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { Package, Eye, X, Truck, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import { fetchUserOrders, cancelOrder, clearError, trackOrderInfo } from "../store/slices/orderSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
-
+import Preloader from "../components/Preloader";
 // Placeholder Modal component, replace with your actual component
 const Modal = ({ children, onClose }) => {
   return (
@@ -140,7 +140,7 @@ const MyOrdersPage = () => {
   if (loading?.fetching && !orders.length && currentPage === 1) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <LoadingSpinner size="lg" />
+        <Preloader size="lg" />
       </div>
     );
   }

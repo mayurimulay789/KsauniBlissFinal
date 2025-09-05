@@ -88,7 +88,7 @@ const KsauniTshirtStyle = () => {
                 className="
                   flex-shrink-0 
                   border border-gray-300 hover:border-gray-600 
-                  rounded-lg bg-white overflow-hidden shadow-md 
+                  rounded-xl bg-white overflow-hidden shadow-md 
                   transition-all duration-200 cursor-pointer
                   w-[48%]    /* Mobile: 2 items per screen */
                   sm:w-[45%] /* Small tablets: ~2 items */
@@ -97,11 +97,11 @@ const KsauniTshirtStyle = () => {
                 "
               >
                 {/* Image container with reduced height */}
-                <div className="w-full aspect-[2/4] bg-gray-100">
+                <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl">
                   <img
                     src={tshirt.image?.url || "/placeholder.svg"}
                     alt={tshirt.image?.alt || tshirt.name}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="w-full h-full object-cover rounded-xl"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleIndividualTshirtClick(tshirt)

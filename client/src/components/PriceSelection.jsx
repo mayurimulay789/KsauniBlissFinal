@@ -4,9 +4,11 @@ import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { useDispatch } from "react-redux"
 import { ArrowRight } from "lucide-react"
-import { fetchProducts } from "../store/slices/productSlice"
 
-const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
+// Redux
+import { setFilters } from "../store/slices/productSlice"
+
+const PriceSelection = ({ selectedPrice }) => {
   const [selectedOption, setSelectedOption] = useState(selectedPrice || null)
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -21,11 +23,13 @@ const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
   const handleOptionClick = (option) => {
     setSelectedOption(option.id)
 
-    // ✅ Call parent if provided
-    if (onPriceSelect) onPriceSelect(option)
-
-    // ✅ Trigger Redux fetch with filter
-    dispatch(fetchProducts({ maxPrice: option.value }))
+    // ✅ Update global Redux filters
+    dispatch(
+      setFilters({
+        minPrice: "", // reset min
+        maxPrice: option.value,
+      }),
+    )
 
     // ✅ Navigate with query param for persistence
     navigate(`/products?maxPrice=${option.value}`)
@@ -45,7 +49,7 @@ const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
           </p>
         </div>
 
-        {/* Price Options → Grid with 4 boxes */}
+        {/* Price Options */}
         <div className="grid grid-cols-4 gap-3 sm:gap-6">
           {priceOptions.map((option) => (
             <motion.button
@@ -57,9 +61,9 @@ const PriceSelection = ({ onPriceSelect, selectedPrice }) => {
                 selectedOption === option.id ? "ring-4 ring-red-800" : ""
               }`}
             >
-              <div className="relative bg-red-600 text-white aspect-[4/5] flex flex-col items-center justify-center font-black text-center overflow-hidden hover:bg-red-700 transition-colors rounded-lg shadow-md">
+              <div className="relative bg-red-600 text-white aspect-[4/5] flex flex-col items-center justify-center font-black text-center overflow-hidden hover:bg-red-700 transition-colors rounded-xl shadow-md">
                 {/* White border inside */}
-                <div className="absolute inset-[6%] border-2 border-white rounded-lg z-10"></div>
+                <div className="absolute inset-[6%] border-2 border-white rounded-xl z-10"></div>
 
                 {/* Zigzag Left */}
                 <div className="absolute inset-y-0 left-0 w-3 overflow-hidden z-0">

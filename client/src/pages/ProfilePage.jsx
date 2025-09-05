@@ -7,10 +7,9 @@ import { User, MapPin, Edit3, Save, X, Camera, Shield, Package, Heart } from "lu
 import { updateProfile, changePassword, uploadAvatar } from "../store/slices/authSlice"
 import { fetchUserOrders } from "../store/slices/orderSlice"
 import { fetchWishlist } from "../store/slices/wishlistSlice"
-import LoadingSpinner from "../components/LoadingSpinner"
 import toast from "react-hot-toast"
 import { format } from "date-fns"
-
+import Preloader from "../components/Preloader"
 const ProfilePage = () => {
   const dispatch = useDispatch()
   const { user, isLoading } = useSelector((state) => state.auth)
@@ -178,7 +177,7 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
   if (isLoading) {
     return (
       <div>
-        <LoadingSpinner message="Loading profile..." />
+        <Preloader message="Loading profile..." />
       </div>
     )
   }

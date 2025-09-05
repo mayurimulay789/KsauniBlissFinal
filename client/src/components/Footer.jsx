@@ -15,7 +15,7 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-3 sm:space-y-4">
             <h3 className="flex items-center gap-2 text-base font-semibold sm:text-lg">
-              <img src={logo || "/placeholder.svg"} alt="Company Logo" className="inline-block w-15 h-auto sm:w-12" />
+              <img src={logo || "/placeholder.svg"} alt="Company Logo" className="inline-block"/>
             </h3>
             <p className="text-xs leading-relaxed text-white sm:text-sm">
               Your one-stop destination for trendy and affordable fashion. Discover the latest styles and express your

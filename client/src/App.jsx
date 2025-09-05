@@ -9,7 +9,7 @@ import NetworkStatus from "./components/NetworkStatus"
 import { validateEnvironment, debugEnvironment } from "./utils/envValidation"
 
 // Preloader
-import BewkoofStylePreloader from "./components/BewkoofStylePreloader"
+import Preloader from "./components/Preloader"
 
 // Pages (lazy-loaded)
 const HomePage = lazy(() => import("./pages/HomePage"))
@@ -110,7 +110,7 @@ function AppContent() {
 
   // Show preloader until auth is initialized
   if (isLoading || !initialized) {
-    return <BewkoofStylePreloader onComplete={handlePreloaderComplete} />
+    return <Preloader onComplete={handlePreloaderComplete} />
   }
 
   return (

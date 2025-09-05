@@ -26,7 +26,7 @@ import {
 
 import ProductReviews from "../components/ProductReviews"
 import RelatedProducts from "../components/RelatedProducts"
-import LoadingSpinner from "../components/LoadingSpinner"
+import Preloader from "../components/Preloader"
 import toast from "react-hot-toast"
 
 const ProductDetailPage = () => {
@@ -183,7 +183,7 @@ const ProductDetailPage = () => {
     }
   }
 
-  if (isLoading) return <LoadingSpinner message="Loading product…" />
+  if (isLoading) return <Preloader message="Loading product…" />
   if (error || !currentProduct)
     return (
       <div className="text-center">
@@ -869,7 +869,7 @@ const ProductDetailPage = () => {
 const StaticDesignSection = () => {
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm mt-2 mb-2 py-4 px-4 sm:px-8">
-      <div className="max-w-8xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <img src="/badge.jpeg" className="rounded-xl" />
       </div>
     </div>

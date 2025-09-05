@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useSearchParams, useNavigate, useParams } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Filter, X } from "lucide-react"
+import { X } from "lucide-react"
 import toast from "react-hot-toast"
 
 // Redux actions
@@ -18,7 +18,7 @@ import ProductFilters from "../components/ProductFilter"
 import LoadingSpinner from "../components/LoadingSpinner"
 import CategoryBanner from "../components/CategoryBanner"
 import ProductCard from "../components/ProductCard"
-
+import Preloader from "../components/Preloader"
 // Selectors
 const selectProducts = (state) => state.products
 const selectCategories = (state) => state.categories
@@ -68,11 +68,12 @@ const ProductsPage = () => {
     dispatch(fetchCategories())
   }, [dispatch])
 
+  // ✅ Listen for URL param changes and sync to filters
   useEffect(() => {
     const urlFilters = getFiltersFromURL()
     console.log("[v0] Setting filters from URL:", urlFilters)
     dispatch(setFilters(urlFilters))
-  }, [getFiltersFromURL, dispatch])
+  }, [searchParams, getFiltersFromURL, dispatch]) // 👈 fixed dependency
 
   // Fetch products when filters change
   useEffect(() => {
@@ -95,15 +96,6 @@ const ProductsPage = () => {
       e.preventDefault()
       e.stopPropagation()
 
-
-
-      // if (!user) {
-      //   navigate("/login", { state: { from: window.location.pathname } })
-      //   toast.error("Please login to add items to cart")
-      //   return
-      // }
-
-      // ✅ must send productId, not product
       const cartItem = {
         productId: product._id,
         quantity: 1,
@@ -111,7 +103,6 @@ const ProductsPage = () => {
         color: product.colors?.[0]?.name || "",
       }
 
-      // Optimistic UI update
       dispatch(
         optimisticAddToCart({
           product,
@@ -119,7 +110,7 @@ const ProductsPage = () => {
           size: cartItem.size,
           color: cartItem.color,
         }),
-      )    
+      )
 
       try {
         await dispatch(addToCart(cartItem)).unwrap()
@@ -175,9 +166,6 @@ const ProductsPage = () => {
           <CategoryBanner />
         </div>
 
-        {/* Sticky Filter Header */}
-        
-
         <div className="flex flex-col gap-6 md:flex-row">
           {/* Desktop Filters Sidebar */}
           <aside className="hidden md:block md:w-56 lg:w-64 sticky top-[180px] h-[calc(100vh-180px)] overflow-y-auto">
@@ -194,7 +182,7 @@ const ProductsPage = () => {
           <main className="flex-1">
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
-                <LoadingSpinner size="large" />
+                <Preloader/>
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
