@@ -131,7 +131,6 @@ function AppContent() {
             <div className="w-8 h-8 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
           </div>
         }>
->>>>>>> Stashed changes
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />

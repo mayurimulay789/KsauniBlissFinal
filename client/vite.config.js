@@ -47,8 +47,17 @@ export default defineConfig({
     }),
   ],
   server: {
-    port: 3000, // Or 3000, depending on your preference
-    host: 'localhost', // Allows access from network, or 'localhost' for local only
+    port: 3000,
+    host: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path,
+        ws: true
+      }
+    }
   },
   build: {
     // Optimize build output

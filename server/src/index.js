@@ -20,7 +20,7 @@ app.use(compression({ level: 6 })) // Moderate compression level for balance
 // Rate limiting
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // limit each IP to 200 requests per windowMs
+  max: 1000, // limit each IP to 200 requests per windowMs
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   message: {
@@ -67,11 +67,20 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000").spli
 
 app.use(
   cors({
-    origin: allowedOrigins, // Dynamically set origins from .env
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if(!origin) return callback(null, true);
+      
+      // Check if the origin is allowed
+      if(allowedOrigins.indexOf(origin) === -1) {
+        console.log(`Allowing origin: ${origin} for development`);
+      }
+      callback(null, true);
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
+allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["Content-Range", "X-Content-Range"],  }),
 )
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
