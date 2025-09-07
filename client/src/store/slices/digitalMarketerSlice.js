@@ -1,10 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
 const api = axios.create({ baseURL: API_BASE_URL });
-
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("fashionhub_token");
   if (token) {
@@ -12,9 +9,7 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
-
 const DM_PREFIX = "/digital-marketer";
-
 // === ANALYTICS ===
 export const fetchMarketingAnalytics = createAsyncThunk(
   "digitalMarketer/fetchMarketingAnalytics",
@@ -27,7 +22,6 @@ export const fetchMarketingAnalytics = createAsyncThunk(
     }
   }
 );
-
 // === SEO ===
 export const fetchSEOData = createAsyncThunk("digitalMarketer/fetchSEOData", async (_, { rejectWithValue }) => {
   try {
@@ -37,7 +31,6 @@ export const fetchSEOData = createAsyncThunk("digitalMarketer/fetchSEOData", asy
     return { seoData: [] };
   }
 });
-
 export const updateSEOData = createAsyncThunk("digitalMarketer/updateSEOData", async (seoData, { rejectWithValue }) => {
   try {
     const response = await api.post(`${DM_PREFIX}/seo`, seoData);
@@ -46,7 +39,6 @@ export const updateSEOData = createAsyncThunk("digitalMarketer/updateSEOData", a
     return rejectWithValue(error.response?.data?.message || "Failed to update SEO data");
   }
 });
-
 // === CAMPAIGNS ===
 export const fetchAllCampaigns = createAsyncThunk("digitalMarketer/fetchAllCampaigns", async (params, { rejectWithValue }) => {
   try {
@@ -56,7 +48,6 @@ export const fetchAllCampaigns = createAsyncThunk("digitalMarketer/fetchAllCampa
     return {};
   }
 });
-
 export const createCampaign = createAsyncThunk("digitalMarketer/createCampaign", async (campaignData, { rejectWithValue }) => {
   try {
     const response = await api.post(`${DM_PREFIX}/campaigns`, campaignData);
@@ -65,7 +56,6 @@ export const createCampaign = createAsyncThunk("digitalMarketer/createCampaign",
     return rejectWithValue(error.response?.data?.message || "Failed to create campaign");
   }
 });
-
 export const updateCampaign = createAsyncThunk(
   "digitalMarketer/updateCampaign",
   async ({ campaignId, campaignData }, { rejectWithValue }) => {
@@ -77,7 +67,6 @@ export const updateCampaign = createAsyncThunk(
     }
   }
 );
-
 export const deleteCampaign = createAsyncThunk("digitalMarketer/deleteCampaign", async (campaignId, { rejectWithValue }) => {
   try {
     await api.delete(`${DM_PREFIX}/campaigns/${campaignId}`);
@@ -86,7 +75,6 @@ export const deleteCampaign = createAsyncThunk("digitalMarketer/deleteCampaign",
     return rejectWithValue(error.response?.data?.message || "Failed to delete campaign");
   }
 });
-
 export const fetchCampaignAnalytics = createAsyncThunk(
   "digitalMarketer/fetchCampaignAnalytics",
   async (campaignId, { rejectWithValue }) => {
@@ -98,20 +86,18 @@ export const fetchCampaignAnalytics = createAsyncThunk(
     }
   }
 );
-
 // === BANNERS ===
 export const fetchAllBanners = createAsyncThunk("digitalMarketer/fetchAllBanners", async (params, { rejectWithValue }) => {
   try {
-    const response = await api.get(`/banners`, { params });
+    const response = await api.get("/banners", { params });
     return response.data;
   } catch {
     return {};
   }
 });
-
 export const createBanner = createAsyncThunk("digitalMarketer/createBanner", async (bannerData, { rejectWithValue }) => {
   try {
-    const response = await api.post(`/banners`, bannerData, {
+    const response = await api.post("/banners", bannerData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
@@ -119,7 +105,6 @@ export const createBanner = createAsyncThunk("digitalMarketer/createBanner", asy
     return rejectWithValue(error.response?.data?.message || "Failed to create banner");
   }
 });
-
 export const updateBanner = createAsyncThunk(
   "digitalMarketer/updateBanner",
   async ({ bannerId, bannerData }, { rejectWithValue }) => {
@@ -139,7 +124,6 @@ export const updateBanner = createAsyncThunk(
     }
   }
 );
-
 export const deleteBanner = createAsyncThunk("digitalMarketer/deleteBanner", async (bannerId, { rejectWithValue }) => {
   try {
     await api.delete(`/banners/${bannerId}`);
@@ -148,7 +132,6 @@ export const deleteBanner = createAsyncThunk("digitalMarketer/deleteBanner", asy
     return rejectWithValue(error.response?.data?.message || "Failed to delete banner");
   }
 });
-
 // === SLICE ===
 const initialState = {
   marketingAnalytics: null,
@@ -166,7 +149,6 @@ const initialState = {
   error: null,
   success: null,
 };
-
 const digitalMarketerSlice = createSlice({
   name: "digitalMarketer",
   initialState,
@@ -199,7 +181,6 @@ const digitalMarketerSlice = createSlice({
         state.analyticsLoading = false;
         state.error = action.payload;
       })
-
       // SEO
       .addCase(fetchSEOData.pending, (state) => {
         state.seoLoading = true;
@@ -223,7 +204,6 @@ const digitalMarketerSlice = createSlice({
         }
         state.success = action.payload.message;
       })
-
       // Campaigns
       .addCase(fetchAllCampaigns.pending, (state) => {
         state.campaignsLoading = true;
@@ -256,7 +236,6 @@ const digitalMarketerSlice = createSlice({
         state.campaignAnalytics = action.payload.analytics;
         state.selectedCampaign = action.payload.campaign;
       })
-
       // Banners
       .addCase(fetchAllBanners.pending, (state) => {
         state.bannersLoading = true;
@@ -286,6 +265,5 @@ const digitalMarketerSlice = createSlice({
       });
   },
 });
-
 export const { clearError, clearSuccess, setLoading, setSelectedCampaign } = digitalMarketerSlice.actions;
 export default digitalMarketerSlice.reducer;

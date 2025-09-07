@@ -1,7 +1,5 @@
-"use client"
-
-import { Toaster } from "react-hot-toast"
-
+"use client";
+import { Toaster } from "react-hot-toast";
 const ToastProvider = () => {
   return (
     <Toaster
@@ -27,7 +25,6 @@ const ToastProvider = () => {
           boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
           maxWidth: "400px",
         },
-
         // Default options for specific types
         success: {
           duration: 3000,
@@ -48,18 +45,8 @@ const ToastProvider = () => {
         error: {
           duration: 4000,
           style: {
-            background: "#FEE2E2",
-            color: "#DC2626",
-            border: "1px solid #FECACA",
-            borderRadius: "16px",
-            padding: "16px 20px",
-            fontWeight: "600",
-            boxShadow: "0 10px 25px rgba(220, 38, 38, 0.2)",
-          },
-          iconTheme: {
-            primary: "#DC2626",
-            secondary: "#FEE2E2",
-          },
+            display: 'none'  // This will hide the unexpected error toast
+          }
         },
         loading: {
           style: {
@@ -74,7 +61,6 @@ const ToastProvider = () => {
         },
       }}
     />
-  )
-}
-
-export default ToastProvider
+  );
+};
+export default ToastProvider;

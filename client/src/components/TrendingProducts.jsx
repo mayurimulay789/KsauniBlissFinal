@@ -1,54 +1,51 @@
-"use client"
-import { useNavigate } from "react-router-dom"
-import { useSelector, useDispatch } from "react-redux"
-import { motion } from "framer-motion"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
-import { Link } from "react-router-dom"
-import toast from "react-hot-toast"
+"use client";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
-import { fetchTrendingProducts } from "../store/slices/productSlice"
-import LoadingSpinner from "./LoadingSpinner"
-
+import { fetchTrendingProducts } from "../store/slices/productSlice";
+import LoadingSpinner from "./LoadingSpinner";
 export default function TopPicksShowcase() {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const { trendingProducts = [], isLoading, error } = useSelector((state) => state.products)
-
-  const scrollContainerRef = useRef(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(true)
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { trendingProducts = [], isLoading } = useSelector((state) => state.products);
+  const scrollContainerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   // ✅ Always fetch fresh trending products on mount
+  const [hasError, setHasError] = useState(false);
+
   useEffect(() => {
-    if (error) toast.error("Failed to load trending products.")
     dispatch(fetchTrendingProducts())
-  }, [dispatch, error])
-
+      .unwrap()
+      .catch(() => {
+        setHasError(true);
+      });
+  }, [dispatch]);
   const checkScrollPosition = () => {
-    const c = scrollContainerRef.current
-    if (!c) return
-    setCanScrollLeft(c.scrollLeft > 0)
-    setCanScrollRight(c.scrollLeft < c.scrollWidth - c.clientWidth - 10)
-  }
-
+    const c = scrollContainerRef.current;
+    if (!c) return;
+    setCanScrollLeft(c.scrollLeft > 0);
+    setCanScrollRight(c.scrollLeft < c.scrollWidth - c.clientWidth - 10);
+  };
   useEffect(() => {
-    const c = scrollContainerRef.current
-    if (!c) return
-    c.addEventListener("scroll", checkScrollPosition, { passive: true })
-    checkScrollPosition()
-    return () => c.removeEventListener("scroll", checkScrollPosition)
-  }, [trendingProducts])
-
+    const c = scrollContainerRef.current;
+    if (!c) return;
+    c.addEventListener("scroll", checkScrollPosition, { passive: true });
+    checkScrollPosition();
+    return () => c.removeEventListener("scroll", checkScrollPosition);
+  }, [trendingProducts]);
   const scrollLeft = () => {
-    if (!scrollContainerRef.current) return
-    scrollContainerRef.current.scrollBy({ left: -320, behavior: "smooth" })
-  }
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.scrollBy({ left: -320, behavior: "smooth" });
+  };
   const scrollRight = () => {
-    if (!scrollContainerRef.current) return
-    scrollContainerRef.current.scrollBy({ left: 320, behavior: "smooth" })
-  }
-
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.scrollBy({ left: 320, behavior: "smooth" });
+  };
   if (isLoading) {
     return (
       <div className="w-full bg-white py-1 px-4">
@@ -64,27 +61,36 @@ export default function TopPicksShowcase() {
           <LoadingSpinner />
         </div>
       </div>
-    )
+    );
   }
-
-  if (!trendingProducts.length) {
+  if (!trendingProducts.length || hasError) {
     return (
       <div className="w-full bg-white py-3 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-xl sm:text-2xl font-black italic">
             TOP 7 <span className="text-red-600">PICKS</span> OF THE WEEK
           </h1>
-          <p className="text-gray-400 text-sm text-muted sm:text-base font-sm ">
-            No trending products available at the moment.
-          </p>
+          {hasError ? (
+            <button 
+              onClick={() => {
+                setHasError(false);
+                dispatch(fetchTrendingProducts());
+              }}
+              className="mt-4 px-6 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
+            >
+              Try Again
+            </button>
+          ) : (
+            <p className="text-gray-400 text-sm text-muted sm:text-base font-sm ">
+              No trending products available at the moment.
+            </p>
+          )}
         </div>
       </div>
-    )
+    );
   }
-
   // ✅ Limit to exactly 7 picks
-  const topPicks = trendingProducts.slice(0, 7)
-
+  const topPicks = trendingProducts.slice(0, 7);
   return (
     <div className="w-full bg-white pt-1 pb-2 px-1">
       <div className="max-w-7xl mx-auto">
@@ -106,11 +112,10 @@ export default function TopPicksShowcase() {
             </button>
           </div>
         </div>
-
         <div className="relative">
           <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto scrollbar-hide">
             {topPicks.map((product, index) => {
-              const categoryName = product.category?.name || ""
+              const categoryName = product.category?.name || "";
               return (
                 <motion.div
                   key={product._id}
@@ -132,7 +137,6 @@ export default function TopPicksShowcase() {
                   >
                     {index + 1}
                   </div>
-
                   {/* Inner content */}
                   <div className="pt-1 px-1 flex flex-col h-auto border-t">
                     <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-100">
@@ -146,7 +150,6 @@ export default function TopPicksShowcase() {
                           className="object-cover w-full h-full"
                         />
                       </Link>
-
                       {categoryName && (
                         <div
                           className="absolute bottom-2 right-1 px-1 py-0.5 text-[9px] font-semibold text-white rounded"
@@ -158,7 +161,6 @@ export default function TopPicksShowcase() {
                         </div>
                       )}
                     </div>
-
                     <Link to={`/product/${product._id}`} className="flex-grow">
                       <h3 className="text-[11px] text-black mt-1 mx-1 line-clamp-2 uppercase">
                         {product.name}
@@ -174,11 +176,11 @@ export default function TopPicksShowcase() {
                     </div>
                   </div>
                 </motion.div>
-              )
+              );
             })}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

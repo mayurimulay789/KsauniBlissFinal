@@ -1,45 +1,38 @@
-"use client"
-import { useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { motion } from "framer-motion"
-import { Calculator, Truck, Clock, Package } from "lucide-react"
-import { getShippingRates } from "../store/slices/orderSlice"
-import LoadingSpinner from "./LoadingSpinner"
-import { selectShippingRates, selectOrderLoading, selectOrderError } from "../store/slices/orderSlice"
-
+"use client";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { Calculator, Truck, Clock, Package } from "lucide-react";
+import { getShippingRates } from "../store/slices/orderSlice";
+import LoadingSpinner from "./LoadingSpinner";
+import { selectShippingRates, selectOrderLoading, selectOrderError } from "../store/slices/orderSlice";
 const ShippingRateCalculator = ({ onRateSelect, cartWeight = 0.5, cartValue = 0 }) => {
-  const dispatch = useDispatch()
-
+  const dispatch = useDispatch();
   // Use memoized selectors
-  const shippingRates = useSelector(selectShippingRates)
-  const loading = useSelector(selectOrderLoading)
-  const error = useSelector(selectOrderError)
-
-  const [pincode, setPincode] = useState("")
-  const [selectedRate, setSelectedRate] = useState(null)
-
+  const shippingRates = useSelector(selectShippingRates);
+  const loading = useSelector(selectOrderLoading);
+  const error = useSelector(selectOrderError);
+  const [pincode, setPincode] = useState("");
+  const [selectedRate, setSelectedRate] = useState(null);
   const calculateRates = async () => {
     if (!pincode || pincode.length !== 6) {
-      alert("Please enter a valid 6-digit pincode")
-      return
+      alert("Please enter a valid 6-digit pincode");
+      return;
     }
-
     dispatch(
       getShippingRates({
         deliveryPincode: pincode,
         weight: cartWeight,
         cod: 0, // Set to cart value if COD
       }),
-    )
-  }
-
+    );
+  };
   const handleRateSelect = (rate) => {
-    setSelectedRate(rate)
+    setSelectedRate(rate);
     if (onRateSelect) {
-      onRateSelect(rate)
+      onRateSelect(rate);
     }
-  }
-
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -50,9 +43,7 @@ const ShippingRateCalculator = ({ onRateSelect, cartWeight = 0.5, cartValue = 0 
         <Calculator className="w-5 h-5 mr-2 text-pink-600" />
         <h2 className="text-xl font-semibold">Check Shipping Rates</h2>
       </div>
-
       {error && <div className="p-3 mb-4 text-red-700 border border-red-200 rounded-lg bg-red-50">{error}</div>}
-
       {shippingRates.length > 0 && (
         <div className="space-y-3">
           <h4 className="flex items-center gap-2 font-medium">
@@ -94,7 +85,6 @@ const ShippingRateCalculator = ({ onRateSelect, cartWeight = 0.5, cartValue = 0 
                   </div>
                 </div>
               </div>
-
               {selectedRate?.courier_company_id === rate.courier_company_id && (
                 <div className="p-2 mt-2 text-sm text-pink-800 bg-pink-100 rounded">✓ Selected shipping option</div>
               )}
@@ -102,7 +92,6 @@ const ShippingRateCalculator = ({ onRateSelect, cartWeight = 0.5, cartValue = 0 
           ))}
         </div>
       )}
-
       {shippingRates.length === 0 && pincode.length === 6 && !loading.shippingRates && !error && (
         <div className="py-4 text-center text-gray-500">
           <Package className="w-12 h-12 mx-auto mb-2 text-gray-300" />
@@ -110,7 +99,6 @@ const ShippingRateCalculator = ({ onRateSelect, cartWeight = 0.5, cartValue = 0 
         </div>
       )}
     </motion.div>
-  )
-}
-
-export default ShippingRateCalculator
+  );
+};
+export default ShippingRateCalculator;

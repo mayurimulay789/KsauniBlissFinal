@@ -1,15 +1,12 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { MagnifyingGlassIcon, FunnelIcon, EyeIcon, PencilIcon } from "@heroicons/react/24/outline"
-import { fetchAllOrders, updateOrderStatus } from "../../store/slices/adminSlice"
-import LoadingSpinner from "../LoadingSpinner"
-
+"use client";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { MagnifyingGlassIcon, FunnelIcon, EyeIcon, PencilIcon } from "@heroicons/react/24/outline";
+import { fetchAllOrders, updateOrderStatus } from "../../store/slices/adminSlice";
+import LoadingSpinner from "../LoadingSpinner";
 const OrdersManagement = () => {
-  const dispatch = useDispatch()
-  const { orders, ordersPagination, ordersLoading } = useSelector((state) => state.admin)
-
+  const dispatch = useDispatch();
+  const { orders, ordersPagination, ordersLoading } = useSelector((state) => state.admin);
   const [filters, setFilters] = useState({
     page: 1,
     limit: 20,
@@ -17,64 +14,57 @@ const OrdersManagement = () => {
     status: "",
     startDate: "",
     endDate: "",
-  })
-  const [selectedOrder, setSelectedOrder] = useState(null)
-  const [showOrderModal, setShowOrderModal] = useState(false)
-  const [showStatusModal, setShowStatusModal] = useState(false)
+  });
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
   const [statusUpdate, setStatusUpdate] = useState({
     status: "",
     trackingNumber: "",
     carrier: "",
     notes: "",
-  })
-
+  });
   useEffect(() => {
-    dispatch(fetchAllOrders(filters))
-  }, [dispatch, filters])
-
+    dispatch(fetchAllOrders(filters));
+  }, [dispatch, filters]);
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({
       ...prev,
       [key]: value,
       page: 1, // Reset to first page when filtering
-    }))
-  }
-
+    }));
+  };
   const handlePageChange = (newPage) => {
-    setFilters((prev) => ({ ...prev, page: newPage }))
-  }
-
+    setFilters((prev) => ({ ...prev, page: newPage }));
+  };
   const handleViewOrder = (order) => {
-    setSelectedOrder(order)
-    setShowOrderModal(true)
-  }
-
+    setSelectedOrder(order);
+    setShowOrderModal(true);
+  };
   const handleUpdateStatus = (order) => {
-    setSelectedOrder(order)
+    setSelectedOrder(order);
     setStatusUpdate({
       status: order.status,
       trackingNumber: order.trackingInfo?.trackingNumber || "",
       carrier: order.trackingInfo?.carrier || "",
       notes: order.notes || "",
-    })
-    setShowStatusModal(true)
-  }
-
+    });
+    setShowStatusModal(true);
+  };
   const handleStatusSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (selectedOrder) {
       await dispatch(
         updateOrderStatus({
           orderId: selectedOrder._id,
           ...statusUpdate,
         }),
-      )
-      setShowStatusModal(false)
-      setSelectedOrder(null)
-      setStatusUpdate({ status: "", trackingNumber: "", carrier: "", notes: "" })
+      );
+      setShowStatusModal(false);
+      setSelectedOrder(null);
+      setStatusUpdate({ status: "", trackingNumber: "", carrier: "", notes: "" });
     }
-  }
-
+  };
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
       year: "numeric",
@@ -82,13 +72,11 @@ const OrdersManagement = () => {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
-
+    });
+  };
   const formatCurrency = (amount) => {
-    return `₹${amount.toLocaleString()}`
-  }
-
+    return `₹${amount.toLocaleString()}`;
+  };
   const getStatusColor = (status) => {
     const colors = {
       pending: "bg-yellow-100 text-yellow-800",
@@ -99,10 +87,9 @@ const OrdersManagement = () => {
       delivered: "bg-green-100 text-green-800",
       cancelled: "bg-red-100 text-red-800",
       refunded: "bg-gray-100 text-gray-800",
-    }
-    return colors[status] || "bg-gray-100 text-gray-800"
-  }
-
+    };
+    return colors[status] || "bg-gray-100 text-gray-800";
+  };
   const statusOptions = [
     { value: "pending", label: "Pending" },
     { value: "confirmed", label: "Confirmed" },
@@ -112,16 +99,14 @@ const OrdersManagement = () => {
     { value: "delivered", label: "Delivered" },
     { value: "cancelled", label: "Cancelled" },
     { value: "refunded", label: "Refunded" },
-  ]
-
+  ];
   if (ordersLoading && orders.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <LoadingSpinner />
       </div>
-    )
+    );
   }
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -131,7 +116,6 @@ const OrdersManagement = () => {
           <p className="mt-2 text-sm text-gray-700">Manage and track all customer orders</p>
         </div>
       </div>
-
       {/* Filters */}
       <div className="p-6 bg-white rounded-lg shadow">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -148,7 +132,6 @@ const OrdersManagement = () => {
               className="block w-full py-2 pl-10 pr-3 leading-5 placeholder-gray-500 bg-white border border-gray-300 rounded-md focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
             />
           </div>
-
           {/* Status Filter */}
           <div>
             <select
@@ -164,7 +147,6 @@ const OrdersManagement = () => {
               ))}
             </select>
           </div>
-
           {/* Start Date */}
           <div>
             <input
@@ -174,7 +156,6 @@ const OrdersManagement = () => {
               className="block w-full px-3 py-2 leading-5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
             />
           </div>
-
           {/* End Date */}
           <div>
             <input
@@ -184,7 +165,6 @@ const OrdersManagement = () => {
               className="block w-full px-3 py-2 leading-5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
             />
           </div>
-
           {/* Clear Filters */}
           <div>
             <button
@@ -206,7 +186,6 @@ const OrdersManagement = () => {
           </div>
         </div>
       </div>
-
       {/* Orders Table */}
       <div className="overflow-hidden bg-white rounded-lg shadow">
         <div className="overflow-x-auto">
@@ -272,7 +251,6 @@ const OrdersManagement = () => {
             </tbody>
           </table>
         </div>
-
         {/* Pagination */}
         {ordersPagination && ordersPagination.totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
@@ -325,7 +303,6 @@ const OrdersManagement = () => {
           </div>
         )}
       </div>
-
       {/* Order Details Modal */}
       {showOrderModal && selectedOrder && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -341,7 +318,6 @@ const OrdersManagement = () => {
                   </svg>
                 </button>
               </div>
-
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 {/* Order Info */}
                 <div className="space-y-4">
@@ -368,7 +344,6 @@ const OrdersManagement = () => {
                       </p>
                     </div>
                   </div>
-
                   {/* Customer Info */}
                   <div>
                     <h4 className="mb-2 font-medium text-gray-900">Customer Information</h4>
@@ -384,7 +359,6 @@ const OrdersManagement = () => {
                       </p>
                     </div>
                   </div>
-
                   {/* Shipping Address */}
                   <div>
                     <h4 className="mb-2 font-medium text-gray-900">Shipping Address</h4>
@@ -402,7 +376,6 @@ const OrdersManagement = () => {
                     </div>
                   </div>
                 </div>
-
                 {/* Order Items */}
                 <div>
                   <h4 className="mb-2 font-medium text-gray-900">Order Items</h4>
@@ -429,7 +402,6 @@ const OrdersManagement = () => {
                       </div>
                     ))}
                   </div>
-
                   {/* Pricing Breakdown */}
                   {selectedOrder.pricing && (
                     <div className="p-4 mt-4 rounded-lg bg-gray-50">
@@ -465,7 +437,6 @@ const OrdersManagement = () => {
           </div>
         </div>
       )}
-
       {/* Status Update Modal */}
       {showStatusModal && selectedOrder && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -486,7 +457,6 @@ const OrdersManagement = () => {
                     </svg>
                   </button>
                 </div>
-
                 <div className="space-y-4">
                   <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700">Order Number</label>
@@ -497,7 +467,6 @@ const OrdersManagement = () => {
                       className="block w-full px-3 py-2 text-gray-500 border border-gray-300 rounded-md bg-gray-50"
                     />
                   </div>
-
                   <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700">Status *</label>
                     <select
@@ -513,7 +482,6 @@ const OrdersManagement = () => {
                       ))}
                     </select>
                   </div>
-
                   {statusUpdate.status === "shipped" && (
                     <>
                       <div>
@@ -526,7 +494,6 @@ const OrdersManagement = () => {
                           placeholder="Enter tracking number"
                         />
                       </div>
-
                       <div>
                         <label className="block mb-1 text-sm font-medium text-gray-700">Carrier</label>
                         <select
@@ -545,7 +512,6 @@ const OrdersManagement = () => {
                       </div>
                     </>
                   )}
-
                   <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700">Notes</label>
                     <textarea
@@ -557,7 +523,6 @@ const OrdersManagement = () => {
                     />
                   </div>
                 </div>
-
                 <div className="flex justify-end mt-6 space-x-3">
                   <button
                     type="button"
@@ -579,7 +544,6 @@ const OrdersManagement = () => {
         </div>
       )}
     </div>
-  )
-}
-
-export default OrdersManagement
+  );
+};
+export default OrdersManagement;

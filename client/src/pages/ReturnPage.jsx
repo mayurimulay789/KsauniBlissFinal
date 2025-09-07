@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom"
-
+import { Link } from "react-router-dom";
 const ReturnPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -19,7 +18,6 @@ const ReturnPage = () => {
             and refund policy below to understand the process.
           </p>
         </div>
-
         {/* Policy Content */}
         <div className="bg-white rounded-lg shadow-sm p-6 space-y-8">
           {/* Return Eligibility */}
@@ -81,7 +79,6 @@ const ReturnPage = () => {
               </p>
             </div>
           </section>
-
           {/* Refund Process */}
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
@@ -137,7 +134,6 @@ const ReturnPage = () => {
               </div>
             </div>
           </section>
-
           {/* Exchanges */}
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
@@ -153,7 +149,6 @@ const ReturnPage = () => {
               </p>
             </div>
           </section>
-
           {/* Non-Refundable Items */}
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
@@ -194,7 +189,6 @@ const ReturnPage = () => {
               </div>
             </div>
           </section>
-
           {/* Special Circumstances */}
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
@@ -203,7 +197,6 @@ const ReturnPage = () => {
               </span>
               Special Circumstances
             </h2>
-
             <div className="space-y-6">
               <div className="border-l-4 border-orange-400 pl-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Returns Due to Incorrect Address</h3>
@@ -213,7 +206,6 @@ const ReturnPage = () => {
                   your shipping details before completing your order.
                 </p>
               </div>
-
               <div className="border-l-4 border-orange-400 pl-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Returns After Delivery Attempts Fail</h3>
                 <p className="text-gray-700">
@@ -224,13 +216,10 @@ const ReturnPage = () => {
               </div>
             </div>
           </section>
-
           {/* Contact Information */}
-          
         </div>
       </div>
     </div>
-  )
-}
-
-export default ReturnPage
+  );
+};
+export default ReturnPage;

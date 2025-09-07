@@ -1,12 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import discount from '../../public/discount (1).jpg'
+import discount from "../../public/discount (1).jpg";
 const FlatDiscount = () => {
   const navigate = useNavigate();
-
   const handleClick = () => {
     navigate("/products"); // Navigates to all products page
   };
-
   return (
     <div className="w-full cursor-pointer px-2" onClick={handleClick}>
       <img
@@ -17,5 +15,4 @@ const FlatDiscount = () => {
     </div>
   );
 };
-
 export default FlatDiscount;

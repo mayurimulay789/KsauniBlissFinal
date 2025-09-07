@@ -1,38 +1,31 @@
-"use client"
-
-import { Link } from "react-router-dom"
-import { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { fetchNewArrivals } from "../store/slices/productSlice" // ✅ import thunk
-
+"use client";
+import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchNewArrivals } from "../store/slices/productSlice"; // ✅ import thunk
 export default function NewArrivals() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const { newArrivals, loading } = useSelector((state) => state.products) || {
     newArrivals: [],
     loading: false,
-  }
-  const [productsToShow, setProductsToShow] = useState([])
-
+  };
+  const [productsToShow, setProductsToShow] = useState([]);
   // ✅ Fetch from API when page loads
   useEffect(() => {
-    dispatch(fetchNewArrivals())
-  }, [dispatch])
-
+    dispatch(fetchNewArrivals());
+  }, [dispatch]);
   // ✅ Update local state whenever newArrivals changes
   useEffect(() => {
     if (newArrivals && newArrivals.length > 0) {
-      setProductsToShow(newArrivals)
+      setProductsToShow(newArrivals);
     }
-  }, [newArrivals])
-
+  }, [newArrivals]);
   if (loading) {
-    return <p className="text-center text-sm text-gray-500">Loading new arrivals...</p>
+    return <p className="text-center text-sm text-gray-500">Loading new arrivals...</p>;
   }
-
   if (!productsToShow || productsToShow.length === 0) {
-    return null
+    return null;
   }
-
   return (
     <section className="bg-white ml-2 sm:ml-4">
       <div className="px-1">
@@ -43,25 +36,23 @@ export default function NewArrivals() {
             +
           </Link>
         </div>
-
         {/* Products Scroll */}
         <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-hide -mx-3 px-3">
           {productsToShow.map((product) => {
             const discountPercentage =
               product.originalPrice && product.originalPrice > product.price
                 ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-                : 0
-
+                : 0;
             return (
               <div
                 key={product._id}
                 className="
-                  flex-shrink-0 
+                  flex-shrink-0
                   border border-gray-500/80 hover:border-gray-800/80 transition-colors duration-200
                   rounded-[5px] bg-white overflow-hidden shadow-sm
                   w-[calc(50%-4px)]   /* mobile: 2 per row */
                   sm:w-[calc(33.333%-5.33px)]
-                  md:w-[calc(25%-6px)] 
+                  md:w-[calc(25%-6px)]
                   lg:w-[calc(20%-6.4px)] /* desktop: 5 per row */
                 "
               >
@@ -75,7 +66,6 @@ export default function NewArrivals() {
                     />
                   </div>
                 </Link>
-
                 {/* Product Info */}
                 <div className="p-1.5">
                   <p className="text-[9px] font-semibold text-black uppercase">
@@ -86,7 +76,6 @@ export default function NewArrivals() {
                       {product.name}
                     </p>
                   </Link>
-
                   {/* Price */}
                   <div className="flex items-center gap-1">
                     <span className="text-[12px] font-sans font-bold text-black">₹{product.price}</span>
@@ -99,10 +88,10 @@ export default function NewArrivals() {
                   </div>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       </div>
     </section>
-  )
+  );
 }

@@ -1,24 +1,18 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-
+"use client";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 // Alternative version with letter-by-letter animation
 const KasuniBlissPreloader = ({ onComplete }) => {
-  const [isVisible, setIsVisible] = useState(true)
-
+  const [isVisible, setIsVisible] = useState(true);
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsVisible(false)
-      setTimeout(() => onComplete?.(), 500)
-    }, 4500) // Slightly longer for letter animation
-
-    return () => clearTimeout(timer)
-  }, [onComplete])
-
-  const brandName = "kasunibliss"
-  const letters = brandName.split("")
-
+      setIsVisible(false);
+      setTimeout(() => onComplete?.(), 500);
+    }, 4500); // Slightly longer for letter animation
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+  const brandName = "kasunibliss";
+  const letters = brandName.split("");
   return (
     <AnimatePresence>
       {isVisible && (
@@ -69,7 +63,6 @@ const KasuniBlissPreloader = ({ onComplete }) => {
               </motion.span>
             ))}
           </div>
-
           {/* Animated circles */}
           <div className="flex items-center space-x-4 mb-6">
             <motion.div
@@ -144,7 +137,6 @@ const KasuniBlissPreloader = ({ onComplete }) => {
               }}
             />
           </div>
-
           {/* Tagline */}
           <motion.p
             className="text-lg md:text-xl font-light tracking-widest text-center"
@@ -167,7 +159,6 @@ const KasuniBlissPreloader = ({ onComplete }) => {
           >
             FASHION & LIFESTYLE
           </motion.p>
-
           {/* Pulsing ring */}
           <motion.div
             className="absolute inset-0 flex items-center justify-center pointer-events-none"
@@ -192,7 +183,6 @@ const KasuniBlissPreloader = ({ onComplete }) => {
         </motion.div>
       )}
     </AnimatePresence>
-  )
-}
-
-export default KasuniBlissPreloader
+  );
+};
+export default KasuniBlissPreloader;

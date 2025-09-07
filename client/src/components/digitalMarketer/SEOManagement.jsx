@@ -1,11 +1,10 @@
-"use client"
-import { useState, useEffect } from "react"
-import { useSelector, useDispatch } from "react-redux"
-import { fetchSEOData, updateSEOData } from "../../store/slices/digitalMarketerSlice"
-import LoadingSpinner from "../LoadingSpinner"
-
+"use client";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchSEOData, updateSEOData } from "../../store/slices/digitalMarketerSlice";
+import LoadingSpinner from "../LoadingSpinner";
 const SEOManagement = () => {
-  const [selectedPage, setSelectedPage] = useState("home")
+  const [selectedPage, setSelectedPage] = useState("home");
   const [formData, setFormData] = useState({
     page: "home",
     title: "",
@@ -14,19 +13,16 @@ const SEOManagement = () => {
     ogTitle: "",
     ogDescription: "",
     ogImage: "",
-  })
-  const [keywordInput, setKeywordInput] = useState("")
-  const [isEditing, setIsEditing] = useState(false)
-
-  const dispatch = useDispatch()
-  const { seoData, seoLoading } = useSelector((state) => state.digitalMarketer)
-
+  });
+  const [keywordInput, setKeywordInput] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const dispatch = useDispatch();
+  const { seoData, seoLoading } = useSelector((state) => state.digitalMarketer);
   useEffect(() => {
-    dispatch(fetchSEOData())
-  }, [dispatch])
-
+    dispatch(fetchSEOData());
+  }, [dispatch]);
   useEffect(() => {
-    const pageData = seoData.find((item) => item.page === selectedPage)
+    const pageData = seoData.find((item) => item.page === selectedPage);
     if (pageData) {
       setFormData({
         page: pageData.page,
@@ -36,8 +32,8 @@ const SEOManagement = () => {
         ogTitle: pageData.ogTitle || pageData.title,
         ogDescription: pageData.ogDescription || pageData.description,
         ogImage: pageData.ogImage || "",
-      })
-      setIsEditing(true)
+      });
+      setIsEditing(true);
     } else {
       setFormData({
         page: selectedPage,
@@ -47,41 +43,36 @@ const SEOManagement = () => {
         ogTitle: "",
         ogDescription: "",
         ogImage: "",
-      })
-      setIsEditing(false)
+      });
+      setIsEditing(false);
     }
-  }, [selectedPage, seoData])
-
+  }, [selectedPage, seoData]);
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
-
+    }));
+  };
   const handleAddKeyword = () => {
     if (keywordInput.trim() && !formData.keywords.includes(keywordInput.trim())) {
       setFormData((prev) => ({
         ...prev,
         keywords: [...prev.keywords, keywordInput.trim()],
-      }))
-      setKeywordInput("")
+      }));
+      setKeywordInput("");
     }
-  }
-
+  };
   const handleRemoveKeyword = (keyword) => {
     setFormData((prev) => ({
       ...prev,
       keywords: prev.keywords.filter((k) => k !== keyword),
-    }))
-  }
-
+    }));
+  };
   const handleSubmit = (e) => {
-    e.preventDefault()
-    dispatch(updateSEOData(formData))
-  }
-
+    e.preventDefault();
+    dispatch(updateSEOData(formData));
+  };
   const pages = [
     { value: "home", label: "Homepage" },
     { value: "products", label: "Products Page" },
@@ -89,12 +80,10 @@ const SEOManagement = () => {
     { value: "about", label: "About Page" },
     { value: "contact", label: "Contact Page" },
     { value: "blog", label: "Blog Page" },
-  ]
-
+  ];
   if (seoLoading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -112,14 +101,12 @@ const SEOManagement = () => {
           ))}
         </select>
       </div>
-
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* SEO Form */}
         <div className="p-6 bg-white rounded-lg shadow">
           <h3 className="mb-4 text-lg font-medium text-gray-900">
             {isEditing ? "Edit" : "Add"} SEO Data for {pages.find((p) => p.value === selectedPage)?.label}
           </h3>
-
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Title */}
             <div>
@@ -139,7 +126,6 @@ const SEOManagement = () => {
               />
               <p className="mt-1 text-xs text-gray-500">{formData.title.length}/60 characters</p>
             </div>
-
             {/* Description */}
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700">
@@ -158,7 +144,6 @@ const SEOManagement = () => {
               />
               <p className="mt-1 text-xs text-gray-500">{formData.description.length}/160 characters</p>
             </div>
-
             {/* Keywords */}
             <div>
               <label htmlFor="keywords" className="block text-sm font-medium text-gray-700">
@@ -201,7 +186,6 @@ const SEOManagement = () => {
                 </div>
               )}
             </div>
-
             {/* Open Graph Title */}
             <div>
               <label htmlFor="ogTitle" className="block text-sm font-medium text-gray-700">
@@ -218,7 +202,6 @@ const SEOManagement = () => {
                 placeholder="Leave empty to use meta title"
               />
             </div>
-
             {/* Open Graph Description */}
             <div>
               <label htmlFor="ogDescription" className="block text-sm font-medium text-gray-700">
@@ -235,7 +218,6 @@ const SEOManagement = () => {
                 placeholder="Leave empty to use meta description"
               />
             </div>
-
             {/* Open Graph Image */}
             <div>
               <label htmlFor="ogImage" className="block text-sm font-medium text-gray-700">
@@ -251,7 +233,6 @@ const SEOManagement = () => {
                 placeholder="https://example.com/image.jpg"
               />
             </div>
-
             {/* Submit Button */}
             <div className="pt-4">
               <button
@@ -263,11 +244,9 @@ const SEOManagement = () => {
             </div>
           </form>
         </div>
-
         {/* Preview */}
         <div className="p-6 bg-white rounded-lg shadow">
           <h3 className="mb-4 text-lg font-medium text-gray-900">Search Result Preview</h3>
-
           {/* Google Search Preview */}
           <div className="p-4 border rounded-lg bg-gray-50">
             <div className="mb-1 text-xs text-gray-500">
@@ -280,7 +259,6 @@ const SEOManagement = () => {
               {formData.description || "Your page description will appear here..."}
             </div>
           </div>
-
           {/* Social Media Preview */}
           <div className="mt-6">
             <h4 className="mb-3 font-medium text-gray-900 text-md">Social Media Preview</h4>
@@ -292,8 +270,8 @@ const SEOManagement = () => {
                     alt="OG Preview"
                     className="object-cover w-full h-full"
                     onError={(e) => {
-                      e.target.style.display = "none"
-                      e.target.nextSibling.style.display = "flex"
+                      e.target.style.display = "none";
+                      e.target.nextSibling.style.display = "flex";
                     }}
                   />
                   <div className="items-center justify-center hidden w-full h-full text-gray-400">Image Preview</div>
@@ -310,7 +288,6 @@ const SEOManagement = () => {
               </div>
             </div>
           </div>
-
           {/* Keywords */}
           {formData.keywords.length > 0 && (
             <div className="mt-6">
@@ -329,7 +306,6 @@ const SEOManagement = () => {
           )}
         </div>
       </div>
-
       {/* SEO Tips */}
       <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
         <h4 className="mb-2 text-sm font-medium text-blue-900">SEO Best Practices</h4>
@@ -343,7 +319,6 @@ const SEOManagement = () => {
         </ul>
       </div>
     </div>
-  )
-}
-
-export default SEOManagement
+  );
+};
+export default SEOManagement;

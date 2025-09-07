@@ -1,6 +1,5 @@
-"use client"
-import { Bars3Icon, BellIcon } from "@heroicons/react/24/outline"
-
+"use client";
+import { Bars3Icon, BellIcon } from "@heroicons/react/24/outline";
 const AdminHeader = ({ setSidebarOpen, pageTitle, user }) => {
   return (
     <div className="sticky z-40 flex items-center h-16 px-4 bg-white border-b border-gray-200 shadow-sm top-10 shrink-0 gap-x-4 sm:gap-x-6 sm:px-6 lg:px-8">
@@ -9,26 +8,21 @@ const AdminHeader = ({ setSidebarOpen, pageTitle, user }) => {
         <span className="sr-only">Open sidebar</span>
         <Bars3Icon className="w-6 h-6" aria-hidden="true" />
       </button>
-
       {/* Separator */}
       <div className="w-px h-6 bg-gray-200 lg:hidden" aria-hidden="true" />
-
       <div className="flex self-stretch flex-1 gap-x-4 lg:gap-x-6">
         {/* Page Title */}
         <div className="flex items-center">
           <h1 className="text-xl font-semibold leading-6 text-gray-900">{pageTitle}</h1>
         </div>
-
         <div className="flex items-center ml-auto gap-x-4 lg:gap-x-6">
           {/* Notifications */}
           <button type="button" className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
             <span className="sr-only">View notifications</span>
             <BellIcon className="w-6 h-6" aria-hidden="true" />
           </button>
-
           {/* Separator */}
           <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200" aria-hidden="true" />
-
           {/* Profile */}
           <div className="flex items-center gap-x-4">
             <div className="hidden lg:flex lg:flex-col lg:items-end lg:leading-6">
@@ -42,7 +36,6 @@ const AdminHeader = ({ setSidebarOpen, pageTitle, user }) => {
         </div>
       </div>
     </div>
-  )
-}
-
-export default AdminHeader
+  );
+};
+export default AdminHeader;

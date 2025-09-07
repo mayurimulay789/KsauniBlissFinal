@@ -1,10 +1,7 @@
-"use client"
-
-import React, { useState, useEffect } from "react"
-
+"use client";
+import React, { useState, useEffect } from "react";
 const Testimonials = () => {
-  const [currentTestimonial, setCurrentTestimonial] = useState(0)
-
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const testimonials = [
     {
       id: 1,
@@ -42,16 +39,13 @@ const Testimonials = () => {
         "Professional attire that fits perfectly. The quality is outstanding and the shopping experience is seamless. Will definitely shop again.",
       rating: 5,
     },
-  ]
-
+  ];
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
-    }, 5000)
-
-    return () => clearInterval(timer)
-  }, [testimonials.length])
-
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [testimonials.length]);
   return (
     <section className="py-16 bg-gray-50">
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -61,7 +55,6 @@ const Testimonials = () => {
             Don't just take our word for it - hear from our satisfied customers about their experience
           </p>
         </div>
-
         <div className="relative max-w-4xl mx-auto">
           <div className="p-8 text-center bg-red-600 rounded-lg shadow-lg">
             <div className="flex justify-center mb-6">
@@ -71,11 +64,9 @@ const Testimonials = () => {
                 </svg>
               ))}
             </div>
-
             <blockquote className="mb-6 text-xl italic text-gray-700">
               "{testimonials[currentTestimonial].content}"
             </blockquote>
-
             <div className="flex items-center justify-center">
               <img
                 src={testimonials[currentTestimonial].image || "/placeholder.svg"}
@@ -88,7 +79,6 @@ const Testimonials = () => {
               </div>
             </div>
           </div>
-
           {/* Navigation dots */}
           <div className="flex justify-center mt-8 space-x-2">
             {testimonials.map((_, index) => (
@@ -102,7 +92,6 @@ const Testimonials = () => {
             ))}
           </div>
         </div>
-
         {/* Customer stats */}
         <div className="grid grid-cols-2 gap-8 mt-16 md:grid-cols-4">
           <div className="text-center">
@@ -124,7 +113,6 @@ const Testimonials = () => {
         </div>
       </div>
     </section>
-  )
-}
-
-export default Testimonials
+  );
+};
+export default Testimonials;

@@ -1,34 +1,29 @@
-"use client"
-import { Link, useLocation } from "react-router-dom"
+"use client";
+import { Link, useLocation } from "react-router-dom";
 import {
   ChartBarIcon,
   PhotoIcon,
   MagnifyingGlassIcon,
   MegaphoneIcon,
   ArrowRightOnRectangleIcon,
-} from "@heroicons/react/24/outline"
-import { useDispatch } from "react-redux"
-import { logout } from "../../store/slices/authSlice"
-
+} from "@heroicons/react/24/outline";
+import { useDispatch } from "react-redux";
+import { logout } from "../../store/slices/authSlice";
 const MarketerSidebar = ({ sidebarOpen, setSidebarOpen }) => {
-  const location = useLocation()
-  const dispatch = useDispatch()
-
+  const location = useLocation();
+  const dispatch = useDispatch();
   const handleLogout = () => {
-    dispatch(logout())
-  }
-
+    dispatch(logout());
+  };
   const navigation = [
     { name: "Analytics", href: "/digitalMarketer/analytics", icon: ChartBarIcon },
     { name: "Promo Banners", href: "/digitalMarketer/banners", icon: PhotoIcon },
     { name: "SEO Tools", href: "/digitalMarketer/seo", icon: MagnifyingGlassIcon },
     { name: "Campaigns", href: "/digitalMarketer/campaigns", icon: MegaphoneIcon },
-  ]
-
+  ];
   const isActive = (href) => {
-    return location.pathname === href || (href === "/digitalMarketer/analytics" && location.pathname === "/digitalMarketer")
-  }
-
+    return location.pathname === href || (href === "/digitalMarketer/analytics" && location.pathname === "/digitalMarketer");
+  };
   return (
     <>
       {/* Desktop Sidebar */}
@@ -43,7 +38,6 @@ const MarketerSidebar = ({ sidebarOpen, setSidebarOpen }) => {
               <span className="ml-2 text-xl font-bold text-gray-900">Marketing Hub</span>
             </Link>
           </div>
-
           {/* Navigation */}
           <nav className="flex flex-col flex-1">
             <ul role="list" className="flex flex-col flex-1 gap-y-7">
@@ -71,7 +65,6 @@ const MarketerSidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   ))}
                 </ul>
               </li>
-
               {/* Logout */}
               <li className="mt-auto">
                 <button
@@ -89,7 +82,6 @@ const MarketerSidebar = ({ sidebarOpen, setSidebarOpen }) => {
           </nav>
         </div>
       </div>
-
       {/* Mobile Sidebar */}
       <div className={`relative z-50 lg:hidden ${sidebarOpen ? "" : "hidden"}`}>
         <div className="fixed inset-0 bg-gray-900/80" />
@@ -109,7 +101,6 @@ const MarketerSidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 </svg>
               </button>
             </div>
-
             <div className="flex flex-col px-6 pb-4 overflow-y-auto bg-white grow gap-y-5">
               {/* Logo */}
               <div className="flex items-center h-16 shrink-0">
@@ -120,7 +111,6 @@ const MarketerSidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   <span className="ml-2 text-xl font-bold text-gray-900">Marketing Hub</span>
                 </Link>
               </div>
-
               {/* Navigation */}
               <nav className="flex flex-col flex-1">
                 <ul role="list" className="flex flex-col flex-1 gap-y-7">
@@ -149,7 +139,6 @@ const MarketerSidebar = ({ sidebarOpen, setSidebarOpen }) => {
                       ))}
                     </ul>
                   </li>
-
                   {/* Logout */}
                   <li className="mt-auto">
                     <button
@@ -170,7 +159,6 @@ const MarketerSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         </div>
       </div>
     </>
-  )
-}
-
-export default MarketerSidebar
+  );
+};
+export default MarketerSidebar;

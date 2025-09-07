@@ -1,31 +1,24 @@
-"use client"
-
-import React, { useState, useEffect } from "react"
-import { AlertTriangle, WifiOff } from "lucide-react"
-
+"use client";
+import React, { useState, useEffect } from "react";
+import { AlertTriangle, WifiOff } from "lucide-react";
 const NetworkStatus = () => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine)
-  const [serverError, setServerError] = useState(null)
-
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [serverError, setServerError] = useState(null);
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
     const handleNetworkError = (event) => {
-      setServerError(event.detail)
-    }
-
-    window.addEventListener("online", handleOnline)
-    window.addEventListener("offline", handleOffline)
-    window.addEventListener("networkError", handleNetworkError)
-
+      setServerError(event.detail);
+    };
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("networkError", handleNetworkError);
     return () => {
-      window.removeEventListener("online", handleOnline)
-      window.removeEventListener("offline", handleOffline)
-      window.removeEventListener("networkError", handleNetworkError)
-    }
-  }, [])
-
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("networkError", handleNetworkError);
+    };
+  }, []);
   if (!isOnline) {
     return (
       <div className="fixed top-0 left-0 right-0 z-50 p-2 text-center text-white bg-red-500">
@@ -34,9 +27,8 @@ const NetworkStatus = () => {
           <span>You are offline. Please check your internet connection.</span>
         </div>
       </div>
-    )
+    );
   }
-
   if (serverError) {
     return (
       <div className="fixed top-0 left-0 right-0 z-50 p-2 text-center text-white bg-orange-500">
@@ -51,10 +43,8 @@ const NetworkStatus = () => {
           </button>
         </div>
       </div>
-    )
+    );
   }
-
-  return null
-}
-
-export default NetworkStatus
+  return null;
+};
+export default NetworkStatus;

@@ -1,83 +1,74 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { Plus, Search, Edit, Trash2, ImageIcon } from "lucide-react"
+"use client";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Plus, Search, Edit, Trash2, ImageIcon } from "lucide-react";
 import {
   fetchCategories,
   createCategory,
   updateCategory,
   deleteCategory,
   clearError,
-} from "../../store/slices/categorySlice"
-
+} from "../../store/slices/categorySlice";
 const CategoriesManagement = () => {
-  const dispatch = useDispatch()
-  const { categories, isLoading, error } = useSelector((state) => state.categories)
-  const [showModal, setShowModal] = useState(false)
-  const [editingCategory, setEditingCategory] = useState(null)
-  const [searchTerm, setSearchTerm] = useState("")
+  const dispatch = useDispatch();
+  const { categories, isLoading, error } = useSelector((state) => state.categories);
+  const [showModal, setShowModal] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     parentCategory: "",
     showOnHomepage: true,
     sortOrder: 0,
-  })
-  const [imageFile, setImageFile] = useState(null)
-  const [imagePreview, setImagePreview] = useState("")
-
+  });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   useEffect(() => {
-    dispatch(fetchCategories())
-  }, [dispatch])
-
+    dispatch(fetchCategories());
+  }, [dispatch]);
   useEffect(() => {
     if (error) {
-      alert(error)
-      dispatch(clearError())
+      alert(error);
+      dispatch(clearError());
     }
-  }, [error, dispatch])
-
+  }, [error, dispatch]);
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
     if (!formData.name || formData.name.trim() === "") {
-      alert("Category name is required")
-      return
+      alert("Category name is required");
+      return;
     }
-    const formDataToSend = new FormData()
+    const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
       if (formData[key] !== undefined && formData[key] !== null) {
-        formDataToSend.append(key, formData[key])
+        formDataToSend.append(key, formData[key]);
       }
-    })
+    });
     if (imageFile) {
-      formDataToSend.append("image", imageFile)
+      formDataToSend.append("image", imageFile);
     }
-
     try {
       if (editingCategory) {
-        await dispatch(updateCategory({ id: editingCategory._id, data: formDataToSend })).unwrap()
+        await dispatch(updateCategory({ id: editingCategory._id, data: formDataToSend })).unwrap();
       } else {
-        await dispatch(createCategory(formDataToSend)).unwrap()
+        await dispatch(createCategory(formDataToSend)).unwrap();
       }
-      setShowModal(false)
-      resetForm()
+      setShowModal(false);
+      resetForm();
     } catch (error) {
-      console.error("Error saving category:", error)
+      console.error("Error saving category:", error);
     }
-  }
-
+  };
   const handleDelete = async (categoryId) => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
-        await dispatch(deleteCategory(categoryId)).unwrap()
+        await dispatch(deleteCategory(categoryId)).unwrap();
       } catch (error) {
-        console.error("Error deleting category:", error)
+        console.error("Error deleting category:", error);
       }
     }
-  }
-
+  };
   const resetForm = () => {
     setFormData({
       name: "",
@@ -85,43 +76,38 @@ const CategoriesManagement = () => {
       parentCategory: "",
       showOnHomepage: true,
       sortOrder: 0,
-    })
-    setImageFile(null)
-    setImagePreview("")
-    setEditingCategory(null)
-  }
-
+    });
+    setImageFile(null);
+    setImagePreview("");
+    setEditingCategory(null);
+  };
   const openEditModal = (category) => {
-    setEditingCategory(category)
+    setEditingCategory(category);
     setFormData({
       name: category.name,
       description: category.description || "",
       parentCategory: category.parentCategory?._id || "",
       showOnHomepage: category.showOnHomepage,
       sortOrder: category.sortOrder,
-    })
-    setImagePreview(category.image?.url || "")
-    setShowModal(true)
-  }
-
+    });
+    setImagePreview(category.image?.url || "");
+    setShowModal(true);
+  };
   const handleImageChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setImageFile(file)
-      const reader = new FileReader()
+      setImageFile(file);
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result)
-      }
-      reader.readAsDataURL(file)
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
-  }
-
+  };
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
-
-  const parentCategories = categories.filter((category) => !category.parentCategory)
-
+  );
+  const parentCategories = categories.filter((category) => !category.parentCategory);
   return (
     <div className="p-2 space-y-3 sm:p-4 sm:space-y-4">
       {/* Search with Add Button */}
@@ -146,7 +132,6 @@ const CategoriesManagement = () => {
           </button>
         </div>
       </div>
-
       {/* Categories Table - Mobile Responsive */}
       <div className="overflow-hidden bg-white rounded-lg shadow">
         {/* Mobile Cards View */}
@@ -220,7 +205,6 @@ const CategoriesManagement = () => {
             )}
           </div>
         </div>
-
         {/* Desktop Table View */}
         <div className="hidden sm:block">
           <div className="overflow-x-auto">
@@ -331,7 +315,6 @@ const CategoriesManagement = () => {
           </div>
         </div>
       </div>
-
       {/* Modal - Compact */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-2 overflow-y-auto bg-gray-600 bg-opacity-50">
@@ -342,8 +325,8 @@ const CategoriesManagement = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    setShowModal(false)
-                    resetForm()
+                    setShowModal(false);
+                    resetForm();
                   }}
                   className="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900"
                 >
@@ -363,7 +346,6 @@ const CategoriesManagement = () => {
                   <span>Add Category</span>
                 </button>
               </div>
-
               {/* Modal Body - Compact Form */}
               <div className="p-3">
                 <form onSubmit={handleSubmit} className="space-y-3">
@@ -415,7 +397,6 @@ const CategoriesManagement = () => {
                       </label>
                     </div>
                   </div>
-
                   <div>
                     <label className="block mb-1 text-xs font-medium text-gray-700">Description</label>
                     <textarea
@@ -425,7 +406,6 @@ const CategoriesManagement = () => {
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
-
                   <div>
                     <label className="block mb-1 text-xs font-medium text-gray-700">Category Image</label>
                     <input
@@ -444,13 +424,12 @@ const CategoriesManagement = () => {
                       </div>
                     )}
                   </div>
-
                   <div className="flex pt-3 space-x-2 border-t">
                     <button
                       type="button"
                       onClick={() => {
-                        setShowModal(false)
-                        resetForm()
+                        setShowModal(false);
+                        resetForm();
                       }}
                       className="flex-1 px-3 py-1 text-sm text-gray-700 border border-gray-300 rounded hover:bg-gray-50"
                     >
@@ -471,7 +450,6 @@ const CategoriesManagement = () => {
         </div>
       )}
     </div>
-  )
-}
-
-export default CategoriesManagement
+  );
+};
+export default CategoriesManagement;

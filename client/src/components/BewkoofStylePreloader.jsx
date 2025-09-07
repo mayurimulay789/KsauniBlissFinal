@@ -1,21 +1,16 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-
+"use client";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 const BewkoofStylePreloader = ({ onComplete }) => {
-  const [isVisible, setIsVisible] = useState(true)
-
+  const [isVisible, setIsVisible] = useState(true);
   useEffect(() => {
     // 4 seconds minimum duration
     const timer = setTimeout(() => {
-      setIsVisible(false)
-      setTimeout(() => onComplete?.(), 500)
-    }, 4000)
-
-    return () => clearTimeout(timer)
-  }, [onComplete])
-
+      setIsVisible(false);
+      setTimeout(() => onComplete?.(), 500);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [onComplete]);
   return (
     <AnimatePresence>
       {isVisible && (
@@ -57,7 +52,6 @@ const BewkoofStylePreloader = ({ onComplete }) => {
               kasunibliss
             </motion.h1>
           </motion.div>
-
           {/* Animated Circles */}
           <div className="flex items-center space-x-4 mb-6">
             <motion.div
@@ -106,7 +100,6 @@ const BewkoofStylePreloader = ({ onComplete }) => {
               }}
             />
           </div>
-
           {/* Subtitle with typing effect */}
           <motion.div
             className="text-center"
@@ -134,7 +127,6 @@ const BewkoofStylePreloader = ({ onComplete }) => {
               Fashion & Style
             </motion.p>
           </motion.div>
-
           {/* Loading dots */}
           <motion.div
             className="flex space-x-2 mt-8"
@@ -173,7 +165,6 @@ const BewkoofStylePreloader = ({ onComplete }) => {
         </motion.div>
       )}
     </AnimatePresence>
-  )
-}
-
-export default BewkoofStylePreloader
+  );
+};
+export default BewkoofStylePreloader;

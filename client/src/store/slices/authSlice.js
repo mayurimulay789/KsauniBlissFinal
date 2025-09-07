@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -12,12 +12,10 @@ import {
   EmailAuthProvider,
   signInWithPhoneNumber,
   RecaptchaVerifier,
-} from "firebase/auth"
-import { auth, cleanupRecaptcha } from "../../config/firebase.js"
-import axios from "axios"
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api"
-
+} from "firebase/auth";
+import { auth, cleanupRecaptcha } from "../../config/firebase.js";
+import axios from "axios";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -25,142 +23,163 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-})
-
+});
 // Request interceptor to add Firebase ID token
 api.interceptors.request.use(
   async (config) => {
-    const user = auth.currentUser
+    const user = auth.currentUser;
     if (user) {
       try {
-        const idToken = await user.getIdToken(true) // Force refresh
-        config.headers.Authorization = `Bearer ${idToken}`
+        const idToken = await user.getIdToken(true); // Force refresh
+        config.headers.Authorization = `Bearer ${idToken}`;
       } catch (error) {
-        console.error("Error getting ID token:", error)
+        console.error("Error getting ID token:", error);
       }
     }
-    return config
+    return config;
   },
   (error) => {
-    return Promise.reject(error)
+    return Promise.reject(error);
   },
-)
-
+);
 // Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config
+    const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
+      originalRequest._retry = true;
       try {
-        const user = auth.currentUser
+        const user = auth.currentUser;
         if (user) {
           // Try to refresh the token
-          const newToken = await user.getIdToken(true)
-          originalRequest.headers.Authorization = `Bearer ${newToken}`
-          return api(originalRequest)
+          const newToken = await user.getIdToken(true);
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return api(originalRequest);
         }
       } catch (refreshError) {
-        console.error("Token refresh failed:", refreshError)
+        console.error("Token refresh failed:", refreshError);
       }
       // If refresh fails, sign out user
       try {
-        await firebaseSignOut(auth)
+        await firebaseSignOut(auth);
       } catch (signOutError) {
-        console.error("Error signing out:", signOutError)
+        console.error("Error signing out:", signOutError);
       }
       // Clear local storage
-      localStorage.removeItem("user")
-      localStorage.removeItem("authToken")
+      localStorage.removeItem("user");
+      localStorage.removeItem("authToken");
       // Redirect to login if not already there
       if (window.location.pathname !== "/login" && window.location.pathname !== "/register") {
-        window.location.href = "/login"
+        window.location.href = "/login";
       }
     }
-    return Promise.reject(error)
+    return Promise.reject(error);
   },
-)
-
-// Initialize Auth - NEW ACTION
+);
+// Initialize Auth - NEW ACTION with extended token expiry
 export const initializeAuth = createAsyncThunk("auth/initializeAuth", async (_, { rejectWithValue }) => {
   try {
-    const storedToken = localStorage.getItem("authToken")
-    const storedUser = localStorage.getItem("user")
+    const storedToken = localStorage.getItem("authToken");
+    const storedUser = localStorage.getItem("user");
+    const tokenExpiry = localStorage.getItem("tokenExpiry");
     
-    if (!storedToken || !storedUser) {
-      // No stored auth data, user is not authenticated
+    // Check if token is still valid (within 2 months)
+    const isTokenValid = tokenExpiry && new Date(tokenExpiry) > new Date();
+    
+    if (!storedToken || !storedUser || !isTokenValid) {
+      // No stored auth data or expired token, user is not authenticated
+      localStorage.removeItem("user");
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("tokenExpiry");
       return {
         isAuthenticated: false,
         user: null,
         token: null,
         firebaseUser: null
-      }
+      };
     }
-    
 
     // We have stored data, verify with Firebase
-    const user = auth.currentUser
+    const user = auth.currentUser;
     if (!user) {
-      // Firebase user not available, clear stored data
-      localStorage.removeItem("user")
-      localStorage.removeItem("authToken")
+      // Try to reload Firebase auth state
+      await new Promise((resolve) => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+          unsubscribe();
+          resolve(user);
+        });
+      });
+    }
+
+    if (!auth.currentUser) {
+      // Still no Firebase user, clear stored data
+      localStorage.removeItem("user");
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("tokenExpiry");
       return {
         isAuthenticated: false,
         user: null,
         token: null,
         firebaseUser: null
-      }
+      };
     }
 
-    // Verify token with backend
-    const idToken = await user.getIdToken(true)
-    const response = await api.post("/auth/verify-token", { idToken })
+    // Force token refresh to get a new long-lived token
+    const idToken = await auth.currentUser.getIdToken(true);
+    const response = await api.post("/auth/verify-token", { idToken });
 
-    // Update local storage with fresh data
-    localStorage.setItem("user", JSON.stringify(response.data.user))
-    localStorage.setItem("authToken", response.data.jwtToken)
+    // Set new expiry date (2 months from now)
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + 2);
+
+    // Update local storage with fresh data and new expiry
+    localStorage.setItem("user", JSON.stringify(response.data.user));
+    localStorage.setItem("authToken", response.data.jwtToken);
+    localStorage.setItem("tokenExpiry", expiryDate.toISOString());
+    localStorage.setItem("fashionhub_token", response.data.jwtToken);
 
     return {
       isAuthenticated: true,
       firebaseUser: {
-        uid: user.uid,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        displayName: user.displayName,
-        emailVerified: user.emailVerified,
-        photoURL: user.photoURL,
+        uid: auth.currentUser.uid,
+        email: auth.currentUser.email,
+        phoneNumber: auth.currentUser.phoneNumber,
+        displayName: auth.currentUser.displayName,
+        emailVerified: auth.currentUser.emailVerified,
+        photoURL: auth.currentUser.photoURL,
       },
       user: response.data.user,
       jwtToken: response.data.jwtToken,
-    }
+    };
   } catch (error) {
-    console.error("Initialize auth error:", error)
+    console.error("Initialize auth error:", error);
     // Clear invalid auth data
-    localStorage.removeItem("user")
-    localStorage.removeItem("authToken")
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("tokenExpiry");
+    localStorage.removeItem("fashionhub_token");
     return {
       isAuthenticated: false,
       user: null,
       token: null,
       firebaseUser: null
-    }
+    };
   }
-})
-
+});
 // Check Auth Status
 export const checkAuth = createAsyncThunk("auth/checkAuth", async (_, { rejectWithValue }) => {
   try {
-    const user = auth.currentUser
+    const user = auth.currentUser;
     if (!user) {
-      throw new Error("No authenticated user")
+      throw new Error("No authenticated user");
     }
     // Get fresh token and verify with backend
-    const idToken = await user.getIdToken(true)
-    const response = await api.post("/auth/verify-token", { idToken })
+    const idToken = await user.getIdToken(true);
+    const response = await api.post("/auth/verify-token", { idToken });
     // Update local storage
-    localStorage.setItem("user", JSON.stringify(response.data.user))
-    localStorage.setItem("authToken", response.data.jwtToken)
+    localStorage.setItem("user", JSON.stringify(response.data.user));
+    localStorage.setItem("authToken", response.data.jwtToken);
     return {
       firebaseUser: {
         uid: user.uid,
@@ -172,16 +191,15 @@ export const checkAuth = createAsyncThunk("auth/checkAuth", async (_, { rejectWi
       },
       user: response.data.user,
       jwtToken: response.data.jwtToken,
-    }
+    };
   } catch (error) {
-    console.error("Check auth error:", error)
+    console.error("Check auth error:", error);
     // Clear invalid auth data
-    localStorage.removeItem("user")
-    localStorage.removeItem("authToken")
-    return rejectWithValue(error.response?.data?.message || "Authentication failed")
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
+    return rejectWithValue(error.response?.data?.message || "Authentication failed");
   }
-})
-
+});
 // Upload Avatar
 export const uploadAvatar = createAsyncThunk("auth/uploadAvatar", async (formData, { rejectWithValue }) => {
   try {
@@ -189,39 +207,38 @@ export const uploadAvatar = createAsyncThunk("auth/uploadAvatar", async (formDat
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    })
+    });
     // Update local storage
-    localStorage.setItem("user", JSON.stringify(response.data.user))
-    return response.data
+    localStorage.setItem("user", JSON.stringify(response.data.user));
+    return response.data;
   } catch (error) {
-    console.error("Upload avatar error:", error)
-    return rejectWithValue(error.response?.data?.message || "Failed to upload avatar")
+    console.error("Upload avatar error:", error);
+    return rejectWithValue(error.response?.data?.message || "Failed to upload avatar");
   }
-})
-
+});
 // Email Authentication Thunks
 export const registerWithEmail = createAsyncThunk(
   "auth/registerWithEmail",
   async ({ email, password, name }, { rejectWithValue }) => {
     try {
       // Create user with Firebase
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-      const firebaseUser = userCredential.user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
       // Update Firebase profile
       await updateFirebaseProfile(firebaseUser, {
         displayName: name,
-      })
+      });
       // Send email verification
-      await sendEmailVerification(firebaseUser)
+      await sendEmailVerification(firebaseUser);
       // Register user in backend
       const response = await axios.post(`${API_BASE_URL}/auth/register/email`, {
         email,
         password,
         name,
-      })
+      });
       // Store user data
-      localStorage.setItem("user", JSON.stringify(response.data.user))
-      localStorage.setItem("authToken", response.data.jwtToken)
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("authToken", response.data.jwtToken);
       return {
         firebaseUser: {
           uid: firebaseUser.uid,
@@ -233,45 +250,51 @@ export const registerWithEmail = createAsyncThunk(
         user: response.data.user,
         customToken: response.data.customToken,
         jwtToken: response.data.jwtToken,
-      }
+      };
     } catch (error) {
-      console.error("Email registration error:", error)
+      console.error("Email registration error:", error);
       if (error.code) {
         // Firebase error
         switch (error.code) {
           case "auth/email-already-in-use":
-            return rejectWithValue("An account with this email already exists")
+            return rejectWithValue("An account with this email already exists");
           case "auth/weak-password":
-            return rejectWithValue("Password is too weak. Please choose a stronger password.")
+            return rejectWithValue("Password is too weak. Please choose a stronger password.");
           case "auth/invalid-email":
-            return rejectWithValue("Invalid email address")
+            return rejectWithValue("Invalid email address");
           case "auth/operation-not-allowed":
-            return rejectWithValue("Email/password accounts are not enabled")
+            return rejectWithValue("Email/password accounts are not enabled");
           case "auth/network-request-failed":
-            return rejectWithValue("Network error. Please check your connection.")
+            return rejectWithValue("Network error. Please check your connection.");
           default:
-            return rejectWithValue("Registration failed. Please try again.")
+            return rejectWithValue("Registration failed. Please try again.");
         }
       }
-      return rejectWithValue(error.response?.data?.message || "Registration failed")
+      return rejectWithValue(error.response?.data?.message || "Registration failed");
     }
   },
-)
-
+);
 export const loginWithEmail = createAsyncThunk(
   "auth/loginWithEmail",
   async ({ email, password }, { rejectWithValue }) => {
     try {
       // Sign in with Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      const firebaseUser = userCredential.user
-      // Get ID token and verify with backend
-      const idToken = await firebaseUser.getIdToken()
-      const response = await api.post("/auth/verify-token", { idToken })
-      // Store user data 
-      localStorage.setItem("user", JSON.stringify(response.data.user))
-      localStorage.setItem("authToken", response.data.jwtToken)
-      localStorage.setItem("fashionhub_token", response.data.jwtToken)
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
+      
+      // Get fresh ID token and verify with backend
+      const idToken = await firebaseUser.getIdToken(true);
+      const response = await api.post("/auth/verify-token", { idToken });
+      
+      // Set token expiry (2 months from now)
+      const expiryDate = new Date();
+      expiryDate.setMonth(expiryDate.getMonth() + 2);
+      
+      // Store user data with expiry
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("authToken", response.data.jwtToken);
+      localStorage.setItem("tokenExpiry", expiryDate.toISOString());
+      localStorage.setItem("fashionhub_token", response.data.jwtToken);
       return {
         firebaseUser: {
           uid: firebaseUser.uid,
@@ -282,104 +305,102 @@ export const loginWithEmail = createAsyncThunk(
         },
         user: response.data.user,
         jwtToken: response.data.jwtToken,
-      }
+      };
     } catch (error) {
-      console.error("Email login error:", error)
+      console.error("Email login error:", error);
       if (error.code) {
         // Firebase error
         switch (error.code) {
           case "auth/user-not-found":
           case "auth/wrong-password":
-            return rejectWithValue("Invalid email or password")
+            return rejectWithValue("Invalid email or password");
           case "auth/invalid-email":
-            return rejectWithValue("Invalid email address")
+            return rejectWithValue("Invalid email address");
           case "auth/user-disabled":
-            return rejectWithValue("This account has been disabled")
+            return rejectWithValue("This account has been disabled");
           case "auth/too-many-requests":
-            return rejectWithValue("Too many failed attempts. Please try again later.")
+            return rejectWithValue("Too many failed attempts. Please try again later.");
           case "auth/network-request-failed":
-            return rejectWithValue("Network error. Please check your connection.")
+            return rejectWithValue("Network error. Please check your connection.");
           case "auth/invalid-credential":
-            return rejectWithValue("Invalid email or password")
+            return rejectWithValue("Invalid email or password");
           default:
-            return rejectWithValue("Login failed. Please try again.")
+            return rejectWithValue("Login failed. Please try again.");
         }
       }
-      return rejectWithValue(error.response?.data?.message || "Login failed")
+      return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   },
-)
-
+);
 // Phone Authentication Thunks
 export const sendPhoneOTP = createAsyncThunk("auth/sendPhoneOTP", async (phoneNumber, { rejectWithValue }) => {
   try {
     // First, prepare the backend for OTP
-    await axios.post(`${API_BASE_URL}/auth/phone/prepare-otp`, { phoneNumber })
+    await axios.post(`${API_BASE_URL}/auth/phone/prepare-otp`, { phoneNumber });
     // Ensure reCAPTCHA is clean before initializing
-    cleanupRecaptcha() // Add this line
+    cleanupRecaptcha(); // Add this line
     // Initialize reCAPTCHA
     if (!window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
         size: "invisible",
         callback: (response) => {
-          console.log("reCAPTCHA solved:", response)
+          console.log("reCAPTCHA solved:", response);
         },
         "expired-callback": () => {
-          console.log("reCAPTCHA expired")
-          cleanupRecaptcha() // Add this line
+          console.log("reCAPTCHA expired");
+          cleanupRecaptcha(); // Add this line
         },
-      })
+      });
     }
     // Send OTP using Firebase
-    const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier)
+    const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
     return {
       phoneNumber,
       confirmationResult,
       message: "OTP sent successfully",
-    }
+    };
   } catch (error) {
-    console.error("Send phone OTP error:", error)
+    console.error("Send phone OTP error:", error);
     // Clean up reCAPTCHA on error
-    cleanupRecaptcha() // Ensure this is called on error
+    cleanupRecaptcha(); // Ensure this is called on error
     switch (error.code) {
       case "auth/invalid-phone-number":
-        return rejectWithValue("Invalid phone number format")
+        return rejectWithValue("Invalid phone number format");
       case "auth/too-many-requests":
-        return rejectWithValue("Too many requests. Please try again later.")
+        return rejectWithValue("Too many requests. Please try again later.");
       case "auth/captcha-check-failed":
-        return rejectWithValue("reCAPTCHA verification failed. Please try again.")
+        return rejectWithValue("reCAPTCHA verification failed. Please try again.");
       case "auth/network-request-failed":
-        return rejectWithValue("Network error. Please check your connection.")
+        return rejectWithValue("Network error. Please check your connection.");
       case "auth/billing-not-enabled": // Add specific handling for billing error
-        return rejectWithValue("Phone authentication requires billing to be enabled on your Firebase project.")
+        return rejectWithValue("Phone authentication requires billing to be enabled on your Firebase project.");
       default:
-        return rejectWithValue("Failed to send OTP. Please try again.")
+        return rejectWithValue("Failed to send OTP. Please try again.");
     }
   }
-})
-
+});
 export const verifyPhoneOTP = createAsyncThunk(
   "auth/verifyPhoneOTP",
   async ({ confirmationResult, otp, phoneNumber, name }, { rejectWithValue }) => {
     try {
       // Verify OTP with Firebase
-      const userCredential = await confirmationResult.confirm(otp)
-      const firebaseUser = userCredential.user
+      const userCredential = await confirmationResult.confirm(otp);
+      const firebaseUser = userCredential.user;
       // Get ID token
-      const idToken = await firebaseUser.getIdToken()
+      const idToken = await firebaseUser.getIdToken();
       // Verify with backend and complete registration/login
       const response = await axios.post(`${API_BASE_URL}/auth/phone/verify-otp`, {
         phoneNumber,
         name,
         firebaseIdToken: idToken,
-      })
+      });
       // Store user data
-      localStorage.setItem("user", JSON.stringify(response.data.user))
-      localStorage.setItem("authToken", response.data.jwtToken)
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("authToken", response.data.jwtToken);
       // Clean up reCAPTCHA
       if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
       }
       return {
         firebaseUser: {
@@ -390,218 +411,211 @@ export const verifyPhoneOTP = createAsyncThunk(
         },
         user: response.data.user,
         jwtToken: response.data.jwtToken,
-      }
+      };
     } catch (error) {
-      console.error("Verify phone OTP error:", error)
+      console.error("Verify phone OTP error:", error);
       switch (error.code) {
         case "auth/invalid-verification-code":
-          return rejectWithValue("Invalid verification code")
+          return rejectWithValue("Invalid verification code");
         case "auth/code-expired":
-          return rejectWithValue("Verification code has expired")
+          return rejectWithValue("Verification code has expired");
         case "auth/too-many-requests":
-          return rejectWithValue("Too many requests. Please try again later.")
+          return rejectWithValue("Too many requests. Please try again later.");
         default:
-          return rejectWithValue(error.response?.data?.message || "Failed to verify OTP. Please try again.")
+          return rejectWithValue(error.response?.data?.message || "Failed to verify OTP. Please try again.");
       }
     }
   },
-)
-
+);
 // Legacy functions for backward compatibility
-export const sendOTP = sendPhoneOTP
-export const verifyOTP = verifyPhoneOTP
-
+export const sendOTP = sendPhoneOTP;
+export const verifyOTP = verifyPhoneOTP;
 // Legacy login function for backward compatibility
 export const loginUser = createAsyncThunk("auth/loginUser", async ({ email, password }, { rejectWithValue }) => {
-  return loginWithEmail({ email, password }, { rejectWithValue })
-})
-
+  return loginWithEmail({ email, password }, { rejectWithValue });
+});
 // Legacy register function for backward compatibility
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async ({ email, password, name }, { rejectWithValue }) => {
-    return registerWithEmail({ email, password, name }, { rejectWithValue })
+    return registerWithEmail({ email, password, name }, { rejectWithValue });
   },
-)
-
+);
 // Common Authentication Thunks
-export const logoutUser = createAsyncThunk("auth/logoutUser", async (_, { rejectWithValue }) => {
+export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
   try {
     // Call backend logout
-    await api.post("/auth/logout")
+    await api.post("/auth/logout");
     // Sign out from Firebase
-    await firebaseSignOut(auth)
-    // Clear local storage
-    localStorage.removeItem("user")
-    localStorage.removeItem("authToken")
+    await firebaseSignOut(auth);
+    // Clear all auth-related data from local storage
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("tokenExpiry");
+    localStorage.removeItem("fashionhub_token");
     // Clean up reCAPTCHA
-    cleanupRecaptcha()
-    return { success: true }
-  } catch (error) {
+    cleanupRecaptcha();
+    return { success: true };
+  } catch {
     // Even if backend call fails, still sign out locally
     try {
-      await firebaseSignOut(auth)
-      localStorage.removeItem("user")
-      localStorage.removeItem("authToken")
-      cleanupRecaptcha()
+      await firebaseSignOut(auth);
+      // Clear all auth-related data
+      localStorage.removeItem("user");
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("tokenExpiry");
+      localStorage.removeItem("fashionhub_token");
+      cleanupRecaptcha();
     } catch (signOutError) {
-      console.error("Error signing out:", signOutError)
+      console.error("Error signing out:", signOutError);
     }
-    return { success: true }
+    return { success: true };
   }
-})
-
+});
 export const forgotPassword = createAsyncThunk("auth/forgotPassword", async (email, { rejectWithValue }) => {
   try {
-    await sendPasswordResetEmail(auth, email)
-    return { message: "Password reset email sent successfully" }
+    await sendPasswordResetEmail(auth, email);
+    return { message: "Password reset email sent successfully" };
   } catch (error) {
-    console.error("Forgot password error:", error)
+    console.error("Forgot password error:", error);
     switch (error.code) {
       case "auth/user-not-found":
-        return rejectWithValue("No account found with this email address")
+        return rejectWithValue("No account found with this email address");
       case "auth/invalid-email":
-        return rejectWithValue("Invalid email address")
+        return rejectWithValue("Invalid email address");
       case "auth/too-many-requests":
-        return rejectWithValue("Too many requests. Please try again later.")
+        return rejectWithValue("Too many requests. Please try again later.");
       case "auth/network-request-failed":
-        return rejectWithValue("Network error. Please check your connection.")
+        return rejectWithValue("Network error. Please check your connection.");
       default:
-        return rejectWithValue("Failed to send password reset email")
+        return rejectWithValue("Failed to send password reset email");
     }
   }
-})
-
+});
 export const updateProfile = createAsyncThunk("auth/updateProfile", async (profileData, { rejectWithValue }) => {
   try {
-    const user = auth.currentUser
+    const user = auth.currentUser;
     if (!user) {
-      throw new Error("No authenticated user")
+      throw new Error("No authenticated user");
     }
     // Update Firebase profile if name is provided
     if (profileData.name && profileData.name !== user.displayName) {
       await updateFirebaseProfile(user, {
         displayName: profileData.name,
-      })
+      });
     }
     // Update backend profile
-    const response = await api.put("/auth/profile", profileData)
+    const response = await api.put("/auth/profile", profileData);
     // Update local storage
-    localStorage.setItem("user", JSON.stringify(response.data.user))
-    return response.data
+    localStorage.setItem("user", JSON.stringify(response.data.user));
+    return response.data;
   } catch (error) {
-    console.error("Update profile error:", error)
-    return rejectWithValue(error.response?.data?.message || "Failed to update profile")
+    console.error("Update profile error:", error);
+    return rejectWithValue(error.response?.data?.message || "Failed to update profile");
   }
-})
-
+});
 export const changePassword = createAsyncThunk(
   "auth/changePassword",
   async ({ currentPassword, newPassword }, { rejectWithValue }) => {
     try {
-      const user = auth.currentUser
+      const user = auth.currentUser;
       if (!user) {
-        throw new Error("No authenticated user")
+        throw new Error("No authenticated user");
       }
       // Reauthenticate user
-      const credential = EmailAuthProvider.credential(user.email, currentPassword)
-      await reauthenticateWithCredential(user, credential)
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
       // Update password
-      await updatePassword(user, newPassword)
-      return { message: "Password updated successfully" }
+      await updatePassword(user, newPassword);
+      return { message: "Password updated successfully" };
     } catch (error) {
-      console.error("Change password error:", error)
+      console.error("Change password error:", error);
       switch (error.code) {
         case "auth/wrong-password":
-          return rejectWithValue("Current password is incorrect")
+          return rejectWithValue("Current password is incorrect");
         case "auth/weak-password":
-          return rejectWithValue("New password is too weak")
+          return rejectWithValue("New password is too weak");
         case "auth/requires-recent-login":
-          return rejectWithValue("Please log in again to change your password")
+          return rejectWithValue("Please log in again to change your password");
         case "auth/too-many-requests":
-          return rejectWithValue("Too many requests. Please try again later.")
+          return rejectWithValue("Too many requests. Please try again later.");
         default:
-          return rejectWithValue("Failed to change password")
+          return rejectWithValue("Failed to change password");
       }
     }
   },
-)
-
+);
 export const sendVerificationEmail = createAsyncThunk("auth/sendVerificationEmail", async (_, { rejectWithValue }) => {
   try {
-    const user = auth.currentUser
+    const user = auth.currentUser;
     if (!user) {
-      throw new Error("No authenticated user")
+      throw new Error("No authenticated user");
     }
-    await sendEmailVerification(user)
-    return { message: "Verification email sent successfully" }
+    await sendEmailVerification(user);
+    return { message: "Verification email sent successfully" };
   } catch (error) {
-    console.error("Send verification email error:", error)
+    console.error("Send verification email error:", error);
     switch (error.code) {
       case "auth/too-many-requests":
-        return rejectWithValue("Too many requests. Please try again later.")
+        return rejectWithValue("Too many requests. Please try again later.");
       case "auth/network-request-failed":
-        return rejectWithValue("Network error. Please check your connection.")
+        return rejectWithValue("Network error. Please check your connection.");
       default:
-        return rejectWithValue("Failed to send verification email")
+        return rejectWithValue("Failed to send verification email");
     }
   }
-})
-
+});
 export const deleteAccount = createAsyncThunk("auth/deleteAccount", async (_, { rejectWithValue }) => {
   try {
-    const user = auth.currentUser
+    const user = auth.currentUser;
     if (!user) {
-      throw new Error("No authenticated user")
+      throw new Error("No authenticated user");
     }
     // Delete from backend first
-    await api.delete("/auth/account")
+    await api.delete("/auth/account");
     // Delete Firebase user
-    await deleteUser(user)
+    await deleteUser(user);
     // Clear local storage
-    localStorage.removeItem("user")
-    localStorage.removeItem("authToken")
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
     // Clean up reCAPTCHA
-    cleanupRecaptcha()
-    return { success: true }
+    cleanupRecaptcha();
+    return { success: true };
   } catch (error) {
-    console.error("Delete account error:", error)
+    console.error("Delete account error:", error);
     if (error.code === "auth/requires-recent-login") {
-      return rejectWithValue("Please log in again to delete your account")
+      return rejectWithValue("Please log in again to delete your account");
     }
-    return rejectWithValue(error.response?.data?.message || "Failed to delete account")
+    return rejectWithValue(error.response?.data?.message || "Failed to delete account");
   }
-})
-
+});
 export const getProfile = createAsyncThunk("auth/getProfile", async (_, { rejectWithValue }) => {
   try {
-    const response = await api.get("/auth/profile")
+    const response = await api.get("/auth/profile");
     // Update local storage
-    localStorage.setItem("user", JSON.stringify(response.data.user))
-    return response.data
+    localStorage.setItem("user", JSON.stringify(response.data.user));
+    return response.data;
   } catch (error) {
-    console.error("Get profile error:", error)
-    return rejectWithValue(error.response?.data?.message || "Failed to get profile")
+    console.error("Get profile error:", error);
+    return rejectWithValue(error.response?.data?.message || "Failed to get profile");
   }
-})
-
+});
 export const refreshUserData = createAsyncThunk("auth/refreshUserData", async (_, { rejectWithValue }) => {
   try {
-    const user = auth.currentUser
+    const user = auth.currentUser;
     if (!user) {
-      throw new Error("No authenticated user")
+      throw new Error("No authenticated user");
     }
-    const idToken = await user.getIdToken(true)
-    const response = await api.post("/auth/verify-token", { idToken })
-    localStorage.setItem("user", JSON.stringify(response.data.user))
-    localStorage.setItem("authToken", response.data.jwtToken)
-    return response.data
+    const idToken = await user.getIdToken(true);
+    const response = await api.post("/auth/verify-token", { idToken });
+    localStorage.setItem("user", JSON.stringify(response.data.user));
+    localStorage.setItem("authToken", response.data.jwtToken);
+    return response.data;
   } catch (error) {
-    console.error("Refresh user data error:", error)
-    return rejectWithValue(error.response?.data?.message || "Failed to refresh user data")
+    console.error("Refresh user data error:", error);
+    return rejectWithValue(error.response?.data?.message || "Failed to refresh user data");
   }
-})
-
+});
 // Initial state - UPDATED
 const initialState = {
   user: null, // Don't load from localStorage initially
@@ -615,8 +629,7 @@ const initialState = {
   confirmationResult: null,
   phoneNumber: null,
   initialized: false, // This flag tracks if auth has been initialized
-}
-
+};
 // Auth slice
 const authSlice = createSlice({
   name: "auth",
@@ -624,369 +637,367 @@ const authSlice = createSlice({
   reducers: {
     // Synchronous actions
     clearError: (state) => {
-      state.error = null
+      state.error = null;
     },
     clearSuccess: (state) => {
       // Renamed from clearMessage
-      state.message = null
+      state.message = null;
     },
     setUser: (state, action) => {
-      state.user = action.payload
-      state.isAuthenticated = !!action.payload
+      state.user = action.payload;
+      state.isAuthenticated = !!action.payload;
     },
     setToken: (state, action) => {
-      state.token = action.payload
+      state.token = action.payload;
     },
     setFirebaseUser: (state, action) => {
-      state.firebaseUser = action.payload
+      state.firebaseUser = action.payload;
     },
     logout: (state) => {
-      state.user = null
-      state.token = null
-      state.firebaseUser = null
-      state.isAuthenticated = false
-      state.error = null
-      state.message = null
-      state.otpSent = false
-      state.confirmationResult = null
-      state.phoneNumber = null
-      localStorage.removeItem("user")
-      localStorage.removeItem("authToken")
+      state.user = null;
+      state.token = null;
+      state.firebaseUser = null;
+      state.isAuthenticated = false;
+      state.error = null;
+      state.message = null;
+      state.otpSent = false;
+      state.confirmationResult = null;
+      state.phoneNumber = null;
+      localStorage.removeItem("user");
+      localStorage.removeItem("authToken");
     },
     clearPhoneAuthState: (state) => {
       // Renamed from resetOtpState
-      state.otpSent = false
-      state.confirmationResult = null
-      state.phoneNumber = null
+      state.otpSent = false;
+      state.confirmationResult = null;
+      state.phoneNumber = null;
     },
   },
   extraReducers: (builder) => {
     builder
       // Initialize Auth - NEW
       .addCase(initializeAuth.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(initializeAuth.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.initialized = true
-        state.isAuthenticated = action.payload.isAuthenticated
-        state.user = action.payload.user
-        state.token = action.payload.jwtToken || action.payload.token
-        state.firebaseUser = action.payload.firebaseUser
-        state.error = null
+        state.isLoading = false;
+        state.initialized = true;
+        state.isAuthenticated = action.payload.isAuthenticated;
+        state.user = action.payload.user;
+        state.token = action.payload.jwtToken || action.payload.token;
+        state.firebaseUser = action.payload.firebaseUser;
+        state.error = null;
       })
       .addCase(initializeAuth.rejected, (state, action) => {
-        state.isLoading = false
-        state.initialized = true
-        state.isAuthenticated = false
-        state.user = null
-        state.token = null
-        state.firebaseUser = null
-        state.error = null // Don't show error for initialization failure
+        state.isLoading = false;
+        state.initialized = true;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
+        state.firebaseUser = null;
+        state.error = null; // Don't show error for initialization failure
       })
       // Check Auth
       .addCase(checkAuth.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.initialized = true
+        state.isLoading = false;
+        state.initialized = true;
         if (action.payload) {
-          state.user = action.payload.user
-          state.token = action.payload.jwtToken
-          state.firebaseUser = action.payload.firebaseUser
-          state.isAuthenticated = true
+          state.user = action.payload.user;
+          state.token = action.payload.jwtToken;
+          state.firebaseUser = action.payload.firebaseUser;
+          state.isAuthenticated = true;
         } else {
-          state.user = null
-          state.token = null
-          state.firebaseUser = null
-          state.isAuthenticated = false
+          state.user = null;
+          state.token = null;
+          state.firebaseUser = null;
+          state.isAuthenticated = false;
         }
-        state.error = null
+        state.error = null;
       })
       .addCase(checkAuth.rejected, (state, action) => {
-        state.isLoading = false
-        state.initialized = true
-        state.user = null
-        state.token = null
-        state.firebaseUser = null
-        state.isAuthenticated = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.initialized = true;
+        state.user = null;
+        state.token = null;
+        state.firebaseUser = null;
+        state.isAuthenticated = false;
+        state.error = action.payload;
       })
       // Email Login
       .addCase(loginWithEmail.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(loginWithEmail.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.initialized = true
-        state.user = action.payload.user
-        state.token = action.payload.jwtToken
-        state.firebaseUser = action.payload.firebaseUser
-        state.isAuthenticated = true
-        state.message = "Login successful!"
-        state.error = null
+        state.isLoading = false;
+        state.initialized = true;
+        state.user = action.payload.user;
+        state.token = action.payload.jwtToken;
+        state.firebaseUser = action.payload.firebaseUser;
+        state.isAuthenticated = true;
+        state.message = "Login successful!";
+        state.error = null;
       })
       .addCase(loginWithEmail.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Email Register
       .addCase(registerWithEmail.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(registerWithEmail.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.initialized = true
-        state.user = action.payload.user
-        state.token = action.payload.jwtToken
-        state.firebaseUser = action.payload.firebaseUser
-        state.isAuthenticated = true
-        state.message = "Registration successful!"
-        state.error = null
+        state.isLoading = false;
+        state.initialized = true;
+        state.user = action.payload.user;
+        state.token = action.payload.jwtToken;
+        state.firebaseUser = action.payload.firebaseUser;
+        state.isAuthenticated = true;
+        state.message = "Registration successful!";
+        state.error = null;
       })
       .addCase(registerWithEmail.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Phone OTP Send
       .addCase(sendPhoneOTP.pending, (state) => {
-        state.isLoading = true
-        state.error = null
-        state.otpSent = false
+        state.isLoading = true;
+        state.error = null;
+        state.otpSent = false;
       })
       .addCase(sendPhoneOTP.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.otpSent = true
-        state.confirmationResult = action.payload.confirmationResult
-        state.phoneNumber = action.payload.phoneNumber
-        state.message = action.payload.message
-        state.error = null
+        state.isLoading = false;
+        state.otpSent = true;
+        state.confirmationResult = action.payload.confirmationResult;
+        state.phoneNumber = action.payload.phoneNumber;
+        state.message = action.payload.message;
+        state.error = null;
       })
       .addCase(sendPhoneOTP.rejected, (state, action) => {
-        state.isLoading = false
-        state.otpSent = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.otpSent = false;
+        state.error = action.payload;
       })
       // Phone OTP Verify
       .addCase(verifyPhoneOTP.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(verifyPhoneOTP.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.initialized = true
-        state.user = action.payload.user
-        state.token = action.payload.jwtToken
-        state.firebaseUser = action.payload.firebaseUser
-        state.isAuthenticated = true
-        state.message = "Phone verification successful!"
-        state.error = null
-        state.otpSent = false
-        state.confirmationResult = null
-        state.phoneNumber = null
+        state.isLoading = false;
+        state.initialized = true;
+        state.user = action.payload.user;
+        state.token = action.payload.jwtToken;
+        state.firebaseUser = action.payload.firebaseUser;
+        state.isAuthenticated = true;
+        state.message = "Phone verification successful!";
+        state.error = null;
+        state.otpSent = false;
+        state.confirmationResult = null;
+        state.phoneNumber = null;
       })
       .addCase(verifyPhoneOTP.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Legacy Login
       .addCase(loginUser.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.initialized = true
-        state.user = action.payload.user
-        state.token = action.payload.jwtToken
-        state.firebaseUser = action.payload.firebaseUser
-        state.isAuthenticated = true
-        state.message = "Login successful!"
-        state.error = null
+        state.isLoading = false;
+        state.initialized = true;
+        state.user = action.payload.user;
+        state.token = action.payload.jwtToken;
+        state.firebaseUser = action.payload.firebaseUser;
+        state.isAuthenticated = true;
+        state.message = "Login successful!";
+        state.error = null;
       })
       .addCase(loginUser.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Legacy Register
       .addCase(registerUser.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.initialized = true
-        state.user = action.payload.user
-        state.token = action.payload.jwtToken
-        state.firebaseUser = action.payload.firebaseUser
-        state.isAuthenticated = true
-        state.message = "Registration successful!"
-        state.error = null
+        state.isLoading = false;
+        state.initialized = true;
+        state.user = action.payload.user;
+        state.token = action.payload.jwtToken;
+        state.firebaseUser = action.payload.firebaseUser;
+        state.isAuthenticated = true;
+        state.message = "Registration successful!";
+        state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Logout
       .addCase(logoutUser.pending, (state) => {
-        state.isLoading = true
+        state.isLoading = true;
       })
       .addCase(logoutUser.fulfilled, (state) => {
-        state.isLoading = false
-        state.user = null
-        state.token = null
-        state.firebaseUser = null
-        state.isAuthenticated = false
-        state.error = null
-        state.message = "Logged out successfully"
-        state.otpSent = false
-        state.confirmationResult = null
-        state.phoneNumber = null
+        state.isLoading = false;
+        state.user = null;
+        state.token = null;
+        state.firebaseUser = null;
+        state.isAuthenticated = false;
+        state.error = null;
+        state.message = "Logged out successfully";
+        state.otpSent = false;
+        state.confirmationResult = null;
+        state.phoneNumber = null;
       })
       .addCase(logoutUser.rejected, (state, action) => {
-        state.isLoading = false
+        state.isLoading = false;
         // Still clear auth state even if logout fails
-        state.user = null
-        state.token = null
-        state.firebaseUser = null
-        state.isAuthenticated = false
-        state.otpSent = false
-        state.confirmationResult = null
-        state.phoneNumber = null
+        state.user = null;
+        state.token = null;
+        state.firebaseUser = null;
+        state.isAuthenticated = false;
+        state.otpSent = false;
+        state.confirmationResult = null;
+        state.phoneNumber = null;
       })
       // Forgot Password
       .addCase(forgotPassword.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(forgotPassword.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.message = action.payload.message
-        state.error = null
+        state.isLoading = false;
+        state.message = action.payload.message;
+        state.error = null;
       })
       .addCase(forgotPassword.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Update Profile
       .addCase(updateProfile.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.user = action.payload.user
-        state.message = "Profile updated successfully"
-        state.error = null
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.message = "Profile updated successfully";
+        state.error = null;
       })
       .addCase(updateProfile.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Upload Avatar
       .addCase(uploadAvatar.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(uploadAvatar.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.user = action.payload.user
-        state.message = "Avatar updated successfully"
-        state.error = null
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.message = "Avatar updated successfully";
+        state.error = null;
       })
       .addCase(uploadAvatar.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Change Password
       .addCase(changePassword.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(changePassword.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.message = action.payload.message
-        state.error = null
+        state.isLoading = false;
+        state.message = action.payload.message;
+        state.error = null;
       })
       .addCase(changePassword.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Send Verification Email
       .addCase(sendVerificationEmail.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(sendVerificationEmail.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.message = action.payload.message
-        state.error = null
+        state.isLoading = false;
+        state.message = action.payload.message;
+        state.error = null;
       })
       .addCase(sendVerificationEmail.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Delete Account
       .addCase(deleteAccount.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(deleteAccount.fulfilled, (state) => {
-        state.isLoading = false
-        state.user = null
-        state.token = null
-        state.firebaseUser = null
-        state.isAuthenticated = false
-        state.message = "Account deleted successfully"
-        state.error = null
-        state.otpSent = false
-        state.confirmationResult = null
-        state.phoneNumber = null
+        state.isLoading = false;
+        state.user = null;
+        state.token = null;
+        state.firebaseUser = null;
+        state.isAuthenticated = false;
+        state.message = "Account deleted successfully";
+        state.error = null;
+        state.otpSent = false;
+        state.confirmationResult = null;
+        state.phoneNumber = null;
       })
       .addCase(deleteAccount.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Get Profile
       .addCase(getProfile.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(getProfile.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.user = action.payload.user
-        state.error = null
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.error = null;
       })
       .addCase(getProfile.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
+        state.isLoading = false;
+        state.error = action.payload;
       })
       // Refresh User Data
       .addCase(refreshUserData.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
       .addCase(refreshUserData.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.user = action.payload.user
-        state.token = action.payload.jwtToken
-        state.error = null
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.jwtToken;
+        state.error = null;
       })
       .addCase(refreshUserData.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload
-      })
+        state.isLoading = false;
+        state.error = action.payload;
+      });
   },
-})
-
+});
 // Export actions
 export const { clearError, clearSuccess, setUser, setToken, setFirebaseUser, logout, clearPhoneAuthState } =
-  authSlice.actions
-
+  authSlice.actions;
 // Export reducer
-export default authSlice.reducer
+export default authSlice.reducer;

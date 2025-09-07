@@ -1,19 +1,15 @@
 import axios from "axios";
 import { trackOrder } from "../slices/orderSlice";
-
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
 // Create axios instance with interceptors
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
-
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("fashionhub_token");
-
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,7 +19,6 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
@@ -35,31 +30,24 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 export const orderAPI = {
   // Create Razorpay order
   createRazorpayOrder: (orderData) =>
     api.post("/orders/create-razorpay-order", orderData),
-
   // Verify payment
   verifyPayment: (paymentData) =>
     api.post("/orders/verify-payment", paymentData),
-
   // Get user orders
   getUserOrders: (page = 1, limit = 10) =>
     api.get(`/orders/my-orders?page=${page}&limit=${limit}`),
-
   // Get order details
   getOrderDetails: (orderId) => api.get(`/orders/${orderId}`),
-
   // Get shipping rates
   getShippingRates: (rateData) => api.post("/orders/shipping-rates", rateData),
-
   // Cancel order
   cancelOrder: (orderId, reason) =>
     api.put(`/orders/${orderId}/cancel`, { reason }),
-
   //COD order
-  placeCodOrder: (orderData) => api.post(`/orders/cod`, orderData),
-  trackOrder: (order) => api.post(`orders/trackingOrder`,order)
+  placeCodOrder: (orderData) => api.post("/orders/cod", orderData),
+  trackOrder: (order) => api.post("orders/trackingOrder",order)
 };

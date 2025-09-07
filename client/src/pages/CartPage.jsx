@@ -1,10 +1,9 @@
-"use client"
-
-import { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { Link, useNavigate } from "react-router-dom"
-import { motion, AnimatePresence } from "framer-motion"
-import { ShoppingBag, Plus, Minus, Trash2, Heart, ArrowLeft, Truck, RotateCcw, ShoppingCart } from "lucide-react"
+"use client";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { ShoppingBag, Plus, Minus, Trash2, Heart, ArrowLeft, Truck, RotateCcw, ShoppingCart } from "lucide-react";
 import {
   fetchCart,
   updateCartItem,
@@ -12,124 +11,104 @@ import {
   clearCart,
   optimisticUpdateQuantity,
   optimisticRemoveFromCart,
-} from "../store/slices/cartSlice"
-import { addToWishlist, optimisticAddToWishlist } from "../store/slices/wishlistSlice"
-import LoadingSpinner from "../components/LoadingSpinner"
-import toast from "react-hot-toast"
-import Preloader from "../components/Preloader"
+} from "../store/slices/cartSlice";
+import { addToWishlist, optimisticAddToWishlist } from "../store/slices/wishlistSlice";
+import LoadingSpinner from "../components/LoadingSpinner";
+import toast from "react-hot-toast";
+import Preloader from "../components/Preloader";
 const CartPage = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-
-  const { items, summary, isLoading, error } = useSelector((state) => state.cart)
-  const { isAuthenticated, user } = useSelector((state) => state.auth)
-  const { items: wishlistItems } = useSelector((state) => state.wishlist)
-
-  const [updatingItems, setUpdatingItems] = useState(new Set())
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { items, summary, isLoading, error } = useSelector((state) => state.cart);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { items: wishlistItems } = useSelector((state) => state.wishlist);
+  const [updatingItems, setUpdatingItems] = useState(new Set());
   useEffect(() => {
     if (user) {
-      dispatch(fetchCart())
+      dispatch(fetchCart());
     }
-  }, [user, dispatch])
-
+  }, [user, dispatch]);
   const handleQuantityChange = async (itemId, newQuantity) => {
-    if (newQuantity < 1 || newQuantity > 10) return
-
-    dispatch(optimisticUpdateQuantity({ itemId, quantity: newQuantity }))
-
-    setUpdatingItems((prev) => new Set(prev).add(itemId))
-
+    if (newQuantity < 1 || newQuantity > 10) return;
+    dispatch(optimisticUpdateQuantity({ itemId, quantity: newQuantity }));
+    setUpdatingItems((prev) => new Set(prev).add(itemId));
     try {
-      await dispatch(updateCartItem({ itemId, data: { quantity: newQuantity } })).unwrap()
+      await dispatch(updateCartItem({ itemId, data: { quantity: newQuantity } })).unwrap();
     } catch (error) {
-      console.error("Update quantity error:", error)
-      toast.error(error?.message || "Failed to update quantity")
-      dispatch(fetchCart())
+      console.error("Update quantity error:", error);
+      toast.error(error?.message || "Failed to update quantity");
+      dispatch(fetchCart());
     } finally {
       setUpdatingItems((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(itemId)
-        return newSet
-      })
+        const newSet = new Set(prev);
+        newSet.delete(itemId);
+        return newSet;
+      });
     }
-  }
-
+  };
   const handleRemoveItem = async (itemId, productName) => {
     try {
-      dispatch(optimisticRemoveFromCart(itemId))
-      toast.success(`${productName} removed from cart`)
-
-      const bagElement = document.querySelector("#bag")
+      dispatch(optimisticRemoveFromCart(itemId));
+      toast.success(`${productName} removed from cart`);
+      const bagElement = document.querySelector("#bag");
       if (bagElement) {
-        bagElement.style.transform = "scale(1.2)"
+        bagElement.style.transform = "scale(1.2)";
         setTimeout(() => {
-          bagElement.style.transform = "scale(1)"
-        }, 200)
+          bagElement.style.transform = "scale(1)";
+        }, 200);
       }
-
-      await dispatch(removeFromCart(itemId)).unwrap()
+      await dispatch(removeFromCart(itemId)).unwrap();
     } catch (error) {
-      console.error("Remove from cart error:", error)
-      toast.error(error?.message || "Failed to remove from cart")
+      console.error("Remove from cart error:", error);
+      toast.error(error?.message || "Failed to remove from cart");
     }
-  }
-
+  };
   const handleMoveToWishlist = async (item) => {
     try {
-      dispatch(optimisticAddToWishlist(item.product))
-      dispatch(optimisticRemoveFromCart(item._id))
-
-      toast.success(`${item.product.name} moved to wishlist`)
-
-      const bagElement = document.querySelector("#bag")
-      const wishElement = document.querySelector("#wish")
-
+      dispatch(optimisticAddToWishlist(item.product));
+      dispatch(optimisticRemoveFromCart(item._id));
+      toast.success(`${item.product.name} moved to wishlist`);
+      const bagElement = document.querySelector("#bag");
+      const wishElement = document.querySelector("#wish");
       if (bagElement) {
-        bagElement.style.transform = "scale(1.2)"
+        bagElement.style.transform = "scale(1.2)";
         setTimeout(() => {
-          bagElement.style.transform = "scale(1)"
-        }, 200)
+          bagElement.style.transform = "scale(1)";
+        }, 200);
       }
-
       if (wishElement) {
-        wishElement.style.transform = "scale(1.2)"
+        wishElement.style.transform = "scale(1.2)";
         setTimeout(() => {
-          wishElement.style.transform = "scale(1)"
-        }, 200)
+          wishElement.style.transform = "scale(1)";
+        }, 200);
       }
-
-      await dispatch(addToWishlist(item.product._id)).unwrap()
-      await dispatch(removeFromCart(item._id)).unwrap()
+      await dispatch(addToWishlist(item.product._id)).unwrap();
+      await dispatch(removeFromCart(item._id)).unwrap();
     } catch (error) {
-      console.error("Move to wishlist error:", error)
-      toast.error(error?.message || "Failed to move to wishlist")
+      console.error("Move to wishlist error:", error);
+      toast.error(error?.message || "Failed to move to wishlist");
     }
-  }
-
+  };
   const handleClearCart = async () => {
     if (window.confirm("Are you sure you want to clear your cart?")) {
       try {
-        await dispatch(clearCart()).unwrap()
-        toast.success("Cart cleared successfully")
+        await dispatch(clearCart()).unwrap();
+        toast.success("Cart cleared successfully");
       } catch (error) {
-        toast.error(error?.message || "Failed to clear cart")
+        toast.error(error?.message || "Failed to clear cart");
       }
     }
-  }
-
+  };
   const isInWishlist = (productId) => {
-    return wishlistItems.some((item) => item._id === productId)
-  }
-
+    return wishlistItems.some((item) => item._id === productId);
+  };
   if (isLoading && items.length === 0) {
     return (
       <div className="pt-28 md:pt-32">
         <Preloader message="Loading your cart..." />
       </div>
-    )
+    );
   }
-
   return (
     <div className=" bg-white pt-4 md:pt-8 pb-20 md:pb-8">
       <div className="container px-4 py-8 mx-auto">
@@ -161,7 +140,6 @@ const CartPage = () => {
             </motion.button>
           )}
         </div>
-
         {items.length === 0 ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="py-16 text-center">
             <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full">
@@ -200,7 +178,6 @@ const CartPage = () => {
                           className="object-cover w-full h-full rounded-xl"
                         />
                       </div>
-
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-2">
                           <Link
@@ -218,13 +195,11 @@ const CartPage = () => {
                             <Trash2 className="w-4 h-4" />
                           </motion.button>
                         </div>
-
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center space-x-3 text-xs md:text-sm text-gray-600">
                             {item.size && <span>Size: {item.size}</span>}
                             {item.color && <span>Color: {item.color}</span>}
                           </div>
-
                           <div className="flex items-center border border-gray-300 rounded">
                             <motion.button
                               onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
@@ -249,7 +224,6 @@ const CartPage = () => {
                             </motion.button>
                           </div>
                         </div>
-
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
                             <span className="text-base md:text-lg font-bold text-gray-800">₹{item.product.price}</span>
@@ -268,7 +242,6 @@ const CartPage = () => {
                               </span>
                             )}
                           </div>
-
                           {!isInWishlist(item.product._id) && (
                             <motion.button
                               onClick={() => handleMoveToWishlist(item)}
@@ -281,7 +254,6 @@ const CartPage = () => {
                             </motion.button>
                           )}
                         </div>
-
                         <div className="mt-2 text-xs text-gray-500 flex items-center">
                           <RotateCcw className="w-3 h-3 mr-1" />
                           <span>7 days return available</span>
@@ -292,7 +264,6 @@ const CartPage = () => {
                 ))}
               </AnimatePresence>
             </div>
-
             <div className="lg:col-span-1">
               {summary.subtotal >= 399 ? (
                 <div className="p-4 mb-4 border border-green-200 rounded-xl bg-green-50">
@@ -311,7 +282,6 @@ const CartPage = () => {
                   </div>
                 </div>
               )}
-
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -319,7 +289,6 @@ const CartPage = () => {
                 className="sticky p-3 bg-white rounded-lg shadow-sm top-4"
               >
                 <h3 className="mb-4 text-xl font-semibold text-gray-800">Order Summary</h3>
-
                 <div className="mb-4 space-y-4">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal ({summary.totalItems} items)</span>
@@ -342,7 +311,6 @@ const CartPage = () => {
                     </div>
                   </div>
                 </div>
-
                 <motion.button
                   onClick={() => navigate("/checkout")}
                   className="hidden md:block w-full py-3 mb-4 font-medium text-white transition-colors bg-red-600 rounded-xl hover:bg-red-700"
@@ -351,17 +319,14 @@ const CartPage = () => {
                 >
                   Place Order
                 </motion.button>
-
                 <div className=" pt-1 mt-1 border-t rounded-xl">
                  <img src="/badge.jpeg" className="rounded-xl"></img>
-                  
                 </div>
               </motion.div>
             </div>
           </div>
         )}
       </div>
-
       {items.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 md:hidden z-50">
           <motion.button
@@ -375,7 +340,6 @@ const CartPage = () => {
         </div>
       )}
     </div>
-  )
-}
-
-export default CartPage
+  );
+};
+export default CartPage;

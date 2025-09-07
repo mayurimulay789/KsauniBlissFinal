@@ -1,9 +1,9 @@
-"use client"
-import { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { Link, useNavigate } from "react-router-dom"
-import { motion, AnimatePresence } from "framer-motion"
-import { Heart, ShoppingBag, Trash2, ArrowLeft, Star, Plus } from "lucide-react"
+"use client";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Heart, ShoppingBag, Trash2, ArrowLeft, Star, Plus } from "lucide-react";
 import {
   fetchWishlist,
   removeFromWishlist,
@@ -13,64 +13,55 @@ import {
   selectWishlistItems,
   selectWishlistIsLoading,
   selectWishlistError,
-} from "../store/slices/wishlistSlice"
-import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice"
-import toast from "react-hot-toast"
-import Preloader from "../components/Preloader"
+} from "../store/slices/wishlistSlice";
+import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice";
+import toast from "react-hot-toast";
+import Preloader from "../components/Preloader";
 const WishlistPage = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   // ✅ Use memoized selectors for better performance
-  const items = useSelector(selectWishlistItems)
-  const isLoading = useSelector(selectWishlistIsLoading)
-  const error = useSelector(selectWishlistError)
-  const isAddingToCart = useSelector(selectIsAddingToCart)
-  const { isAuthenticated } = useSelector((state) => state.auth)
-
-  const [selectedSizes, setSelectedSizes] = useState({})
-  const [movingToCart, setMovingToCart] = useState(new Set())
-  const [removingItems, setRemovingItems] = useState(new Set())
-
+  const items = useSelector(selectWishlistItems);
+  const isLoading = useSelector(selectWishlistIsLoading);
+  const error = useSelector(selectWishlistError);
+  const isAddingToCart = useSelector(selectIsAddingToCart);
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const [selectedSizes, setSelectedSizes] = useState({});
+  const [movingToCart, setMovingToCart] = useState(new Set());
+  const [removingItems, setRemovingItems] = useState(new Set());
   useEffect(() => {
     // ✅ Remove authentication redirect - let users browse wishlist
-    dispatch(fetchWishlist())
-  }, [dispatch])
-
+    dispatch(fetchWishlist());
+  }, [dispatch]);
   const handleRemoveFromWishlist = async (productId, productName) => {
     // ✅ Optimistic update - remove immediately from UI
-    dispatch(optimisticRemoveFromWishlist(productId))
-    setRemovingItems((prev) => new Set(prev).add(productId))
-
+    dispatch(optimisticRemoveFromWishlist(productId));
+    setRemovingItems((prev) => new Set(prev).add(productId));
     // ✅ Trigger navbar wishlist icon animation
-    const wish = document.getElementById("wish")
-    if (wish) wish.click()
-
+    const wish = document.getElementById("wish");
+    if (wish) wish.click();
     try {
-      await dispatch(removeFromWishlist(productId)).unwrap()
-      toast.success(`${productName} removed from wishlist`)
+      await dispatch(removeFromWishlist(productId)).unwrap();
+      toast.success(`${productName} removed from wishlist`);
     } catch (error) {
       // ✅ Revert optimistic update on error
-      dispatch(fetchWishlist())
-      toast.error(error.message || "Failed to remove from wishlist")
+      dispatch(fetchWishlist());
+      toast.error(error.message || "Failed to remove from wishlist");
     } finally {
       setRemovingItems((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(productId)
-        return newSet
-      })
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
     }
-  }
-
+  };
   const handleAddToCart = async (product) => {
-    const size = selectedSizes[product._id]
-
+    const size = selectedSizes[product._id];
     // Check if size is required but not selected
     if (product.sizes && product.sizes.length > 0 && !size) {
-      toast.error("Please select a size")
-      return
+      toast.error("Please select a size");
+      return;
     }
-
     // ✅ Optimistic update - add to cart immediately
     dispatch(
       optimisticAddToCart({
@@ -79,14 +70,11 @@ const WishlistPage = () => {
         size: size || product.sizes?.[0]?.size || "",
         color: product.colors?.[0]?.name || "",
       }),
-    )
-
+    );
     // ✅ Trigger navbar cart icon animation
-    const bag = document.getElementById("bag")
-    if (bag) bag.click()
-
-    setMovingToCart((prev) => new Set(prev).add(product._id))
-
+    const bag = document.getElementById("bag");
+    if (bag) bag.click();
+    setMovingToCart((prev) => new Set(prev).add(product._id));
     try {
       await dispatch(
         addToCart({
@@ -95,29 +83,25 @@ const WishlistPage = () => {
           size: size || product.sizes?.[0]?.size || "",
           color: product.colors?.[0]?.name || "",
         }),
-      ).unwrap()
-
-      toast.success(`${product.name} added to cart`)
+      ).unwrap();
+      toast.success(`${product.name} added to cart`);
     } catch (error) {
-      toast.error(error.message || "Failed to add to cart")
+      toast.error(error.message || "Failed to add to cart");
     } finally {
       setMovingToCart((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(product._id)
-        return newSet
-      })
+        const newSet = new Set(prev);
+        newSet.delete(product._id);
+        return newSet;
+      });
     }
-  }
-
+  };
   const handleMoveToCart = async (product) => {
-    const size = selectedSizes[product._id]
-
+    const size = selectedSizes[product._id];
     // Check if size is required but not selected
     if (product.sizes && product.sizes.length > 0 && !size) {
-      toast.error("Please select a size")
-      return
+      toast.error("Please select a size");
+      return;
     }
-
     // ✅ Optimistic updates - add to cart and remove from wishlist
     dispatch(
       optimisticAddToCart({
@@ -126,17 +110,14 @@ const WishlistPage = () => {
         size: size || product.sizes?.[0]?.size || "",
         color: product.colors?.[0]?.name || "",
       }),
-    )
-    dispatch(optimisticRemoveFromWishlist(product._id))
-
+    );
+    dispatch(optimisticRemoveFromWishlist(product._id));
     // ✅ Trigger navbar animations
-    const bag = document.getElementById("bag")
-    const wish = document.getElementById("wish")
-    if (bag) bag.click()
-    if (wish) wish.click()
-
-    setMovingToCart((prev) => new Set(prev).add(product._id))
-
+    const bag = document.getElementById("bag");
+    const wish = document.getElementById("wish");
+    if (bag) bag.click();
+    if (wish) wish.click();
+    setMovingToCart((prev) => new Set(prev).add(product._id));
     try {
       await dispatch(
         moveToCart({
@@ -147,53 +128,47 @@ const WishlistPage = () => {
             color: product.colors?.[0]?.name || "",
           },
         }),
-      ).unwrap()
-
-      toast.success(`${product.name} moved to cart`)
+      ).unwrap();
+      toast.success(`${product.name} moved to cart`);
     } catch (error) {
       // ✅ Revert optimistic updates on error
-      dispatch(fetchWishlist())
-      toast.error(error.message || "Failed to move to cart")
+      dispatch(fetchWishlist());
+      toast.error(error.message || "Failed to move to cart");
     } finally {
       setMovingToCart((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(product._id)
-        return newSet
-      })
+        const newSet = new Set(prev);
+        newSet.delete(product._id);
+        return newSet;
+      });
     }
-  }
-
+  };
   const handleClearWishlist = async () => {
     if (window.confirm("Are you sure you want to clear your wishlist?")) {
       try {
-        await dispatch(clearWishlist()).unwrap()
-        toast.success("Wishlist cleared successfully")
-
+        await dispatch(clearWishlist()).unwrap();
+        toast.success("Wishlist cleared successfully");
         // ✅ Trigger navbar wishlist icon animation
-        const wish = document.getElementById("wish")
-        if (wish) wish.click()
+        const wish = document.getElementById("wish");
+        if (wish) wish.click();
       } catch (error) {
-        toast.error(error.message || "Failed to clear wishlist")
+        toast.error(error.message || "Failed to clear wishlist");
       }
     }
-  }
-
+  };
   const handleSizeSelect = (productId, size) => {
     setSelectedSizes((prev) => ({
       ...prev,
       [productId]: size,
-    }))
-  }
-
+    }));
+  };
   // ✅ Show loading only for initial load
   if (isLoading && items.length === 0) {
     return (
       <div>
         <Preloader message="Loading your wishlist..." />
       </div>
-    )
+    );
   }
-
   return (
     <div className="bg-gray-50">
       <div className="container px-4 py-8 mx-auto pt-4 md:pt-8">
@@ -208,7 +183,7 @@ const WishlistPage = () => {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800 md:text-3xl rounded-xl">My Wishlist</h1> 
+              <h1 className="text-2xl font-bold text-gray-800 md:text-3xl rounded-xl">My Wishlist</h1>
               <p className="text-gray-600">
                 {items.length} {items.length === 1 ? "item" : "items"} saved for later
               </p>
@@ -223,7 +198,6 @@ const WishlistPage = () => {
             </button>
           )}
         </div>
-
         {items.length === 0 ? (
           /* Empty Wishlist */
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="py-16 text-center">
@@ -245,7 +219,6 @@ const WishlistPage = () => {
         ) : (
           /* Wishlist Items */
 <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-
 <AnimatePresence>
               {items.map((product, index) => (
                 <motion.div
@@ -265,7 +238,6 @@ const WishlistPage = () => {
                         className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105 rounded-xl"
                       />
                     </Link>
-
                     {/* Remove Button */}
                     <motion.button
                       whileHover={{ scale: 1.1 }}
@@ -281,7 +253,6 @@ const WishlistPage = () => {
                         <Trash2 className="w-4 h-4" />
                       )}
                     </motion.button>
-
                     {/* Discount Badge */}
                     {product.originalPrice && product.originalPrice > product.price && (
                       <div className="absolute px-2 py-1 text-xs text-white rounded-full bg-ksauni-red top-3 left-3">
@@ -289,7 +260,6 @@ const WishlistPage = () => {
                       </div>
                     )}
                   </div>
-
                   {/* Product Details */}
                   <div className="p-4">
                     <Link to={`/product/${product._id}`}>
@@ -297,10 +267,8 @@ const WishlistPage = () => {
                         {product.name}
                       </h3>
                     </Link>
-
                     {/* Category */}
                     {product.category && <p className="mb-2 text-sm text-gray-500">{product.category.name}</p>}
-
                     {/* Rating */}
                     {product.rating && product.rating.average > 0 && (
                       <div className="flex items-center mb-2">
@@ -319,7 +287,6 @@ const WishlistPage = () => {
                         <span className="ml-2 text-sm text-gray-500">({product.rating.count})</span>
                       </div>
                     )}
-
                     {/* Price */}
                     <div className="flex items-center mb-3 space-x-2">
                       <span className="text-lg font-bold text-gray-800">₹{product.price}</span>
@@ -327,7 +294,6 @@ const WishlistPage = () => {
                         <span className="text-sm text-gray-500 line-through">₹{product.originalPrice}</span>
                       )}
                     </div>
-
                     {/* Size Selection */}
                     {product.sizes && product.sizes.length > 0 && (
                       <div className="mb-3">
@@ -352,14 +318,12 @@ const WishlistPage = () => {
                         </div>
                       </div>
                     )}
-
                     {/* Stock Status */}
                     {product.stock === 0 ? (
                       <div className="mb-3 text-sm font-medium text-red-600">Out of Stock</div>
                     ) : product.stock < 5 ? (
                       <div className="mb-3 text-sm text-orange-600">Only {product.stock} left!</div>
                     ) : null}
-
                     {/* Action Buttons */}
                     <div className="space-y-2">
                       <motion.button
@@ -378,7 +342,6 @@ const WishlistPage = () => {
                           </>
                         )}
                       </motion.button>
-
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -402,7 +365,6 @@ const WishlistPage = () => {
             </AnimatePresence>
           </div>
         )}
-
         {/* Continue Shopping */}
         {items.length > 0 && (
           <motion.div
@@ -422,7 +384,6 @@ const WishlistPage = () => {
         )}
       </div>
     </div>
-  )
-}
-
-export default WishlistPage
+  );
+};
+export default WishlistPage;

@@ -1,7 +1,6 @@
-"use client"
-import { Link } from "react-router-dom"
-import { motion } from "framer-motion"
-
+"use client";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 const CouponBanner = () => {
   return (
     <motion.div
@@ -26,7 +25,6 @@ const CouponBanner = () => {
       </div>
       <Link to="/products?coupon=flat100" className="absolute inset-0" aria-label="Apply coupon"></Link>
     </motion.div>
-  )
-}
-
-export default CouponBanner
+  );
+};
+export default CouponBanner;

@@ -1,18 +1,15 @@
-"use client"
-
-import { useState, useEffect, useCallback } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { Plus, Search, Edit, Trash2, Filter } from "lucide-react"
-import { fetchAllInnovations, createInnovation, updateInnovation, deleteInnovation } from "../../store/slices/innovationSlice"
-
+"use client";
+import { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Plus, Search, Edit, Trash2 } from "lucide-react";
+import { fetchAllInnovations, createInnovation, updateInnovation, deleteInnovation } from "../../store/slices/innovationSlice";
 const InnovationManagementEnhanced = () => {
-  const dispatch = useDispatch()
-  const { innovations: allInnovations, loading: isLoading, error } = useSelector((state) => state.innovations || { innovations: [], loading: false, error: null })
-
-  const [showModal, setShowModal] = useState(false)
-  const [editingInnovation, setEditingInnovation] = useState(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterCategory, setFilterCategory] = useState("")
+  const dispatch = useDispatch();
+  const { innovations: allInnovations, loading: isLoading } = useSelector((state) => state.innovations || { innovations: [], loading: false });
+  const [showModal, setShowModal] = useState(false);
+  const [editingInnovation, setEditingInnovation] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -20,64 +17,84 @@ const InnovationManagementEnhanced = () => {
     tags: "",
     priority: "Medium",
     status: "Draft",
-  })
-  const [imageFile, setImageFile] = useState(null)
-  const [imagePreview, setImagePreview] = useState("")
+  });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const openEditModal = (innovation) => {
+    setEditingInnovation(innovation);
+    setFormData({
+      title: innovation.title || "",
+      description: innovation.description || "",
+      category: innovation.category || "Technology",
+      tags: innovation.tags?.join(", ") || "",
+      priority: innovation.priority || "Medium",
+      status: innovation.status || "Draft",
+    });
+    if (innovation.image?.url) {
+      setImagePreview(innovation.image.url);
+    }
+    setShowModal(true);
+  };
 
   // Fetch innovations
   const fetchInnovations = useCallback(() => {
-    dispatch(fetchAllInnovations())
-  }, [dispatch])
-
+    dispatch(fetchAllInnovations());
+  }, [dispatch]);
   useEffect(() => {
-    fetchInnovations()
-  }, [fetchInnovations])
-
+    fetchInnovations();
+  }, [fetchInnovations]);
   // Filter innovations
   const filteredInnovations = (allInnovations || []).filter((innovation) => {
-    const matchesSearch = innovation?.description?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         innovation?.title?.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = !filterCategory || innovation.category === filterCategory
-    return matchesSearch && matchesCategory
-  })
-
+    const matchesSearch = innovation?.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         innovation?.title?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !filterCategory || innovation.category === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    const formDataToSend = new FormData()
-
+    e.preventDefault();
+    const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
       if (formData[key]) {
-        formDataToSend.append(key, formData[key])
+        formDataToSend.append(key, formData[key]);
       }
-    })
-
+    });
     if (imageFile) {
-      formDataToSend.append("image", imageFile)
+      formDataToSend.append("image", imageFile);
     }
-
     try {
       if (editingInnovation) {
-        await dispatch(updateInnovation({ innovationId: editingInnovation._id, formData: formDataToSend })).unwrap()
+        await dispatch(updateInnovation({ innovationId: editingInnovation._id, formData: formDataToSend })).unwrap();
       } else {
-        await dispatch(createInnovation(formDataToSend)).unwrap()
+        await dispatch(createInnovation(formDataToSend)).unwrap();
       }
-      setShowModal(false)
-      resetForm()
+      setShowModal(false);
+      resetForm();
     } catch (error) {
-      console.error("Error saving innovation:", error)
+      console.error("Error saving innovation:", error);
     }
-  }
-
+  };
   const handleDelete = async (innovationId) => {
     if (window.confirm("Are you sure you want to delete this innovation?")) {
       try {
-        await dispatch(deleteInnovation(innovationId)).unwrap()
+        await dispatch(deleteInnovation(innovationId)).unwrap();
       } catch (error) {
-        console.error("Error deleting innovation:", error)
+        console.error("Error deleting innovation:", error);
       }
     }
-  }
-
+  };
   const resetForm = () => {
     setFormData({
       title: "",
@@ -86,16 +103,14 @@ const InnovationManagementEnhanced = () => {
       tags: "",
       priority: "Medium",
       status: "Draft",
-    })
-    setImageFile(null)
-    setImagePreview("")
-    setEditingInnovation(null)
-  }
-
-  const categories = ["Technology", "Design", "Process", "Product", "Service", "Other"]
-  const priorities = ["Low", "Medium", "High", "Critical"]
-  const statuses = ["Draft", "In Progress", "Review", "Approved", "Implemented"]
-
+    });
+    setImageFile(null);
+    setImagePreview("");
+    setEditingInnovation(null);
+  };
+  const categories = ["Technology", "Design", "Process", "Product", "Service", "Other"];
+  const priorities = ["Low", "Medium", "High", "Critical"];
+  const statuses = ["Draft", "In Progress", "Review", "Approved", "Implemented"];
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -111,7 +126,6 @@ const InnovationManagementEnhanced = () => {
           </button>
         </div>
       </div>
-
       {/* Filters */}
       <div className="p-4 space-y-4 bg-white rounded-lg shadow">
         <div className="flex flex-wrap gap-4">
@@ -139,7 +153,6 @@ const InnovationManagementEnhanced = () => {
           </select>
         </div>
       </div>
-
       {/* Innovations Grid */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {isLoading ? (
@@ -191,7 +204,6 @@ const InnovationManagementEnhanced = () => {
           ))
         )}
       </div>
-
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 w-full h-full overflow-y-auto bg-gray-600 bg-opacity-50">
@@ -200,8 +212,8 @@ const InnovationManagementEnhanced = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setShowModal(false)
-                  resetForm()
+                  setShowModal(false);
+                  resetForm();
                 }}
                 className="mb-4 text-gray-600 hover:text-gray-900 flex items-center space-x-1"
                 aria-label="Back"
@@ -241,7 +253,6 @@ const InnovationManagementEnhanced = () => {
                     </select>
                   </div>
                 </div>
-
                 <div>
                   <label className="block mb-1 text-sm font-medium text-gray-700">Description *</label>
                   <textarea
@@ -253,7 +264,6 @@ const InnovationManagementEnhanced = () => {
                     maxLength={1000}
                   />
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700">Priority</label>
@@ -280,7 +290,6 @@ const InnovationManagementEnhanced = () => {
                     </select>
                   </div>
                 </div>
-
                 <div>
                   <label className="block mb-1 text-sm font-medium text-gray-700">Tags</label>
                   <input
@@ -291,7 +300,6 @@ const InnovationManagementEnhanced = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-
                 <div>
                   <label className="block mb-1 text-sm font-medium text-gray-700">Innovation Image *</label>
                   <input
@@ -311,13 +319,12 @@ const InnovationManagementEnhanced = () => {
                     </div>
                   )}
                 </div>
-
                 <div className="flex justify-end pt-4 space-x-3">
                   <button
                     type="button"
                     onClick={() => {
-                      setShowModal(false)
-                      resetForm()
+                      setShowModal(false);
+                      resetForm();
                     }}
                     className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
                   >
@@ -337,7 +344,6 @@ const InnovationManagementEnhanced = () => {
         </div>
       )}
     </div>
-  )
-}
-
-export default InnovationManagementEnhanced
+  );
+};
+export default InnovationManagementEnhanced;

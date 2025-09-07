@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../api/baseApi";
-
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
 // Async thunk to fetch popup visibility setting
 export const fetchPopupSetting = createAsyncThunk(
   "popup/fetchPopupSetting",
@@ -15,7 +13,6 @@ export const fetchPopupSetting = createAsyncThunk(
     }
   }
 );
-
 // Async thunk to update popup visibility setting
 export const updatePopupSetting = createAsyncThunk(
   "popup/updatePopupSetting",
@@ -28,7 +25,6 @@ export const updatePopupSetting = createAsyncThunk(
     }
   }
 );
-
 const popupSlice = createSlice({
   name: "popup",
   initialState: {
@@ -68,5 +64,4 @@ const popupSlice = createSlice({
       });
   },
 });
-
 export default popupSlice.reducer;

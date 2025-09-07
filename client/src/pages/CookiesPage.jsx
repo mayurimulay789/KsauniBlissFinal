@@ -1,6 +1,5 @@
 import React from "react";
 import { Cookie, ShieldCheck, Settings, AlertCircle } from "lucide-react";
-
 const CookiesPage = () => {
   return (
     <div className="max-w-4xl px-4 py-12 mx-auto">
@@ -8,7 +7,6 @@ const CookiesPage = () => {
       <p className="mb-10 text-lg text-gray-700 text-center max-w-3xl mx-auto">
         We use cookies and similar technologies to enhance your experience on our website. Cookies help us provide personalized content, analyze site traffic, and improve our services.
       </p>
-
       <section className="mb-12">
         <h2 className="mb-8 text-2xl font-semibold text-red-600 flex items-center gap-3">
           <Cookie className="w-10 h-10 text-yellow-600" />
@@ -18,7 +16,6 @@ const CookiesPage = () => {
           Cookies are small text files stored on your device by your web browser. They help websites remember your preferences and activity.
         </p>
       </section>
-
       <section className="mb-12">
         <h2 className="mb-8 text-2xl font-semibold text-red-600 flex items-center gap-3">
           <ShieldCheck className="w-10 h-10 text-green-600" />
@@ -31,7 +28,6 @@ const CookiesPage = () => {
           <li>To improve website performance and security.</li>
         </ul>
       </section>
-
       <section className="mb-12">
         <h2 className="mb-8 text-2xl font-semibold text-red-600 flex items-center gap-3">
           <Settings className="w-10 h-10 text-blue-600" />
@@ -41,7 +37,6 @@ const CookiesPage = () => {
           You can manage or disable cookies through your browser settings. Please note that disabling cookies may affect your experience on our site.
         </p>
       </section>
-
       <section>
         <h2 className="mb-8 text-2xl font-semibold text-red-600 flex items-center gap-3">
           <AlertCircle className="w-10 h-10 text-red-600" />
@@ -54,5 +49,4 @@ const CookiesPage = () => {
     </div>
   );
 };
-
 export default CookiesPage;

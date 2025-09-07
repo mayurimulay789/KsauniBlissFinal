@@ -1,20 +1,19 @@
-"use client"
-import { useState, useEffect } from "react"
-import { useSelector, useDispatch } from "react-redux"
-import { PlusIcon, PencilIcon, TrashIcon, ChartBarIcon } from "@heroicons/react/24/outline"
+"use client";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { PlusIcon, PencilIcon, TrashIcon, ChartBarIcon } from "@heroicons/react/24/outline";
 import {
   fetchAllCampaigns,
   createCampaign,
   updateCampaign,
   deleteCampaign,
   fetchCampaignAnalytics,
-} from "../../store/slices/digitalMarketerSlice"
-import LoadingSpinner from "../LoadingSpinner"
-
+} from "../../store/slices/digitalMarketerSlice";
+import LoadingSpinner from "../LoadingSpinner";
 const CampaignManagement = () => {
-  const [showModal, setShowModal] = useState(false)
-  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false)
-  const [editingCampaign, setEditingCampaign] = useState(null)
+  const [showModal, setShowModal] = useState(false);
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+  const [editingCampaign, setEditingCampaign] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -34,23 +33,20 @@ const CampaignManagement = () => {
       conversions: "",
       revenue: "",
     },
-  })
-
-  const dispatch = useDispatch()
+  });
+  const dispatch = useDispatch();
   const { campaigns, campaignsLoading, selectedCampaign, campaignAnalytics } = useSelector(
     (state) => state.digitalMarketer,
-  )
-
+  );
   useEffect(() => {
-    dispatch(fetchAllCampaigns())
-  }, [dispatch])
-
+    dispatch(fetchAllCampaigns());
+  }, [dispatch]);
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     if (name.includes(".")) {
-      const [parent, child] = name.split(".")
+      const [parent, child] = name.split(".");
       if (parent === "targetAudience" && child === "ageRange") {
-        const [ageType] = child.split(".")
+        const [ageType] = child.split(".");
         setFormData((prev) => ({
           ...prev,
           targetAudience: {
@@ -60,7 +56,7 @@ const CampaignManagement = () => {
               [ageType]: Number(value),
             },
           },
-        }))
+        }));
       } else {
         setFormData((prev) => ({
           ...prev,
@@ -68,19 +64,17 @@ const CampaignManagement = () => {
             ...prev[parent],
             [child]: value,
           },
-        }))
+        }));
       }
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-      }))
+      }));
     }
-  }
-
+  };
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
     const submitData = {
       ...formData,
       budget: Number(formData.budget) || 0,
@@ -90,22 +84,20 @@ const CampaignManagement = () => {
         conversions: Number(formData.goals.conversions) || 0,
         revenue: Number(formData.goals.revenue) || 0,
       },
-    }
-
+    };
     try {
       if (editingCampaign) {
-        await dispatch(updateCampaign({ campaignId: editingCampaign._id, campaignData: submitData })).unwrap()
+        await dispatch(updateCampaign({ campaignId: editingCampaign._id, campaignData: submitData })).unwrap();
       } else {
-        await dispatch(createCampaign(submitData)).unwrap()
+        await dispatch(createCampaign(submitData)).unwrap();
       }
-      handleCloseModal()
+      handleCloseModal();
     } catch (error) {
-      console.error("Error saving campaign:", error)
+      console.error("Error saving campaign:", error);
     }
-  }
-
+  };
   const handleEdit = (campaign) => {
-    setEditingCampaign(campaign)
+    setEditingCampaign(campaign);
     setFormData({
       name: campaign.name,
       description: campaign.description,
@@ -125,32 +117,29 @@ const CampaignManagement = () => {
         conversions: campaign.goals?.conversions?.toString() || "",
         revenue: campaign.goals?.revenue?.toString() || "",
       },
-    })
-    setShowModal(true)
-  }
-
+    });
+    setShowModal(true);
+  };
   const handleDelete = async (campaignId) => {
     if (window.confirm("Are you sure you want to delete this campaign?")) {
       try {
-        await dispatch(deleteCampaign(campaignId)).unwrap()
+        await dispatch(deleteCampaign(campaignId)).unwrap();
       } catch (error) {
-        console.error("Error deleting campaign:", error)
+        console.error("Error deleting campaign:", error);
       }
     }
-  }
-
+  };
   const handleViewAnalytics = async (campaign) => {
     try {
-      await dispatch(fetchCampaignAnalytics(campaign._id)).unwrap()
-      setShowAnalyticsModal(true)
+      await dispatch(fetchCampaignAnalytics(campaign._id)).unwrap();
+      setShowAnalyticsModal(true);
     } catch (error) {
-      console.error("Error fetching campaign analytics:", error)
+      console.error("Error fetching campaign analytics:", error);
     }
-  }
-
+  };
   const handleCloseModal = () => {
-    setShowModal(false)
-    setEditingCampaign(null)
+    setShowModal(false);
+    setEditingCampaign(null);
     setFormData({
       name: "",
       description: "",
@@ -170,28 +159,25 @@ const CampaignManagement = () => {
         conversions: "",
         revenue: "",
       },
-    })
-  }
-
+    });
+  };
   const getStatusColor = (status) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "paused":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "completed":
-        return "bg-blue-100 text-blue-800"
+        return "bg-blue-100 text-blue-800";
       case "cancelled":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
-
+  };
   if (campaignsLoading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -205,7 +191,6 @@ const CampaignManagement = () => {
           Create Campaign
         </button>
       </div>
-
       {/* Campaigns Table */}
       <div className="overflow-hidden bg-white shadow sm:rounded-md">
         <ul className="divide-y divide-gray-200">
@@ -258,7 +243,6 @@ const CampaignManagement = () => {
           ))}
         </ul>
       </div>
-
       {campaigns.length === 0 && (
         <div className="py-12 text-center">
           <div className="w-12 h-12 mx-auto text-gray-400">
@@ -275,13 +259,11 @@ const CampaignManagement = () => {
           <p className="mt-1 text-sm text-gray-500">Get started by creating a new campaign.</p>
         </div>
       )}
-
       {/* Create/Edit Campaign Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={handleCloseModal} />
-
             <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
               <form onSubmit={handleSubmit}>
                 <div className="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
@@ -290,7 +272,6 @@ const CampaignManagement = () => {
                       <h3 className="mb-4 text-lg font-medium leading-6 text-gray-900">
                         {editingCampaign ? "Edit Campaign" : "Create New Campaign"}
                       </h3>
-
                       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         {/* Campaign Name */}
                         <div className="sm:col-span-2">
@@ -307,7 +288,6 @@ const CampaignManagement = () => {
                             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
                           />
                         </div>
-
                         {/* Description */}
                         <div className="sm:col-span-2">
                           <label htmlFor="description" className="block text-sm font-medium text-gray-700">
@@ -323,7 +303,6 @@ const CampaignManagement = () => {
                             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
                           />
                         </div>
-
                         {/* Start Date */}
                         <div>
                           <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
@@ -339,7 +318,6 @@ const CampaignManagement = () => {
                             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
                           />
                         </div>
-
                         {/* End Date */}
                         <div>
                           <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
@@ -355,7 +333,6 @@ const CampaignManagement = () => {
                             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
                           />
                         </div>
-
                         {/* Budget */}
                         <div>
                           <label htmlFor="budget" className="block text-sm font-medium text-gray-700">
@@ -371,7 +348,6 @@ const CampaignManagement = () => {
                             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
                           />
                         </div>
-
                         {/* Status */}
                         <div>
                           <label htmlFor="status" className="block text-sm font-medium text-gray-700">
@@ -391,7 +367,6 @@ const CampaignManagement = () => {
                             <option value="cancelled">Cancelled</option>
                           </select>
                         </div>
-
                         {/* Goals Section */}
                         <div className="sm:col-span-2">
                           <h4 className="mb-2 font-medium text-gray-900 text-md">Campaign Goals</h4>
@@ -458,7 +433,6 @@ const CampaignManagement = () => {
                     </div>
                   </div>
                 </div>
-
                 <div className="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
                   <button
                     type="submit"
@@ -479,7 +453,6 @@ const CampaignManagement = () => {
           </div>
         </div>
       )}
-
       {/* Analytics Modal */}
       {showAnalyticsModal && selectedCampaign && campaignAnalytics && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -488,7 +461,6 @@ const CampaignManagement = () => {
               className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
               onClick={() => setShowAnalyticsModal(false)}
             />
-
             <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
               <div className="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
@@ -496,7 +468,6 @@ const CampaignManagement = () => {
                     <h3 className="mb-4 text-lg font-medium leading-6 text-gray-900">
                       Campaign Analytics: {selectedCampaign.name}
                     </h3>
-
                     {/* Analytics Grid */}
                     <div className="grid grid-cols-2 gap-4 mb-6 sm:grid-cols-4">
                       <div className="p-4 rounded-lg bg-blue-50">
@@ -522,7 +493,6 @@ const CampaignManagement = () => {
                         <div className="text-sm text-yellow-800">Revenue</div>
                       </div>
                     </div>
-
                     {/* Performance Metrics */}
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
                       <div className="text-center">
@@ -549,7 +519,6 @@ const CampaignManagement = () => {
                   </div>
                 </div>
               </div>
-
               <div className="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
@@ -564,7 +533,6 @@ const CampaignManagement = () => {
         </div>
       )}
     </div>
-  )
-}
-
-export default CampaignManagement
+  );
+};
+export default CampaignManagement;

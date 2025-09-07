@@ -1,188 +1,165 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useDispatch } from "react-redux"
-import { Plus, Search, Edit, Trash2, Star, Filter, X, ChevronDown, ChevronUp } from "lucide-react"
-import adminAPI from "../../store/api/adminAPI"
-
+"use client";
+import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { Plus, Search, Edit, Trash2, Star, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
+import adminAPI from "../../store/api/adminAPI";
 const TopTenManagement = () => {
-  const dispatch = useDispatch()
-  const [top10Products, setTop10Products] = useState([])
-  const [allProducts, setAllProducts] = useState([])
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [showModal, setShowModal] = useState(false)
-  const [editingItem, setEditingItem] = useState(null)
-  const [searchTerm, setSearchTerm] = useState("")
+  const dispatch = useDispatch();
+  const [top10Products, setTop10Products] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     category: "",
     status: "",
     minPrice: "",
     maxPrice: "",
     sort: "position"
-  })
+  });
   const [pagination, setPagination] = useState({
     current: 1,
     pages: 1,
     total: 0,
     limit: 10
-  })
-  const [showFilters, setShowFilters] = useState(false)
-
+  });
+  const [showFilters, setShowFilters] = useState(false);
   const [formData, setFormData] = useState({
     product: "",
     position: 1,
     isActive: true
-  })
-
+  });
   // State for category search within the modal
-  const [modalCategorySearch, setModalCategorySearch] = useState("")
+  const [modalCategorySearch, setModalCategorySearch] = useState("");
   // State to manage which category sections are expanded
-  const [expandedCategories, setExpandedCategories] = useState({})
-
+  const [expandedCategories, setExpandedCategories] = useState({});
   useEffect(() => {
-    fetchTop10Products()
-    fetchAllProducts()
-    fetchCategories()
-  }, [filters, searchTerm, pagination.current])
-
+    fetchTop10Products();
+    fetchAllProducts();
+    fetchCategories();
+  }, [filters, searchTerm, pagination.current]);
   const fetchTop10Products = async () => {
     try {
-      setLoading(true)
-      const response = await adminAPI.getAllTop10Products()
-      let filteredProducts = response.data.top10
-
+      setLoading(true);
+      const response = await adminAPI.getAllTop10Products();
+      let filteredProducts = response.data.top10;
       if (searchTerm) {
         filteredProducts = filteredProducts.filter(item =>
           item.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.product.category?.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        );
       }
-
       if (filters.category) {
         filteredProducts = filteredProducts.filter(item =>
           item.product.category?._id === filters.category
-        )
+        );
       }
-
       if (filters.status) {
-        const isActive = filters.status === "active"
-        filteredProducts = filteredProducts.filter(item => item.isActive === isActive)
+        const isActive = filters.status === "active";
+        filteredProducts = filteredProducts.filter(item => item.isActive === isActive);
       }
-
       if (filters.minPrice) {
-        filteredProducts = filteredProducts.filter(item => item.product.price >= Number(filters.minPrice))
+        filteredProducts = filteredProducts.filter(item => item.product.price >= Number(filters.minPrice));
       }
-
       if (filters.maxPrice) {
-        filteredProducts = filteredProducts.filter(item => item.product.price <= Number(filters.maxPrice))
+        filteredProducts = filteredProducts.filter(item => item.product.price <= Number(filters.maxPrice));
       }
-
       if (filters.sort === "position") {
-        filteredProducts.sort((a, b) => a.position - b.position)
+        filteredProducts.sort((a, b) => a.position - b.position);
       } else if (filters.sort === "price-low") {
-        filteredProducts.sort((a, b) => a.product.price - b.product.price)
+        filteredProducts.sort((a, b) => a.product.price - b.product.price);
       } else if (filters.sort === "price-high") {
-        filteredProducts.sort((a, b) => b.product.price - a.product.price)
+        filteredProducts.sort((a, b) => b.product.price - a.product.price);
       } else if (filters.sort === "name") {
-        filteredProducts.sort((a, b) => a.product.name.localeCompare(b.product.name))
+        filteredProducts.sort((a, b) => a.product.name.localeCompare(b.product.name));
       }
-
-      const total = filteredProducts.length
-      const pages = Math.ceil(total / pagination.limit)
-      const startIndex = (pagination.current - 1) * pagination.limit
-      const paginatedProducts = filteredProducts.slice(startIndex, startIndex + pagination.limit)
-
-      setTop10Products(paginatedProducts)
+      const total = filteredProducts.length;
+      const pages = Math.ceil(total / pagination.limit);
+      const startIndex = (pagination.current - 1) * pagination.limit;
+      const paginatedProducts = filteredProducts.slice(startIndex, startIndex + pagination.limit);
+      setTop10Products(paginatedProducts);
       setPagination(prev => ({
         ...prev,
         pages,
         total
-      }))
+      }));
     } catch (error) {
-      console.error("Error fetching top10 products:", error)
+      console.error("Error fetching top10 products:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
   const fetchAllProducts = async () => {
     try {
       const response = await adminAPI.getAllProducts({
         limit: 200,
         isActive: true,
         fields: "name price category images stockQuantity"
-      })
-      setAllProducts(response.data.products)
+      });
+      setAllProducts(response.data.products);
     } catch (error) {
-      console.error("Error fetching all products:", error)
+      console.error("Error fetching all products:", error);
     }
-  }
-
+  };
   const fetchCategories = async () => {
     try {
-      const response = await adminAPI.getAllCategories()
-      setCategories(response.data.categories)
+      const response = await adminAPI.getAllCategories();
+      setCategories(response.data.categories);
     } catch (error) {
-      console.error("Error fetching categories:", error)
+      console.error("Error fetching categories:", error);
     }
-  }
-
+  };
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      setLoading(true)
-      
+      setLoading(true);
       if (editingItem) {
-        await adminAPI.updateTop10Product(editingItem._id, formData)
+        await adminAPI.updateTop10Product(editingItem._id, formData);
       } else {
-        await adminAPI.createTop10Product(formData)
+        await adminAPI.createTop10Product(formData);
       }
-
-      setShowModal(false)
-      resetForm()
-      fetchTop10Products()
+      setShowModal(false);
+      resetForm();
+      fetchTop10Products();
     } catch (error) {
-      console.error("Error saving top10 product:", error)
-      alert(error.response?.data?.message || "Failed to save product")
+      console.error("Error saving top10 product:", error);
+      alert(error.response?.data?.message || "Failed to save product");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to remove this product from Top10?")) {
       try {
-        await adminAPI.deleteTop10Product(id)
-        fetchTop10Products()
+        await adminAPI.deleteTop10Product(id);
+        fetchTop10Products();
       } catch (error) {
-        console.error("Error deleting top10 product:", error)
-        alert("Failed to delete product")
+        console.error("Error deleting top10 product:", error);
+        alert("Failed to delete product");
       }
     }
-  }
-
+  };
   const resetForm = () => {
     setFormData({
       product: "",
       position: 1,
       isActive: true
-    })
-    setEditingItem(null)
-    setModalCategorySearch("")
-    setExpandedCategories({})
-  }
-
+    });
+    setEditingItem(null);
+    setModalCategorySearch("");
+    setExpandedCategories({});
+  };
   const openEditModal = (item) => {
-    setEditingItem(item)
+    setEditingItem(item);
     setFormData({
       product: item.product._id,
       position: item.position,
       isActive: item.isActive
-    })
-    setShowModal(true)
-  }
-
+    });
+    setShowModal(true);
+  };
   const resetFilters = () => {
     setFilters({
       category: "",
@@ -190,36 +167,32 @@ const TopTenManagement = () => {
       minPrice: "",
       maxPrice: "",
       sort: "position"
-    })
-    setSearchTerm("")
-    setPagination(prev => ({ ...prev, current: 1 }))
-  }
-
+    });
+    setSearchTerm("");
+    setPagination(prev => ({ ...prev, current: 1 }));
+  };
   const toggleCategory = (categoryId) => {
     setExpandedCategories(prev => ({
       ...prev,
       [categoryId]: !prev[categoryId]
-    }))
-  }
-
+    }));
+  };
   // Group products by category
   const productsByCategory = allProducts.reduce((acc, product) => {
-    const categoryName = product.category?.name || "Uncategorized"
-    const categoryId = product.category?._id || "uncategorized"
+    const categoryName = product.category?.name || "Uncategorized";
+    const categoryId = product.category?._id || "uncategorized";
     if (!acc[categoryId]) {
       acc[categoryId] = {
         name: categoryName,
         products: []
-      }
+      };
     }
-    acc[categoryId].products.push(product)
-    return acc
-  }, {})
-
+    acc[categoryId].products.push(product);
+    return acc;
+  }, {});
   const filteredCategories = categories.filter(cat =>
     cat.name.toLowerCase().includes(modalCategorySearch.toLowerCase())
-  )
-
+  );
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -229,8 +202,8 @@ const TopTenManagement = () => {
         </div>
         <button
           onClick={() => {
-            resetForm()
-            setShowModal(true)
+            resetForm();
+            setShowModal(true);
           }}
           className="flex items-center px-4 py-2 space-x-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700"
         >
@@ -238,7 +211,6 @@ const TopTenManagement = () => {
           <span>Add to Top10</span>
         </button>
       </div>
-
       <div className="p-4 space-y-4 bg-white rounded-lg shadow">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex-1 min-w-64">
@@ -249,14 +221,13 @@ const TopTenManagement = () => {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => {
-                  setSearchTerm(e.target.value)
-                  setPagination(prev => ({ ...prev, current: 1 }))
+                  setSearchTerm(e.target.value);
+                  setPagination(prev => ({ ...prev, current: 1 }));
                 }}
                 className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
           </div>
-          
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="flex items-center px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
@@ -264,7 +235,6 @@ const TopTenManagement = () => {
             <Filter className="w-4 h-4 mr-2" />
             Filters
           </button>
-
           {(searchTerm || Object.values(filters).some(val => val)) && (
             <button
               onClick={resetFilters}
@@ -275,7 +245,6 @@ const TopTenManagement = () => {
             </button>
           )}
         </div>
-
         {showFilters && (
           <div className="grid grid-cols-1 gap-4 pt-4 border-t border-gray-200 md:grid-cols-2 lg:grid-cols-5">
             <div>
@@ -283,8 +252,8 @@ const TopTenManagement = () => {
               <select
                 value={filters.category}
                 onChange={(e) => {
-                  setFilters({ ...filters, category: e.target.value })
-                  setPagination(prev => ({ ...prev, current: 1 }))
+                  setFilters({ ...filters, category: e.target.value });
+                  setPagination(prev => ({ ...prev, current: 1 }));
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
               >
@@ -296,14 +265,13 @@ const TopTenManagement = () => {
                 ))}
               </select>
             </div>
-
             <div>
               <label className="block mb-1 text-sm font-medium text-gray-700">Status</label>
               <select
                 value={filters.status}
                 onChange={(e) => {
-                  setFilters({ ...filters, status: e.target.value })
-                  setPagination(prev => ({ ...prev, current: 1 }))
+                  setFilters({ ...filters, status: e.target.value });
+                  setPagination(prev => ({ ...prev, current: 1 }));
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
               >
@@ -312,7 +280,6 @@ const TopTenManagement = () => {
                 <option value="inactive">Inactive</option>
               </select>
             </div>
-
             <div>
               <label className="block mb-1 text-sm font-medium text-gray-700">Min Price</label>
               <input
@@ -320,13 +287,12 @@ const TopTenManagement = () => {
                 placeholder="Min"
                 value={filters.minPrice}
                 onChange={(e) => {
-                  setFilters({ ...filters, minPrice: e.target.value })
-                  setPagination(prev => ({ ...prev, current: 1 }))
+                  setFilters({ ...filters, minPrice: e.target.value });
+                  setPagination(prev => ({ ...prev, current: 1 }));
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
               />
             </div>
-
             <div>
               <label className="block mb-1 text-sm font-medium text-gray-700">Max Price</label>
               <input
@@ -334,20 +300,19 @@ const TopTenManagement = () => {
                 placeholder="Max"
                 value={filters.maxPrice}
                 onChange={(e) => {
-                  setFilters({ ...filters, maxPrice: e.target.value })
-                  setPagination(prev => ({ ...prev, current: 1 }))
+                  setFilters({ ...filters, maxPrice: e.target.value });
+                  setPagination(prev => ({ ...prev, current: 1 }));
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
               />
             </div>
-
             <div>
               <label className="block mb-1 text-sm font-medium text-gray-700">Sort By</label>
               <select
                 value={filters.sort}
                 onChange={(e) => {
-                  setFilters({ ...filters, sort: e.target.value })
-                  setPagination(prev => ({ ...prev, current: 1 }))
+                  setFilters({ ...filters, sort: e.target.value });
+                  setPagination(prev => ({ ...prev, current: 1 }));
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
               >
@@ -360,7 +325,6 @@ const TopTenManagement = () => {
           </div>
         )}
       </div>
-
       <div className="overflow-hidden bg-white rounded-lg shadow">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -401,15 +365,15 @@ const TopTenManagement = () => {
               ) : top10Products.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
-                    {searchTerm || Object.values(filters).some(val => val) 
-                      ? "No products match your search criteria" 
+                    {searchTerm || Object.values(filters).some(val => val)
+                      ? "No products match your search criteria"
                       : "No top 10 products configured"
                     }
                   </td>
                 </tr>
               ) : (
                 top10Products.map((item) => {
-                  const product = item.product
+                  const product = item.product;
                   return (
                     <tr key={item._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -426,7 +390,7 @@ const TopTenManagement = () => {
                               src={product.images?.[0]?.url || "/placeholder.jpg"}
                               alt={product.name}
                               onError={(e) => {
-                                e.target.src = "/placeholder.jpg"
+                                e.target.src = "/placeholder.jpg";
                               }}
                             />
                           </div>
@@ -473,13 +437,12 @@ const TopTenManagement = () => {
                         </div>
                       </td>
                     </tr>
-                  )
+                  );
                 })
               )}
             </tbody>
           </table>
         </div>
-
         {pagination.total > 0 && (
           <div className="flex items-center justify-between px-4 py-3 bg-gray-50 sm:px-6">
             <div className="flex-1 flex justify-between sm:hidden">
@@ -547,7 +510,6 @@ const TopTenManagement = () => {
           </div>
         )}
       </div>
-
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900 bg-opacity-50">
           <div className="w-full max-w-4xl h-full max-h-[80vh] p-6 bg-white rounded-lg shadow-xl flex flex-col">
@@ -557,7 +519,6 @@ const TopTenManagement = () => {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            
             <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
               {editingItem ? (
                 <div className="p-4 mb-4 border border-gray-200 rounded-lg bg-gray-50">
@@ -585,7 +546,6 @@ const TopTenManagement = () => {
                       className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     />
                   </div>
-                  
                   <div className="flex-1 overflow-y-auto pr-2 space-y-4">
                     {filteredCategories.length === 0 && modalCategorySearch ? (
                       <div className="text-center text-gray-500">
@@ -647,7 +607,6 @@ const TopTenManagement = () => {
                   </div>
                 </div>
               )}
-
               <div className="mt-auto space-y-4 pt-4 border-t border-gray-200">
                 <div>
                   <label htmlFor="position" className="block text-sm font-medium text-gray-700">
@@ -679,7 +638,6 @@ const TopTenManagement = () => {
                   </label>
                 </div>
               </div>
-              
               <div className="flex justify-end mt-6 space-x-3">
                 <button
                   type="button"
@@ -705,7 +663,6 @@ const TopTenManagement = () => {
         </div>
       )}
     </div>
-  )
-}
-
+  );
+};
 export default TopTenManagement;

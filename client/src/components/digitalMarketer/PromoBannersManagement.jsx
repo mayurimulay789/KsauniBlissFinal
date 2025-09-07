@@ -1,130 +1,112 @@
-"use client"
-import { useState, useEffect } from "react"
-import { useSelector, useDispatch } from "react-redux"
-import { Plus, Edit, Trash2, Eye } from "lucide-react"
-import { fetchAllBanners, createBanner, updateBanner, deleteBanner } from "../../store/slices/digitalMarketerSlice"
-import LoadingSpinner from "../LoadingSpinner"
-
+"use client";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Plus, Edit, Trash2, Eye } from "lucide-react";
+import { fetchAllBanners, createBanner, updateBanner, deleteBanner } from "../../store/slices/digitalMarketerSlice";
+import LoadingSpinner from "../LoadingSpinner";
 const PromoBannersManagement = () => {
-  const [showModal, setShowModal] = useState(false)
-  const [editingBanner, setEditingBanner] = useState(null)
+  const [showModal, setShowModal] = useState(false);
+  const [editingBanner, setEditingBanner] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     linkUrl: "",
     isActive: true,
     type: "hero", // <-- Changed from "position"
-  })
-  const [selectedFile, setSelectedFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState("")
-
-  const dispatch = useDispatch()
-  const { banners = [], bannersLoading } = useSelector((state) => state.digitalMarketer)
-
+  });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const dispatch = useDispatch();
+  const { banners = [], bannersLoading } = useSelector((state) => state.digitalMarketer);
   useEffect(() => {
-    dispatch(fetchAllBanners())
-  }, [dispatch])
-
+    dispatch(fetchAllBanners());
+  }, [dispatch]);
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }))
-  }
-
+    }));
+  };
   const handleFileChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setSelectedFile(file)
-      const reader = new FileReader()
+      setSelectedFile(file);
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewUrl(reader.result)
-      }
-      reader.readAsDataURL(file)
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
-  }
-
+  };
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    const submitData = new FormData()
-    submitData.append("title", formData.title)
-    submitData.append("description", formData.description)
-    submitData.append("linkUrl", formData.linkUrl)
-    submitData.append("isActive", formData.isActive)
-    submitData.append("type", formData.type) // <-- Changed from "position"
-
+    e.preventDefault();
+    const submitData = new FormData();
+    submitData.append("title", formData.title);
+    submitData.append("description", formData.description);
+    submitData.append("linkUrl", formData.linkUrl);
+    submitData.append("isActive", formData.isActive);
+    submitData.append("type", formData.type); // <-- Changed from "position"
     if (selectedFile) {
-      submitData.append("image", selectedFile)
+      submitData.append("image", selectedFile);
     }
-
     try {
       if (editingBanner) {
-        await dispatch(updateBanner({ bannerId: editingBanner._id, bannerData: submitData })).unwrap()
+        await dispatch(updateBanner({ bannerId: editingBanner._id, bannerData: submitData })).unwrap();
       } else {
-        await dispatch(createBanner(submitData)).unwrap()
+        await dispatch(createBanner(submitData)).unwrap();
       }
-      handleCloseModal()
+      handleCloseModal();
     } catch (error) {
-      console.error("Error saving banner:", error)
+      console.error("Error saving banner:", error);
     }
-  }
-
+  };
   const handleEdit = (banner) => {
-    setEditingBanner(banner)
+    setEditingBanner(banner);
     setFormData({
       title: banner.title,
       description: banner.description || "",
       linkUrl: banner.linkUrl || "",
       isActive: banner.isActive,
       type: banner.type || "hero", // <-- Changed from "position"
-    })
-    setPreviewUrl(banner.imageUrl)
-    setShowModal(true)
-  }
-
-
-  
+    });
+    setPreviewUrl(banner.imageUrl);
+    setShowModal(true);
+  };
   const handleDelete = async (bannerId) => {
     if (window.confirm("Are you sure you want to delete this banner?")) {
       try {
-        await dispatch(deleteBanner(bannerId)).unwrap()
+        await dispatch(deleteBanner(bannerId)).unwrap();
       } catch (error) {
-        console.error("Error deleting banner:", error)
+        console.error("Error deleting banner:", error);
       }
     }
-  }
-
+  };
   const handleToggleActive = async (banner) => {
-    const updateData = new FormData()
-    updateData.append("isActive", !banner.isActive)
-
+    const updateData = new FormData();
+    updateData.append("isActive", !banner.isActive);
     try {
-      await dispatch(updateBanner({ bannerId: banner._id, bannerData: updateData })).unwrap()
+      await dispatch(updateBanner({ bannerId: banner._id, bannerData: updateData })).unwrap();
     } catch (error) {
-      console.error("Error updating banner status:", error)
+      console.error("Error updating banner status:", error);
     }
-  }
-
+  };
   const handleCloseModal = () => {
-    setShowModal(false)
-    setEditingBanner(null)
+    setShowModal(false);
+    setEditingBanner(null);
     setFormData({
       title: "",
       description: "",
       linkUrl: "",
       isActive: true,
       type: "hero",
-    })
-    setSelectedFile(null)
-    setPreviewUrl("")
-  }
-
+    });
+    setSelectedFile(null);
+    setPreviewUrl("");
+  };
   if (bannersLoading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -138,7 +120,6 @@ const PromoBannersManagement = () => {
           Add New Banner
         </button>
       </div>
-
       {/* Banners Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {banners.map((banner) => (
@@ -161,11 +142,8 @@ const PromoBannersManagement = () => {
                   {banner.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
-
               {banner.description && <p className="mb-3 text-sm text-gray-600 line-clamp-2">{banner.description}</p>}
-
               {banner.linkUrl && <p className="mb-3 text-xs text-blue-600 truncate">Link: {banner.linkUrl}</p>}
-
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 capitalize">Type: {banner.type}</span>
                 <div className="flex space-x-2">
@@ -198,13 +176,11 @@ const PromoBannersManagement = () => {
           </div>
         ))}
       </div>
-
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={handleCloseModal} />
-
             <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <form onSubmit={handleSubmit}>
                 <div className="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
@@ -213,7 +189,6 @@ const PromoBannersManagement = () => {
                       <h3 className="mb-4 text-lg font-medium leading-6 text-gray-900">
                         {editingBanner ? "Edit Banner" : "Add New Banner"}
                       </h3>
-
                       <div className="space-y-4">
                         {/* Title */}
                         <div>
@@ -230,7 +205,6 @@ const PromoBannersManagement = () => {
                             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
                           />
                         </div>
-
                         {/* Description */}
                         <div>
                           <label htmlFor="description" className="block text-sm font-medium text-gray-700">
@@ -245,7 +219,6 @@ const PromoBannersManagement = () => {
                             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
                           />
                         </div>
-
                         {/* Link URL */}
                         <div>
                           <label htmlFor="linkUrl" className="block text-sm font-medium text-gray-700">
@@ -261,7 +234,6 @@ const PromoBannersManagement = () => {
                             placeholder="https://example.com"
                           />
                         </div>
-
                         {/* Type Selector */}
                         <div>
                           <label htmlFor="type" className="block text-sm font-medium text-gray-700">
@@ -280,7 +252,6 @@ const PromoBannersManagement = () => {
                             <option value="category">Category</option>
                           </select>
                         </div>
-
                         {/* Image Upload */}
                         <div>
                           <label htmlFor="image" className="block text-sm font-medium text-gray-700">
@@ -295,7 +266,6 @@ const PromoBannersManagement = () => {
                             className="block w-full mt-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
                           />
                         </div>
-
                         {/* Image Preview */}
                         {previewUrl && (
                           <div>
@@ -307,7 +277,6 @@ const PromoBannersManagement = () => {
                             />
                           </div>
                         )}
-
                         {/* Active Status */}
                         <div className="flex items-center">
                           <input
@@ -326,7 +295,6 @@ const PromoBannersManagement = () => {
                     </div>
                   </div>
                 </div>
-
                 <div className="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
                   <button
                     type="submit"
@@ -348,7 +316,6 @@ const PromoBannersManagement = () => {
         </div>
       )}
     </div>
-  )
-}
-
-export default PromoBannersManagement
+  );
+};
+export default PromoBannersManagement;

@@ -1,16 +1,16 @@
 
-import { useNavigate } from "react-router-dom"
-import { useSelector, useDispatch } from "react-redux"
-import { motion } from "framer-motion"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
-import { Link } from "react-router-dom"
-import toast from "react-hot-toast"
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   addToCart,
   optimisticAddToCart,
   selectIsAddingToCart,
-} from "../store/slices/cartSlice"
+} from "../store/slices/cartSlice";
 import {
   addToWishlist,
   removeFromWishlist,
@@ -18,112 +18,100 @@ import {
   optimisticRemoveFromWishlist,
   selectIsAddingToWishlist,
   selectIsRemovingFromWishlist,
-} from "../store/slices/wishlistSlice"
-import adminAPI from "../store/api/adminAPI" // Import the adminAPI
-import LoadingSpinner from "./LoadingSpinner"
-
+} from "../store/slices/wishlistSlice";
+import adminAPI from "../store/api/adminAPI"; // Import the adminAPI
+import LoadingSpinner from "./LoadingSpinner";
 export default function TopPicksShowcase() {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const { items: wishlistItems } = useSelector((state) => state.wishlist)
-  const isAddingToCart = useSelector(selectIsAddingToCart)
-  const isAddingToWishlist = useSelector(selectIsAddingToWishlist)
-  const isRemovingFromWishlist = useSelector(selectIsRemovingFromWishlist)
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { items: wishlistItems } = useSelector((state) => state.wishlist);
+  const isAddingToCart = useSelector(selectIsAddingToCart);
+  const isAddingToWishlist = useSelector(selectIsAddingToWishlist);
+  const isRemovingFromWishlist = useSelector(selectIsRemovingFromWishlist);
   // State to manage top 10 products and loading status
-  const [top10Products, setTop10Products] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const scrollContainerRef = useRef(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(true)
-
+  const [top10Products, setTop10Products] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const scrollContainerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   // New useEffect to fetch Top 10 products from the database
   useEffect(() => {
     const fetchTopPicks = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        const response = await adminAPI.getAllTop10Products()
+        const response = await adminAPI.getAllTop10Products();
         if (response.data?.top10) {
           // Sort by position before setting the state
-          const sortedProducts = response.data.top10.sort((a, b) => a.position - b.position)
-          setTop10Products(sortedProducts)
+          const sortedProducts = response.data.top10.sort((a, b) => a.position - b.position);
+          setTop10Products(sortedProducts);
         }
       } catch (err) {
-        console.error("Failed to fetch top 10 products:", err)
-        setError("Failed to load top picks. Please try again later.")
-        toast.error("Failed to load top picks.")
+        console.error("Failed to fetch top 10 products:", err);
+        setError("Failed to load top picks. Please try again later.");
+        toast.error("Failed to load top picks.");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
-    fetchTopPicks()
-  }, [])
-
+    };
+    fetchTopPicks();
+  }, []);
   const checkScrollPosition = () => {
-    const c = scrollContainerRef.current
-    if (!c) return
-    setCanScrollLeft(c.scrollLeft > 0)
-    setCanScrollRight(c.scrollLeft < c.scrollWidth - c.clientWidth - 10)
-  }
-
+    const c = scrollContainerRef.current;
+    if (!c) return;
+    setCanScrollLeft(c.scrollLeft > 0);
+    setCanScrollRight(c.scrollLeft < c.scrollWidth - c.clientWidth - 10);
+  };
   useEffect(() => {
-    const c = scrollContainerRef.current
-    if (!c) return
-    c.addEventListener("scroll", checkScrollPosition, { passive: true })
-    checkScrollPosition()
-    return () => c.removeEventListener("scroll", checkScrollPosition)
-  }, [top10Products])
-
+    const c = scrollContainerRef.current;
+    if (!c) return;
+    c.addEventListener("scroll", checkScrollPosition, { passive: true });
+    checkScrollPosition();
+    return () => c.removeEventListener("scroll", checkScrollPosition);
+  }, [top10Products]);
   const scrollLeft = () => {
-    if (!scrollContainerRef.current) return
-    scrollContainerRef.current.scrollBy({ left: -320, behavior: "smooth" })
-  }
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.scrollBy({ left: -320, behavior: "smooth" });
+  };
   const scrollRight = () => {
-    if (!scrollContainerRef.current) return
-    scrollContainerRef.current.scrollBy({ left: 320, behavior: "smooth" })
-  }
-
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.scrollBy({ left: 320, behavior: "smooth" });
+  };
   const handleAddToCart = async (product) => {
     try {
-      const rawSize = product.sizes?.[0]?.size || ""
-      const size = rawSize.includes(",") ? rawSize.split(",")[0].trim() : rawSize
-      const rawColor = product.colors?.[0]?.name || ""
-      const color = rawColor.includes(",") ? rawColor.split(",")[0].trim() : rawColor
-
+      const rawSize = product.sizes?.[0]?.size || "";
+      const size = rawSize.includes(",") ? rawSize.split(",")[0].trim() : rawSize;
+      const rawColor = product.colors?.[0]?.name || "";
+      const color = rawColor.includes(",") ? rawColor.split(",")[0].trim() : rawColor;
       const payload = {
         productId: product._id,
         quantity: 1,
         size: size || undefined,
         color: color || undefined,
-      }
-
-      dispatch(optimisticAddToCart({ product, quantity: 1, size, color }))
-      toast.success(`${product.name} added to cart!`)
-      await dispatch(addToCart(payload)).unwrap()
+      };
+      dispatch(optimisticAddToCart({ product, quantity: 1, size, color }));
+      toast.success(`${product.name} added to cart!`);
+      await dispatch(addToCart(payload)).unwrap();
     } catch (err) {
-      toast.error(err?.message || "Failed to add item to cart.")
+      toast.error(err?.message || "Failed to add item to cart.");
     }
-  }
-
+  };
   const handleWishlistToggle = async (product) => {
     try {
-      const isInWishlist = wishlistItems.some((i) => i._id === product._id)
+      const isInWishlist = wishlistItems.some((i) => i._id === product._id);
       if (isInWishlist) {
-        dispatch(optimisticRemoveFromWishlist(product._id))
-        toast.success(`${product.name} removed from wishlist!`)
-        await dispatch(removeFromWishlist(product._id)).unwrap()
+        dispatch(optimisticRemoveFromWishlist(product._id));
+        toast.success(`${product.name} removed from wishlist!`);
+        await dispatch(removeFromWishlist(product._id)).unwrap();
       } else {
-        dispatch(optimisticAddToWishlist(product))
-        toast.success(`${product.name} added to wishlist!`)
-        await dispatch(addToWishlist(product)).unwrap()
+        dispatch(optimisticAddToWishlist(product));
+        toast.success(`${product.name} added to wishlist!`);
+        await dispatch(addToWishlist(product)).unwrap();
       }
     } catch (err) {
-      toast.error(err?.message || "Failed to update wishlist.")
+      toast.error(err?.message || "Failed to update wishlist.");
     }
-  }
-
+  };
   if (isLoading) {
     return (
       <div className="w-full bg-white py-4 mb-4 px-4">
@@ -139,9 +127,8 @@ export default function TopPicksShowcase() {
           <LoadingSpinner />
         </div>
       </div>
-    )
+    );
   }
-
   if (!top10Products.length) {
     return (
       <div className="w-full bg-white py-1 px-4">
@@ -154,9 +141,8 @@ export default function TopPicksShowcase() {
           </p>
         </div>
       </div>
-    )
+    );
   }
-
   return (
     <div className="w-full bg-white pt-2 pb-3 px-4">
       <div className="max-w-7xl mx-auto">
@@ -186,16 +172,15 @@ export default function TopPicksShowcase() {
             </button>
           </div>
         </div>
-
         <div className="relative">
           <div
             ref={scrollContainerRef}
             className="flex gap-4 overflow-x-auto scrollbar-hide"
           >
             {top10Products.map((item, index) => {
-              const product = item.product
-              const isInWishlist = wishlistItems.some((i) => i._id === product._id)
-              const categoryName = product.category?.name || ""
+              const product = item.product;
+              const isInWishlist = wishlistItems.some((i) => i._id === product._id);
+              const categoryName = product.category?.name || "";
               return (
                 <motion.div
                   key={product._id}
@@ -217,7 +202,6 @@ export default function TopPicksShowcase() {
                   >
                     {item.position}
                   </div>
-
                   {/* Inner content */}
                   <div className="pt-[1px] pl-1 pr-5 flex flex-col h-auto border-t">
                     <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-gray-100">
@@ -228,7 +212,6 @@ export default function TopPicksShowcase() {
                           className="object-cover w-full h-full"
                         />
                       </Link>
-
                       {categoryName && (
                         <div
                           className="absolute bottom-2 right-1 px-1 py-0.2 text-[9px] font-semibold text-white rounded"
@@ -240,7 +223,6 @@ export default function TopPicksShowcase() {
                         </div>
                       )}
                     </div>
-
                     <Link to={`/product/${product._id}`} className="flex-grow">
                       <h3 className="text-[11px] font-medium text-black mt-1 mr-1 ml-1 line-clamp-2">
                         {product.name}
@@ -257,11 +239,11 @@ export default function TopPicksShowcase() {
                     </div>
                   </div>
                 </motion.div>
-              )
+              );
             })}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

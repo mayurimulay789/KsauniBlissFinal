@@ -1,15 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
 // Axios instance (❌ no global interceptor)
 const api = axios.create({ baseURL: API_BASE_URL });
-
 // =========================
 // 📝 Async Thunks
 // =========================
-
 // Fetch all banners (admin view or general)
 export const fetchAllBanners = createAsyncThunk(
   "banners/fetchAllBanners",
@@ -22,7 +18,6 @@ export const fetchAllBanners = createAsyncThunk(
     }
   }
 );
-
 // Public banner fetches (no token required)
 export const fetchHeroBanners = createAsyncThunk(
   "banners/fetchHeroBanners",
@@ -35,7 +30,6 @@ export const fetchHeroBanners = createAsyncThunk(
     }
   }
 );
-
 export const fetchPromoBanners = createAsyncThunk(
   "banners/fetchPromoBanners",
   async (_, { rejectWithValue }) => {
@@ -47,7 +41,6 @@ export const fetchPromoBanners = createAsyncThunk(
     }
   }
 );
-
 export const fetchCategoryBanners = createAsyncThunk(
   "banners/fetchCategoryBanners",
   async (_, { rejectWithValue }) => {
@@ -59,7 +52,6 @@ export const fetchCategoryBanners = createAsyncThunk(
     }
   }
 );
-
 // Admin-only actions (token required)
 export const createBanner = createAsyncThunk(
   "banners/createBanner",
@@ -78,7 +70,6 @@ export const createBanner = createAsyncThunk(
     }
   }
 );
-
 export const updateBanner = createAsyncThunk(
   "banners/updateBanner",
   async ({ bannerId, bannerData }, { rejectWithValue }) => {
@@ -96,7 +87,6 @@ export const updateBanner = createAsyncThunk(
     }
   }
 );
-
 export const deleteBanner = createAsyncThunk(
   "banners/deleteBanner",
   async (bannerId, { rejectWithValue }) => {
@@ -113,7 +103,6 @@ export const deleteBanner = createAsyncThunk(
     }
   }
 );
-
 export const toggleBannerStatus = createAsyncThunk(
   "banners/toggleBannerStatus",
   async (bannerId, { rejectWithValue }) => {
@@ -130,7 +119,6 @@ export const toggleBannerStatus = createAsyncThunk(
     }
   }
 );
-
 // =========================
 // 📝 Initial State
 // =========================
@@ -150,7 +138,6 @@ const initialState = {
   error: null,
   success: null,
 };
-
 // =========================
 // 📝 Banner Slice
 // =========================
@@ -180,7 +167,6 @@ const bannerSlice = createSlice({
         state.loadingAll = false;
         state.error = action.payload;
       })
-
       // Hero
       .addCase(fetchHeroBanners.pending, (state) => {
         state.loadingHero = true;
@@ -194,7 +180,6 @@ const bannerSlice = createSlice({
         state.loadingHero = false;
         state.error = action.payload;
       })
-
       // Promo
       .addCase(fetchPromoBanners.pending, (state) => {
         state.loadingPromo = true;
@@ -208,7 +193,6 @@ const bannerSlice = createSlice({
         state.loadingPromo = false;
         state.error = action.payload;
       })
-
       // Category
       .addCase(fetchCategoryBanners.pending, (state) => {
         state.loadingCategory = true;
@@ -222,7 +206,6 @@ const bannerSlice = createSlice({
         state.loadingCategory = false;
         state.error = action.payload;
       })
-
       // Create
       .addCase(createBanner.pending, (state) => {
         state.loadingCreate = true;
@@ -237,7 +220,6 @@ const bannerSlice = createSlice({
         state.loadingCreate = false;
         state.error = action.payload;
       })
-
       // Update
       .addCase(updateBanner.pending, (state) => {
         state.loadingUpdate = true;
@@ -254,7 +236,6 @@ const bannerSlice = createSlice({
         state.loadingUpdate = false;
         state.error = action.payload;
       })
-
       // Delete
       .addCase(deleteBanner.pending, (state) => {
         state.loadingDelete = true;
@@ -272,7 +253,6 @@ const bannerSlice = createSlice({
         state.loadingDelete = false;
         state.error = action.payload;
       })
-
       // Toggle
       .addCase(toggleBannerStatus.pending, (state) => {
         state.loadingToggle = true;
@@ -297,6 +277,5 @@ const bannerSlice = createSlice({
       });
   },
 });
-
 export const { clearError, clearSuccess } = bannerSlice.actions;
 export default bannerSlice.reducer;

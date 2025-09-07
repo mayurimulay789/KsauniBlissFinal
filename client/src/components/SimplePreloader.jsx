@@ -1,20 +1,15 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-
+"use client";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 const SimplePreloader = ({ onComplete }) => {
-  const [isVisible, setIsVisible] = useState(true)
-
+  const [isVisible, setIsVisible] = useState(true);
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsVisible(false)
-      setTimeout(() => onComplete?.(), 300)
-    }, 2500)
-
-    return () => clearTimeout(timer)
-  }, [onComplete])
-
+      setIsVisible(false);
+      setTimeout(() => onComplete?.(), 300);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [onComplete]);
   return (
     <AnimatePresence>
       {isVisible && (
@@ -60,7 +55,6 @@ const SimplePreloader = ({ onComplete }) => {
               LUXE
             </motion.div>
           </motion.div>
-
           {/* Optional: Simple dots indicator */}
           <motion.div
             className="absolute bottom-20 flex space-x-2"
@@ -88,7 +82,6 @@ const SimplePreloader = ({ onComplete }) => {
         </motion.div>
       )}
     </AnimatePresence>
-  )
-}
-
-export default SimplePreloader
+  );
+};
+export default SimplePreloader;

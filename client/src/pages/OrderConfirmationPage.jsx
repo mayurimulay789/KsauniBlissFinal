@@ -1,6 +1,5 @@
 // src/pages/OrderConfirmationPage.jsx
 "use client";
-
 import { useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -16,34 +15,28 @@ import {
 } from "lucide-react";
 import { fetchOrderDetails } from "../store/slices/orderSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
-
 const OrderConfirmationPage = () => {
   // NOTE: keep the param name as in your routes
   const { orderId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, token } = useSelector((state) => state.auth || {})
-
+  const { user, token } = useSelector((state) => state.auth || {});
   // same slice/shape as your file
   const { currentOrder, loading } = useSelector((state) => state.orders || {});
-
   useEffect(() => {
     if (orderId) dispatch(fetchOrderDetails(orderId));
   }, [orderId, dispatch]);
-
   // ----- Safety: normalize pricing regardless of where totals are stored -----
   const safePricing = useMemo(() => {
     const o = currentOrder || {};
     const p = o.pricing || {};
     const items = Array.isArray(o.items) ? o.items : [];
-
     const calcItemsSubtotal = items.reduce((sum, it) => {
       const q = Number(it?.quantity || 0);
       const price = Number(it?.price || 0);
       const itemTotal = it?.itemTotal != null ? Number(it.itemTotal) : price * q;
       return sum + (isNaN(itemTotal) ? 0 : itemTotal);
     }, 0);
-
     const subtotal = p.subtotal ?? o.subtotal ?? calcItemsSubtotal;
     const shippingCharges = p.shippingCharges ?? o.shippingCharge ?? 0;
     const discount = p.discount ?? o.discount ?? 0;
@@ -52,7 +45,6 @@ const OrderConfirmationPage = () => {
       p.total ??
       o.total ??
       Math.max(0, Number(subtotal || 0) + Number(shippingCharges || 0) - Number(discount || 0) + Number(tax || 0));
-
     return {
       subtotal,
       shippingCharges,
@@ -61,7 +53,6 @@ const OrderConfirmationPage = () => {
       total,
     };
   }, [currentOrder]);
-
   // ----- Safety: normalize status to match your UI chips -----
   const getStatusColor = (status) => {
     const s = String(status || "").toLowerCase();
@@ -79,7 +70,6 @@ const OrderConfirmationPage = () => {
         return "text-gray-600 bg-gray-100";
     }
   };
-
   const getStatusText = (status) => {
     const s = String(status || "").toLowerCase();
     const normalized = s === "placed" ? "confirmed" : s;
@@ -96,7 +86,6 @@ const OrderConfirmationPage = () => {
         return "Pending";
     }
   };
-
   // estimated delivery (fallback: order.createdAt + 7 days)
   const estimatedDeliveryDate = (() => {
     const base = currentOrder?.trackingInfo?.estimatedDelivery
@@ -109,14 +98,12 @@ const OrderConfirmationPage = () => {
     }
     return base;
   })();
-
   // AWB/banner
   const awbStatus = currentOrder?.trackingInfo?.awbStatus || "PENDING";
   const awbError =
     currentOrder?.trackingInfo?.awbError ||
     currentOrder?.trackingInfo?.error ||
     null;
-
   if (loading?.fetching) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -124,7 +111,6 @@ const OrderConfirmationPage = () => {
       </div>
     );
   }
-
   if (!currentOrder) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -143,7 +129,6 @@ const OrderConfirmationPage = () => {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen py-8 bg-gray-50">
       <div className="container px-4 mx-auto">
@@ -163,14 +148,12 @@ const OrderConfirmationPage = () => {
               Thank you for your purchase. Your order has been successfully placed.
             </p>
           </motion.div>
-
           {/* AWB failure banner (non-blocking) */}
           {awbStatus === "FAILED" && (
             <div className="p-3 mb-6 text-sm text-yellow-800 bg-yellow-50 border border-yellow-200 rounded">
               Shipping label pending: {awbError || "We’ll retry shortly."}
             </div>
           )}
-
           {/* Order Details Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -202,7 +185,6 @@ const OrderConfirmationPage = () => {
                 </span>
               </div>
             </div>
-
             {/* Order Items */}
             <div className="pt-6 border-t">
               <h3 className="flex items-center mb-4 font-semibold">
@@ -237,7 +219,6 @@ const OrderConfirmationPage = () => {
               </div>
             </div>
           </motion.div>
-
           <div className="grid gap-6 md:grid-cols-2">
             {/* Shipping Information */}
             <motion.div
@@ -260,7 +241,6 @@ const OrderConfirmationPage = () => {
                 </p>
                 <p className="mt-2">Phone: {currentOrder?.shippingAddress?.phoneNumber}</p>
               </div>
-
               <div className="p-3 mt-4 rounded-lg bg-blue-50">
                 <div className="flex items-center text-blue-700">
                   <Truck className="w-4 h-4 mr-2" />
@@ -272,7 +252,6 @@ const OrderConfirmationPage = () => {
                 <p className="text-xs text-blue-600">5-7 business days</p>
               </div>
             </motion.div>
-
             {/* Payment & Pricing */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -284,7 +263,6 @@ const OrderConfirmationPage = () => {
                 <CreditCard className="w-5 h-5 mr-2 text-pink-600" />
                 Payment Details
               </h3>
-
               <div className="mb-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal</span>
@@ -311,7 +289,6 @@ const OrderConfirmationPage = () => {
                   <span>₹{safePricing.total}</span>
                 </div>
               </div>
-
               <div className="p-3 rounded-lg bg-green-50">
                 {String(currentOrder?.paymentInfo?.paymentMethod || currentOrder?.paymentInfo?.method).toUpperCase() === "COD" ? (
                   <p className="text-sm font-medium text-green-800">Payment Method: COD</p>
@@ -326,7 +303,6 @@ const OrderConfirmationPage = () => {
               </div>
             </motion.div>
           </div>
-
           {/* Action Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -343,7 +319,6 @@ const OrderConfirmationPage = () => {
                   View All Orders
                 </button>
               )}
-
             <button
               onClick={() => navigate("/")}
               className="flex items-center justify-center px-6 py-3 text-pink-600 transition-colors border border-pink-600 rounded-lg hover:bg-pink-50"
@@ -352,7 +327,6 @@ const OrderConfirmationPage = () => {
               <ArrowRight className="w-5 h-5 ml-2" />
             </button>
           </motion.div>
-
           {/* Support Info */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} className="p-6 mt-8 text-center bg-white rounded-lg shadow-md">
             <h3 className="mb-2 font-semibold">Need Help?</h3>
@@ -373,5 +347,4 @@ const OrderConfirmationPage = () => {
     </div>
   );
 };
-
 export default OrderConfirmationPage;

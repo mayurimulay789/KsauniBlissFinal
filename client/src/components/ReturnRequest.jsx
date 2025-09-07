@@ -1,32 +1,27 @@
-"use client"
-
-import React, { useState, useEffect } from "react"
-import { useSelector, useDispatch } from "react-redux"
-import { motion } from "framer-motion"
-import { ArrowLeft, Upload, X, Package, AlertCircle, CheckCircle } from "lucide-react"
-import { createReturnRequest, clearSuccess } from "../store/slices/returnSlice"
-import { fetchOrderDetails } from "../store/slices/orderSlice"
-
+"use client";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { motion } from "framer-motion";
+import { ArrowLeft, Upload, X, Package, AlertCircle, CheckCircle } from "lucide-react";
+import { createReturnRequest, clearSuccess } from "../store/slices/returnSlice";
+import { fetchOrderDetails } from "../store/slices/orderSlice";
 const ReturnRequest = ({ orderId, onBack }) => {
-  const dispatch = useDispatch()
-  const { currentOrder } = useSelector((state) => state.order)
-  const { loading, error, success } = useSelector((state) => state.returns)
-
+  const dispatch = useDispatch();
+  const { currentOrder } = useSelector((state) => state.order);
+  const { loading, error, success } = useSelector((state) => state.returns);
   const [formData, setFormData] = useState({
     type: "return",
     reason: "",
     description: "",
     items: [],
-  })
-  const [selectedImages, setSelectedImages] = useState([])
-  const [imagePreview, setImagePreview] = useState([])
-
+  });
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imagePreview, setImagePreview] = useState([]);
   useEffect(() => {
     if (orderId) {
-      dispatch(fetchOrderDetails(orderId))
+      dispatch(fetchOrderDetails(orderId));
     }
-  }, [dispatch, orderId])
-
+  }, [dispatch, orderId]);
   useEffect(() => {
     if (success.returnCreated) {
       // Reset form and show success message
@@ -35,17 +30,15 @@ const ReturnRequest = ({ orderId, onBack }) => {
         reason: "",
         description: "",
         items: [],
-      })
-      setSelectedImages([])
-      setImagePreview([])
-
+      });
+      setSelectedImages([]);
+      setImagePreview([]);
       setTimeout(() => {
-        dispatch(clearSuccess())
-        onBack()
-      }, 2000)
+        dispatch(clearSuccess());
+        onBack();
+      }, 2000);
     }
-  }, [success.returnCreated, dispatch, onBack])
-
+  }, [success.returnCreated, dispatch, onBack]);
   const returnReasons = [
     { value: "defective_product", label: "Defective Product" },
     { value: "wrong_item", label: "Wrong Item Received" },
@@ -55,23 +48,21 @@ const ReturnRequest = ({ orderId, onBack }) => {
     { value: "damaged_packaging", label: "Damaged Packaging" },
     { value: "changed_mind", label: "Changed Mind" },
     { value: "other", label: "Other" },
-  ]
-
+  ];
   const handleItemSelection = (item, quantity) => {
-    const existingItemIndex = formData.items.findIndex((i) => i.orderItemId === item._id)
-
+    const existingItemIndex = formData.items.findIndex((i) => i.orderItemId === item._id);
     if (quantity === 0) {
       // Remove item
       setFormData((prev) => ({
         ...prev,
         items: prev.items.filter((i) => i.orderItemId !== item._id),
-      }))
+      }));
     } else if (existingItemIndex >= 0) {
       // Update existing item
       setFormData((prev) => ({
         ...prev,
         items: prev.items.map((i, index) => (index === existingItemIndex ? { ...i, quantity } : i)),
-      }))
+      }));
     } else {
       // Add new item
       setFormData((prev) => ({
@@ -84,48 +75,39 @@ const ReturnRequest = ({ orderId, onBack }) => {
             reason: formData.reason,
           },
         ],
-      }))
+      }));
     }
-  }
-
+  };
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files)
-
+    const files = Array.from(e.target.files);
     if (files.length + selectedImages.length > 5) {
-      alert("You can upload maximum 5 images")
-      return
+      alert("You can upload maximum 5 images");
+      return;
     }
-
-    setSelectedImages((prev) => [...prev, ...files])
-
+    setSelectedImages((prev) => [...prev, ...files]);
     // Create preview URLs
     files.forEach((file) => {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (e) => {
-        setImagePreview((prev) => [...prev, e.target.result])
-      }
-      reader.readAsDataURL(file)
-    })
-  }
-
+        setImagePreview((prev) => [...prev, e.target.result]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
   const removeImage = (index) => {
-    setSelectedImages((prev) => prev.filter((_, i) => i !== index))
-    setImagePreview((prev) => prev.filter((_, i) => i !== index))
-  }
-
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreview((prev) => prev.filter((_, i) => i !== index));
+  };
   const handleSubmit = (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
     if (formData.items.length === 0) {
-      alert("Please select at least one item to return")
-      return
+      alert("Please select at least one item to return");
+      return;
     }
-
     if (!formData.reason) {
-      alert("Please select a reason for return")
-      return
+      alert("Please select a reason for return");
+      return;
     }
-
     const returnData = {
       orderId,
       type: formData.type,
@@ -133,30 +115,24 @@ const ReturnRequest = ({ orderId, onBack }) => {
       description: formData.description,
       items: formData.items,
       images: selectedImages,
-    }
-
-    dispatch(createReturnRequest(returnData))
-  }
-
+    };
+    dispatch(createReturnRequest(returnData));
+  };
   const canReturnOrder = () => {
     if (!currentOrder || currentOrder.status !== "delivered") {
-      return false
+      return false;
     }
-
-    const deliveryDate = currentOrder.deliveredAt || currentOrder.createdAt
-    const daysSinceDelivery = Math.floor((new Date() - new Date(deliveryDate)) / (1000 * 60 * 60 * 24))
-
-    return daysSinceDelivery <= 7
-  }
-
+    const deliveryDate = currentOrder.deliveredAt || currentOrder.createdAt;
+    const daysSinceDelivery = Math.floor((new Date() - new Date(deliveryDate)) / (1000 * 60 * 60 * 24));
+    return daysSinceDelivery <= 7;
+  };
   if (!currentOrder) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="w-8 h-8 border-b-2 border-pink-600 rounded-full animate-spin"></div>
       </div>
-    )
+    );
   }
-
   if (!canReturnOrder()) {
     return (
       <div className="max-w-2xl p-6 mx-auto">
@@ -178,9 +154,8 @@ const ReturnRequest = ({ orderId, onBack }) => {
           </div>
         </div>
       </div>
-    )
+    );
   }
-
   return (
     <div className="max-w-4xl p-6 mx-auto">
       {/* Header */}
@@ -191,7 +166,6 @@ const ReturnRequest = ({ orderId, onBack }) => {
         </button>
         <h1 className="text-2xl font-bold text-gray-800">Return Request</h1>
       </div>
-
       {/* Success Message */}
       {success.returnCreated && (
         <motion.div
@@ -203,7 +177,6 @@ const ReturnRequest = ({ orderId, onBack }) => {
           Return request submitted successfully! Redirecting...
         </motion.div>
       )}
-
       {/* Error Message */}
       {error && (
         <motion.div
@@ -214,7 +187,6 @@ const ReturnRequest = ({ orderId, onBack }) => {
           {error}
         </motion.div>
       )}
-
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Order Info */}
         <div className="p-6 bg-white rounded-lg shadow-md">
@@ -238,7 +210,6 @@ const ReturnRequest = ({ orderId, onBack }) => {
             </div>
           </div>
         </div>
-
         {/* Return Type */}
         <div className="p-6 bg-white rounded-lg shadow-md">
           <h2 className="mb-4 text-xl font-semibold">Return Type</h2>
@@ -265,15 +236,13 @@ const ReturnRequest = ({ orderId, onBack }) => {
             ))}
           </div>
         </div>
-
         {/* Select Items */}
         <div className="p-6 bg-white rounded-lg shadow-md">
           <h2 className="mb-4 text-xl font-semibold">Select Items to Return</h2>
           <div className="space-y-4">
             {currentOrder.items.map((item) => {
-              const selectedItem = formData.items.find((i) => i.orderItemId === item._id)
-              const selectedQuantity = selectedItem?.quantity || 0
-
+              const selectedItem = formData.items.find((i) => i.orderItemId === item._id);
+              const selectedQuantity = selectedItem?.quantity || 0;
               return (
                 <div key={item._id} className="flex items-center p-4 space-x-4 border rounded-lg">
                   <img
@@ -304,11 +273,10 @@ const ReturnRequest = ({ orderId, onBack }) => {
                     </select>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </div>
-
         {/* Return Reason */}
         <div className="p-6 bg-white rounded-lg shadow-md">
           <h2 className="mb-4 text-xl font-semibold">Reason for Return</h2>
@@ -330,7 +298,6 @@ const ReturnRequest = ({ orderId, onBack }) => {
               </label>
             ))}
           </div>
-
           <div className="mt-4">
             <label className="block mb-2 text-sm font-medium text-gray-700">Additional Details (Optional)</label>
             <textarea
@@ -342,14 +309,12 @@ const ReturnRequest = ({ orderId, onBack }) => {
             />
           </div>
         </div>
-
         {/* Upload Images */}
         <div className="p-6 bg-white rounded-lg shadow-md">
           <h2 className="mb-4 text-xl font-semibold">Upload Images (Optional)</h2>
           <p className="mb-4 text-sm text-gray-600">
             Upload photos to support your return request (Max 5 images, 5MB each)
           </p>
-
           <div className="p-6 text-center border-2 border-gray-300 border-dashed rounded-lg">
             <input
               type="file"
@@ -364,7 +329,6 @@ const ReturnRequest = ({ orderId, onBack }) => {
               <p className="text-gray-600">Click to upload images</p>
             </label>
           </div>
-
           {/* Image Preview */}
           {imagePreview.length > 0 && (
             <div className="grid grid-cols-2 gap-4 mt-4 md:grid-cols-5">
@@ -387,7 +351,6 @@ const ReturnRequest = ({ orderId, onBack }) => {
             </div>
           )}
         </div>
-
         {/* Submit Button */}
         <div className="flex justify-end space-x-4">
           <button
@@ -417,7 +380,6 @@ const ReturnRequest = ({ orderId, onBack }) => {
         </div>
       </form>
     </div>
-  )
-}
-
-export default ReturnRequest
+  );
+};
+export default ReturnRequest;

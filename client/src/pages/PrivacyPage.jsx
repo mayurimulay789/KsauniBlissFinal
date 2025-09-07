@@ -12,7 +12,6 @@ export default function PrivacyPage() {
           </p>
         </div>
       </div>
-
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 py-16">
         {/* Introduction */}
@@ -23,7 +22,6 @@ export default function PrivacyPage() {
             purchase.
           </p>
         </div>
-
         {/* Policy Sections */}
         <div className="space-y-12">
           {/* Information We Collect */}
@@ -66,7 +64,6 @@ export default function PrivacyPage() {
               </div>
             </div>
           </div>
-
           {/* How We Use Your Information */}
           <div className="bg-white rounded-xl shadow-lg p-8 border-l-4 border-red-600">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -111,7 +108,6 @@ export default function PrivacyPage() {
               </div>
             </div>
           </div>
-
           {/* Sharing Your Information */}
           <div className="bg-white rounded-xl shadow-lg p-8 border-l-4 border-red-600">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -144,7 +140,6 @@ export default function PrivacyPage() {
               </div>
             </div>
           </div>
-
           {/* Data Security */}
           <div className="bg-white rounded-xl shadow-lg p-8 border-l-4 border-red-600">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -156,7 +151,6 @@ export default function PrivacyPage() {
               industry-standard practices to safeguard your information.
             </p>
           </div>
-
           {/* Your Rights and Choices */}
           <div className="bg-white rounded-xl shadow-lg p-8 border-l-4 border-red-600">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -202,7 +196,6 @@ export default function PrivacyPage() {
             </div>
           </div>
         </div>
-
         {/* Contact Section */}
         <div className="mt-16 text-center bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl p-12">
           <h2 className="text-3xl font-bold mb-4">
@@ -217,5 +210,5 @@ export default function PrivacyPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

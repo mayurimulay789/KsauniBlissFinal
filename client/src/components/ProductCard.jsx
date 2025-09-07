@@ -1,17 +1,14 @@
-"use client"
-
-import { memo } from "react"
-import { motion } from "framer-motion"
-import { Heart, Star, ArrowDown } from "lucide-react"
-import { Link } from "react-router-dom"
-
+"use client";
+import { memo } from "react";
+import { motion } from "framer-motion";
+import { Heart, Star, ArrowDown } from "lucide-react";
+import { Link } from "react-router-dom";
 const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) => {
-  const inWishlist = wishlistItems.some((item) => item._id === product._id)
-  const hasDiscount = product.originalPrice > product.price
-  const discountPercent = hasDiscount 
+  const inWishlist = wishlistItems.some((item) => item._id === product._id);
+  const hasDiscount = product.originalPrice > product.price;
+  const discountPercent = hasDiscount
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-    : 0
-
+    : 0;
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -27,7 +24,6 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
             loading="lazy"
           />
         </Link>
-
         {(product.rating?.average ?? 0) > 0 && (
           <div className="absolute flex items-center px-2 py-1 border border-gray-200 rounded-full shadow-xs bottom-2 right-2 bg-white/90">
             <Star className="w-3 h-3 mr-1 text-yellow-400 fill-current" />
@@ -36,7 +32,6 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
             </span>
           </div>
         )}
-
         <motion.button
           whileHover={{ scale: 1.05 }}
           onClick={(e) => onWishlist(product, e)}
@@ -46,7 +41,6 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
           <Heart className={`w-4 h-4 ${inWishlist ? "fill-red-500 text-red-500" : "text-gray-400"}`} />
         </motion.button>
       </div>
-
       <div className="px-3 pt-2">
         <Link to={`/product/${product._id}`}>
           <h3 className="text-sm font-medium text-gray-800 line-clamp-2">
@@ -56,7 +50,6 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
             {product.name}
           </p>
         </Link>
-
         <div className="flex items-center mt-2 mb-2 space-x-1">
           {hasDiscount && (
             <>
@@ -71,7 +64,6 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
             ₹{product.price}
           </span>
         </div>
-
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -83,7 +75,6 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
         </motion.button>
       </div>
     </motion.div>
-  )
-}
-
-export default memo(ProductCard)
+  );
+};
+export default memo(ProductCard);

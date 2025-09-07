@@ -1,7 +1,5 @@
-"use client"
-
-import { motion } from "framer-motion"
-
+"use client";
+import { motion } from "framer-motion";
 const features = [
   {
     title: "Money Guarantee",
@@ -27,13 +25,11 @@ const features = [
     iconPosition: "100% center", // Position for the fourth icon (quality badge)
     alt: "Quality badge icon",
   },
-]
-
+];
 const itemVariants = {
   hidden: { opacity: 0, y: 50 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-}
-
+};
 const FeatureHighlights = () => {
   return (
     <section className="py-12 text-white bg-gray-900">
@@ -52,7 +48,7 @@ const FeatureHighlights = () => {
               <div
                 className="w-20 h-20 mb-4 bg-no-repeat"
                 style={{
-                  backgroundImage: `url('/images/feature-icons.png')`,
+                  backgroundImage: "url('/images/feature-icons.png')",
                   backgroundSize: "400% auto", // Scale the sprite to fit 4 icons horizontally
                   backgroundPosition: feature.iconPosition,
                 }}
@@ -66,7 +62,6 @@ const FeatureHighlights = () => {
         </div>
       </div>
     </section>
-  )
-}
-
-export default FeatureHighlights
+  );
+};
+export default FeatureHighlights;

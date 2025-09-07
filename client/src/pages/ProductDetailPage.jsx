@@ -1,20 +1,18 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useParams, Link, useNavigate } from "react-router-dom"
-import { useDispatch, useSelector } from "react-redux"
-import { motion, AnimatePresence } from "framer-motion"
-import { Swiper, SwiperSlide } from "swiper/react"
-import { FreeMode, Navigation, Thumbs, Pagination } from "swiper/modules"
-import "swiper/css"
-import "swiper/css/free-mode"
-import "swiper/css/navigation"
-import "swiper/css/thumbs"
-import "swiper/css/pagination"
-import { Heart, Minus, Plus, X, AlertCircle, Ruler, ShoppingCart } from "lucide-react"
-
-import { fetchProductById } from "../store/slices/productSlice"
-import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice"
+"use client";
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { FreeMode, Navigation, Thumbs, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/free-mode";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
+import "swiper/css/pagination";
+import { Heart, Minus, Plus, X, AlertCircle, Ruler, ShoppingCart } from "lucide-react";
+import { fetchProductById } from "../store/slices/productSlice";
+import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice";
 import {
   addToWishlist,
   removeFromWishlist,
@@ -22,105 +20,88 @@ import {
   optimisticRemoveFromWishlist,
   selectIsAddingToWishlist,
   selectIsRemovingFromWishlist,
-} from "../store/slices/wishlistSlice"
-
-import ProductReviews from "../components/ProductReviews"
-import RelatedProducts from "../components/RelatedProducts"
-import Preloader from "../components/Preloader"
-import toast from "react-hot-toast"
-
+} from "../store/slices/wishlistSlice";
+import ProductReviews from "../components/ProductReviews";
+import RelatedProducts from "../components/RelatedProducts";
+import Preloader from "../components/Preloader";
+import toast from "react-hot-toast";
 const ProductDetailPage = () => {
-  const { id } = useParams()
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-
-  const { currentProduct, isLoading, error } = useSelector((state) => state.products)
-  const { items: wishlistItems } = useSelector((state) => state.wishlist)
-  const isAddingToCart = useSelector(selectIsAddingToCart)
-  const isAddingToWishlist = useSelector(selectIsAddingToWishlist)
-  const isRemovingFromWishlist = useSelector(selectIsRemovingFromWishlist)
-
-  const [selectedImage, setSelectedImage] = useState(0)
-  const [selectedSize, setSelectedSize] = useState("")
-  const [selectedColor, setSelectedColor] = useState("")
-  const [quantity, setQuantity] = useState(1)
-  const [showImageModal, setShowImageModal] = useState(false)
-  const [showSizeGuide, setShowSizeGuide] = useState(false)
-  const [thumbsSwiper, setThumbsSwiper] = useState(null)
-
-  const isInWishlist = wishlistItems.some((item) => item._id === currentProduct?._id)
-
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { currentProduct, isLoading, error } = useSelector((state) => state.products);
+  const { items: wishlistItems } = useSelector((state) => state.wishlist);
+  const isAddingToCart = useSelector(selectIsAddingToCart);
+  const isAddingToWishlist = useSelector(selectIsAddingToWishlist);
+  const isRemovingFromWishlist = useSelector(selectIsRemovingFromWishlist);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const isInWishlist = wishlistItems.some((item) => item._id === currentProduct?._id);
   useEffect(() => {
-    if (id) dispatch(fetchProductById(id))
-  }, [dispatch, id])
-
+    if (id) dispatch(fetchProductById(id));
+  }, [dispatch, id]);
   useEffect(() => {
     if (currentProduct) {
       // if (currentProduct.sizes?.length > 0) setSelectedSize(currentProduct.sizes[0].size)
-      if (currentProduct.colors?.length > 0) setSelectedColor(currentProduct.colors[0].name)
+      if (currentProduct.colors?.length > 0) setSelectedColor(currentProduct.colors[0].name);
     }
-  }, [currentProduct])
-
+  }, [currentProduct]);
   const getDiscountPercentage = () => {
     if (currentProduct?.originalPrice && currentProduct.originalPrice > currentProduct.price) {
-      return Math.round(((currentProduct.originalPrice - currentProduct.price) / currentProduct.originalPrice) * 100)
+      return Math.round(((currentProduct.originalPrice - currentProduct.price) / currentProduct.originalPrice) * 100);
     }
-    return 0
-  }
-
+    return 0;
+  };
   const getSelectedSizeStock = () => {
-    if (!selectedSize || !currentProduct?.sizes) return currentProduct?.stock || 0
-    const sizeData = currentProduct.sizes.find((s) => s.size === selectedSize)
-    return sizeData?.stock || 0
-  }
+    if (!selectedSize || !currentProduct?.sizes) return currentProduct?.stock || 0;
+    const sizeData = currentProduct.sizes.find((s) => s.size === selectedSize);
+    return sizeData?.stock || 0;
+  };
   const tagText =
     (Array.isArray(currentProduct?.tags) && currentProduct.tags[0]) ||
     (currentProduct?.isTrending && "TRENDING") ||
     (currentProduct?.isNewArrival && "NEW ARRIVAL") ||
     (currentProduct?.isFeatured && "FEATURED") ||
-    "DESIGN OF THE WEEK"
-
+    "DESIGN OF THE WEEK";
   const fitText =
     typeof currentProduct?.fits === "string"
       ? `${currentProduct.fits} FIT`
       : currentProduct?.fits
         ? `${String(currentProduct.fits)} FIT`
-        : "REGULAR FIT"
-
+        : "REGULAR FIT";
   const materialText =
     typeof currentProduct?.material === "string"
       ? currentProduct.material
       : currentProduct?.material
         ? String(currentProduct.material)
-        : "COTTON"
-
+        : "COTTON";
   const handleAddToCart = async () => {
-    if (currentProduct.sizes?.length && !selectedSize) return toast.error("Please select a size")
-    if (currentProduct.colors?.length && !selectedColor) return toast.error("Please select a color")
-
-    const payload = { productId: currentProduct._id, quantity, size: selectedSize, color: selectedColor }
-    dispatch(optimisticAddToCart({ product: currentProduct, quantity, size: selectedSize, color: selectedColor }))
-    toast.success(`${currentProduct.name} added to cart!`)
-
-    const bag = document.querySelector("#bag")
+    if (currentProduct.sizes?.length && !selectedSize) return toast.error("Please select a size");
+    if (currentProduct.colors?.length && !selectedColor) return toast.error("Please select a color");
+    const payload = { productId: currentProduct._id, quantity, size: selectedSize, color: selectedColor };
+    dispatch(optimisticAddToCart({ product: currentProduct, quantity, size: selectedSize, color: selectedColor }));
+    toast.success(`${currentProduct.name} added to cart!`);
+    const bag = document.querySelector("#bag");
     if (bag) {
-      bag.style.transform = "scale(1.2)"
-      setTimeout(() => (bag.style.transform = "scale(1)"), 200)
+      bag.style.transform = "scale(1.2)";
+      setTimeout(() => (bag.style.transform = "scale(1)"), 200);
     }
-
     try {
-      await dispatch(addToCart(payload)).unwrap()
+      await dispatch(addToCart(payload)).unwrap();
     } catch (err) {
-      console.error(err)
-      toast.error(err?.message || "Failed to add to cart")
+      console.error(err);
+      toast.error(err?.message || "Failed to add to cart");
     }
-  }
-
+  };
   const handleBuyNow = async () => {
-    if (currentProduct.sizes?.length && !selectedSize) return toast.error("Please select a size")
-    if (currentProduct.colors?.length && !selectedColor) return toast.error("Please select a color")
-
-    await handleAddToCart()
+    if (currentProduct.sizes?.length && !selectedSize) return toast.error("Please select a size");
+    if (currentProduct.colors?.length && !selectedColor) return toast.error("Please select a color");
+    await handleAddToCart();
     navigate("/checkout", {
       state: {
         product: currentProduct,
@@ -128,31 +109,29 @@ const ProductDetailPage = () => {
         size: selectedSize,
         color: selectedColor,
       },
-    })
-  }
-
+    });
+  };
   const handleWishlistToggle = async () => {
     try {
       if (isInWishlist) {
-        dispatch(optimisticRemoveFromWishlist(currentProduct._id))
-        toast.success(`${currentProduct.name} removed from wishlist!`)
-        await dispatch(removeFromWishlist(currentProduct._id)).unwrap()
+        dispatch(optimisticRemoveFromWishlist(currentProduct._id));
+        toast.success(`${currentProduct.name} removed from wishlist!`);
+        await dispatch(removeFromWishlist(currentProduct._id)).unwrap();
       } else {
-        dispatch(optimisticAddToWishlist(currentProduct))
-        toast.success(`${currentProduct.name} added to wishlist!`)
-        await dispatch(addToWishlist(currentProduct)).unwrap()
+        dispatch(optimisticAddToWishlist(currentProduct));
+        toast.success(`${currentProduct.name} added to wishlist!`);
+        await dispatch(addToWishlist(currentProduct)).unwrap();
       }
-      const wish = document.querySelector("#wish")
+      const wish = document.querySelector("#wish");
       if (wish) {
-        wish.style.transform = "scale(1.2)"
-        setTimeout(() => (wish.style.transform = "scale(1)"), 200)
+        wish.style.transform = "scale(1.2)";
+        setTimeout(() => (wish.style.transform = "scale(1)"), 200);
       }
     } catch (err) {
-      console.error(err)
-      toast.error(err?.message || "Failed to update wishlist")
+      console.error(err);
+      toast.error(err?.message || "Failed to update wishlist");
     }
-  }
-
+  };
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -160,30 +139,28 @@ const ProductDetailPage = () => {
           title: currentProduct.name,
           text: currentProduct.description,
           url: window.location.href,
-        })
+        });
       } catch {
         // User cancelled sharing
-        toast.error("Failed to share product")
+        toast.error("Failed to share product");
       }
     } else {
       try {
-        await navigator.clipboard.writeText(window.location.href)
-        toast.success("Link copied")
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Link copied");
       } catch {
-        toast.error("Failed to copy")
+        toast.error("Failed to copy");
       }
     }
-  }
-
+  };
   const handleViewSimilar = () => {
     if (currentProduct?.category?.slug) {
-      navigate(`/products?category=${currentProduct.category.slug}`)
+      navigate(`/products?category=${currentProduct.category.slug}`);
     } else {
-      navigate("/products")
+      navigate("/products");
     }
-  }
-
-  if (isLoading) return <Preloader message="Loading product…" />
+  };
+  if (isLoading) return <Preloader message="Loading product…" />;
   if (error || !currentProduct)
     return (
       <div className="text-center">
@@ -197,8 +174,7 @@ const ProductDetailPage = () => {
           Browse Products
         </Link>
       </div>
-    )
-
+    );
   return (
     <div className=" bg-gray-50 sm:pb-0 pb-10">
       {/* Desktop Breadcrumb - Hidden on mobile */}
@@ -221,7 +197,6 @@ const ProductDetailPage = () => {
           </nav>
         </div>
       </div>
-
       {/* Main Content */}
       <div className="mx-auto px-4 sm:px-4 py-2">
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
@@ -241,7 +216,6 @@ const ProductDetailPage = () => {
               >
                 <Heart id="wish" className={`w-6 h-6 ${isInWishlist ? "fill-current" : ""}`} />
               </button>
-
               {/* Mobile Swiper - full bleed */}
               <div className="lg:hidden relative -mx-6 rounded-xl">
                 <Swiper
@@ -260,12 +234,11 @@ const ProductDetailPage = () => {
                           className="w-full aspect-[3/4] object-cover cursor-zoom-in"
                           loading="lazy"
                           onClick={() => {
-                            setSelectedImage(idx)
-                            setShowImageModal(true)
+                            setSelectedImage(idx);
+                            setShowImageModal(true);
                           }}
                         />
                         {/* Discount badge removed on mobile to match requested UI */}
-
                         <div className="absolute bottom-6 left-2 right-2 flex items-center justify-between gap-2">
                           <button
                             onClick={handleViewSimilar}
@@ -273,7 +246,6 @@ const ProductDetailPage = () => {
                           >
                             VIEW SIMILAR
                           </button>
-
                           <div className="px-3 py-1 rounded-full bg-black/80 text-white text-xs font-semibold flex items-center gap-2">
                             <span className="uppercase">
                               {currentProduct?.category?.name ? String(currentProduct.category.name) : "REGULAR"}
@@ -292,7 +264,6 @@ const ProductDetailPage = () => {
                     </SwiperSlide>
                   ))}
                 </Swiper>
-
                 {/* Thumbs */}
                 <Swiper
                   onSwiper={setThumbsSwiper}
@@ -317,7 +288,6 @@ const ProductDetailPage = () => {
                   ))}
                 </Swiper>
               </div>
-
               {/* Desktop Image Display */}
               <div className="hidden lg:block">
                 <div className="relative bg-gray-50 rounded-xl overflow-hidden group">
@@ -334,14 +304,14 @@ const ProductDetailPage = () => {
                   {/*
                   {currentProduct.images.length > 1 && (
                     <>
-                      <button 
-                        onClick={() => setSelectedImage(prev => (prev - 1 + currentProduct.images.length) % currentProduct.images.length)} 
+                      <button
+                        onClick={() => setSelectedImage(prev => (prev - 1 + currentProduct.images.length) % currentProduct.images.length)}
                         className="absolute left-4 top-1/2 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 hover:bg-gray-100 transition-opacity"
                       >
                         <ChevronLeft className="w-5 h-5" />
                       </button>
-                      <button 
-                        onClick={() => setSelectedImage(prev => (prev + 1) % currentProduct.images.length)} 
+                      <button
+                        onClick={() => setSelectedImage(prev => (prev + 1) % currentProduct.images.length)}
                         className="absolute right-4 top-1/2 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 hover:bg-gray-100 transition-opacity"
                       >
                         <ChevronRight className="w-5 h-5" />
@@ -349,14 +319,12 @@ const ProductDetailPage = () => {
                     </>
                   )}
                   */}
-
                   {getSelectedSizeStock() === 0 && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
                       <span className="bg-white text-gray-800 px-4 py-2 rounded-full font-medium">Out of Stock</span>
                     </div>
                   )}
                 </div>
-
                 {/* Thumbnails */}
                 <div className="grid grid-cols-5 gap-2 mt-3">
                   {currentProduct.images.map((img, idx) => (
@@ -377,7 +345,6 @@ const ProductDetailPage = () => {
                   ))}
                 </div>
               </div>
-
               {/* Brand Name Under Product Image */}
               <div className="mt-4 text-left lg:hidden">
                 <p className="text-md font-semibold text-gray-900">
@@ -403,9 +370,8 @@ const ProductDetailPage = () => {
                   )}
                 </div>
               </div>
-
               {/* Share Button */}
-              {/* <button 
+              {/* <button
                 onClick={handleShare}
                 className="flex items-center justify-center gap-2 w-full mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700"
               >
@@ -413,7 +379,6 @@ const ProductDetailPage = () => {
                 <span className="text-sm font-medium">Share this product</span>
               </button> */}
             </div>
-
             {/* Product Info */}
             <div className="space-y-1">
               <div className="flex items-start justify-between">
@@ -456,7 +421,6 @@ const ProductDetailPage = () => {
                   </div>
                 </div>
               </div>
-
               {/* Colors */}
               {currentProduct.colors?.length > 0 && (
                 <div className="pt-3">
@@ -487,7 +451,6 @@ const ProductDetailPage = () => {
                   </div>
                 </div>
               )}
-
               {/* Sizes */}
               {currentProduct.sizes?.length > 0 && (
                 <div>
@@ -528,7 +491,6 @@ const ProductDetailPage = () => {
                   </span>
                 </div>
               )}
-
               {/* Quantity */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">Quantity</h3>
@@ -578,7 +540,6 @@ const ProductDetailPage = () => {
                     </p>
                   </div>
                 )}
-
                 {currentProduct.fits && (
                   <div>
                     <h2 className="text-md font-bold text-gray-700 mb-1">Model Size and Fits</h2>
@@ -589,7 +550,6 @@ const ProductDetailPage = () => {
                     </p>
                   </div>
                 )}
-
                 {currentProduct.care && (
                   <div>
                     <h2 className="text-md font-bold text-gray-700 mb-1">Care Instructions</h2>
@@ -601,7 +561,6 @@ const ProductDetailPage = () => {
                   </div>
                 )}
               </div>
-
               <div className="hidden lg:block pt-4 border-t border-gray-200">
                 <div className="flex gap-3 max-w-md">
                   <button
@@ -624,10 +583,8 @@ const ProductDetailPage = () => {
               </div>
             </div>
           </div>
-
           {/* Static Design Section */}
           <StaticDesignSection />
-
           {/* Reviews Section */}
           <div
             id="reviews"
@@ -637,14 +594,12 @@ const ProductDetailPage = () => {
               <ProductReviews productId={currentProduct._id} />
             </div>
           </div>
-
           {/* Related Products */}
           <div className="border-t rounded-xl border-gray-200 px-4 sm:px-6 py-6 sm:py-8 bg-white">
             <RelatedProducts currentProduct={currentProduct} />
           </div>
         </div>
       </div>
-
       {/* Image Modal */}
       <AnimatePresence>
         {showImageModal && (
@@ -679,14 +634,14 @@ const ProductDetailPage = () => {
               {/*
               {currentProduct.images.length > 1 && (
                 <>
-                  <button 
-                    onClick={() => setSelectedImage(prev => (prev - 1 + currentProduct.images.length) % currentProduct.images.length)} 
+                  <button
+                    onClick={() => setSelectedImage(prev => (prev - 1 + currentProduct.images.length) % currentProduct.images.length)}
                     className="absolute left-0 top-1/2 p-3 text-white hover:text-gray-300"
                   >
                     <ChevronLeft className="w-8 h-8" />
                   </button>
-                  <button 
-                    onClick={() => setSelectedImage(prev => (prev + 1) % currentProduct.images.length)} 
+                  <button
+                    onClick={() => setSelectedImage(prev => (prev + 1) % currentProduct.images.length)}
                     className="absolute right-0 top-1/2 p-3 text-white hover:text-gray-300"
                   >
                     <ChevronRight className="w-8 h-8 text-gray-500" />
@@ -698,7 +653,6 @@ const ProductDetailPage = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
       {/* Size Guide Modal */}
       <AnimatePresence>
         {showSizeGuide && (
@@ -723,12 +677,10 @@ const ProductDetailPage = () => {
                     <X className="w-5 h-5 text-gray-500" />
                   </button>
                 </div>
-
                 <div className="prose prose-sm max-w-none">
                   <p className="text-gray-600 mb-4">
                     Use this guide to help determine your correct size. Measurements are in inches.
                   </p>
-
                   <div className="overflow-x-auto">
                     <table className="min-w-full border border-gray-200">
                       <thead>
@@ -781,7 +733,6 @@ const ProductDetailPage = () => {
                       </tbody>
                     </table>
                   </div>
-
                   <div className="mt-6 bg-blue-50 p-4 rounded-lg">
                     <h4 className="font-medium text-blue-800 mb-2">How to measure</h4>
                     <ul className="space-y-2 text-sm text-blue-700">
@@ -805,12 +756,10 @@ const ProductDetailPage = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
       {/* Fixed Mobile Action Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 shadow-lg">
         <div className="flex gap-3 max-w-md mx-auto">
           {/* View Similar */}
-
           {/* Add to Cart */}
           <button
             onClick={handleAddToCart}
@@ -820,7 +769,6 @@ const ProductDetailPage = () => {
             <ShoppingCart className="w-4 h-4" />
             ADD TO CART
           </button>
-
           {/* Buy Now */}
           <button
             onClick={handleBuyNow}
@@ -833,9 +781,8 @@ const ProductDetailPage = () => {
         </div>
       </div>
     </div>
-  )
-}
-
+  );
+};
 const StaticDesignSection = () => {
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm mt-2 mb-2 py-4 px-4 sm:px-8">
@@ -843,7 +790,6 @@ const StaticDesignSection = () => {
         <img src="/badge.jpeg" className="rounded-xl" />
       </div>
     </div>
-  )
-}
-
-export default ProductDetailPage
+  );
+};
+export default ProductDetailPage;

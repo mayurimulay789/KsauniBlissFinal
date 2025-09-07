@@ -1,6 +1,6 @@
-"use client"
-import { useState, useEffect } from "react"
-import { useSelector, useDispatch } from "react-redux"
+"use client";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,53 +12,44 @@ import {
   Tooltip,
   Legend,
   ArcElement,
-} from "chart.js"
-import { Line, Bar, Doughnut } from "react-chartjs-2"
-import { fetchMarketingAnalytics } from "../../store/slices/digitalMarketerSlice"
-import LoadingSpinner from "../LoadingSpinner"
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, ArcElement)
-
+} from "chart.js";
+import { Line, Bar, Doughnut } from "react-chartjs-2";
+import { fetchMarketingAnalytics } from "../../store/slices/digitalMarketerSlice";
+import LoadingSpinner from "../LoadingSpinner";
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, ArcElement);
 const MarketingAnalytics = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState("7d")
-  const dispatch = useDispatch()
-
-  const { marketingAnalytics, analyticsLoading } = useSelector((state) => state.digitalMarketer)
-
+  const [selectedPeriod, setSelectedPeriod] = useState("7d");
+  const dispatch = useDispatch();
+  const { marketingAnalytics, analyticsLoading } = useSelector((state) => state.digitalMarketer);
   // 🐞 Debugging output
   useEffect(() => {
-    console.log("RAW marketingAnalytics from Redux:", marketingAnalytics)
-    console.log("Is loading:", analyticsLoading)
-
+    console.log("RAW marketingAnalytics from Redux:", marketingAnalytics);
+    console.log("Is loading:", analyticsLoading);
     if (marketingAnalytics?.analytics) {
-      console.log("✔️ Extracted analytics object:", marketingAnalytics.analytics)
-      console.log("✔️ Summary:", marketingAnalytics.analytics.summary)
-      console.log("✔️ Traffic Data:", marketingAnalytics.analytics.trafficData)
-      console.log("✔️ Sales Analytics:", marketingAnalytics.analytics.salesAnalytics)
-      console.log("✔️ Top Products:", marketingAnalytics.analytics.topProducts)
-      console.log("✔️ Top Categories:", marketingAnalytics.analytics.topCategories)
-      console.log("✔️ User Demographics:", marketingAnalytics.analytics.userDemographics)
+      console.log("✔️ Extracted analytics object:", marketingAnalytics.analytics);
+      console.log("✔️ Summary:", marketingAnalytics.analytics.summary);
+      console.log("✔️ Traffic Data:", marketingAnalytics.analytics.trafficData);
+      console.log("✔️ Sales Analytics:", marketingAnalytics.analytics.salesAnalytics);
+      console.log("✔️ Top Products:", marketingAnalytics.analytics.topProducts);
+      console.log("✔️ Top Categories:", marketingAnalytics.analytics.topCategories);
+      console.log("✔️ User Demographics:", marketingAnalytics.analytics.userDemographics);
     } else {
-      console.log("❌ marketingAnalytics.analytics is undefined or null.")
+      console.log("❌ marketingAnalytics.analytics is undefined or null.");
     }
-  }, [marketingAnalytics, analyticsLoading])
-
+  }, [marketingAnalytics, analyticsLoading]);
   useEffect(() => {
-    dispatch(fetchMarketingAnalytics(selectedPeriod))
-  }, [dispatch, selectedPeriod])
-
+    dispatch(fetchMarketingAnalytics(selectedPeriod));
+  }, [dispatch, selectedPeriod]);
   if (analyticsLoading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
-
   if (!marketingAnalytics?.analytics) {
     return (
       <div className="py-12 text-center">
         <p className="text-gray-500">No analytics data available</p>
       </div>
-    )
+    );
   }
-
   const {
     summary = {
       totalRevenue: 0,
@@ -73,13 +64,11 @@ const MarketingAnalytics = () => {
     topProducts = [],
     topCategories = [],
     userDemographics = { ageGroups: [], devices: [], locations: [] },
-  } = marketingAnalytics.analytics || {}
-
+  } = marketingAnalytics.analytics || {};
   // 🐞 More debug logs
-  console.log("Parsed Summary Values:", summary)
-  console.log("Parsed Traffic Data Length:", trafficData.length)
-  console.log("Parsed Sales Data Length:", salesAnalytics.length)
-
+  console.log("Parsed Summary Values:", summary);
+  console.log("Parsed Traffic Data Length:", trafficData.length);
+  console.log("Parsed Sales Data Length:", salesAnalytics.length);
   const trafficChartData = {
     labels: trafficData.map((item) => new Date(item.date).toLocaleDateString()),
     datasets: [
@@ -98,8 +87,7 @@ const MarketingAnalytics = () => {
         tension: 0.4,
       },
     ],
-  }
-
+  };
   const salesChartData = {
     labels: salesAnalytics.map((item) => new Date(item._id).toLocaleDateString()),
     datasets: [
@@ -111,8 +99,7 @@ const MarketingAnalytics = () => {
         borderWidth: 1,
       },
     ],
-  }
-
+  };
   const ageGroupsData = {
     labels: userDemographics.ageGroups.map((group) => group.range),
     datasets: [
@@ -128,8 +115,7 @@ const MarketingAnalytics = () => {
         borderColor: "#fff",
       },
     ],
-  }
-
+  };
   const devicesData = {
     labels: userDemographics.devices.map((device) => device.type),
     datasets: [
@@ -140,8 +126,7 @@ const MarketingAnalytics = () => {
         borderColor: "#fff",
       },
     ],
-  }
-
+  };
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -154,8 +139,7 @@ const MarketingAnalytics = () => {
         beginAtZero: true,
       },
     },
-  }
-
+  };
   const doughnutOptions = {
     responsive: true,
     plugins: {
@@ -163,8 +147,7 @@ const MarketingAnalytics = () => {
         position: "bottom",
       },
     },
-  }
-
+  };
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -181,7 +164,6 @@ const MarketingAnalytics = () => {
           <option value="90d">Last 90 Days</option>
         </select>
       </div>
-
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {[
@@ -211,7 +193,6 @@ const MarketingAnalytics = () => {
           </div>
         ))}
       </div>
-
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="p-6 bg-white rounded-lg shadow">
@@ -223,7 +204,6 @@ const MarketingAnalytics = () => {
           <Bar data={salesChartData} options={chartOptions} />
         </div>
       </div>
-
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="p-6 bg-white rounded-lg shadow">
@@ -239,7 +219,6 @@ const MarketingAnalytics = () => {
           </div>
         </div>
       </div>
-
       {/* Top Products and Categories */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="p-6 bg-white rounded-lg shadow">
@@ -263,7 +242,6 @@ const MarketingAnalytics = () => {
             ))}
           </div>
         </div>
-
         <div className="p-6 bg-white rounded-lg shadow">
           <h3 className="mb-4 text-lg font-medium text-gray-900">Top Categories</h3>
           <div className="space-y-4">
@@ -286,7 +264,6 @@ const MarketingAnalytics = () => {
           </div>
         </div>
       </div>
-
       {/* User Locations */}
       <div className="p-6 bg-white rounded-lg shadow">
         <h3 className="mb-4 text-lg font-medium text-gray-900">User Locations</h3>
@@ -301,7 +278,6 @@ const MarketingAnalytics = () => {
         </div>
       </div>
     </div>
-  )
-}
-
-export default MarketingAnalytics
+  );
+};
+export default MarketingAnalytics;

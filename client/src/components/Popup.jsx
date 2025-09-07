@@ -1,18 +1,14 @@
-import React, { useEffect } from "react";
-
+import { useEffect } from "react";
+import PropTypes from "prop-types";
 const Popup = ({ banner, visible, onClose, timeout = 5000 }) => {
   useEffect(() => {
     if (!visible) return;
-
     const timer = setTimeout(() => {
       onClose();
     }, timeout);
-
     return () => clearTimeout(timer);
   }, [visible, onClose, timeout]);
-
   if (!visible || !banner) return null;
-
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50 backdrop-blur-sm">
       <div className="relative w-[320px] h-[480px] bg-black rounded-lg shadow-lg flex flex-col items-center text-white animate-fadeIn scale-up p-6">
@@ -29,7 +25,7 @@ const Popup = ({ banner, visible, onClose, timeout = 5000 }) => {
         {banner.image?.url && (
           <img
             src={banner.image.url}
-            alt={banner.title}
+            alt={banner.title || "Promotional image"}
             className="w-full h-full object-cover mb-6 rounded-md"
           />
         )}
@@ -43,7 +39,6 @@ const Popup = ({ banner, visible, onClose, timeout = 5000 }) => {
         )}
         <button
           onClick={() => {
-            // Navigate to shop or perform action
             window.location.href = "/products";
           }}
           className="px-6 py-3 mt-auto text-black bg-white rounded-md font-semibold hover:bg-gray-200 transition"
@@ -71,5 +66,17 @@ const Popup = ({ banner, visible, onClose, timeout = 5000 }) => {
     </div>
   );
 };
-
+Popup.propTypes = {
+  banner: PropTypes.shape({
+    image: PropTypes.shape({
+      url: PropTypes.string,
+      alt: PropTypes.string
+    }),
+    title: PropTypes.string,
+    subtitle: PropTypes.string
+  }),
+  visible: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  timeout: PropTypes.number
+};
 export default Popup;

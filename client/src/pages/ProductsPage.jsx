@@ -1,55 +1,48 @@
-"use client"
-
-import { useState, useEffect, useCallback, useMemo } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { useSearchParams, useNavigate, useParams } from "react-router-dom"
-import { motion, AnimatePresence } from "framer-motion"
-import { X } from "lucide-react"
-import toast from "react-hot-toast"
-
+"use client";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams, useNavigate, useParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import toast from "react-hot-toast";
 // Redux actions
-import { fetchProducts, setFilters, clearFilters } from "../store/slices/productSlice"
-import { fetchCategories } from "../store/slices/categorySlice"
-import { addToCart, optimisticAddToCart } from "../store/slices/cartSlice"
-import { optimisticAddToWishlist, optimisticRemoveFromWishlist } from "../store/slices/wishlistSlice"
-
+import { fetchProducts, setFilters, clearFilters } from "../store/slices/productSlice";
+import { fetchCategories } from "../store/slices/categorySlice";
+import { addToCart, optimisticAddToCart } from "../store/slices/cartSlice";
+import { optimisticAddToWishlist, optimisticRemoveFromWishlist } from "../store/slices/wishlistSlice";
 // Components
-import ProductFilters from "../components/ProductFilter"
-import LoadingSpinner from "../components/LoadingSpinner"
-import CategoryBanner from "../components/CategoryBanner"
-import ProductCard from "../components/ProductCard"
-import Preloader from "../components/Preloader"
+import ProductFilters from "../components/ProductFilter";
+import LoadingSpinner from "../components/LoadingSpinner";
+import CategoryBanner from "../components/CategoryBanner";
+import ProductCard from "../components/ProductCard";
+import Preloader from "../components/Preloader";
 // Selectors
-const selectProducts = (state) => state.products
-const selectCategories = (state) => state.categories
-const selectAuth = (state) => state.auth
-const selectWishlist = (state) => state.wishlist
-
+const selectProducts = (state) => state.products;
+const selectCategories = (state) => state.categories;
+const selectAuth = (state) => state.auth;
+const selectWishlist = (state) => state.wishlist;
 const ProductsPage = () => {
-  const { category: categorySlug } = useParams()
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const [showFilters, setShowFilters] = useState(false)
-
+  const { category: categorySlug } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [showFilters, setShowFilters] = useState(false);
   // Selectors
-  const { products, isLoading, error, filters } = useSelector(selectProducts)
-  const { categories } = useSelector(selectCategories)
-  const { user } = useSelector(selectAuth)
-  const { items: wishlistItems } = useSelector(selectWishlist)
-
+  const { products, isLoading, error, filters } = useSelector(selectProducts);
+  const { categories } = useSelector(selectCategories);
+  const { user } = useSelector(selectAuth);
+  const { items: wishlistItems } = useSelector(selectWishlist);
   // Memoized values
   const activeFiltersCount = useMemo(
     () =>
       Object.entries(filters).reduce((count, [key, value]) => {
         if (Array.isArray(value) ? value.length > 0 : Boolean(value)) {
-          return count + 1
+          return count + 1;
         }
-        return count
+        return count;
       }, 0),
     [filters],
-  )
-
+  );
   const getFiltersFromURL = useCallback(() => {
     const urlFilters = {
       category: searchParams.get("category") || "",
@@ -57,52 +50,45 @@ const ProductsPage = () => {
       minPrice: searchParams.get("minPrice") || "",
       maxPrice: searchParams.get("maxPrice") || "",
       minRating: searchParams.get("minRating") || "",
-    }
-    console.log("[v0] URL search params:", Object.fromEntries(searchParams.entries()))
-    console.log("[v0] Extracted filters from URL:", urlFilters)
-    return urlFilters
-  }, [searchParams])
-
+    };
+    console.log("[v0] URL search params:", Object.fromEntries(searchParams.entries()));
+    console.log("[v0] Extracted filters from URL:", urlFilters);
+    return urlFilters;
+  }, [searchParams]);
   // Fetch categories once
   useEffect(() => {
-    dispatch(fetchCategories())
-  }, [dispatch])
-
+    dispatch(fetchCategories());
+  }, [dispatch]);
   // ✅ Listen for URL param changes and sync to filters
   useEffect(() => {
-    const urlFilters = getFiltersFromURL()
-    console.log("[v0] Setting filters from URL:", urlFilters)
-    dispatch(setFilters(urlFilters))
-  }, [searchParams, getFiltersFromURL, dispatch]) // 👈 fixed dependency
-
+    const urlFilters = getFiltersFromURL();
+    console.log("[v0] Setting filters from URL:", urlFilters);
+    dispatch(setFilters(urlFilters));
+  }, [searchParams, getFiltersFromURL, dispatch]); // 👈 fixed dependency
   // Fetch products when filters change
   useEffect(() => {
     const cleanFilters = Object.entries(filters).reduce((acc, [key, value]) => {
       if (Array.isArray(value)) {
-        if (value.length > 0) acc[key] = value
+        if (value.length > 0) acc[key] = value;
       } else if (value !== "" && value !== null && value !== undefined) {
-        acc[key] = value
+        acc[key] = value;
       }
-      return acc
-    }, {})
-
-    console.log("[v0] Current filters state:", filters)
-    console.log("[v0] Clean filters for API:", cleanFilters)
-    dispatch(fetchProducts({ ...cleanFilters, limit: 100 }))
-  }, [dispatch, filters, searchParams])
-
+      return acc;
+    }, {});
+    console.log("[v0] Current filters state:", filters);
+    console.log("[v0] Clean filters for API:", cleanFilters);
+    dispatch(fetchProducts({ ...cleanFilters, limit: 100 }));
+  }, [dispatch, filters, searchParams]);
   const handleAddToCart = useCallback(
     async (product, e) => {
-      e.preventDefault()
-      e.stopPropagation()
-
+      e.preventDefault();
+      e.stopPropagation();
       const cartItem = {
         productId: product._id,
         quantity: 1,
         size: product.sizes?.[0]?.size || "",
         color: product.colors?.[0]?.name || "",
-      }
-
+      };
       dispatch(
         optimisticAddToCart({
           product,
@@ -110,54 +96,46 @@ const ProductsPage = () => {
           size: cartItem.size,
           color: cartItem.color,
         }),
-      )
-
+      );
       try {
-        await dispatch(addToCart(cartItem)).unwrap()
-        toast.success(`${product.name} added to cart!`)
+        await dispatch(addToCart(cartItem)).unwrap();
+        toast.success(`${product.name} added to cart!`);
       } catch (error) {
-        toast.error("Failed to add item to cart. Please try again.")
-        console.error("Add to cart error:", error)
+        toast.error("Failed to add item to cart. Please try again.");
+        console.error("Add to cart error:", error);
       }
     },
     [dispatch, navigate, user],
-  )
-
+  );
   const handleWishlist = useCallback(
     async (product, e) => {
-      e.preventDefault()
-      e.stopPropagation()
-
+      e.preventDefault();
+      e.stopPropagation();
       if (!user) {
-        navigate("/login", { state: { from: window.location.pathname } })
-        toast.error("Please login to manage your wishlist")
-        return
+        navigate("/login", { state: { from: window.location.pathname } });
+        toast.error("Please login to manage your wishlist");
+        return;
       }
-
-      const isInWishlist = wishlistItems.some((item) => item._id === product._id)
-
+      const isInWishlist = wishlistItems.some((item) => item._id === product._id);
       if (isInWishlist) {
-        dispatch(optimisticRemoveFromWishlist(product._id))
-        toast.success(`${product.name} removed from wishlist!`)
+        dispatch(optimisticRemoveFromWishlist(product._id));
+        toast.success(`${product.name} removed from wishlist!`);
       } else {
-        dispatch(optimisticAddToWishlist(product))
-        toast.success(`${product.name} added to wishlist!`)
+        dispatch(optimisticAddToWishlist(product));
+        toast.success(`${product.name} added to wishlist!`);
       }
     },
     [dispatch, navigate, user, wishlistItems],
-  )
-
+  );
   const handleFilterChange = useCallback(
     (newFilters) => {
-      dispatch(setFilters({ ...filters, ...newFilters }))
+      dispatch(setFilters({ ...filters, ...newFilters }));
     },
     [dispatch, filters],
-  )
-
+  );
   const clearAllFilters = useCallback(() => {
-    dispatch(clearFilters())
-  }, [dispatch])
-
+    dispatch(clearFilters());
+  }, [dispatch]);
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="px-4 py-2 pt-2 mx-auto md:pt-8">
@@ -165,7 +143,6 @@ const ProductsPage = () => {
         <div className="w-full mb-4 rounded-lg ">
           <CategoryBanner />
         </div>
-
         <div className="flex flex-col gap-6 md:flex-row">
           {/* Desktop Filters Sidebar */}
           <aside className="hidden md:block md:w-56 lg:w-64 sticky top-[180px] h-[calc(100vh-180px)] overflow-y-auto">
@@ -177,7 +154,6 @@ const ProductsPage = () => {
               onClearFilters={clearAllFilters}
             />
           </aside>
-
           {/* Products Grid */}
           <main className="flex-1">
             {isLoading ? (
@@ -230,7 +206,6 @@ const ProductsPage = () => {
           </main>
         </div>
       </div>
-
       {/* Mobile Filter Modal */}
       <AnimatePresence>
         {showFilters && (
@@ -254,7 +229,6 @@ const ProductsPage = () => {
                   <X className="w-6 h-6" />
                 </button>
               </div>
-
               <div className="p-4 overflow-y-auto max-h-[calc(90vh-60px)]">
                 <ProductFilters
                   key={categorySlug || "all"}
@@ -264,7 +238,6 @@ const ProductsPage = () => {
                   onClearFilters={clearAllFilters}
                 />
               </div>
-
               <div className="sticky bottom-0 z-10 flex justify-between p-4 bg-white border-t border-gray-200">
                 <button
                   onClick={clearAllFilters}
@@ -284,7 +257,6 @@ const ProductsPage = () => {
         )}
       </AnimatePresence>
     </div>
-  )
-}
-
-export default ProductsPage
+  );
+};
+export default ProductsPage;

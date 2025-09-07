@@ -1,25 +1,19 @@
-"use client"
-
-import React ,{ useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { ChevronLeft, ChevronRight, X, Menu, Search, ShoppingBag, Heart, User } from "lucide-react"
-
+"use client";
+import React ,{ useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, X, Menu, Search, ShoppingBag, Heart, User } from "lucide-react";
 // Mobile-optimized carousel component with touch gestures
 export const MobileCarousel = ({ items, renderItem, autoPlay = true, interval = 5000 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [direction, setDirection] = useState(0)
-
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
   useEffect(() => {
-    if (!autoPlay) return
-
+    if (!autoPlay) return;
     const timer = setInterval(() => {
-      setDirection(1)
-      setCurrentIndex((prev) => (prev + 1) % items.length)
-    }, interval)
-
-    return () => clearInterval(timer)
-  }, [autoPlay, interval, items.length])
-
+      setDirection(1);
+      setCurrentIndex((prev) => (prev + 1) % items.length);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [autoPlay, interval, items.length]);
   const slideVariants = {
     enter: (direction) => ({
       x: direction > 0 ? 1000 : -1000,
@@ -35,34 +29,29 @@ export const MobileCarousel = ({ items, renderItem, autoPlay = true, interval = 
       x: direction < 0 ? 1000 : -1000,
       opacity: 0,
     }),
-  }
-
-  const swipeConfidenceThreshold = 10000
+  };
+  const swipeConfidenceThreshold = 10000;
   const swipePower = (offset, velocity) => {
-    return Math.abs(offset) * velocity
-  }
-
+    return Math.abs(offset) * velocity;
+  };
   const paginate = (newDirection) => {
-    setDirection(newDirection)
+    setDirection(newDirection);
     setCurrentIndex((prev) => {
       if (newDirection === 1) {
-        return (prev + 1) % items.length
+        return (prev + 1) % items.length;
       } else {
-        return prev === 0 ? items.length - 1 : prev - 1
+        return prev === 0 ? items.length - 1 : prev - 1;
       }
-    })
-  }
-
+    });
+  };
   const handleDragEnd = (e, { offset, velocity }) => {
-    const swipe = swipePower(offset.x, velocity.x)
-
+    const swipe = swipePower(offset.x, velocity.x);
     if (swipe < -swipeConfidenceThreshold) {
-      paginate(1)
+      paginate(1);
     } else if (swipe > swipeConfidenceThreshold) {
-      paginate(-1)
+      paginate(-1);
     }
-  }
-
+  };
   return (
     <div className="relative overflow-hidden">
       <AnimatePresence initial={false} custom={direction}>
@@ -86,21 +75,19 @@ export const MobileCarousel = ({ items, renderItem, autoPlay = true, interval = 
           {renderItem(items[currentIndex], currentIndex)}
         </motion.div>
       </AnimatePresence>
-
       {/* Navigation Dots */}
       <div className="absolute flex space-x-2 transform -translate-x-1/2 bottom-4 left-1/2">
         {items.map((_, index) => (
           <button
             key={index}
             onClick={() => {
-              setDirection(index > currentIndex ? 1 : -1)
-              setCurrentIndex(index)
+              setDirection(index > currentIndex ? 1 : -1);
+              setCurrentIndex(index);
             }}
             className={`w-2 h-2 rounded-full transition-colors ${index === currentIndex ? "bg-white" : "bg-white/50"}`}
           />
         ))}
       </div>
-
       {/* Navigation Arrows (hidden on mobile) */}
       <button
         onClick={() => paginate(-1)}
@@ -115,9 +102,8 @@ export const MobileCarousel = ({ items, renderItem, autoPlay = true, interval = 
         <ChevronRight className="w-5 h-5" />
       </button>
     </div>
-  )
-}
-
+  );
+};
 // Mobile-optimized bottom navigation
 export const MobileBottomNav = ({ activeTab, onTabChange }) => {
   const tabs = [
@@ -126,13 +112,12 @@ export const MobileBottomNav = ({ activeTab, onTabChange }) => {
     { id: "wishlist", label: "Wishlist", icon: Heart },
     { id: "cart", label: "Cart", icon: ShoppingBag },
     { id: "profile", label: "Profile", icon: User },
-  ]
-
+  ];
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 sm:hidden">
       <div className="flex">
         {tabs.map((tab) => {
-          const Icon = tab.icon
+          const Icon = tab.icon;
           return (
             <button
               key={tab.id}
@@ -144,13 +129,12 @@ export const MobileBottomNav = ({ activeTab, onTabChange }) => {
               <Icon className="w-5 h-5 mb-1" />
               <span className="text-xs font-medium">{tab.label}</span>
             </button>
-          )
+          );
         })}
       </div>
     </div>
-  )
-}
-
+  );
+};
 // Mobile-optimized drawer component
 export const MobileDrawer = ({ isOpen, onClose, title, children, position = "bottom" }) => {
   const variants = {
@@ -162,8 +146,7 @@ export const MobileDrawer = ({ isOpen, onClose, title, children, position = "bot
       y: 0,
       x: 0,
     },
-  }
-
+  };
   return (
     <AnimatePresence>
       {isOpen && (
@@ -176,7 +159,6 @@ export const MobileDrawer = ({ isOpen, onClose, title, children, position = "bot
             onClick={onClose}
             className="fixed inset-0 z-50 bg-black/50"
           />
-
           {/* Drawer */}
           <motion.div
             initial="closed"
@@ -201,34 +183,29 @@ export const MobileDrawer = ({ isOpen, onClose, title, children, position = "bot
                 <X className="w-5 h-5" />
               </button>
             </div>
-
             {/* Content */}
             <div className="flex-1 overflow-y-auto">{children}</div>
           </motion.div>
         </>
       )}
     </AnimatePresence>
-  )
-}
-
+  );
+};
 // Mobile-optimized product grid with infinite scroll
 export const MobileProductGrid = ({ products, onLoadMore, hasMore, loading }) => {
-  const [page, setPage] = useState(1)
-
+  const [page, setPage] = useState(1);
   useEffect(() => {
     const handleScroll = () => {
       if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
         if (hasMore && !loading) {
-          onLoadMore(page + 1)
-          setPage((prev) => prev + 1)
+          onLoadMore(page + 1);
+          setPage((prev) => prev + 1);
         }
       }
-    }
-
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [hasMore, loading, page, onLoadMore])
-
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasMore, loading, page, onLoadMore]);
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
@@ -260,29 +237,25 @@ export const MobileProductGrid = ({ products, onLoadMore, hasMore, loading }) =>
           </motion.div>
         ))}
       </div>
-
       {loading && (
         <div className="flex justify-center py-8">
           <div className="w-8 h-8 border-4 border-pink-500 rounded-full border-t-transparent animate-spin" />
         </div>
       )}
     </div>
-  )
-}
-
+  );
+};
 // Touch-optimized image gallery
 export const TouchImageGallery = ({ images, initialIndex = 0 }) => {
-  const [currentIndex, setCurrentIndex] = useState(initialIndex)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const handleSwipe = (direction) => {
     if (direction === "left" && currentIndex < images.length - 1) {
-      setCurrentIndex(currentIndex + 1)
+      setCurrentIndex(currentIndex + 1);
     } else if (direction === "right" && currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1)
+      setCurrentIndex(currentIndex - 1);
     }
-  }
-
+  };
   return (
     <>
       {/* Thumbnail Gallery */}
@@ -295,7 +268,6 @@ export const TouchImageGallery = ({ images, initialIndex = 0 }) => {
             onClick={() => setIsFullscreen(true)}
           />
         </div>
-
         {images.length > 1 && (
           <div className="flex pb-2 space-x-2 overflow-x-auto">
             {images.map((image, index) => (
@@ -316,7 +288,6 @@ export const TouchImageGallery = ({ images, initialIndex = 0 }) => {
           </div>
         )}
       </div>
-
       {/* Fullscreen Gallery */}
       <AnimatePresence>
         {isFullscreen && (
@@ -332,7 +303,6 @@ export const TouchImageGallery = ({ images, initialIndex = 0 }) => {
             >
               <X className="w-6 h-6" />
             </button>
-
             <div className="relative flex items-center justify-center w-full h-full">
               <motion.img
                 key={currentIndex}
@@ -345,11 +315,10 @@ export const TouchImageGallery = ({ images, initialIndex = 0 }) => {
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
                 onDragEnd={(e, { offset }) => {
-                  if (offset.x > 100) handleSwipe("right")
-                  else if (offset.x < -100) handleSwipe("left")
+                  if (offset.x > 100) handleSwipe("right");
+                  else if (offset.x < -100) handleSwipe("left");
                 }}
               />
-
               {/* Navigation */}
               {images.length > 1 && (
                 <>
@@ -369,7 +338,6 @@ export const TouchImageGallery = ({ images, initialIndex = 0 }) => {
                   </button>
                 </>
               )}
-
               {/* Dots Indicator */}
               <div className="absolute flex space-x-2 transform -translate-x-1/2 bottom-4 left-1/2">
                 {images.map((_, index) => (
@@ -387,13 +355,12 @@ export const TouchImageGallery = ({ images, initialIndex = 0 }) => {
         )}
       </AnimatePresence>
     </>
-  )
-}
-
+  );
+};
 export default {
   MobileCarousel,
   MobileBottomNav,
   MobileDrawer,
   MobileProductGrid,
   TouchImageGallery,
-}
+};

@@ -1,48 +1,43 @@
 // client/src/redux/ksauniTshirtSlice.js
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   fetchKsauniTshirtsAPI,
   createKsauniTshirtAPI,
   updateKsauniTshirtAPI,
   deleteKsauniTshirtAPI,
-} from "../api/ksauniTshirtApi"
-
+} from "../api/ksauniTshirtApi";
 // Thunks
 export const fetchKsauniTshirts = createAsyncThunk("ksauniTshirt/fetchAll", async (_, { rejectWithValue }) => {
   try {
-    return await fetchKsauniTshirtsAPI()
+    return await fetchKsauniTshirtsAPI();
   } catch (error) {
-    return rejectWithValue(error.message)
+    return rejectWithValue(error.message);
   }
-})
-
+});
 export const createKsauniTshirt = createAsyncThunk("ksauniTshirt/create", async (formData, { rejectWithValue }) => {
   try {
-    return await createKsauniTshirtAPI(formData)
+    return await createKsauniTshirtAPI(formData);
   } catch (error) {
-    return rejectWithValue(error.message)
+    return rejectWithValue(error.message);
   }
-})
-
+});
 export const updateKsauniTshirt = createAsyncThunk(
   "ksauniTshirt/update",
   async ({ id, formData }, { rejectWithValue }) => {
     try {
-      return await updateKsauniTshirtAPI(id, formData)
+      return await updateKsauniTshirtAPI(id, formData);
     } catch (error) {
-      return rejectWithValue(error.message)
+      return rejectWithValue(error.message);
     }
   },
-)
-
+);
 export const deleteKsauniTshirt = createAsyncThunk("ksauniTshirt/delete", async (id, { rejectWithValue }) => {
   try {
-    return await deleteKsauniTshirtAPI(id)
+    return await deleteKsauniTshirtAPI(id);
   } catch (error) {
-    return rejectWithValue(error.message)
+    return rejectWithValue(error.message);
   }
-})
-
+});
 // Slice
 const ksauniTshirtSlice = createSlice({
   name: "ksauniTshirt",
@@ -53,39 +48,38 @@ const ksauniTshirtSlice = createSlice({
   },
   reducers: {
     clearError: (state) => {
-      state.error = null
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
       // Fetch
       .addCase(fetchKsauniTshirts.pending, (state) => {
-        state.loading = true
+        state.loading = true;
       })
       .addCase(fetchKsauniTshirts.fulfilled, (state, action) => {
-        state.loading = false
-        state.tshirts = action.payload.data || action.payload
+        state.loading = false;
+        state.tshirts = action.payload.data || action.payload;
       })
       .addCase(fetchKsauniTshirts.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.payload
+        state.loading = false;
+        state.error = action.payload;
       })
       // Create
       .addCase(createKsauniTshirt.fulfilled, (state, action) => {
-        state.tshirts.push(action.payload.tshirt || action.payload)
+        state.tshirts.push(action.payload.tshirt || action.payload);
       })
       // Update
       .addCase(updateKsauniTshirt.fulfilled, (state, action) => {
-        const updatedTshirt = action.payload.tshirt || action.payload
-        const index = state.tshirts.findIndex((t) => t._id === updatedTshirt._id)
-        if (index !== -1) state.tshirts[index] = updatedTshirt
+        const updatedTshirt = action.payload.tshirt || action.payload;
+        const index = state.tshirts.findIndex((t) => t._id === updatedTshirt._id);
+        if (index !== -1) state.tshirts[index] = updatedTshirt;
       })
       // Delete
       .addCase(deleteKsauniTshirt.fulfilled, (state, action) => {
-        state.tshirts = state.tshirts.filter((t) => t._id !== action.payload)
-      })
+        state.tshirts = state.tshirts.filter((t) => t._id !== action.payload);
+      });
   },
-})
-
-export const { clearError } = ksauniTshirtSlice.actions
-export default ksauniTshirtSlice.reducer
+});
+export const { clearError } = ksauniTshirtSlice.actions;
+export default ksauniTshirtSlice.reducer;

@@ -1,33 +1,26 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { fetchCategoryBanners } from "../store/slices/bannerSlice" // ✅ Adjust this path as needed
-
+"use client";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategoryBanners } from "../store/slices/bannerSlice"; // ✅ Adjust this path as needed
 const CategoryBanner = () => {
-  const dispatch = useDispatch()
-
+  const dispatch = useDispatch();
   // Redux state
-  const { categoryBanners, loadingCategory, error } = useSelector((state) => state.banners)
-
+  const { categoryBanners, loadingCategory, error } = useSelector((state) => state.banners);
   // State for rotating banners
-  const [currentBanner, setCurrentBanner] = useState(0)
-
+  const [currentBanner, setCurrentBanner] = useState(0);
   // 🔁 Fetch banners on component mount
   useEffect(() => {
-    dispatch(fetchCategoryBanners())
-  }, [dispatch])
-
+    dispatch(fetchCategoryBanners());
+  }, [dispatch]);
   // 🔁 Auto-rotate banner every 5 seconds
   useEffect(() => {
     if (categoryBanners.length > 1) {
       const timer = setInterval(() => {
-        setCurrentBanner((prev) => (prev + 1) % categoryBanners.length)
-      }, 5000)
-      return () => clearInterval(timer)
+        setCurrentBanner((prev) => (prev + 1) % categoryBanners.length);
+      }, 5000);
+      return () => clearInterval(timer);
     }
-  }, [categoryBanners.length])
-
+  }, [categoryBanners.length]);
   // ⛔ Show nothing or fallback if loading fails
   if (loadingCategory || error) {
     return (
@@ -40,9 +33,8 @@ const CategoryBanner = () => {
           />
         </div>
       </section>
-    )
+    );
   }
-
   // ❓ Fallback if no banners are available
   if (!categoryBanners.length) {
     return (
@@ -58,11 +50,9 @@ const CategoryBanner = () => {
           />
         </div>
       </section>
-    )
+    );
   }
-
-  const current = categoryBanners[currentBanner]
-
+  const current = categoryBanners[currentBanner];
   return (
     <section className="relative w-full px-0 mx-auto mt-0 mb-4 sm:px-6">
       <div
@@ -80,14 +70,13 @@ const CategoryBanner = () => {
           alt={current?.title || "Category promotional banner"}
           className="object-cover w-screen h-24 max-w-full transition-transform duration-500 sm:h-48 md:h-56 lg:h-64 group-hover:scale-105 rounded-2xl"
           onError={(e) => {
-            console.log("[v0] Image failed to load:", e.target.src)
-            e.target.src = "/fallback-banner.png"
+            console.log("[v0] Image failed to load:", e.target.src);
+            e.target.src = "/fallback-banner.png";
           }}
           onLoad={() => {
-            console.log("[v0] Image loaded successfully")
+            console.log("[v0] Image loaded successfully");
           }}
         />
-
         {categoryBanners.length > 1 && (
           <div className="absolute z-30 flex space-x-2 transform -translate-x-1/2 bottom-4 left-1/2">
             {categoryBanners.map((_, index) => (
@@ -106,7 +95,6 @@ const CategoryBanner = () => {
         )}
       </div>
     </section>
-  )
-}
-
-export default CategoryBanner
+  );
+};
+export default CategoryBanner;

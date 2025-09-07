@@ -1,25 +1,22 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { motion, AnimatePresence } from "framer-motion"
-import { User, MapPin, Edit3, Save, X, Camera, Shield, Package, Heart } from "lucide-react"
-import { updateProfile, changePassword, uploadAvatar } from "../store/slices/authSlice"
-import { fetchUserOrders } from "../store/slices/orderSlice"
-import { fetchWishlist } from "../store/slices/wishlistSlice"
-import toast from "react-hot-toast"
-import { format } from "date-fns"
-import Preloader from "../components/Preloader"
+"use client";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import { User, MapPin, Edit3, Save, X, Camera, Shield, Package, Heart } from "lucide-react";
+import { updateProfile, changePassword, uploadAvatar } from "../store/slices/authSlice";
+import { fetchUserOrders } from "../store/slices/orderSlice";
+import { fetchWishlist } from "../store/slices/wishlistSlice";
+import toast from "react-hot-toast";
+import { format } from "date-fns";
+import Preloader from "../components/Preloader";
 const ProfilePage = () => {
-  const dispatch = useDispatch()
-  const { user, isLoading } = useSelector((state) => state.auth)
+  const dispatch = useDispatch();
+  const { user, isLoading } = useSelector((state) => state.auth);
 const { orders } = useSelector((state) => state.orders) || { orders: [] };
-  const { items: wishlistItems } = useSelector((state) => state.wishlist)
-
-  const [activeTab, setActiveTab] = useState("profile")
-  const [isEditing, setIsEditing] = useState(false)
-  const [showPasswordForm, setShowPasswordForm] = useState(false)
-
+  const { items: wishlistItems } = useSelector((state) => state.wishlist);
+  const [activeTab, setActiveTab] = useState("profile");
+  const [isEditing, setIsEditing] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [profileData, setProfileData] = useState({
     name: "",
     email: "",
@@ -27,14 +24,12 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
     dateOfBirth: "",
     gender: "",
     addresses: [],
-  })
-
+  });
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-  })
-
+  });
   const [newAddress, setNewAddress] = useState({
     type: "home",
     fullName: "",
@@ -45,11 +40,9 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
     state: "",
     pincode: "",
     isDefault: false,
-  })
-
-  const [showAddressForm, setShowAddressForm] = useState(false)
-  const [editingAddress, setEditingAddress] = useState(null)
-
+  });
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
   useEffect(() => {
     if (user) {
       setProfileData({
@@ -59,85 +52,70 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
         dateOfBirth: user.dateOfBirth ? format(new Date(user.dateOfBirth), "yyyy-MM-dd") : "",
         gender: user.gender || "",
         addresses: user.addresses || [],
-      })
+      });
     }
-  }, [user])
-
+  }, [user]);
   useEffect(() => {
-    dispatch(fetchUserOrders({ limit: 5 }))
-    dispatch(fetchWishlist())
-  }, [dispatch])
-
+    dispatch(fetchUserOrders({ limit: 5 }));
+    dispatch(fetchWishlist());
+  }, [dispatch]);
   const handleProfileUpdate = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
     try {
-      await dispatch(updateProfile(profileData)).unwrap()
-      toast.success("Profile updated successfully!")
-      setIsEditing(false)
+      await dispatch(updateProfile(profileData)).unwrap();
+      toast.success("Profile updated successfully!");
+      setIsEditing(false);
     } catch (error) {
-      toast.error(error)
+      toast.error(error);
     }
-  }
-
+  };
   const handlePasswordChange = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error("New passwords don't match")
-      return
+      toast.error("New passwords don't match");
+      return;
     }
-
     if (passwordData.newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters long")
-      return
+      toast.error("Password must be at least 6 characters long");
+      return;
     }
-
     try {
       await dispatch(
         changePassword({
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,
         }),
-      ).unwrap()
-
-      toast.success("Password changed successfully!")
-      setShowPasswordForm(false)
-      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" })
+      ).unwrap();
+      toast.success("Password changed successfully!");
+      setShowPasswordForm(false);
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (error) {
-      toast.error(error)
+      toast.error(error);
     }
-  }
-
+  };
   const handleAvatarUpload = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-
+    const file = e.target.files[0];
+    if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("File size should be less than 5MB")
-      return
+      toast.error("File size should be less than 5MB");
+      return;
     }
-
-    const formData = new FormData()
-    formData.append("avatar", file)
-
+    const formData = new FormData();
+    formData.append("avatar", file);
     try {
-      await dispatch(uploadAvatar(formData)).unwrap()
-      toast.success("Profile picture updated!")
+      await dispatch(uploadAvatar(formData)).unwrap();
+      toast.success("Profile picture updated!");
     } catch (error) {
-      toast.error(error)
+      toast.error(error);
     }
-  }
-
+  };
   const handleAddAddress = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
     try {
-      const updatedAddresses = [...profileData.addresses, { ...newAddress, _id: Date.now().toString() }]
-      await dispatch(updateProfile({ ...profileData, addresses: updatedAddresses })).unwrap()
-
-      toast.success("Address added successfully!")
-      setShowAddressForm(false)
+      const updatedAddresses = [...profileData.addresses, { ...newAddress, _id: Date.now().toString() }];
+      await dispatch(updateProfile({ ...profileData, addresses: updatedAddresses })).unwrap();
+      toast.success("Address added successfully!");
+      setShowAddressForm(false);
       setNewAddress({
         type: "home",
         fullName: "",
@@ -148,43 +126,38 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
         state: "",
         pincode: "",
         isDefault: false,
-      })
+      });
     } catch (error) {
-      toast.error(error)
+      toast.error(error);
     }
-  }
-
+  };
   const handleDeleteAddress = async (addressId) => {
     if (window.confirm("Are you sure you want to delete this address?")) {
       try {
-        const updatedAddresses = profileData.addresses.filter((addr) => addr._id !== addressId)
-        await dispatch(updateProfile({ ...profileData, addresses: updatedAddresses })).unwrap()
-        toast.success("Address deleted successfully!")
+        const updatedAddresses = profileData.addresses.filter((addr) => addr._id !== addressId);
+        await dispatch(updateProfile({ ...profileData, addresses: updatedAddresses })).unwrap();
+        toast.success("Address deleted successfully!");
       } catch (error) {
-        toast.error(error)
+        toast.error(error);
       }
     }
-  }
-
+  };
   const tabs = [
     { id: "profile", label: "Profile", icon: User },
     { id: "orders", label: "Orders", icon: Package },
     { id: "wishlist", label: "Wishlist", icon: Heart },
     { id: "addresses", label: "Addresses", icon: MapPin },
     { id: "security", label: "Security", icon: Shield },
-  ]
-
+  ];
   if (isLoading) {
     return (
       <div>
         <Preloader message="Loading profile..." />
       </div>
-    )
+    );
   }
-
   return (
     <div className="min-h-screen bg-gray-50">
-
       <div className="container px-4 py-8 mx-auto">
         <div className="max-w-6xl mx-auto">
           {/* Profile Header */}
@@ -208,14 +181,12 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                   <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
                 </label>
               </div>
-
               {/* User Info */}
               <div className="text-center md:text-left">
                 <h1 className="text-2xl font-bold text-gray-800">{user?.name}</h1>
                 <p className="text-gray-600">{user?.email}</p>
                 <p className="text-sm text-gray-500">Member since {format(new Date(user?.createdAt), "MMMM yyyy")}</p>
               </div>
-
               {/* Stats */}
               <div className="flex ml-auto space-x-8">
                 <div className="text-center">
@@ -233,14 +204,13 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
               </div>
             </div>
           </div>
-
           <div className="grid gap-8 lg:grid-cols-4">
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="p-4 bg-white rounded-lg shadow-sm">
                 <nav className="space-y-2">
                   {tabs.map((tab) => {
-                    const Icon = tab.icon
+                    const Icon = tab.icon;
                     return (
                       <button
                         key={tab.id}
@@ -254,12 +224,11 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                         <Icon className="w-5 h-5" />
                         <span>{tab.label}</span>
                       </button>
-                    )
+                    );
                   })}
                 </nav>
               </div>
             </div>
-
             {/* Main Content */}
             <div className="lg:col-span-3">
               <div className="p-6 bg-white rounded-lg shadow-sm">
@@ -282,7 +251,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                           <span>{isEditing ? "Cancel" : "Edit"}</span>
                         </button>
                       </div>
-
                       <form onSubmit={handleProfileUpdate} className="space-y-6">
                         <div className="grid gap-6 md:grid-cols-2">
                           <div>
@@ -295,7 +263,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 disabled:bg-gray-50"
                             />
                           </div>
-
                           <div>
                             <label className="block mb-2 text-sm font-medium text-gray-700">Email</label>
                             <input
@@ -305,7 +272,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
                             />
                           </div>
-
                           <div>
                             <label className="block mb-2 text-sm font-medium text-gray-700">Phone</label>
                             <input
@@ -316,7 +282,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 disabled:bg-gray-50"
                             />
                           </div>
-
                           <div>
                             <label className="block mb-2 text-sm font-medium text-gray-700">Date of Birth</label>
                             <input
@@ -327,7 +292,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 disabled:bg-gray-50"
                             />
                           </div>
-
                           <div>
                             <label className="block mb-2 text-sm font-medium text-gray-700">Gender</label>
                             <select
@@ -343,7 +307,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                             </select>
                           </div>
                         </div>
-
                         {isEditing && (
                           <div className="flex justify-end">
                             <button
@@ -358,7 +321,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                       </form>
                     </motion.div>
                   )}
-
                   {/* Orders Tab */}
                   {activeTab === "orders" && (
                     <motion.div
@@ -406,7 +368,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                       )}
                     </motion.div>
                   )}
-
                   {/* Security Tab */}
                   {activeTab === "security" && (
                     <motion.div
@@ -416,7 +377,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                       exit={{ opacity: 0, y: -20 }}
                     >
                       <h2 className="mb-6 text-xl font-semibold text-gray-800">Security Settings</h2>
-
                       <div className="space-y-6">
                         {/* Change Password */}
                         <div className="p-4 border border-gray-200 rounded-lg">
@@ -432,7 +392,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                               {showPasswordForm ? "Cancel" : "Change"}
                             </button>
                           </div>
-
                           {showPasswordForm && (
                             <form onSubmit={handlePasswordChange} className="space-y-4">
                               <div>
@@ -447,7 +406,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                                   required
                                 />
                               </div>
-
                               <div>
                                 <label className="block mb-2 text-sm font-medium text-gray-700">New Password</label>
                                 <input
@@ -458,7 +416,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                                   required
                                 />
                               </div>
-
                               <div>
                                 <label className="block mb-2 text-sm font-medium text-gray-700">
                                   Confirm New Password
@@ -473,7 +430,6 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
                                   required
                                 />
                               </div>
-
                               <button
                                 type="submit"
                                 className="px-6 py-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
@@ -492,9 +448,7 @@ const { orders } = useSelector((state) => state.orders) || { orders: [] };
           </div>
         </div>
       </div>
-
     </div>
-  )
-}
-
-export default ProfilePage
+  );
+};
+export default ProfilePage;

@@ -6,10 +6,50 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") })
 const express = require("express")
 const mongoose = require("mongoose")
 const cors = require("cors")
+const compression = require("compression")
+const helmet = require("helmet")
+const rateLimit = require("express-rate-limit")
 const app = express()
 
-// Middleware to set default cache-control header
+// Apply global security headers
+app.use(helmet())
+
+// Compress all responses
+app.use(compression({ level: 6 })) // Moderate compression level for balance
+
+// Rate limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // limit each IP to 200 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: {
+    success: false,
+    message: "Too many requests, please try again later."
+  }
+})
+
+// Apply rate limiting to all requests
+app.use("/api/", apiLimiter)
+
+// More strict rate limiting for authentication routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // limit each IP to 30 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many authentication attempts, please try again later."
+  }
+})
+
+// Apply stricter rate limiting to auth routes
+app.use("/api/auth/", authLimiter)
+
+// Cache control middleware - can be customized per route
 app.use((req, res, next) => {
+  // Default no cache for dynamic content
   res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate")
   next()
 })
@@ -37,7 +77,11 @@ app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
 // Static files
-app.use("/uploads", express.static(path.join(__dirname, "uploads")))
+app.use("/uploads", (req, res, next) => {
+  // Set caching headers for static files - 1 day cache
+  res.setHeader("Cache-Control", "public, max-age=86400");
+  next();
+}, express.static(path.join(__dirname, "uploads")))
 
 // Health check endpoint (should be before other routes)
 app.get("/", (req, res) => {
@@ -87,11 +131,6 @@ app.use((err, req, res, next) => {
     }),
   })
 })
-
-app.use((req, res, next) => {
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
-  next();
-});
 
 // 404 handler
 app.use("*", (req, res) => {

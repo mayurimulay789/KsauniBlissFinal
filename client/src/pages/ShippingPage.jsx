@@ -1,5 +1,4 @@
-import { Truck, Package, Clock, Shield, MapPin, Phone, Mail } from "lucide-react"
-
+import { Truck, Package, Clock, Shield, MapPin, Phone, Mail } from "lucide-react";
 const ShippingPage = () => {
   return (
     <div className="max-w-4xl px-4 py-12 mx-auto">
@@ -8,7 +7,6 @@ const ShippingPage = () => {
         At Ksauni Bliss, we're committed to getting your orders to you as quickly and safely as possible. Please read
         our shipping policy to understand how we handle shipping and delivery.
       </p>
-
       <section className="mb-10">
         <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
           <Clock className="w-8 h-8 text-blue-600" />
@@ -21,7 +19,6 @@ const ShippingPage = () => {
           </p>
         </div>
       </section>
-
       <section className="mb-10">
         <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
           <Package className="w-8 h-8 text-green-600" />
@@ -32,7 +29,6 @@ const ShippingPage = () => {
           shipping fee will be displayed before you complete your order.
         </p>
       </section>
-
       <section className="mb-10">
         <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
           <Truck className="w-8 h-8 text-purple-600" />
@@ -60,7 +56,6 @@ const ShippingPage = () => {
           </li>
         </ul>
       </section>
-
       <section className="mb-10">
         <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
           <Shield className="w-8 h-8 text-orange-600" />
@@ -74,7 +69,6 @@ const ShippingPage = () => {
           </p>
         </div>
       </section>
-
       <section className="mb-10">
         <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
           <Package className="w-8 h-8 text-red-600" />
@@ -88,7 +82,6 @@ const ShippingPage = () => {
           </p>
         </div>
       </section>
-
       <section className="mb-10">
         <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
           <MapPin className="w-8 h-8 text-blue-600" />
@@ -100,7 +93,6 @@ const ShippingPage = () => {
           longer update the address.
         </p>
       </section>
-
       <section className="mb-10">
         <h2 className="flex items-center gap-3 mb-6 text-2xl font-semibold text-red-600">
           <Shield className="w-8 h-8 text-purple-600" />
@@ -114,10 +106,7 @@ const ShippingPage = () => {
           </p>
         </div>
       </section>
-
-      
     </div>
-  )
-}
-
-export default ShippingPage
+  );
+};
+export default ShippingPage;

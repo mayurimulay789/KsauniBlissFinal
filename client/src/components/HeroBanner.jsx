@@ -1,75 +1,64 @@
-"use client"
-import { useState, useEffect, useRef } from "react"
-import { useSelector } from "react-redux"
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion"
-import { ChevronLeft, ChevronRight, Sparkles, ArrowRight } from "lucide-react"
-import { Link } from "react-router-dom"
-
+"use client";
+import { useState, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import { ChevronLeft, ChevronRight, Sparkles, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 const HeroBanner = () => {
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
-  const containerRef = useRef(null)
-  const carouselRef = useRef(null)
-  const { heroBanners } = useSelector((state) => state.banners)
-
-  const combinedBanners = heroBanners
-
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const containerRef = useRef(null);
+  const carouselRef = useRef(null);
+  const { heroBanners } = useSelector((state) => state.banners);
+  const combinedBanners = heroBanners;
   // Mouse tracking for parallax effects
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-  const springConfig = { damping: 25, stiffness: 700 }
-  const mouseXSpring = useSpring(mouseX, springConfig)
-  const mouseYSpring = useSpring(mouseY, springConfig)
-
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springConfig = { damping: 25, stiffness: 700 };
+  const mouseXSpring = useSpring(mouseX, springConfig);
+  const mouseYSpring = useSpring(mouseY, springConfig);
   // Scroll-based animations (disabled for spacing issues)
-  const { scrollY } = useScroll()
-  const y = useTransform(scrollY, [0, 500], [0, 0])
-  const opacity = useTransform(scrollY, [0, 300], [1, 1])
-
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 500], [0, 0]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 1]);
   useEffect(() => {
     if (heroBanners.length > 0 && isAutoPlaying) {
       const timer = setInterval(() => {
-        const nextIndex = (currentSlide + 1) % heroBanners.length
-        setCurrentSlide(nextIndex)
-        scrollToSlide(nextIndex)
-      }, 6000)
-      return () => clearInterval(timer)
+        const nextIndex = (currentSlide + 1) % heroBanners.length;
+        setCurrentSlide(nextIndex);
+        scrollToSlide(nextIndex);
+      }, 6000);
+      return () => clearInterval(timer);
     }
-  }, [heroBanners.length, isAutoPlaying, currentSlide])
-
+  }, [heroBanners.length, isAutoPlaying, currentSlide]);
   const nextSlide = () => {
-    const nextIndex = (currentSlide + 1) % heroBanners.length
-    setCurrentSlide(nextIndex)
-    scrollToSlide(nextIndex)
-  }
-
+    const nextIndex = (currentSlide + 1) % heroBanners.length;
+    setCurrentSlide(nextIndex);
+    scrollToSlide(nextIndex);
+  };
   const prevSlide = () => {
-    const prevIndex = (currentSlide - 1 + heroBanners.length) % heroBanners.length
-    setCurrentSlide(prevIndex)
-    scrollToSlide(prevIndex)
-  }
-
+    const prevIndex = (currentSlide - 1 + heroBanners.length) % heroBanners.length;
+    setCurrentSlide(prevIndex);
+    scrollToSlide(prevIndex);
+  };
   // Scroll carousel to the slide at index
   const scrollToSlide = (index) => {
     if (carouselRef.current) {
-      const carousel = carouselRef.current
-      let slideWidth = 0
+      const carousel = carouselRef.current;
+      let slideWidth = 0;
       if (carousel.firstChild) {
-        const firstChildWidth = carousel.firstChild.offsetWidth
-        slideWidth = firstChildWidth + 16 // including margin
+        const firstChildWidth = carousel.firstChild.offsetWidth;
+        slideWidth = firstChildWidth + 16; // including margin
       }
-
       carousel.scrollTo({
         left: slideWidth * index,
         behavior: "smooth",
-      })
+      });
     }
-  }
-
+  };
   const toggleAutoPlay = () => {
-    setIsAutoPlaying(!isAutoPlaying)
-  }
-
+    setIsAutoPlaying(!isAutoPlaying);
+  };
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -80,7 +69,7 @@ const HeroBanner = () => {
         staggerChildren: 0.2,
       },
     },
-  }
+  };
   const textVariants = {
     hidden: { y: 50, opacity: 0 },
     visible: (delay) => ({
@@ -92,7 +81,7 @@ const HeroBanner = () => {
         ease: "easeOut",
       },
     }),
-  }
+  };
   const buttonVariants = {
     hidden: { scale: 0.8, opacity: 0 },
     visible: {
@@ -106,8 +95,7 @@ const HeroBanner = () => {
     },
     hover: { scale: 1.05, transition: { duration: 0.3 } },
     tap: { scale: 0.95 },
-  }
-
+  };
   // Fallback UI if no banners are available
   if (!heroBanners.length) {
     return (
@@ -123,12 +111,11 @@ const HeroBanner = () => {
         {/* Background */}
         <div
           className="absolute inset-0 bg-center bg-cover opacity-10"
-          style={{ backgroundImage: `url('/public/images/hero-background-pattern.png')` }}
+          style={{ backgroundImage: "url('/public/images/hero-background-pattern.png')" }}
         >
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 via-transparent to-white/5"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:20px_20px]"></div>
         </div>
-
         {/* Content */}
         <div className="relative z-10 flex flex-row items-center justify-center h-full px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
           <div className="flex-1 order-1 mb-8 text-center lg:text-left lg:mb-0 lg:pr-8">
@@ -137,7 +124,6 @@ const HeroBanner = () => {
                 EXCLUSIVE
               </h3>
             </motion.div>
-           
             <motion.div
               variants={buttonVariants}
               initial="hidden"
@@ -154,7 +140,6 @@ const HeroBanner = () => {
               </Link>
             </motion.div>
           </div>
-
           <div className="flex items-center justify-center flex-1 order-2">
             <div className="text-center text-white/60">
               <Sparkles className="w-12 h-12 mx-auto mb-4 text-yellow-400 sm:w-16 sm:h-16" />
@@ -163,9 +148,8 @@ const HeroBanner = () => {
           </div>
         </div>
       </motion.div>
-    )
+    );
   }
-
   return (
     <div
       ref={containerRef}
@@ -173,8 +157,6 @@ const HeroBanner = () => {
         background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
       }}
     >
-      
-
       {/* Content */}
       <div className="relative z-10 flex flex-row items-center justify-center h-full px-2 mx-auto sm:px-4 lg:px-6 max-w-7xl">
         {/* Left Text */}
@@ -188,10 +170,7 @@ const HeroBanner = () => {
             <h4 className="mb-4 pb-8 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-wider text-transparent bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text">
   EXCLUSIVE
 </h4>
-
           </motion.div>
-          
-
           <Link
   to="/products"
   className="inline-flex mb-5 items-center px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-base font-medium tracking-wider text-yellow-200 uppercase transition-all duration-300 border-0 sm:border sm:rounded-none hover:bg-yellow-400 hover:text-black"
@@ -199,9 +178,7 @@ const HeroBanner = () => {
   Shop Now
   <ArrowRight className="w-3 h-3 ml-1" />
 </Link>
-
         </motion.div>
-
         {/* Right Carousel */}
 <div className="relative flex items-center justify-center flex-3 order-2 w-full h-auto sm:h-full py-1 sm:py-2">
           <div className="relative w-full max-w-full overflow-hidden">
@@ -211,12 +188,12 @@ const HeroBanner = () => {
               style={{ scrollSnapType: "x mandatory" }}
               onScroll={() => {
                 if (carouselRef.current) {
-                  const scrollLeft = carouselRef.current.scrollLeft
+                  const scrollLeft = carouselRef.current.scrollLeft;
                   const slideWidth = carouselRef.current.firstChild
                     ? carouselRef.current.firstChild.offsetWidth + 16
-                    : 0
-                  const index = Math.round(scrollLeft / slideWidth)
-                  setCurrentSlide(index)
+                    : 0;
+                  const index = Math.round(scrollLeft / slideWidth);
+                  setCurrentSlide(index);
                 }
               }}
             >
@@ -229,8 +206,8 @@ const HeroBanner = () => {
                       : "border-transparent hover:border-yellow-300"
                   }`}
                   onClick={() => {
-                    setCurrentSlide(index)
-                    scrollToSlide(index)
+                    setCurrentSlide(index);
+                    scrollToSlide(index);
                   }}
                   style={{ scrollSnapAlign: "center" }}
                 >
@@ -242,7 +219,6 @@ const HeroBanner = () => {
                 </div>
               ))}
             </div>
-
             {/* Left Arrow */}
             <button
               onClick={prevSlide}
@@ -251,7 +227,6 @@ const HeroBanner = () => {
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-
             {/* Right Arrow */}
             <button
               onClick={nextSlide}
@@ -264,7 +239,6 @@ const HeroBanner = () => {
         </div>
       </div>
     </div>
-  )
-}
-
-export default HeroBanner
+  );
+};
+export default HeroBanner;

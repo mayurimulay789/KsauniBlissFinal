@@ -1,22 +1,19 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline"
-import { fetchAllCoupons, createCoupon, updateCoupon, deleteCoupon } from "../../store/slices/adminSlice"
-import LoadingSpinner from "../LoadingSpinner"
-
+"use client";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { fetchAllCoupons, createCoupon, updateCoupon, deleteCoupon } from "../../store/slices/adminSlice";
+import LoadingSpinner from "../LoadingSpinner";
 const CouponsManagement = () => {
-  const dispatch = useDispatch()
-  const { coupons, couponsPagination, couponsLoading } = useSelector((state) => state.admin)
-
+  const dispatch = useDispatch();
+  const { coupons, couponsPagination, couponsLoading } = useSelector((state) => state.admin);
   const [filters, setFilters] = useState({
     page: 1,
     limit: 20,
     isActive: "",
-  })
-  const [showModal, setShowModal] = useState(false)
-  const [editingCoupon, setEditingCoupon] = useState(null)
+  });
+  const [showModal, setShowModal] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState(null);
   const [formData, setFormData] = useState({
     code: "",
     description: "",
@@ -28,26 +25,22 @@ const CouponsManagement = () => {
     maxUsesPerUser: "1",
     validUntil: "",
     isActive: true,
-  })
-
+  });
   useEffect(() => {
-    dispatch(fetchAllCoupons(filters))
-  }, [dispatch, filters])
-
+    dispatch(fetchAllCoupons(filters));
+  }, [dispatch, filters]);
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({
       ...prev,
       [key]: value,
       page: 1,
-    }))
-  }
-
+    }));
+  };
   const handlePageChange = (newPage) => {
-    setFilters((prev) => ({ ...prev, page: newPage }))
-  }
-
+    setFilters((prev) => ({ ...prev, page: newPage }));
+  };
   const handleAddCoupon = () => {
-    setEditingCoupon(null)
+    setEditingCoupon(null);
     setFormData({
       code: "",
       description: "",
@@ -59,12 +52,11 @@ const CouponsManagement = () => {
       maxUsesPerUser: "1",
       validUntil: "",
       isActive: true,
-    })
-    setShowModal(true)
-  }
-
+    });
+    setShowModal(true);
+  };
   const handleEditCoupon = (coupon) => {
-    setEditingCoupon(coupon)
+    setEditingCoupon(coupon);
     setFormData({
       code: coupon.code,
       description: coupon.description,
@@ -76,19 +68,16 @@ const CouponsManagement = () => {
       maxUsesPerUser: coupon.maxUsesPerUser.toString(),
       validUntil: new Date(coupon.validUntil).toISOString().split("T")[0],
       isActive: coupon.isActive,
-    })
-    setShowModal(true)
-  }
-
+    });
+    setShowModal(true);
+  };
   const handleDeleteCoupon = async (couponId) => {
     if (window.confirm("Are you sure you want to delete this coupon?")) {
-      await dispatch(deleteCoupon(couponId))
+      await dispatch(deleteCoupon(couponId));
     }
-  }
-
+  };
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
     const couponData = {
       ...formData,
       discountValue: Number(formData.discountValue),
@@ -96,37 +85,31 @@ const CouponsManagement = () => {
       maxDiscountAmount: formData.maxDiscountAmount ? Number(formData.maxDiscountAmount) : undefined,
       maxUses: formData.maxUses ? Number(formData.maxUses) : undefined,
       maxUsesPerUser: Number(formData.maxUsesPerUser),
-    }
-
+    };
     if (editingCoupon) {
-      await dispatch(updateCoupon({ couponId: editingCoupon._id, couponData }))
+      await dispatch(updateCoupon({ couponId: editingCoupon._id, couponData }));
     } else {
-      await dispatch(createCoupon(couponData))
+      await dispatch(createCoupon(couponData));
     }
-
-    setShowModal(false)
-  }
-
+    setShowModal(false);
+  };
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
       year: "numeric",
       month: "short",
       day: "numeric",
-    })
-  }
-
+    });
+  };
   const formatCurrency = (amount) => {
-    return `₹${amount.toLocaleString()}`
-  }
-
+    return `₹${amount.toLocaleString()}`;
+  };
   if (couponsLoading && coupons.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <LoadingSpinner />
       </div>
-    )
+    );
   }
-
   return (
     <div className="p-2 space-y-3 sm:p-4 sm:space-y-4">
       {/* Filters with Add Button */}
@@ -157,7 +140,6 @@ const CouponsManagement = () => {
           </div>
         </div>
       </div>
-
       {/* Coupons Table - Mobile Responsive */}
       <div className="overflow-hidden bg-white rounded-lg shadow">
         {/* Mobile Cards View */}
@@ -215,7 +197,6 @@ const CouponsManagement = () => {
             ))}
           </div>
         </div>
-
         {/* Desktop Table View */}
         <div className="hidden sm:block">
           <div className="overflow-x-auto">
@@ -298,7 +279,6 @@ const CouponsManagement = () => {
             </table>
           </div>
         </div>
-
         {/* Pagination */}
         {couponsPagination && couponsPagination.totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
@@ -351,7 +331,6 @@ const CouponsManagement = () => {
           </div>
         )}
       </div>
-
       {/* Add/Edit Coupon Modal - Compact */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-2 overflow-y-auto bg-gray-500 bg-opacity-75">
@@ -378,7 +357,6 @@ const CouponsManagement = () => {
                   Add Coupon
                 </button>
               </div>
-
               {/* Modal Body - Compact Form */}
               <div className="p-3">
                 <form onSubmit={handleSubmit}>
@@ -394,7 +372,6 @@ const CouponsManagement = () => {
                         placeholder="e.g., SUMMER20"
                       />
                     </div>
-
                     <div>
                       <label className="block mb-1 text-xs font-medium text-gray-700">Description *</label>
                       <input
@@ -406,7 +383,6 @@ const CouponsManagement = () => {
                         placeholder="e.g., Summer Sale - 20% off"
                       />
                     </div>
-
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <div>
                         <label className="block mb-1 text-xs font-medium text-gray-700">Discount Type *</label>
@@ -420,7 +396,6 @@ const CouponsManagement = () => {
                           <option value="flat">Flat Amount</option>
                         </select>
                       </div>
-
                       <div>
                         <label className="block mb-1 text-xs font-medium text-gray-700">Discount Value *</label>
                         <input
@@ -436,7 +411,6 @@ const CouponsManagement = () => {
                         />
                       </div>
                     </div>
-
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <div>
                         <label className="block mb-1 text-xs font-medium text-gray-700">Min Order Value</label>
@@ -450,7 +424,6 @@ const CouponsManagement = () => {
                           placeholder="0"
                         />
                       </div>
-
                       <div>
                         <label className="block mb-1 text-xs font-medium text-gray-700">Max Discount Amount</label>
                         <input
@@ -464,7 +437,6 @@ const CouponsManagement = () => {
                         />
                       </div>
                     </div>
-
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <div>
                         <label className="block mb-1 text-xs font-medium text-gray-700">Max Total Uses</label>
@@ -477,7 +449,6 @@ const CouponsManagement = () => {
                           placeholder="Unlimited"
                         />
                       </div>
-
                       <div>
                         <label className="block mb-1 text-xs font-medium text-gray-700">Max Uses Per User *</label>
                         <input
@@ -491,7 +462,6 @@ const CouponsManagement = () => {
                         />
                       </div>
                     </div>
-
                     <div>
                       <label className="block mb-1 text-xs font-medium text-gray-700">Valid Until *</label>
                       <input
@@ -503,7 +473,6 @@ const CouponsManagement = () => {
                         className="block w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-red-500"
                       />
                     </div>
-
                     <div className="flex items-center">
                       <input
                         type="checkbox"
@@ -517,7 +486,6 @@ const CouponsManagement = () => {
                       </label>
                     </div>
                   </div>
-
                   <div className="flex pt-3 mt-4 space-x-2 border-t">
                     <button
                       type="button"
@@ -540,7 +508,6 @@ const CouponsManagement = () => {
         </div>
       )}
     </div>
-  )
-}
-
-export default CouponsManagement
+  );
+};
+export default CouponsManagement;

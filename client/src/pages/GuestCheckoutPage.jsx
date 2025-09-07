@@ -1,22 +1,18 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { useSelector, useDispatch } from "react-redux"
-import { ArrowLeft, CreditCard, Truck, Mail } from "lucide-react"
-import { clearCart } from "../store/slices/cartSlice"
-import toast from "react-hot-toast"
-
+"use client";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { ArrowLeft, CreditCard, Truck, Mail } from "lucide-react";
+import { clearCart } from "../store/slices/cartSlice";
+import toast from "react-hot-toast";
 const GuestCheckoutPage = () => {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const { items, totalAmount, totalQuantity } = useSelector((state) => state.cart)
-
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { items, totalAmount, totalQuantity } = useSelector((state) => state.cart);
   const [formData, setFormData] = useState({
     // Contact Information
     email: "",
     phone: "",
-
     // Shipping Address
     firstName: "",
     lastName: "",
@@ -25,7 +21,6 @@ const GuestCheckoutPage = () => {
     state: "",
     zipCode: "",
     country: "United States",
-
     // Billing Address
     billingDifferent: false,
     billingFirstName: "",
@@ -35,75 +30,60 @@ const GuestCheckoutPage = () => {
     billingState: "",
     billingZipCode: "",
     billingCountry: "United States",
-
     // Payment
     cardNumber: "",
     expiryDate: "",
     cvv: "",
     cardName: "",
-  })
-
-  const [errors, setErrors] = useState({})
-  const [loading, setLoading] = useState(false)
-
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (items.length === 0) {
-      navigate("/cart")
+      navigate("/cart");
     }
-  }, [items, navigate])
-
+  }, [items, navigate]);
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }))
-
+    }));
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }))
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
-  }
-
+  };
   const validateForm = () => {
-    const newErrors = {}
-
+    const newErrors = {};
     // Contact validation
-    if (!formData.email) newErrors.email = "Email is required"
-    if (!formData.phone) newErrors.phone = "Phone is required"
-
+    if (!formData.email) newErrors.email = "Email is required";
+    if (!formData.phone) newErrors.phone = "Phone is required";
     // Shipping validation
-    if (!formData.firstName) newErrors.firstName = "First name is required"
-    if (!formData.lastName) newErrors.lastName = "Last name is required"
-    if (!formData.address) newErrors.address = "Address is required"
-    if (!formData.city) newErrors.city = "City is required"
-    if (!formData.state) newErrors.state = "State is required"
-    if (!formData.zipCode) newErrors.zipCode = "ZIP code is required"
-
+    if (!formData.firstName) newErrors.firstName = "First name is required";
+    if (!formData.lastName) newErrors.lastName = "Last name is required";
+    if (!formData.address) newErrors.address = "Address is required";
+    if (!formData.city) newErrors.city = "City is required";
+    if (!formData.state) newErrors.state = "State is required";
+    if (!formData.zipCode) newErrors.zipCode = "ZIP code is required";
     // Payment validation
-    if (!formData.cardNumber) newErrors.cardNumber = "Card number is required"
-    if (!formData.expiryDate) newErrors.expiryDate = "Expiry date is required"
-    if (!formData.cvv) newErrors.cvv = "CVV is required"
-    if (!formData.cardName) newErrors.cardName = "Cardholder name is required"
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
+    if (!formData.cardNumber) newErrors.cardNumber = "Card number is required";
+    if (!formData.expiryDate) newErrors.expiryDate = "Expiry date is required";
+    if (!formData.cvv) newErrors.cvv = "CVV is required";
+    if (!formData.cardName) newErrors.cardName = "Cardholder name is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
+    e.preventDefault();
     if (!validateForm()) {
-      toast.error("Please fill in all required fields")
-      return
+      toast.error("Please fill in all required fields");
+      return;
     }
-
-    setLoading(true)
-
+    setLoading(true);
     try {
       // Simulate order processing
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       const orderData = {
         id: Date.now().toString(),
         items,
@@ -112,25 +92,21 @@ const GuestCheckoutPage = () => {
         customerInfo: formData,
         orderDate: new Date().toISOString(),
         status: "confirmed",
-      }
-
+      };
       // Store order in localStorage for guest users
-      const guestOrders = JSON.parse(localStorage.getItem("guestOrders") || "[]")
-      guestOrders.push(orderData)
-      localStorage.setItem("guestOrders", JSON.stringify(guestOrders))
-
+      const guestOrders = JSON.parse(localStorage.getItem("guestOrders") || "[]");
+      guestOrders.push(orderData);
+      localStorage.setItem("guestOrders", JSON.stringify(guestOrders));
       // Clear cart
-      await dispatch(clearCart("guest")).unwrap()
-
+      await dispatch(clearCart("guest")).unwrap();
       // Navigate to confirmation
-      navigate("/order-confirmation", { state: { order: orderData } })
+      navigate("/order-confirmation", { state: { order: orderData } });
     } catch (error) {
-      toast.error("Failed to process order. Please try again.")
+      toast.error("Failed to process order. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -145,7 +121,6 @@ const GuestCheckoutPage = () => {
           </div>
         </div>
       </header>
-
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
@@ -157,7 +132,6 @@ const GuestCheckoutPage = () => {
                   <Mail className="w-5 h-5 text-pink-600 mr-2" />
                   <h2 className="text-xl font-semibold">Contact Information</h2>
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
@@ -171,7 +145,6 @@ const GuestCheckoutPage = () => {
                     />
                     {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
                     <input
@@ -186,14 +159,12 @@ const GuestCheckoutPage = () => {
                   </div>
                 </div>
               </div>
-
               {/* Shipping Address */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center mb-4">
                   <Truck className="w-5 h-5 text-pink-600 mr-2" />
                   <h2 className="text-xl font-semibold">Shipping Address</h2>
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
@@ -206,7 +177,6 @@ const GuestCheckoutPage = () => {
                     />
                     {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
                     <input
@@ -219,7 +189,6 @@ const GuestCheckoutPage = () => {
                     {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
                   </div>
                 </div>
-
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
                   <input
@@ -232,7 +201,6 @@ const GuestCheckoutPage = () => {
                   />
                   {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
                 </div>
-
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">City *</label>
@@ -245,7 +213,6 @@ const GuestCheckoutPage = () => {
                     />
                     {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">State *</label>
                     <input
@@ -257,7 +224,6 @@ const GuestCheckoutPage = () => {
                     />
                     {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code *</label>
                     <input
@@ -271,14 +237,12 @@ const GuestCheckoutPage = () => {
                   </div>
                 </div>
               </div>
-
               {/* Payment Information */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center mb-4">
                   <CreditCard className="w-5 h-5 text-pink-600 mr-2" />
                   <h2 className="text-xl font-semibold">Payment Information</h2>
                 </div>
-
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name *</label>
                   <input
@@ -291,7 +255,6 @@ const GuestCheckoutPage = () => {
                   />
                   {errors.cardName && <p className="text-red-500 text-sm mt-1">{errors.cardName}</p>}
                 </div>
-
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Card Number *</label>
                   <input
@@ -304,7 +267,6 @@ const GuestCheckoutPage = () => {
                   />
                   {errors.cardNumber && <p className="text-red-500 text-sm mt-1">{errors.cardNumber}</p>}
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date *</label>
@@ -318,7 +280,6 @@ const GuestCheckoutPage = () => {
                     />
                     {errors.expiryDate && <p className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>}
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">CVV *</label>
                     <input
@@ -335,12 +296,10 @@ const GuestCheckoutPage = () => {
               </div>
             </form>
           </div>
-
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
               <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-
               <div className="space-y-3 mb-6">
                 {items.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
@@ -351,7 +310,6 @@ const GuestCheckoutPage = () => {
                   </div>
                 ))}
               </div>
-
               <div className="space-y-3 mb-6 border-t pt-3">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
@@ -366,7 +324,6 @@ const GuestCheckoutPage = () => {
                   <span>${totalAmount.toFixed(2)}</span>
                 </div>
               </div>
-
               <button
                 onClick={handleSubmit}
                 disabled={loading}
@@ -379,7 +336,6 @@ const GuestCheckoutPage = () => {
         </div>
       </div>
     </div>
-  )
-}
-
-export default GuestCheckoutPage
+  );
+};
+export default GuestCheckoutPage;

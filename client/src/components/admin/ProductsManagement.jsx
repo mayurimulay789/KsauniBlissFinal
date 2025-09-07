@@ -1,30 +1,27 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useDispatch } from "react-redux"
-import { Plus, Search, Edit, Trash2, ArrowUp, ArrowDown, Star } from "lucide-react"
-import adminAPI from "../../store/api/adminAPI"
-
+"use client";
+import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { Plus, Search, Edit, Trash2, ArrowUp, ArrowDown, Star } from "lucide-react";
+import adminAPI from "../../store/api/adminAPI";
 const ProductsManagement = () => {
-  const dispatch = useDispatch()
-  const [products, setProducts] = useState([])
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [showModal, setShowModal] = useState(false)
-  const [editingProduct, setEditingProduct] = useState(null)
-  const [searchTerm, setSearchTerm] = useState("")
+  const dispatch = useDispatch();
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     category: "",
     minPrice: "",
     maxPrice: "",
     sort: "newest",
-  })
+  });
   const [pagination, setPagination] = useState({
     current: 1,
     pages: 1,
     total: 0,
-  })
-
+  });
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -42,95 +39,84 @@ const ProductsManagement = () => {
     stock: "",
     weight: "",
     dimensions: { length: "", width: "", height: "" },
-  })
-
-  const [images, setImages] = useState([])
-
+  });
+  const [images, setImages] = useState([]);
   useEffect(() => {
-    fetchProducts()
-    fetchCategories()
-  }, [filters, searchTerm, pagination.current])
-
+    fetchProducts();
+    fetchCategories();
+  }, [filters, searchTerm, pagination.current]);
   const fetchProducts = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const params = {
         page: pagination.current,
         limit: 10,
         search: searchTerm,
         ...filters,
-      }
-      const response = await adminAPI.getAllProducts(params)
-      setProducts(response.data.products)
-      console.log(response.data)
-      setPagination(response.data.pagination)
+      };
+      const response = await adminAPI.getAllProducts(params);
+      setProducts(response.data.products);
+      console.log(response.data);
+      setPagination(response.data.pagination);
     } catch (error) {
-      console.error("Error fetching products:", error)
+      console.error("Error fetching products:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
   const fetchCategories = async () => {
     try {
-      const response = await adminAPI.getAllCategories()
-      setCategories(response.data.categories)
+      const response = await adminAPI.getAllCategories();
+      setCategories(response.data.categories);
     } catch (error) {
-      console.error("Error fetching categories:", error)
+      console.error("Error fetching categories:", error);
     }
-  }
-
+  };
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      setLoading(true)
-      const formDataToSend = new FormData()
-
+      setLoading(true);
+      const formDataToSend = new FormData();
       // Append text fields
       Object.keys(formData).forEach((key) => {
         if (key === "sizes" || key === "colors" || key === "tags") {
-          formDataToSend.append(key, JSON.stringify(formData[key]))
+          formDataToSend.append(key, JSON.stringify(formData[key]));
         } else if (key === "dimensions") {
-          formDataToSend.append(key, JSON.stringify(formData[key]))
+          formDataToSend.append(key, JSON.stringify(formData[key]));
         } else {
-          formDataToSend.append(key, formData[key])
+          formDataToSend.append(key, formData[key]);
         }
-      })
-
+      });
       // Append images in selected order
       images.forEach((img) => {
-        formDataToSend.append("images", img.file)
-      })
+        formDataToSend.append("images", img.file);
+      });
       // Optional: tell backend the intended order by file name
-      formDataToSend.append("imageOrder", JSON.stringify(images.map((img) => img.name)))
-
+      formDataToSend.append("imageOrder", JSON.stringify(images.map((img) => img.name)));
       if (editingProduct) {
-        await adminAPI.updateProduct(editingProduct._id, formDataToSend)
+        await adminAPI.updateProduct(editingProduct._id, formDataToSend);
       } else {
-        await adminAPI.createProduct(formDataToSend)
+        await adminAPI.createProduct(formDataToSend);
       }
-
-      setShowModal(false)
-      resetForm()
-      fetchProducts()
+      setShowModal(false);
+      resetForm();
+      fetchProducts();
     } catch (error) {
-      console.error("Error saving product:", error)
+      console.error("Error saving product:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
   const handleDelete = async (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        await adminAPI.deleteProduct(productId)
-        fetchProducts()
+        await adminAPI.deleteProduct(productId);
+        fetchProducts();
       } catch (error) {
-        console.error("Error deleting product:", error)
+        console.error("Error deleting product:", error);
       }
     }
-  }
-
+  };
   const resetForm = () => {
     setFormData({
       name: "",
@@ -149,13 +135,12 @@ const ProductsManagement = () => {
       stock: "",
       weight: "",
       dimensions: { length: "", width: "", height: "" },
-    })
-    setImages([])
-    setEditingProduct(null)
-  }
-
+    });
+    setImages([]);
+    setEditingProduct(null);
+  };
   const openEditModal = (product) => {
-    setEditingProduct(product)
+    setEditingProduct(product);
     setFormData({
       name: product.name || "",
       brand: product.brand || "KSAUNIBLISS",
@@ -173,102 +158,90 @@ const ProductsManagement = () => {
       stock: product.stock || "",
       weight: product.weight || "",
       dimensions: product.dimensions || { length: "", width: "", height: "" },
-    })
-    setShowModal(true)
-  }
-
+    });
+    setShowModal(true);
+  };
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files || [])
+    const files = Array.from(e.target.files || []);
     const wrapped = files.map((file) => ({
       file,
       name: file.name,
       preview: URL.createObjectURL(file),
-    }))
-    setImages((prev) => [...prev, ...wrapped])
-  }
-
+    }));
+    setImages((prev) => [...prev, ...wrapped]);
+  };
   const addSize = () => {
     setFormData({
       ...formData,
       sizes: [...formData.sizes, { size: "", stock: 0 }],
-    })
-  }
-
+    });
+  };
   const updateSize = (index, field, value) => {
-    const newSizes = [...formData.sizes]
-    newSizes[index][field] = value
-    setFormData({ ...formData, sizes: newSizes })
-  }
-
+    const newSizes = [...formData.sizes];
+    newSizes[index][field] = value;
+    setFormData({ ...formData, sizes: newSizes });
+  };
   const removeSize = (index) => {
-    const newSizes = formData.sizes.filter((_, i) => i !== index)
-    setFormData({ ...formData, sizes: newSizes })
-  }
-
+    const newSizes = formData.sizes.filter((_, i) => i !== index);
+    setFormData({ ...formData, sizes: newSizes });
+  };
   const addColor = () => {
     setFormData({
       ...formData,
       colors: [...formData.colors, { name: "", code: "", images: [] }],
-    })
-  }
-
+    });
+  };
   const updateColor = (index, field, value) => {
-    const newColors = [...formData.colors]
-    newColors[index][field] = value
-    setFormData({ ...formData, colors: newColors })
-  }
-
+    const newColors = [...formData.colors];
+    newColors[index][field] = value;
+    setFormData({ ...formData, colors: newColors });
+  };
   const removeColor = (index) => {
-    const newColors = formData.colors.filter((_, i) => i !== index)
-    setFormData({ ...formData, colors: newColors })
-  }
-
+    const newColors = formData.colors.filter((_, i) => i !== index);
+    setFormData({ ...formData, colors: newColors });
+  };
   // small helpers to reorder images and cleanup previews
   const moveImage = (index, direction) => {
     setImages((prev) => {
-      const next = [...prev]
-      const target = index + direction
-      if (target < 0 || target >= next.length) return prev
-      const tmp = next[index]
-      next[index] = next[target]
-      next[target] = tmp
-      return next
-    })
-  }
-
+      const next = [...prev];
+      const target = index + direction;
+      if (target < 0 || target >= next.length) return prev;
+      const tmp = next[index];
+      next[index] = next[target];
+      next[target] = tmp;
+      return next;
+    });
+  };
   const setAsFirst = (index) => {
     setImages((prev) => {
-      if (index <= 0) return prev
-      const next = [...prev]
-      const [item] = next.splice(index, 1)
-      next.unshift(item)
-      return next
-    })
-  }
-
+      if (index <= 0) return prev;
+      const next = [...prev];
+      const [item] = next.splice(index, 1);
+      next.unshift(item);
+      return next;
+    });
+  };
   const removeImage = (index) => {
     setImages((prev) => {
-      const next = [...prev]
-      const [removed] = next.splice(index, 1)
+      const next = [...prev];
+      const [removed] = next.splice(index, 1);
       try {
-        if (removed?.preview) URL.revokeObjectURL(removed.preview)
+        if (removed?.preview) URL.revokeObjectURL(removed.preview);
       } catch {}
-      return next
-    })
-  }
-
+      return next;
+    });
+  };
   // revoke any object URLs on unmount or full replacement
   useEffect(() => {
     return () => {
       images.forEach((img) => {
         try {
-          if (img?.preview) URL.revokeObjectURL(img.preview)
+          if (img?.preview) URL.revokeObjectURL(img.preview);
         } catch {}
-      })
-    }
+      });
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
+  }, []);
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -282,7 +255,6 @@ const ProductsManagement = () => {
           <span>Add Product</span>
         </button>
       </div>
-
       {/* Filters */}
       <div className="p-4 space-y-4 bg-white rounded-lg shadow">
         <div className="flex flex-wrap gap-4">
@@ -323,7 +295,6 @@ const ProductsManagement = () => {
           </select>
         </div>
       </div>
-
       {/* Products Table */}
       <div className="overflow-hidden bg-white rounded-lg shadow">
         <div className="overflow-x-auto">
@@ -420,7 +391,6 @@ const ProductsManagement = () => {
             </tbody>
           </table>
         </div>
-
         {/* Pagination */}
         {pagination.pages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200">
@@ -469,7 +439,6 @@ const ProductsManagement = () => {
           </div>
         )}
       </div>
-
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 w-full h-full overflow-y-auto bg-gray-600 bg-opacity-50">
@@ -545,7 +514,6 @@ const ProductsManagement = () => {
                     />
                   </div>
                 </div>
-
                 <div>
                   <label className="block mb-1 text-sm font-medium text-gray-700">Description</label>
                   <textarea
@@ -556,7 +524,6 @@ const ProductsManagement = () => {
                     required
                   />
                 </div>
-
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700">Brand</label>
@@ -594,7 +561,6 @@ const ProductsManagement = () => {
                     />
                   </div>
                 </div>
-
                 <div>
                   <label className="block mb-1 text-sm font-medium text-gray-700">Product Details</label>
                   <textarea
@@ -605,7 +571,6 @@ const ProductsManagement = () => {
                     placeholder="Additional product details..."
                   />
                 </div>
-
                 <div>
                   <label className="block mb-1 text-sm font-medium text-gray-700">Product Images</label>
                   <input
@@ -683,7 +648,6 @@ const ProductsManagement = () => {
                     </div>
                   )}
                 </div>
-
                 {/* Sizes Section */}
                 <div>
                   <label className="block mb-2 text-sm font-medium text-gray-700">Sizes</label>
@@ -716,7 +680,6 @@ const ProductsManagement = () => {
                     + Add Size
                   </button>
                 </div>
-
                 {/* Colors Section */}
                 <div>
                   <label className="block mb-2 text-sm font-medium text-gray-700">Colors</label>
@@ -749,7 +712,6 @@ const ProductsManagement = () => {
                     + Add Color
                   </button>
                 </div>
-
                 {/* Tags Section */}
                 <div>
                   <label className="block mb-1 text-sm font-medium text-gray-700">Tags</label>
@@ -761,12 +723,12 @@ const ProductsManagement = () => {
                           checked={formData.tags.includes(tag)}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              setFormData({ ...formData, tags: [...formData.tags, tag] })
+                              setFormData({ ...formData, tags: [...formData.tags, tag] });
                             } else {
                               setFormData({
                                 ...formData,
                                 tags: formData.tags.filter((t) => t !== tag),
-                              })
+                              });
                             }
                           }}
                           className="mr-2"
@@ -776,13 +738,12 @@ const ProductsManagement = () => {
                     ))}
                   </div>
                 </div>
-
                 <div className="flex justify-end pt-4 space-x-3">
                   <button
                     type="button"
                     onClick={() => {
-                      setShowModal(false)
-                      resetForm()
+                      setShowModal(false);
+                      resetForm();
                     }}
                     className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
                   >
@@ -802,7 +763,6 @@ const ProductsManagement = () => {
         </div>
       )}
     </div>
-  )
-}
-
-export default ProductsManagement
+  );
+};
+export default ProductsManagement;

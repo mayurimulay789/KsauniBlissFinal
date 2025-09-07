@@ -1,7 +1,6 @@
-"use client"
-
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+"use client";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   ChevronDown,
@@ -12,15 +11,13 @@ import {
   RotateCcw,
   Shield,
   MessageCircle,
-} from "lucide-react"
+} from "lucide-react";
 // import Navbar from "../components/Navbar"
 // import Footer from "../components/Footer"
-
 const FAQPage = () => {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeCategory, setActiveCategory] = useState("all")
-  const [openItems, setOpenItems] = useState(new Set())
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [openItems, setOpenItems] = useState(new Set());
   const categories = [
     { id: "all", label: "All Questions", icon: HelpCircle },
     { id: "orders", label: "Orders & Shipping", icon: Package },
@@ -28,8 +25,7 @@ const FAQPage = () => {
     { id: "delivery", label: "Delivery", icon: Truck },
     { id: "returns", label: "Returns & Exchanges", icon: RotateCcw },
     { id: "account", label: "Account & Security", icon: Shield },
-  ]
-
+  ];
   const faqData = [
     {
       category: "orders",
@@ -151,32 +147,27 @@ const FAQPage = () => {
       answer:
         "Yes, we offer EMI options on orders above ₹3,000 through select credit cards and digital payment platforms. EMI options and tenure will be displayed at checkout based on your payment method.",
     },
-  ]
-
+  ];
   const toggleItem = (index) => {
-    const newOpenItems = new Set(openItems)
+    const newOpenItems = new Set(openItems);
     if (newOpenItems.has(index)) {
-      newOpenItems.delete(index)
+      newOpenItems.delete(index);
     } else {
-      newOpenItems.add(index)
+      newOpenItems.add(index);
     }
-    setOpenItems(newOpenItems)
-  }
-
+    setOpenItems(newOpenItems);
+  };
   const filteredFAQs = faqData.filter((faq) => {
-    const matchesCategory = activeCategory === "all" || faq.category === activeCategory
+    const matchesCategory = activeCategory === "all" || faq.category === activeCategory;
     const matchesSearch =
       searchQuery === "" ||
       faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-
-    return matchesCategory && matchesSearch
-  })
-
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
   return (
     <div className="min-h-screen bg-gray-50">
       {/* <Navbar /> */}
-
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-br from-red-50 to-red-50">
         <div className="container px-4 mx-auto">
@@ -192,7 +183,6 @@ const FAQPage = () => {
             <p className="mb-8 text-xl text-gray-600">
               Find answers to common questions about shopping, orders, delivery, and more
             </p>
-
             {/* Search Bar */}
             <div className="relative max-w-2xl mx-auto">
               <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-4 top-1/2" />
@@ -207,7 +197,6 @@ const FAQPage = () => {
           </motion.div>
         </div>
       </section>
-
       {/* FAQ Content */}
       <section className="py-16">
         <div className="container px-4 mx-auto">
@@ -239,7 +228,6 @@ const FAQPage = () => {
                 ))}
               </div>
             </motion.div>
-
             {/* FAQ Items */}
             <div className="space-y-4">
               <AnimatePresence>
@@ -265,7 +253,6 @@ const FAQPage = () => {
                         <ChevronDown className="w-5 h-5 text-gray-500" />
                       </motion.div>
                     </button>
-
                     <AnimatePresence>
                       {openItems.has(index) && (
                         <motion.div
@@ -283,7 +270,6 @@ const FAQPage = () => {
                 ))}
               </AnimatePresence>
             </div>
-
             {/* No Results */}
             {filteredFAQs.length === 0 && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="py-16 text-center">
@@ -294,8 +280,8 @@ const FAQPage = () => {
                 <p className="mb-8 text-gray-600">Try adjusting your search or browse different categories</p>
                 <button
                   onClick={() => {
-                    setSearchQuery("")
-                    setActiveCategory("all")
+                    setSearchQuery("");
+                    setActiveCategory("all");
                   }}
                   className="px-6 py-3 text-white transition-colors bg-red-500 rounded-lg hover:bg-red-600"
                 >
@@ -306,7 +292,6 @@ const FAQPage = () => {
           </div>
         </div>
       </section>
-
       {/* Contact Support */}
       <section className="py-16 bg-white">
         <div className="container px-4 mx-auto">
@@ -343,10 +328,8 @@ const FAQPage = () => {
           </motion.div>
         </div>
       </section>
-
       {/* <Footer /> */}
     </div>
-  )
-}
-
-export default FAQPage
+  );
+};
+export default FAQPage;

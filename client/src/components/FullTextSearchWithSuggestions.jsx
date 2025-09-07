@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 const suggestionsList = [
   "MEN",
   "WOMEN",
@@ -12,11 +11,9 @@ const suggestionsList = [
   "subscription",
   "notification center"
 ];
-
 const FullTextSearchWithSuggestions = () => {
   const [query, setQuery] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-
   const clearHighlights = () => {
     const highlights = document.querySelectorAll("mark.highlight");
     highlights.forEach((mark) => {
@@ -25,10 +22,8 @@ const FullTextSearchWithSuggestions = () => {
       parent.normalize();
     });
   };
-
   const highlightMatches = (term) => {
     if (!term.trim()) return;
-
     const walker = document.createTreeWalker(
       document.body,
       NodeFilter.SHOW_TEXT,
@@ -47,25 +42,21 @@ const FullTextSearchWithSuggestions = () => {
       },
       false
     );
-
     const regex = new RegExp(`(${term})`, "gi");
-
     while (walker.nextNode()) {
       const node = walker.currentNode;
       const span = document.createElement("span");
       span.innerHTML = node.nodeValue.replace(
         regex,
-        '<mark class="highlight">$1</mark>'
+        "<mark class=\"highlight\">$1</mark>"
       );
       node.parentNode.replaceChild(span, node);
     }
   };
-
   const handleSearch = (term) => {
     clearHighlights();
     highlightMatches(term);
   };
-
   const handleChange = (e) => {
     const input = e.target.value;
     setQuery(input);
@@ -73,13 +64,11 @@ const FullTextSearchWithSuggestions = () => {
       setFilteredSuggestions([]);
       return;
     }
-
     const matches = suggestionsList.filter((s) =>
       s.toLowerCase().includes(input.toLowerCase())
     );
     setFilteredSuggestions(matches);
   };
-
   return (
     <div className="relative max-w-xl p-2 mx-auto bg-white">
   <div className="flex items-center space-x-2">
@@ -97,7 +86,6 @@ const FullTextSearchWithSuggestions = () => {
     Highlight
     </button>
   </div>
-
   {filteredSuggestions.length > 0 && (
     <ul className="absolute z-50 w-full mt-1 bg-white border rounded shadow">
       {filteredSuggestions.map((s, i) => (
@@ -116,8 +104,6 @@ const FullTextSearchWithSuggestions = () => {
     </ul>
   )}
 </div>
-
   );
 };
-
 export default FullTextSearchWithSuggestions;

@@ -1,8 +1,6 @@
-"use client"
-
-import { motion } from "framer-motion"
-import { DollarSign, Headset, ShoppingCart, Award } from "lucide-react" // Import specific Lucide icons
-
+"use client";
+import { motion } from "framer-motion";
+import { DollarSign, Headset, ShoppingCart, Award } from "lucide-react"; // Import specific Lucide icons
 const features = [
   {
     title: "Money Guarantee",
@@ -28,26 +26,23 @@ const features = [
     icon: Award, // Use Lucide Icon component
     alt: "Quality badge icon",
   },
-]
-
+];
 const itemVariants = {
   hidden: { opacity: 0, y: 50 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-}
-
+};
 const iconContainerVariants = {
   hidden: { scale: 0, rotate: -180 },
   visible: { scale: 1, rotate: 0, transition: { type: "spring", stiffness: 260, damping: 20, delay: 0.2 } },
   hover: { scale: 1.1, rotate: 10, transition: { duration: 0.3 } },
-}
-
+};
 const FeatureHighlights = () => {
   return (
     <section className="py-12 text-white bg-gray-900">
       <div className="container px-4 mx-auto sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => {
-            const IconComponent = feature.icon // Get the Lucide icon component
+            const IconComponent = feature.icon; // Get the Lucide icon component
             return (
               <motion.div
                 key={index}
@@ -67,12 +62,11 @@ const FeatureHighlights = () => {
                 <h3 className="mb-1 text-xl font-bold">{feature.title}</h3>
                 <p className="text-gray-400">{feature.description}</p>
               </motion.div>
-            )
+            );
           })}
         </div>
       </div>
     </section>
-  )
-}
-
-export default FeatureHighlights
+  );
+};
+export default FeatureHighlights;

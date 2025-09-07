@@ -1,150 +1,128 @@
-"use client"
-
-import { useState, useEffect, useRef } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
-import { useSelector, useDispatch } from "react-redux"
-import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ChevronDown, Search, ShoppingBag, User, Heart, Mic, Clock, Trash2, Shirt } from "lucide-react"
-import { useDebounce } from "use-debounce"
-import { logout } from "../store/slices/authSlice"
-import { fetchCategories } from "../store/slices/categorySlice"
-import { fetchCart, selectCartTotalQuantity } from "../store/slices/cartSlice"
-import { fetchWishlist, selectWishlistCount } from "../store/slices/wishlistSlice"
+"use client";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, ChevronDown, Search, ShoppingBag, User, Heart, Mic, Clock, Trash2, Shirt } from "lucide-react";
+import { useDebounce } from "use-debounce";
+import { logout } from "../store/slices/authSlice";
+import { fetchCategories } from "../store/slices/categorySlice";
+import { fetchCart, selectCartTotalQuantity } from "../store/slices/cartSlice";
+import { fetchWishlist, selectWishlistCount } from "../store/slices/wishlistSlice";
 import {
   getSearchSuggestions,
   addRecentSearch,
   removeRecentSearch,
   clearRecentSearches,
-} from "../store/slices/searchSlice"
-import logo from "../../public/KsauniLogo.png"
+} from "../store/slices/searchSlice";
+import logo from "../../public/KsauniLogo.png";
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [showUserMenu, setShowUserMenu] = useState(false)
-  const [searchFocused, setSearchFocused] = useState(false)
-  const [showSearchDropdown, setShowSearchDropdown] = useState(false)
-  const searchRef = useRef(null)
-
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const location = useLocation()
-
-  const { user, token } = useSelector((state) => state.auth || {})
-  const { categories } = useSelector((state) => state.categories || {})
-  const { suggestions, recentSearches, suggestionsLoading } = useSelector((state) => state.search || {})
-  const cartTotalQuantity = useSelector(selectCartTotalQuantity)
-  const wishlistCount = useSelector(selectWishlistCount)
-
-  const [debouncedSearchQuery] = useDebounce(searchQuery, 300)
-
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const searchRef = useRef(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const { user, token } = useSelector((state) => state.auth || {});
+  const { categories } = useSelector((state) => state.categories || {});
+  const { suggestions, recentSearches, suggestionsLoading } = useSelector((state) => state.search || {});
+  const cartTotalQuantity = useSelector(selectCartTotalQuantity);
+  const wishlistCount = useSelector(selectWishlistCount);
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
   useEffect(() => {
     if (token && user != null) {
-      dispatch(fetchCart())
-      dispatch(fetchWishlist())
+      dispatch(fetchCart());
+      dispatch(fetchWishlist());
     }
-  }, [user, dispatch, token])
-
+  }, [user, dispatch, token]);
   useEffect(() => {
-    dispatch(fetchCategories({ showOnHomepage: true }))
-  }, [dispatch])
-
+    dispatch(fetchCategories({ showOnHomepage: true }));
+  }, [dispatch]);
   useEffect(() => {
     if (debouncedSearchQuery.trim() && searchFocused) {
-      dispatch(getSearchSuggestions(debouncedSearchQuery.trim()))
+      dispatch(getSearchSuggestions(debouncedSearchQuery.trim()));
     }
-  }, [debouncedSearchQuery, searchFocused, dispatch])
-
+  }, [debouncedSearchQuery, searchFocused, dispatch]);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
-        setShowSearchDropdown(false)
-        setSearchFocused(false)
+        setShowSearchDropdown(false);
+        setSearchFocused(false);
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
-
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const navigateToCategory = (categoryId = "") => {
-    const base = "/products?"
-    console.log("[v0] Navigating to category:", categoryId)
-    navigate(categoryId ? `${base}category=${categoryId}` : base)
-  }
-
+    const base = "/products?";
+    console.log("[v0] Navigating to category:", categoryId);
+    navigate(categoryId ? `${base}category=${categoryId}` : base);
+  };
   const navigateToUnder999 = () => {
-    navigate("/products?maxPrice=999")
-  }
-
+    navigate("/products?maxPrice=999");
+  };
   const handleLogout = () => {
-    dispatch(logout())
-    setShowUserMenu(false)
-    navigate("/")
-  }
-
+    dispatch(logout());
+    setShowUserMenu(false);
+    navigate("/");
+  };
   const handleSearch = (e, query = searchQuery) => {
-    e?.preventDefault()
-    const searchTerm = query.trim()
+    e?.preventDefault();
+    const searchTerm = query.trim();
     if (searchTerm) {
-      dispatch(addRecentSearch(searchTerm))
-      navigate(`/products?search=${encodeURIComponent(searchTerm)}`)
-      setShowSearchDropdown(false)
-      setSearchQuery("")
-      setSearchFocused(false)
+      dispatch(addRecentSearch(searchTerm));
+      navigate(`/products?search=${encodeURIComponent(searchTerm)}`);
+      setShowSearchDropdown(false);
+      setSearchQuery("");
+      setSearchFocused(false);
     }
-  }
-
+  };
   const handleSearchFocus = () => {
-    setSearchFocused(true)
-    setShowSearchDropdown(true)
-  }
-
+    setSearchFocused(true);
+    setShowSearchDropdown(true);
+  };
   const handleSuggestionClick = (suggestion) => {
-    setSearchQuery(suggestion)
-    handleSearch(null, suggestion)
-  }
-
+    setSearchQuery(suggestion);
+    handleSearch(null, suggestion);
+  };
   const handleRecentSearchClick = (recentSearch) => {
-    setSearchQuery(recentSearch)
-    handleSearch(null, recentSearch)
-  }
-
+    setSearchQuery(recentSearch);
+    handleSearch(null, recentSearch);
+  };
   const searchVariants = {
     focused: { scale: 1.02 },
     unfocused: { scale: 1 },
-  }
-
-  const desiredMobileCategoryNames = ["Oversized", "New Arrival", "Minimalist", "Regular"]
-  const categoriesForMobileScroll = []
+  };
+  const desiredMobileCategoryNames = ["Oversized", "New Arrival", "Minimalist", "Regular"];
+  const categoriesForMobileScroll = [];
   desiredMobileCategoryNames.forEach((name) => {
-    const foundCat = categories.find((cat) => cat.name === name)
+    const foundCat = categories.find((cat) => cat.name === name);
     if (foundCat) {
-      categoriesForMobileScroll.push(foundCat)
+      categoriesForMobileScroll.push(foundCat);
     }
-  })
-
+  });
   if (categoriesForMobileScroll.length < 5 && categories.length > 0) {
-    const existingNames = new Set(categoriesForMobileScroll.map((cat) => cat.name))
+    const existingNames = new Set(categoriesForMobileScroll.map((cat) => cat.name));
     categories.forEach((cat) => {
       if (!existingNames.has(cat.name) && categoriesForMobileScroll.length < 5) {
-        categoriesForMobileScroll.push(cat)
-        existingNames.add(cat.name)
+        categoriesForMobileScroll.push(cat);
+        existingNames.add(cat.name);
       }
-    })
+    });
   }
-
   const cydCategory = {
     _id: "cyd-promo",
     name: "Under ₹999",
     image: { url: "cydlogo.jpeg", alt: "CYD logo" },
-  }
-
+  };
   if (!categoriesForMobileScroll.some((cat) => cat.name === cydCategory.name)) {
-    categoriesForMobileScroll.unshift(cydCategory)
+    categoriesForMobileScroll.unshift(cydCategory);
   }
-
-  const isProductDetailPage = window.location.pathname.startsWith("/product/")
-  const isCartPage = location.pathname === "/cart"
-
+  const isProductDetailPage = window.location.pathname.startsWith("/product/");
+  const isCartPage = location.pathname === "/cart";
   return (
     <>
       <motion.nav
@@ -171,7 +149,6 @@ const Navbar = () => {
                 </div>
               </div>
             </div>
-
             {/* Search Bar (hidden on mobile in this row, shown below) */}
             <div
               className={`hidden md:flex justify-center flex-1 w-full md:w-auto md:max-w-xl mx-4 ${isProductDetailPage ? "hidden" : ""}`}
@@ -227,8 +204,8 @@ const Navbar = () => {
                                 </div>
                                 <button
                                   onClick={(e) => {
-                                    e.stopPropagation()
-                                    dispatch(removeRecentSearch(search))
+                                    e.stopPropagation();
+                                    dispatch(removeRecentSearch(search));
                                   }}
                                   className="p-1 text-gray-400 hover:text-gray-600"
                                 >
@@ -269,7 +246,6 @@ const Navbar = () => {
                 </AnimatePresence>
               </motion.div>
             </div>
-
             {/* Right-side icons */}
             <div className="flex items-center space-x-4 md:space-x-6">
               {/* Saved icon - visible on mobile, hidden on desktop */}
@@ -279,7 +255,6 @@ const Navbar = () => {
               >
                 <SquarePlus className="w-5 h-5" />
               </div> */}
-
               {/* Wishlist icon - always visible */}
               <div
                 onClick={() => navigate("/wishlist")}
@@ -299,7 +274,6 @@ const Navbar = () => {
                   </motion.span>
                 )}
               </div>
-
               {/* Cart icon - always visible */}
               <div
                 onClick={() => navigate("/cart")}
@@ -319,14 +293,13 @@ const Navbar = () => {
                   </motion.span>
                 )}
               </div>
-
               {/* User/Login icon - hidden on mobile, visible on desktop */}
               <div className="relative items-center hidden text-gray-700 cursor-pointer md:flex hover:text-red-600">
                 <User className="w-5 h-5 mr-1" />
                 <span
                   onClick={() => {
-                    if (!token) navigate("/login")
-                    else setShowUserMenu(!showUserMenu)
+                    if (!token) navigate("/login");
+                    else setShowUserMenu(!showUserMenu);
                   }}
                   className="text-sm"
                 >
@@ -343,8 +316,8 @@ const Navbar = () => {
                     >
                       <div
                         onClick={() => {
-                          navigate("/profile")
-                          setShowUserMenu(false)
+                          navigate("/profile");
+                          setShowUserMenu(false);
                         }}
                         className="px-4 py-2 text-sm hover:bg-red-50"
                       >
@@ -352,8 +325,8 @@ const Navbar = () => {
                       </div>
                       <div
                         onClick={() => {
-                          navigate("/orders")
-                          setShowUserMenu(false)
+                          navigate("/orders");
+                          setShowUserMenu(false);
                         }}
                         className="px-4 py-2 text-sm hover:bg-red-50"
                       >
@@ -362,8 +335,8 @@ const Navbar = () => {
                       {user?.role === "admin" && (
                         <div
                           onClick={() => {
-                            navigate("/admin")
-                            setShowUserMenu(false)
+                            navigate("/admin");
+                            setShowUserMenu(false);
                           }}
                           className="px-4 py-2 text-sm hover:bg-red-50"
                         >
@@ -373,8 +346,8 @@ const Navbar = () => {
                       {user?.role === "digitalMarketer" && (
                         <div
                           onClick={() => {
-                            navigate("/digitalMarketer")
-                            setShowUserMenu(false)
+                            navigate("/digitalMarketer");
+                            setShowUserMenu(false);
                           }}
                           className="px-4 py-2 text-sm hover:bg-red-50"
                         >
@@ -390,7 +363,6 @@ const Navbar = () => {
               </div>
             </div>
           </div>
-
           {/* Mobile Search Bar - visible only on mobile, below the top row */}
           <div className={`flex justify-center w-full py-2 md:hidden ${isProductDetailPage ? "hidden" : ""}`}>
             <motion.div
@@ -444,8 +416,8 @@ const Navbar = () => {
                               </div>
                               <button
                                 onClick={(e) => {
-                                  e.stopPropagation()
-                                  dispatch(removeRecentSearch(search))
+                                  e.stopPropagation();
+                                  dispatch(removeRecentSearch(search));
                                 }}
                                 className="p-1 text-gray-400 hover:text-gray-600"
                               >
@@ -486,7 +458,6 @@ const Navbar = () => {
               </AnimatePresence>
             </motion.div>
           </div>
-
           {/* Desktop Category Navigation */}
           {!isCartPage && (
             <div className="items-center justify-center hidden px-4 py-3 space-x-6 overflow-x-auto border-t border-gray-200 md:flex scrollbar-hide">
@@ -501,7 +472,6 @@ const Navbar = () => {
               ))}
             </div>
           )}
-
           {/* Mobile Horizontal Category Navigation */}
           {!isProductDetailPage && !isCartPage && (
             <div className="flex py-3 space-x-4 overflow-x-auto border-t border-gray-200 md:hidden scrollbar-hide">
@@ -511,9 +481,9 @@ const Navbar = () => {
                   className="flex flex-col items-center flex-shrink-0 text-gray-700 cursor-pointer hover:text-red-600"
                   onClick={() => {
                     if (cat._id === "cyd-promo") {
-                      navigateToUnder999()
+                      navigateToUnder999();
                     } else {
-                      navigateToCategory(cat._id)
+                      navigateToCategory(cat._id);
                     }
                   }}
                 >
@@ -529,7 +499,6 @@ const Navbar = () => {
               ))}
             </div>
           )}
-
           {/* Mobile Menu Content */}
           <AnimatePresence>
             {isMenuOpen && (
@@ -544,8 +513,8 @@ const Navbar = () => {
                     <div
                       key={cat._id}
                       onClick={() => {
-                        navigateToCategory(cat._id)
-                        setIsMenuOpen(false)
+                        navigateToCategory(cat._id);
+                        setIsMenuOpen(false);
                       }}
                       className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"
                     >
@@ -554,8 +523,8 @@ const Navbar = () => {
                   ))}
                   <div
                     onClick={() => {
-                      navigate("/wishlist")
-                      setIsMenuOpen(false)
+                      navigate("/wishlist");
+                      setIsMenuOpen(false);
                     }}
                     className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"
                   >
@@ -563,8 +532,8 @@ const Navbar = () => {
                   </div>
                   <div
                     onClick={() => {
-                      navigate("/cart")
-                      setIsMenuOpen(false)
+                      navigate("/cart");
+                      setIsMenuOpen(false);
                     }}
                     className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"
                   >
@@ -572,9 +541,9 @@ const Navbar = () => {
                   </div>
                   <div
                     onClick={() => {
-                      if (!token) navigate("/login")
-                      else setShowUserMenu(!showUserMenu)
-                      setIsMenuOpen(false)
+                      if (!token) navigate("/login");
+                      else setShowUserMenu(!showUserMenu);
+                      setIsMenuOpen(false);
                     }}
                     className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"
                   >
@@ -586,7 +555,6 @@ const Navbar = () => {
           </AnimatePresence>
         </div>
       </motion.nav>
-
       {/* Bottom Navigation Bar for Mobile */}
       {!isProductDetailPage && !isCartPage && (
         <div className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-4 gap-0 py-1 bg-white border-t border-gray-200 shadow-lg md:hidden">
@@ -599,18 +567,13 @@ const Navbar = () => {
             </span>
             <span>Home</span>
           </div>
-
           <div
             onClick={() => navigateToUnder999()}
             className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
           >
-                        <span className="text-lg font-bold mb-0.5 w-6 h-6">
-
-        <img src="cyd11.svg" alt="CYD Logo" className="object-contain w-full h-full" />
-    </span>
-      <span>Under 999</span>
+            <img src="/cyd.svg" alt="CYD Logo" className="w-5 h-5 mb-0.5" />
+            <span>Under ₹999</span>
           </div>
-
           <div
             onClick={() => navigate("/products")}
             className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
@@ -618,11 +581,10 @@ const Navbar = () => {
             <Shirt className="w-5 h-5 mb-0.5" />
             <span>T-Shirts</span>
           </div>
-
           <div
             onClick={() => {
-              if (token) navigate("/profile")
-              else navigate("/login")
+              if (token) navigate("/profile");
+              else navigate("/login");
             }}
             className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
           >
@@ -632,7 +594,6 @@ const Navbar = () => {
         </div>
       )}
     </>
-  )
-}
-
-export default Navbar
+  );
+};
+export default Navbar;

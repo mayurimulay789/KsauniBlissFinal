@@ -1,35 +1,29 @@
-"use client"
-
-import { useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { CurrencyRupeeIcon, ShoppingBagIcon, UsersIcon, ClipboardDocumentListIcon } from "@heroicons/react/24/outline"
-import { fetchDashboardStats } from "../../store/slices/adminSlice"
-import LoadingSpinner from "../LoadingSpinner"
-
+"use client";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { CurrencyRupeeIcon, ShoppingBagIcon, UsersIcon, ClipboardDocumentListIcon } from "@heroicons/react/24/outline";
+import { fetchDashboardStats } from "../../store/slices/adminSlice";
+import LoadingSpinner from "../LoadingSpinner";
 const DashboardOverview = () => {
-  const dispatch = useDispatch()
-  const { dashboardStats, dashboardLoading } = useSelector((state) => state.admin)
-
+  const dispatch = useDispatch();
+  const { dashboardStats, dashboardLoading } = useSelector((state) => state.admin);
   useEffect(() => {
-    dispatch(fetchDashboardStats())
-  }, [dispatch])
-
+    dispatch(fetchDashboardStats());
+  }, [dispatch]);
   if (dashboardLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <LoadingSpinner />
       </div>
-    )
+    );
   }
-
   if (!dashboardStats) {
     return (
       <div className="py-12 text-center">
         <p className="text-gray-500">Failed to load dashboard data</p>
       </div>
-    )
+    );
   }
-
   const stats = [
     {
       name: "Total Sales",
@@ -61,23 +55,20 @@ const DashboardOverview = () => {
       change: "Need attention",
       changeType: (dashboardStats?.stats?.pendingOrders ?? 0) > 0 ? "decrease" : "neutral",
     },
-  ]
-
+  ];
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
       year: "numeric",
       month: "short",
       day: "numeric",
-    })
-  }
-
+    });
+  };
   const formatCurrency = (amount) => {
     if (amount === undefined || amount === null || isNaN(amount)) {
-      return "₹0"
+      return "₹0";
     }
-    return `₹${Number(amount).toLocaleString()}`
-  }
-
+    return `₹${Number(amount).toLocaleString()}`;
+  };
   const getStatusColor = (status) => {
     const colors = {
       pending: "bg-yellow-100 text-yellow-800",
@@ -86,10 +77,9 @@ const DashboardOverview = () => {
       shipped: "bg-indigo-100 text-indigo-800",
       delivered: "bg-green-100 text-green-800",
       cancelled: "bg-red-100 text-red-800",
-    }
-    return colors[status] || "bg-gray-100 text-gray-800"
-  }
-
+    };
+    return colors[status] || "bg-gray-100 text-gray-800";
+  };
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
@@ -125,7 +115,6 @@ const DashboardOverview = () => {
           </div>
         ))}
       </div>
-
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Orders */}
         <div className="bg-white rounded-lg shadow">
@@ -158,7 +147,6 @@ const DashboardOverview = () => {
             </div>
           </div>
         </div>
-
         {/* Popular Products */}
         <div className="bg-white rounded-lg shadow">
           <div className="px-4 py-5 sm:p-6">
@@ -186,7 +174,6 @@ const DashboardOverview = () => {
           </div>
         </div>
       </div>
-
       {/* Sales Chart */}
       <div className="bg-white rounded-lg shadow">
         <div className="px-4 py-5 sm:p-6">
@@ -213,7 +200,6 @@ const DashboardOverview = () => {
           </div>
         </div>
       </div>
-
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
         <div className="overflow-hidden bg-white rounded-lg shadow">
@@ -233,7 +219,6 @@ const DashboardOverview = () => {
             </div>
           </div>
         </div>
-
         <div className="overflow-hidden bg-white rounded-lg shadow">
           <div className="p-5">
             <div className="flex items-center">
@@ -249,7 +234,6 @@ const DashboardOverview = () => {
             </div>
           </div>
         </div>
-
         <div className="overflow-hidden bg-white rounded-lg shadow">
           <div className="p-5">
             <div className="flex items-center">
@@ -269,7 +253,6 @@ const DashboardOverview = () => {
         </div>
       </div>
     </div>
-  )
-}
-
-export default DashboardOverview
+  );
+};
+export default DashboardOverview;

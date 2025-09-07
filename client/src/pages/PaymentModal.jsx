@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { CreditCard, X } from "lucide-react";
-
 // PaymentModal – drop this in right under your imports
 export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount }) => {
   const [tab, setTab] = useState("online");
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="relative bg-white rounded-lg w-96">
@@ -28,7 +26,6 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount }) => {
             Cash on Delivery
           </button>
         </div>
-
         {/* Content */}
         <div className="p-4">
           {tab === "online" ? (
@@ -59,7 +56,6 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount }) => {
             </>
           )}
         </div>
-
         {/* Close button */}
         <button
           className="absolute text-gray-500 top-2 right-2 hover:text-gray-900"

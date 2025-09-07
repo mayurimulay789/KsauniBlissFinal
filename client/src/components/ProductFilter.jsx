@@ -1,63 +1,52 @@
-"use client"
-
-import { useState, useEffect, memo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { ChevronDown, X, Tag, DollarSign, Star } from "lucide-react"
-
+"use client";
+import { useState, useEffect, memo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, X, Tag, DollarSign, Star } from "lucide-react";
 const ProductFilters = memo(({ filters, categories, onFilterChange, onClearFilters, onClose }) => {
   const [expandedSections, setExpandedSections] = useState({
     categories: true,
     price: true,
     rating: true,
-  })
-  const [selectedRatings, setSelectedRatings] = useState([])
-
+  });
+  const [selectedRatings, setSelectedRatings] = useState([]);
   useEffect(() => {
     if (filters.minRating) {
       // Convert minRating back to selected ratings
-      const rating = Number.parseFloat(filters.minRating)
-      const ratingsToSelect = [4, 3, 2, 1].filter((r) => r >= rating)
-      setSelectedRatings(ratingsToSelect)
+      const rating = Number.parseFloat(filters.minRating);
+      const ratingsToSelect = [4, 3, 2, 1].filter((r) => r >= rating);
+      setSelectedRatings(ratingsToSelect);
     } else {
-      setSelectedRatings([])
+      setSelectedRatings([]);
     }
-  }, [filters.minRating])
-
+  }, [filters.minRating]);
   const toggleSection = (section) => {
-    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }))
-  }
-
+    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
   const priceRanges = [
     { label: "Under ₹500", min: "", max: "500" },
     { label: "₹500 - ₹1000", min: "500", max: "1000" },
     { label: "₹1000 - ₹2000", min: "1000", max: "2000" },
     { label: "₹2000 - ₹5000", min: "2000", max: "5000" },
     { label: "Above ₹5000", min: "5000", max: "" },
-  ]
-
-  const ratings = [4, 3, 2, 1]
-
+  ];
+  const ratings = [4, 3, 2, 1];
   const handlePriceChange = (field, value) => {
     onFilterChange({
       ...filters,
       [field]: value,
-    })
-  }
-
+    });
+  };
   const handleRatingChange = (rating) => {
     const newRatings = selectedRatings.includes(rating)
       ? selectedRatings.filter((r) => r !== rating)
-      : [...selectedRatings, rating]
-
+      : [...selectedRatings, rating];
     // Calculate the minimum rating from selected ratings
-    const minRating = newRatings.length > 0 ? Math.max(...newRatings) : null
-
-    setSelectedRatings(newRatings)
+    const minRating = newRatings.length > 0 ? Math.max(...newRatings) : null;
+    setSelectedRatings(newRatings);
     onFilterChange({
       minRating: minRating ? minRating.toString() : "",
-    })
-  }
-
+    });
+  };
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -77,7 +66,6 @@ const ProductFilters = memo(({ filters, categories, onFilterChange, onClearFilte
           </motion.button>
         )}
       </div>
-
       <div className="pb-4 border-b border-gray-100">
         <motion.button
           whileHover={{ scale: 1.01 }}
@@ -136,7 +124,6 @@ const ProductFilters = memo(({ filters, categories, onFilterChange, onClearFilte
           )}
         </AnimatePresence>
       </div>
-
       <div className="pb-4 border-b border-gray-100">
         <motion.button
           whileHover={{ scale: 1.01 }}
@@ -205,7 +192,6 @@ const ProductFilters = memo(({ filters, categories, onFilterChange, onClearFilte
           )}
         </AnimatePresence>
       </div>
-
       <div>
         <motion.button
           whileHover={{ scale: 1.01 }}
@@ -261,9 +247,7 @@ const ProductFilters = memo(({ filters, categories, onFilterChange, onClearFilte
         </AnimatePresence>
       </div>
     </motion.div>
-  )
-})
-
-ProductFilters.displayName = "ProductFilters"
-
-export default ProductFilters
+  );
+});
+ProductFilters.displayName = "ProductFilters";
+export default ProductFilters;

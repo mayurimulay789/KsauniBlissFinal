@@ -1,11 +1,11 @@
 
-import { useState, useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { useNavigate, useLocation, Link } from "react-router-dom"
-import { motion, AnimatePresence } from "framer-motion"
-import { Mail, Phone, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
-import logo from "../../public/logo.png"
-import image from "../../public/01.webp"
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Phone, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import logo from "../../public/logo.png";
+import image from "../../public/01.webp";
 import {
   registerWithEmail,
   loginWithEmail,
@@ -15,88 +15,87 @@ import {
   clearError,
   clearSuccess,
   clearPhoneAuthState,
-} from "../store/slices/authSlice"
-import toast from "react-hot-toast"
-import { cleanupRecaptcha } from "../config/firebase.js" // Make sure this is imported
-
+} from "../store/slices/authSlice";
+import toast from "react-hot-toast";
+import { cleanupRecaptcha } from "../config/firebase.js"; // Make sure this is imported
 const LoginPage = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { isLoading, error, message, isAuthenticated, phoneNumber, confirmationResult, otpSent } = useSelector(
     (state) => state.auth,
-  )
+  );
   // UI State
-  const [activeTab, setActiveTab] = useState("email") // 'email' or 'phone'
-  const [mode, setMode] = useState("login") // 'login' or 'register'
-  const [showPassword, setShowPassword] = useState(false)
-  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [activeTab, setActiveTab] = useState("email"); // 'email' or 'phone'
+  const [mode, setMode] = useState("login"); // 'login' or 'register'
+  const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   // Email Form State
   const [emailForm, setEmailForm] = useState({
     email: "",
     password: "",
     name: "",
     confirmPassword: "",
-  })
+  });
   // Phone Form State
   const [phoneForm, setPhoneForm] = useState({
     phoneNumber: "",
     otp: "",
-  })
+  });
   // OTP Timer
-  const [otpTimer, setOtpTimer] = useState(0)
+  const [otpTimer, setOtpTimer] = useState(0);
   // Forgot Password State
-  const [forgotEmail, setForgotEmail] = useState("")
+  const [forgotEmail, setForgotEmail] = useState("");
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const from = location.state?.from?.pathname || "/"
-      navigate(from, { replace: true })
+      const from = location.state?.from?.pathname || "/";
+      navigate(from, { replace: true });
     }
     // Cleanup reCAPTCHA when component unmounts
     return () => {
-      cleanupRecaptcha()
-    }
-  }, [isAuthenticated, navigate, location])
+      cleanupRecaptcha();
+    };
+  }, [isAuthenticated, navigate, location]);
   // Handle success/error messages
   useEffect(() => {
     if (message) {
-      toast.success(message)
-      dispatch(clearSuccess())
+      toast.success(message);
+      dispatch(clearSuccess());
     }
     if (error) {
-      toast.error(error)
-      dispatch(clearError())
+      toast.error(error);
+      dispatch(clearError());
     }
-  }, [message, error, dispatch])
+  }, [message, error, dispatch]);
   // OTP Timer Effect
   useEffect(() => {
-    let interval = null
+    let interval = null;
     if (otpTimer > 0) {
       interval = setInterval(() => {
-        setOtpTimer((timer) => timer - 1)
-      }, 1000)
+        setOtpTimer((timer) => timer - 1);
+      }, 1000);
     } else if (interval) {
-      clearInterval(interval)
+      clearInterval(interval);
     }
-    return () => clearInterval(interval)
-  }, [otpTimer])
+    return () => clearInterval(interval);
+  }, [otpTimer]);
   // Handle Email Form Submit
   const handleEmailSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (mode === "register") {
       // Validation
       if (!emailForm.name.trim()) {
-        toast.error("Name is required")
-        return
+        toast.error("Name is required");
+        return;
       }
       if (emailForm.password !== emailForm.confirmPassword) {
-        toast.error("Passwords don't match")
-        return
+        toast.error("Passwords don't match");
+        return;
       }
       if (emailForm.password.length < 6) {
-        toast.error("Password must be at least 6 characters long")
-        return
+        toast.error("Password must be at least 6 characters long");
+        return;
       }
       dispatch(
         registerWithEmail({
@@ -104,42 +103,42 @@ const LoginPage = () => {
           password: emailForm.password,
           name: emailForm.name,
         }),
-      )
+      );
     } else {
       dispatch(
         loginWithEmail({
           email: emailForm.email,
           password: emailForm.password,
         }),
-      )
+      );
     }
-  }
+  };
   // Handle Phone Form Submit
   const handlePhoneSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!confirmationResult) {
       // Send OTP
       if (!phoneForm.phoneNumber.trim()) {
-        toast.error("Phone number is required")
-        return
+        toast.error("Phone number is required");
+        return;
       }
       // Basic phone validation
-      const phoneRegex = /^\+[1-9]\d{1,14}$/
+      const phoneRegex = /^\+[1-9]\d{1,14}$/;
       if (!phoneRegex.test(phoneForm.phoneNumber)) {
-        toast.error("Please enter a valid phone number including country code (e.g., +1234567890)")
-        return
+        toast.error("Please enter a valid phone number including country code (e.g., +1234567890)");
+        return;
       }
-      dispatch(sendPhoneOTP(phoneForm.phoneNumber))
-      setOtpTimer(60) // 60 seconds timer
+      dispatch(sendPhoneOTP(phoneForm.phoneNumber));
+      setOtpTimer(60); // 60 seconds timer
     } else {
       // Verify OTP
       if (!phoneForm.otp.trim()) {
-        toast.error("OTP is required")
-        return
+        toast.error("OTP is required");
+        return;
       }
       if (phoneForm.otp.length !== 6) {
-        toast.error("Please enter a valid 6-digit OTP")
-        return
+        toast.error("Please enter a valid 6-digit OTP");
+        return;
       }
       dispatch(
         verifyPhoneOTP({
@@ -148,42 +147,42 @@ const LoginPage = () => {
           phoneNumber: phoneForm.phoneNumber, // Pass phoneNumber for backend verification
           name: emailForm.name, // Pass name if registering via phone
         }),
-      )
+      );
     }
-  }
+  };
   // Handle Forgot Password
   const handleForgotPassword = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!forgotEmail.trim()) {
-      toast.error("Email is required")
-      return
+      toast.error("Email is required");
+      return;
     }
-    dispatch(forgotPassword(forgotEmail))
-    setShowForgotPassword(false)
-    setForgotEmail("")
-  }
+    dispatch(forgotPassword(forgotEmail));
+    setShowForgotPassword(false);
+    setForgotEmail("");
+  };
   // Resend OTP
   const handleResendOTP = () => {
-    if (otpTimer > 0) return
-    dispatch(sendPhoneOTP(phoneForm.phoneNumber))
-    setOtpTimer(60)
-  }
+    if (otpTimer > 0) return;
+    dispatch(sendPhoneOTP(phoneForm.phoneNumber));
+    setOtpTimer(60);
+  };
   // Reset forms when switching tabs or modes
   const handleTabChange = (tab) => {
-    setActiveTab(tab)
-    dispatch(clearPhoneAuthState())
-    setEmailForm({ email: "", password: "", name: "", confirmPassword: "" })
-    setPhoneForm({ phoneNumber: "", otp: "" })
-    setOtpTimer(0)
-    cleanupRecaptcha() // Clear reCAPTCHA when switching tabs
-  }
+    setActiveTab(tab);
+    dispatch(clearPhoneAuthState());
+    setEmailForm({ email: "", password: "", name: "", confirmPassword: "" });
+    setPhoneForm({ phoneNumber: "", otp: "" });
+    setOtpTimer(0);
+    cleanupRecaptcha(); // Clear reCAPTCHA when switching tabs
+  };
   const handleModeChange = (newMode) => {
-    setMode(newMode)
-    dispatch(clearPhoneAuthState())
-    setEmailForm({ email: "", password: "", name: "", confirmPassword: "" })
-    setPhoneForm({ phoneNumber: "", otp: "" })
-    setOtpTimer(0)
-  }
+    setMode(newMode);
+    dispatch(clearPhoneAuthState());
+    setEmailForm({ email: "", password: "", name: "", confirmPassword: "" });
+    setPhoneForm({ phoneNumber: "", otp: "" });
+    setOtpTimer(0);
+  };
   return (
     <div className="flex  bg-white">
       {/* Left Section: Branding with Image */}
@@ -195,15 +194,11 @@ const LoginPage = () => {
           className="absolute inset-0 object-cover w-full h-full"
         />
         {/* Removed Gradient Overlay */}
-
-        
       </div>
-
       {/* Right Section: Login/Register Form */}
       <div className="flex items-center justify-center w-full lg:w-1/2">
         <div className="w-full max-w-md p-10 bg-white shadow-xl rounded-2xl m-2 ">
           {/* Header for mobile */}
-          
           {/* Mode Toggle */}
           <div className="flex p-1 mb-6 bg-gray-100 rounded-lg">
             <button
@@ -394,8 +389,8 @@ const LoginPage = () => {
                           type="text"
                           value={phoneForm.otp}
                           onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, "").slice(0, 6)
-                            setPhoneForm({ ...phoneForm, otp: value })
+                            const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                            setPhoneForm({ ...phoneForm, otp: value });
                           }}
                           className="w-full px-4 py-3 font-mono text-2xl tracking-widest text-center transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-ksauni-red focus:border-ksauni-red"
                           placeholder="000000"
@@ -433,9 +428,9 @@ const LoginPage = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        dispatch(clearPhoneAuthState())
-                        setPhoneForm({ phoneNumber: "", otp: "" })
-                        setOtpTimer(0)
+                        dispatch(clearPhoneAuthState());
+                        setPhoneForm({ phoneNumber: "", otp: "" });
+                        setOtpTimer(0);
                       }}
                       className="w-full py-2 text-sm font-medium text-gray-600 hover:text-gray-800"
                     >
@@ -526,6 +521,6 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
-  )
-}
-export default LoginPage
+  );
+};
+export default LoginPage;

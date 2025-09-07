@@ -1,21 +1,16 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-
+"use client";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 // Even simpler version - just like bewkoof.com
 const MinimalPreloader = ({ onComplete }) => {
-  const [isVisible, setIsVisible] = useState(true)
-
+  const [isVisible, setIsVisible] = useState(true);
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsVisible(false)
-      setTimeout(() => onComplete?.(), 200)
-    }, 2000)
-
-    return () => clearTimeout(timer)
-  }, [onComplete])
-
+      setIsVisible(false);
+      setTimeout(() => onComplete?.(), 200);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [onComplete]);
   return (
     <AnimatePresence>
       {isVisible && (
@@ -65,7 +60,6 @@ const MinimalPreloader = ({ onComplete }) => {
         </motion.div>
       )}
     </AnimatePresence>
-  )
-}
-
-export default MinimalPreloader
+  );
+};
+export default MinimalPreloader;

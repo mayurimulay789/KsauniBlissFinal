@@ -1,0 +1,27 @@
+{
+  "name": "ksaunibliss",
+  "version": "1.0.0",
+  "description": "KsauniBliss E-commerce Application",
+  "main": "index.js",
+  "scripts": {
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && echo \"Server build step complete (Node.js doesn't require building)\"",
+    "build": "npm run clean && npm run build:client && npm run build:server",
+    "clean": "rimraf client/dist server/dist",
+    "start": "cd server && npm start",
+    "start:prod": "npm run build && npm run start",
+    "test": "concurrently \"cd client && npm test\" \"cd server && npm test\"",
+    "lint": "concurrently \"cd client && npm run lint\" \"cd server && npm run lint\"",
+    "lint:fix": "concurrently \"cd client && npm run lint:fix\" \"cd server && npm run lint:fix\""
+  },
+  "dependencies": {
+    "redux-persist": "^6.0.0",
+    "concurrently": "^8.2.2",
+    "rimraf": "^5.0.5",
+    "cross-env": "^7.0.3"
+  }
+}

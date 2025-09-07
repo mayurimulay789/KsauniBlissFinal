@@ -1,33 +1,27 @@
-"use client"
-
-import { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { useSearchParams, useNavigate } from "react-router-dom"
-import { searchProducts, setFilters, addRecentSearch } from "../store/slices/searchSlice"
-import ProductCard from "../components/ProductCard"
-import ProductFilters from "../components/ProductFilter"
-import LoadingSpinner from "../components/LoadingSpinner"
-
+"use client";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { searchProducts, setFilters, addRecentSearch } from "../store/slices/searchSlice";
+import ProductCard from "../components/ProductCard";
+import ProductFilters from "../components/ProductFilter";
+import LoadingSpinner from "../components/LoadingSpinner";
 const SearchResultsPage = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { query, results, filters, totalProducts, totalPages, currentPage, loading, error } = useSelector(
     (state) => state.search,
-  )
-
-  const [showFilters, setShowFilters] = useState(false)
-  const [sortBy, setSortBy] = useState("relevance")
-
+  );
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState("relevance");
   useEffect(() => {
-    const searchQuery = searchParams.get("q") || ""
-    const category = searchParams.get("category") || ""
-    const minPrice = searchParams.get("minPrice") || ""
-    const maxPrice = searchParams.get("maxPrice") || ""
-    const page = Number.parseInt(searchParams.get("page")) || 1
-    const sort = searchParams.get("sort") || "relevance"
-
+    const searchQuery = searchParams.get("q") || "";
+    const category = searchParams.get("category") || "";
+    const minPrice = searchParams.get("minPrice") || "";
+    const maxPrice = searchParams.get("maxPrice") || "";
+    const page = Number.parseInt(searchParams.get("page")) || 1;
+    const sort = searchParams.get("sort") || "relevance";
     if (searchQuery) {
       const searchFilters = {
         category,
@@ -36,61 +30,50 @@ const SearchResultsPage = () => {
         page,
         sortBy: sort === "relevance" ? "createdAt" : sort,
         sortOrder: sort === "price-low" ? "asc" : "desc",
-      }
-
-      dispatch(setFilters(searchFilters))
-      dispatch(searchProducts({ query: searchQuery, filters: searchFilters }))
-      dispatch(addRecentSearch(searchQuery))
-      setSortBy(sort)
+      };
+      dispatch(setFilters(searchFilters));
+      dispatch(searchProducts({ query: searchQuery, filters: searchFilters }));
+      dispatch(addRecentSearch(searchQuery));
+      setSortBy(sort);
     }
-  }, [searchParams, dispatch])
-
+  }, [searchParams, dispatch]);
   const handleFilterChange = (newFilters) => {
-    const updatedFilters = { ...filters, ...newFilters, page: 1 }
-    dispatch(setFilters(updatedFilters))
-
+    const updatedFilters = { ...filters, ...newFilters, page: 1 };
+    dispatch(setFilters(updatedFilters));
     // Update URL params
-    const params = new URLSearchParams(searchParams)
+    const params = new URLSearchParams(searchParams);
     Object.entries(updatedFilters).forEach(([key, value]) => {
       if (value) {
-        params.set(key, value)
+        params.set(key, value);
       } else {
-        params.delete(key)
+        params.delete(key);
       }
-    })
-    setSearchParams(params)
-
-    dispatch(searchProducts({ query: searchParams.get("q"), filters: updatedFilters }))
-  }
-
+    });
+    setSearchParams(params);
+    dispatch(searchProducts({ query: searchParams.get("q"), filters: updatedFilters }));
+  };
   const handleSortChange = (newSort) => {
-    setSortBy(newSort)
+    setSortBy(newSort);
     const sortFilters = {
       sortBy:
         newSort === "relevance" ? "createdAt" : newSort === "price-low" || newSort === "price-high" ? "price" : newSort,
       sortOrder: newSort === "price-low" ? "asc" : "desc",
-    }
-
-    const params = new URLSearchParams(searchParams)
-    params.set("sort", newSort)
-    setSearchParams(params)
-
-    handleFilterChange(sortFilters)
-  }
-
+    };
+    const params = new URLSearchParams(searchParams);
+    params.set("sort", newSort);
+    setSearchParams(params);
+    handleFilterChange(sortFilters);
+  };
   const handlePageChange = (page) => {
-    const params = new URLSearchParams(searchParams)
-    params.set("page", page)
-    setSearchParams(params)
-
-    handleFilterChange({ page })
-  }
-
+    const params = new URLSearchParams(searchParams);
+    params.set("page", page);
+    setSearchParams(params);
+    handleFilterChange({ page });
+  };
   const clearAllFilters = () => {
-    const params = new URLSearchParams()
-    params.set("q", searchParams.get("q"))
-    setSearchParams(params)
-
+    const params = new URLSearchParams();
+    params.set("q", searchParams.get("q"));
+    setSearchParams(params);
     dispatch(
       setFilters({
         category: "",
@@ -100,24 +83,21 @@ const SearchResultsPage = () => {
         sortOrder: "desc",
         page: 1,
       }),
-    )
-
+    );
     dispatch(
       searchProducts({
         query: searchParams.get("q"),
         filters: { page: 1 },
       }),
-    )
-  }
-
+    );
+  };
   if (loading && results.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner />
       </div>
-    )
+    );
   }
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -132,7 +112,6 @@ const SearchResultsPage = () => {
                 </p>
               )}
             </div>
-
             {/* Mobile Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -151,7 +130,6 @@ const SearchResultsPage = () => {
           </div>
         </div>
       </div>
-
       <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Filters Sidebar */}
@@ -163,11 +141,9 @@ const SearchResultsPage = () => {
                   Clear All
                 </button>
               </div>
-
               <ProductFilters filters={filters} onFilterChange={handleFilterChange} />
             </div>
           </div>
-
           {/* Main Content */}
           <div className="flex-1">
             {/* Sort and View Options */}
@@ -187,14 +163,12 @@ const SearchResultsPage = () => {
                     <option value="rating">Customer Rating</option>
                   </select>
                 </div>
-
                 <div className="text-sm text-gray-600">
                   Showing {(currentPage - 1) * filters.limit + 1}-{Math.min(currentPage * filters.limit, totalProducts)}{" "}
                   of {totalProducts} results
                 </div>
               </div>
             </div>
-
             {/* Error State */}
             {error && (
               <div className="p-4 mb-6 border border-red-200 rounded-lg bg-red-50">
@@ -211,7 +185,6 @@ const SearchResultsPage = () => {
                 </div>
               </div>
             )}
-
             {/* No Results */}
             {!loading && results.length === 0 && !error && (
               <div className="p-12 text-center bg-white rounded-lg shadow-sm">
@@ -238,7 +211,6 @@ const SearchResultsPage = () => {
                 </button>
               </div>
             )}
-
             {/* Products Grid */}
             {results.length > 0 && (
               <>
@@ -247,7 +219,6 @@ const SearchResultsPage = () => {
                     <ProductCard key={product._id} product={product} />
                   ))}
                 </div>
-
                 {/* Pagination */}
                 {totalPages > 1 && (
                   <div className="flex justify-center">
@@ -259,9 +230,8 @@ const SearchResultsPage = () => {
                       >
                         Previous
                       </button>
-
                       {[...Array(totalPages)].map((_, index) => {
-                        const page = index + 1
+                        const page = index + 1;
                         return (
                           <button
                             key={page}
@@ -274,9 +244,8 @@ const SearchResultsPage = () => {
                           >
                             {page}
                           </button>
-                        )
+                        );
                       })}
-
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
@@ -289,7 +258,6 @@ const SearchResultsPage = () => {
                 )}
               </>
             )}
-
             {/* Loading State */}
             {loading && results.length > 0 && (
               <div className="flex justify-center py-8">
@@ -300,7 +268,6 @@ const SearchResultsPage = () => {
         </div>
       </div>
     </div>
-  )
-}
-
-export default SearchResultsPage
+  );
+};
+export default SearchResultsPage;

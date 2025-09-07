@@ -1,17 +1,14 @@
-"use client"
-import { Bars3Icon, BellIcon, UserCircleIcon } from "@heroicons/react/24/outline"
-import { Menu, Transition } from "@headlessui/react"
-import { Fragment } from "react"
-import { useDispatch } from "react-redux"
-import { logout } from "../../store/slices/authSlice"
-
+"use client";
+import { Bars3Icon, BellIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { Menu, Transition } from "@headlessui/react";
+import { Fragment } from "react";
+import { useDispatch } from "react-redux";
+import { logout } from "../../store/slices/authSlice";
 const MarketerHeader = ({ setSidebarOpen, pageTitle, user }) => {
-  const dispatch = useDispatch()
-
+  const dispatch = useDispatch();
   const handleLogout = () => {
-    dispatch(logout())
-  }
-
+    dispatch(logout());
+  };
   return (
     <div className="sticky top-0 z-40 flex items-center h-16 px-4 bg-white border-b border-gray-200 shadow-sm shrink-0 gap-x-4 sm:gap-x-6 sm:px-6 lg:px-8">
       {/* Mobile menu button */}
@@ -19,26 +16,21 @@ const MarketerHeader = ({ setSidebarOpen, pageTitle, user }) => {
         <span className="sr-only">Open sidebar</span>
         <Bars3Icon className="w-6 h-6" aria-hidden="true" />
       </button>
-
       {/* Separator */}
       <div className="w-px h-6 bg-gray-200 lg:hidden" aria-hidden="true" />
-
       <div className="flex self-stretch flex-1 gap-x-4 lg:gap-x-6">
         {/* Page title */}
         <div className="flex items-center">
           <h1 className="text-xl font-semibold leading-6 text-gray-900">{pageTitle}</h1>
         </div>
-
         <div className="flex items-center justify-end flex-1 gap-x-4 lg:gap-x-6">
           {/* Notifications */}
           <button type="button" className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
             <span className="sr-only">View notifications</span>
             <BellIcon className="w-6 h-6" aria-hidden="true" />
           </button>
-
           {/* Separator */}
           <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200" aria-hidden="true" />
-
           {/* Profile dropdown */}
           <Menu as="div" className="relative">
             <Menu.Button className="-m-1.5 flex items-center p-1.5">
@@ -95,7 +87,6 @@ const MarketerHeader = ({ setSidebarOpen, pageTitle, user }) => {
         </div>
       </div>
     </div>
-  )
-}
-
-export default MarketerHeader
+  );
+};
+export default MarketerHeader;

@@ -1,10 +1,5 @@
 
-
-
-
-
 "use client";
-
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
@@ -25,47 +20,37 @@ import {
 } from "lucide-react";
 import { fetchOrderDetails, clearError, trackOrderInfo } from "../store/slices/orderSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
-
 const OrderDetailsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { orderId } = useParams();
-
   const {
     currentOrder: order,
     loading,
     error,
   } = useSelector((state) => state.orders || {});
-
   const [activeSection, setActiveSection] = useState("items");
-
   useEffect(() => {
     if (orderId) {
       dispatch(fetchOrderDetails(orderId));
     }
   }, [dispatch, orderId]);
-
   useEffect(() => {
     if (error) {
       setTimeout(() => dispatch(clearError()), 5000);
     }
   }, [error, dispatch]);
-
   const handleFetchTracking = () => {
     console.log("order", order);
     if (order && order._id) {
       dispatch(trackOrderInfo(order));
     }
   };
-
   // const orderState = useSelector((state) => state.order);
-
   // const tracking = order.trackingInfo; // from Redux
   // const trackLoading = order.trackLoading;
-
   const tracking = order?.trackingInfo || {};
 const trackLoading = order?.trackLoading || false;
-
   const getStatusIcon = (status) => {
     switch (status) {
       case "confirmed":
@@ -82,7 +67,6 @@ const trackLoading = order?.trackLoading || false;
         return <Clock className="h-5 w-5 text-gray-600" />;
     }
   };
-
   const getStatusColor = (status) => {
     switch (status) {
       case "confirmed":
@@ -99,7 +83,6 @@ const trackLoading = order?.trackLoading || false;
         return "text-gray-800 bg-gray-100";
     }
   };
-
   const getStatusText = (status) => {
     switch (status) {
       case "confirmed":
@@ -116,7 +99,6 @@ const trackLoading = order?.trackLoading || false;
         return "Pending";
     }
   };
-
   if (loading?.fetching) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -124,7 +106,6 @@ const trackLoading = order?.trackLoading || false;
       </div>
     );
   }
-
   if (error || !order) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
@@ -152,7 +133,6 @@ const trackLoading = order?.trackLoading || false;
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-pink-50 py-12 font-sans">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
@@ -175,7 +155,6 @@ const trackLoading = order?.trackLoading || false;
             </h1>
             <div className="md:w-auto w-full"></div>
           </div>
-
           {/* Order Summary Card */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -187,7 +166,7 @@ const trackLoading = order?.trackLoading || false;
               <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
                 <div className="flex items-center space-x-5">
                   <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-full ${getStatusColor(order.status).replace('text-', 'bg-').replace('-800', '-600')} bg-opacity-20`}
+                    className={`flex h-12 w-12 items-center justify-center rounded-full ${getStatusColor(order.status).replace("text-", "bg-").replace("-800", "-600")} bg-opacity-20`}
                   >
                     {getStatusIcon(order.status)}
                   </div>
@@ -243,7 +222,6 @@ const trackLoading = order?.trackLoading || false;
               </div>
             )}
           </motion.div>
-
           {/* Interactive Sections */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -283,7 +261,6 @@ const trackLoading = order?.trackLoading || false;
                 Tracking Info
               </button>
             </div>
-
             {/* Render Section Content */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
@@ -337,7 +314,6 @@ const trackLoading = order?.trackLoading || false;
                       No items found for this order.
                     </p>
                   )}
-
                   <div className="mt-10 rounded-xl border border-gray-200 bg-gray-50 p-8 shadow-inner">
                     <h2 className="mb-6 flex items-center text-2xl font-bold text-gray-800">
                       <DollarSign className="mr-3 h-6 w-6 text-gray-600" />
@@ -380,7 +356,6 @@ const trackLoading = order?.trackLoading || false;
                   </div>
                 </div>
               )}
-
               {activeSection === "address" && (
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                   {/* Shipping Address */}
@@ -439,7 +414,6 @@ const trackLoading = order?.trackLoading || false;
                       )}
                     </div>
                   </div>
-
                   {/* Payment Information */}
                   <div className="rounded-xl border border-gray-200 p-8 shadow-sm">
                     <h2 className="mb-6 flex items-center text-2xl font-bold text-gray-800">
@@ -457,7 +431,6 @@ const trackLoading = order?.trackLoading || false;
                         <span className="font-semibold text-gray-900">
                           Payment Status:
                         </span>{" "}
-                        
                           <span
                             className={`font-extrabold ${
                               order.paymentInfo?.paymentStatus === "paid" || order.paymentInfo?.status === "PAID"
@@ -492,7 +465,6 @@ const trackLoading = order?.trackLoading || false;
                   </div>
                 </div>
               )}
-
               {activeSection === "tracking" && (
                 <div className="rounded-xl border border-gray-200 p-8 shadow-sm">
                   <h2 className="mb-6 flex items-center text-2xl font-bold text-gray-800">
@@ -549,7 +521,6 @@ const trackLoading = order?.trackLoading || false;
                       Tracking information will be available once your order has been shipped.
                     </p>
                   )} */}
-
                   { tracking.trackingUrl? (
       <div>
         <p className="py-2 text-lg text-gray-800">
@@ -566,7 +537,6 @@ const trackLoading = order?.trackLoading || false;
       // <p className="py-8 text-center text-lg text-gray-600">
       //   Tracking information will be available once your order has been shipped.
       // </p>
-
       <div className="py-8 text-center">
         <p className="text-lg text-gray-600 mb-4">
          Tracking information will be available once your order has been shipped.
@@ -589,9 +559,6 @@ const trackLoading = order?.trackLoading || false;
           )}
         </button>
       </div>
-
-      
-      
     ) : (
       <div className="py-8 text-center">
         <p className="text-lg text-gray-600 mb-4">
@@ -625,5 +592,4 @@ const trackLoading = order?.trackLoading || false;
     </div>
   );
 };
-
 export default OrderDetailsPage;

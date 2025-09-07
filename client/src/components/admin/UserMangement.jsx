@@ -1,88 +1,79 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { Search, Trash2 } from "lucide-react"
-import adminAPI from "../../store/api/adminAPI"
-
+"use client";
+import { useState, useEffect } from "react";
+import { Search, Trash2 } from "lucide-react";
+import adminAPI from "../../store/api/adminAPI";
 const UsersManagement = () => {
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [roleFilter, setRoleFilter] = useState("")
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
     totalUsers: 0,
     hasNext: false,
     hasPrev: false,
-  })
-
+  });
   useEffect(() => {
-    fetchUsers()
-  }, [searchTerm, roleFilter, pagination.currentPage])
-
+    fetchUsers();
+  }, [searchTerm, roleFilter, pagination.currentPage]);
   const fetchUsers = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const params = {
         page: pagination.currentPage,
         limit: 20,
         search: searchTerm,
         role: roleFilter,
-      }
-      const response = await adminAPI.getAllUsers(params)
-      setUsers(response.data.users)
-      setPagination(response.data.pagination)
+      };
+      const response = await adminAPI.getAllUsers(params);
+      setUsers(response.data.users);
+      setPagination(response.data.pagination);
     } catch (error) {
-      console.error("Error fetching users:", error)
+      console.error("Error fetching users:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
   const handleRoleUpdate = async (userId, newRole) => {
     if (window.confirm(`Are you sure you want to change this user's role to ${newRole}?`)) {
       try {
-        await adminAPI.updateUserRole(userId, { role: newRole })
-        fetchUsers()
+        await adminAPI.updateUserRole(userId, { role: newRole });
+        fetchUsers();
       } catch (error) {
-        console.error("Error updating user role:", error)
-        alert("Failed to update user role")
+        console.error("Error updating user role:", error);
+        alert("Failed to update user role");
       }
     }
-  }
-
+  };
   const handleDeleteUser = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
       try {
-        await adminAPI.deleteUser(userId)
-        fetchUsers()
+        await adminAPI.deleteUser(userId);
+        fetchUsers();
       } catch (error) {
-        console.error("Error deleting user:", error)
-        alert(error.response?.data?.message || "Failed to delete user")
+        console.error("Error deleting user:", error);
+        alert(error.response?.data?.message || "Failed to delete user");
       }
     }
-  }
-
+  };
   const getRoleBadgeColor = (role) => {
     switch (role) {
       case "admin":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       case "digitalMarketer":
-        return "bg-purple-100 text-purple-800"
+        return "bg-purple-100 text-purple-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
-
+  };
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
       year: "numeric",
       month: "short",
       day: "numeric",
-    })
-  }
-
+    });
+  };
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -90,7 +81,6 @@ const UsersManagement = () => {
         <h1 className="text-2xl font-bold text-gray-900">Users Management</h1>
         <div className="text-sm text-gray-500">Total Users: {pagination.totalUsers}</div>
       </div>
-
       {/* Filters */}
       <div className="p-4 space-y-4 bg-white rounded-lg shadow">
         <div className="flex flex-wrap gap-4">
@@ -118,7 +108,6 @@ const UsersManagement = () => {
           </select>
         </div>
       </div>
-
       {/* Users Table */}
       <div className="overflow-hidden bg-white rounded-lg shadow">
         <div className="overflow-x-auto">
@@ -231,7 +220,6 @@ const UsersManagement = () => {
             </tbody>
           </table>
         </div>
-
         {/* Pagination */}
         {pagination.totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200">
@@ -281,7 +269,6 @@ const UsersManagement = () => {
         )}
       </div>
     </div>
-  )
-}
-
-export default UsersManagement
+  );
+};
+export default UsersManagement;

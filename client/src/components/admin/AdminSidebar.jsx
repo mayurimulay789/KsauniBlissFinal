@@ -1,6 +1,5 @@
-"use client"
-
-import { Link, useLocation } from "react-router-dom"
+"use client";
+import { Link, useLocation } from "react-router-dom";
 import {
   HomeIcon,
   CubeIcon,
@@ -11,11 +10,9 @@ import {
   LightBulbIcon,
   TicketIcon,
   SparklesIcon, // Replaced ShirtIcon with SparklesIcon as ShirtIcon doesn't exist in Heroicons
-} from "@heroicons/react/24/outline"
-
+} from "@heroicons/react/24/outline";
 const AdminSidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
-  const location = useLocation()
-
+  const location = useLocation();
   const navigation = [
     { name: "Dashboard", href: "/admin/dashboard", icon: HomeIcon },
     { name: "Products", href: "/admin/products", icon: CubeIcon },
@@ -24,16 +21,13 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
     { name: "Banners", href: "/admin/banners", icon: PhotoIcon },
     { name: "Innovations", href: "/admin/innovations", icon: LightBulbIcon },
     { name: "Kasuni T-Shirt Style", href: "/admin/ksaunitshirtstyle", icon: SparklesIcon }, // Updated icon to SparklesIcon
-  ]
-
+  ];
   // Admin-only navigation items
   const adminOnlyNavigation = [
     { name: "Users", href: "/admin/users", icon: UsersIcon },
     { name: "Coupons", href: "/admin/coupons", icon: TicketIcon },
-  ]
-
-  const allNavigation = userRole === "admin" ? [...navigation, ...adminOnlyNavigation] : navigation
-
+  ];
+  const allNavigation = userRole === "admin" ? [...navigation, ...adminOnlyNavigation] : navigation;
   return (
     <>
       {/* Desktop sidebar */}
@@ -47,7 +41,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
               <li>
                 <ul role="list" className="-mx-2 space-y-1">
                   {allNavigation.map((item) => {
-                    const isActive = location.pathname === item.href
+                    const isActive = location.pathname === item.href;
                     return (
                       <li key={item.name}>
                         <Link
@@ -60,7 +54,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
                           {item.name}
                         </Link>
                       </li>
-                    )
+                    );
                   })}
                 </ul>
               </li>
@@ -68,7 +62,6 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
           </nav>
         </div>
       </div>
-
       {/* Mobile sidebar */}
       <div className={`relative z-50 lg:hidden ${sidebarOpen ? "" : "hidden"}`}>
         <div className="fixed inset-0 bg-gray-900/80" />
@@ -97,7 +90,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
                   <li>
                     <ul role="list" className="-mx-2 space-y-1">
                       {allNavigation.map((item) => {
-                        const isActive = location.pathname === item.href
+                        const isActive = location.pathname === item.href;
                         return (
                           <li key={item.name}>
                             <Link
@@ -111,7 +104,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
                               {item.name}
                             </Link>
                           </li>
-                        )
+                        );
                       })}
                     </ul>
                   </li>
@@ -122,7 +115,6 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
         </div>
       </div>
     </>
-  )
-}
-
-export default AdminSidebar
+  );
+};
+export default AdminSidebar;

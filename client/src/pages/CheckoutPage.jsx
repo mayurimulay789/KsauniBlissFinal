@@ -1,58 +1,64 @@
-"use client"
-import { useState, useEffect, useMemo, useCallback, useRef } from "react"
-import { useSelector, useDispatch } from "react-redux"
-import { useNavigate } from "react-router-dom"
-import { motion } from "framer-motion"
-import { ShoppingBag, MapPin, CreditCard, Tag, Truck, Shield, X } from "lucide-react"
+"use client";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import PropTypes from 'prop-types';
+import { ShoppingBag, MapPin, CreditCard, Tag, Truck, Shield, X } from "lucide-react";
 import {
   createRazorpayOrder,
   clearError,
-  clearSuccess,
+
   placeCodOrder,
   verifyPayment,
   selectRazorpayOrder,
-  selectOrderSummary,
   selectOrderLoading,
   selectOrderError,
   selectOrderSuccess,
-  selectShippingRates,
   selectCartItems,
   selectCartSummary,
   selectAppliedCoupon,
   selectCouponLoading,
   selectCouponError,
   selectUser,
-} from "../store/slices/orderSlice"
+} from "../store/slices/orderSlice";
 import {
   validateCoupon,
   removeCoupon,
   clearError as clearCouponError,
   fetchAvailableCoupons,
-} from "../store/slices/couponSlice"
+} from "../store/slices/couponSlice";
 import { PaymentModal } from "./PaymentModal";
-
-import { fetchCart } from "../store/slices/cartSlice"
-import Preloader from "../components/Preloader"
+import { fetchCart } from "../store/slices/cartSlice";
+import Preloader from "../components/Preloader";
 const CheckoutPage = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-
-  const rzpInstanceRef = useRef(null)
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const rzpInstanceRef = useRef(null);
+  const LoadingSpinner = ({ className = "", size = "md" }) => (
+    <div className={`inline-block animate-spin rounded-full border-2 border-solid border-current border-r-transparent ${
+      size === "sm" ? "h-4 w-4" : "h-6 w-6"
+    } ${className}`} role="status">
+      <span className="sr-only">Loading...</span>
+    </div>
+  );
+  
+  LoadingSpinner.propTypes = {
+    className: PropTypes.string,
+    size: PropTypes.oneOf(['sm', 'md'])
+  };
   // Use memoized selectors
-  const razorpayOrder = useSelector(selectRazorpayOrder)
-  const orderSummary = useSelector(selectOrderSummary)
-  const orderLoading = useSelector(selectOrderLoading)
-  const orderError = useSelector(selectOrderError)
-  const orderSuccess = useSelector(selectOrderSuccess)
-  const shippingRates = useSelector(selectShippingRates)
-  const cartItems = useSelector(selectCartItems)
-  const cartSummary = useSelector(selectCartSummary)
-  const appliedCoupon = useSelector(selectAppliedCoupon)
-  const availableCoupons = useSelector((state) => state.coupons.availableCoupons || [])
-  const couponLoading = useSelector(selectCouponLoading)
-  const couponError = useSelector(selectCouponError)
-  const user = useSelector(selectUser)
+  const razorpayOrder = useSelector(selectRazorpayOrder);
+  const orderLoading = useSelector(selectOrderLoading);
+  const orderError = useSelector(selectOrderError);
+  const orderSuccess = useSelector(selectOrderSuccess);
+  const cartItems = useSelector(selectCartItems);
+  const cartSummary = useSelector(selectCartSummary);
+  const appliedCoupon = useSelector(selectAppliedCoupon);
+  const availableCoupons = useSelector((state) => state.coupons.availableCoupons || []);
+  const couponLoading = useSelector(selectCouponLoading);
+  const couponError = useSelector(selectCouponError);
+  const user = useSelector(selectUser);
   const [shippingAddress, setShippingAddress] = useState({
     fullName: user?.name || "",
     phoneNumber: user?.phoneNumber?.replace("+91", "") || "",
@@ -62,97 +68,85 @@ const CheckoutPage = () => {
     state: "",
     pinCode: "",
     landmark: "",
-  })
-
-  const [couponCode, setCouponCode] = useState("")
-  const [showCouponInput, setShowCouponInput] = useState(false)
-  const [addressErrors, setAddressErrors] = useState({})
-  const [showModal, setShowModal] = useState(false)
-  const [selectedShippingRate, setSelectedShippingRate] = useState(null)
-  const [showShippingCalculator, setShowShippingCalculator] = useState(false)
-
+  });
+  const [couponCode, setCouponCode] = useState("");
+  const [showCouponInput, setShowCouponInput] = useState(false);
+  const [addressErrors, setAddressErrors] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [selectedShippingRate, setSelectedShippingRate] = useState(null);
+  // const [showShippingCalculator, setShowShippingCalculator] = useState(false);
   useEffect(() => {
     // Close existing instance if any
     // Clear any existing order state when checkout page loads
-
-    dispatch(removeCoupon())
-    setCouponCode("")
-    setShowCouponInput(false)
-
-    console.log("rzpInstanceRef.current", rzpInstanceRef.current)
+    dispatch(removeCoupon());
+    setCouponCode("");
+    setShowCouponInput(false);
+    console.log("rzpInstanceRef.current", rzpInstanceRef.current);
     if (rzpInstanceRef.current) {
-      rzpInstanceRef.current.close()
-      rzpInstanceRef.current = null
+      rzpInstanceRef.current.close();
+      rzpInstanceRef.current = null;
     }
-
     // Cleanup on unmount
     return () => {
       if (rzpInstanceRef.current) {
-        rzpInstanceRef.current.close()
-        rzpInstanceRef.current = null
+        rzpInstanceRef.current.close();
+        rzpInstanceRef.current = null;
       }
-    }
-  }, [])
-
+    };
+  }, [dispatch]);
   // Load available coupons for the logged-in user
   useEffect(() => {
     if (Object.keys(user).length != 0) {
-      console.log("user", user)
-      dispatch(fetchAvailableCoupons())
+      console.log("user", user);
+      dispatch(fetchAvailableCoupons());
     }
-  }, [dispatch, user])
-
+  }, [dispatch, user]);
   // Memoized functions and values
   const validateAddress = useCallback(() => {
-    const errors = {}
-    if (!shippingAddress.fullName.trim()) errors.fullName = "Full name is required"
-    if (!shippingAddress.phoneNumber.trim()) errors.phoneNumber = "Phone number is required"
+    const errors = {};
+    if (!shippingAddress.fullName.trim()) errors.fullName = "Full name is required";
+    if (!shippingAddress.phoneNumber.trim()) errors.phoneNumber = "Phone number is required";
     else if (!/^[6789]\d{9}$/.test(shippingAddress.phoneNumber)) {
-      errors.phoneNumber = "Please enter a valid 10-digit mobile number"
+      errors.phoneNumber = "Please enter a valid 10-digit mobile number";
     }
-    if (!shippingAddress.addressLine1.trim()) errors.addressLine1 = "Address is required"
-    if (!shippingAddress.city.trim()) errors.city = "City is required"
-    if (!shippingAddress.state.trim()) errors.state = "State is required"
-    if (!shippingAddress.pinCode.trim()) errors.pinCode = "PIN code is required"
+    if (!shippingAddress.addressLine1.trim()) errors.addressLine1 = "Address is required";
+    if (!shippingAddress.city.trim()) errors.city = "City is required";
+    if (!shippingAddress.state.trim()) errors.state = "State is required";
+    if (!shippingAddress.pinCode.trim()) errors.pinCode = "PIN code is required";
     else if (!/^[1-9][0-9]{5}$/.test(shippingAddress.pinCode)) {
-      errors.pinCode = "Please enter a valid 6-digit PIN code"
+      errors.pinCode = "Please enter a valid 6-digit PIN code";
     }
-    setAddressErrors(errors)
-    return Object.keys(errors).length === 0
-  }, [shippingAddress])
-
+    setAddressErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [shippingAddress]);
   const handleAddressChange = useCallback((field, value) => {
-    setShippingAddress((prev) => ({ ...prev, [field]: value }))
-    setAddressErrors((prev) => ({ ...prev, [field]: "" }))
-  }, [])
-
+    setShippingAddress((prev) => ({ ...prev, [field]: value }));
+    setAddressErrors((prev) => ({ ...prev, [field]: "" }));
+  }, []);
   const handleApplyCoupon = useCallback(() => {
-    if (!couponCode.trim()) return
-    const orderValue = cartSummary.subtotal || 0
-    dispatch(validateCoupon({ code: couponCode, cartTotal: orderValue }))
-  }, [couponCode, cartSummary.subtotal, dispatch])
-
+    if (!couponCode.trim()) return;
+    const orderValue = cartSummary.subtotal || 0;
+    dispatch(validateCoupon({ code: couponCode, cartTotal: orderValue }));
+  }, [couponCode, cartSummary.subtotal, dispatch]);
   const handleRemoveCoupon = useCallback(() => {
-    dispatch(removeCoupon())
-    setCouponCode("")
-    setShowCouponInput(false)
-  }, [dispatch])
-
+    dispatch(removeCoupon());
+    setCouponCode("");
+    setShowCouponInput(false);
+  }, [dispatch]);
   const calculateFinalPricing = useMemo(() => {
-    const subtotal = cartSummary.subtotal || 0
+    const subtotal = cartSummary.subtotal || 0;
     // Updated free shipping threshold from 999 to 399
-    const shippingCharges = selectedShippingRate ? selectedShippingRate.freight_charge : subtotal >= 399 ? 0 : 99
-    const discount = appliedCoupon?.discountAmount || 0
+    const shippingCharges = selectedShippingRate ? selectedShippingRate.freight_charge : subtotal >= 399 ? 0 : 99;
+    const discount = appliedCoupon?.discountAmount || 0;
     // Removed GST (Tax) calculation as per requirement
-    const total = Math.round(subtotal + shippingCharges - discount)
+    const total = Math.round(subtotal + shippingCharges - discount);
     return {
       subtotal,
       shippingCharges,
       discount,
       total,
-    }
-  }, [cartSummary.subtotal, selectedShippingRate, appliedCoupon])
-
+    };
+  }, [cartSummary.subtotal, selectedShippingRate, appliedCoupon]);
   const handlePlaceOrder = useCallback(() => {
     // console.log("user",user)
     // if (Object.keys(user).length === 0) {
@@ -160,24 +154,19 @@ const CheckoutPage = () => {
     //   toast.error("Please login to place order")
     //   return
     // }
-
-    console.log("calling on;ine order ")
-
+    console.log("calling on;ine order ");
     if (rzpInstanceRef.current) {
-      rzpInstanceRef.current.close()
-      rzpInstanceRef.current = null
+      rzpInstanceRef.current.close();
+      rzpInstanceRef.current = null;
     }
-
     if (!validateAddress()) {
-      alert("Please fill all required address fields")
-      return
+      alert("Please fill all required address fields");
+      return;
     }
-
     if (!cartItems.length) {
-      alert("Your cart is empty")
-      return
+      alert("Your cart is empty");
+      return;
     }
-
     const orderData = {
       amount: cartSummary.total,
       items: cartItems.map((item) => ({
@@ -192,39 +181,30 @@ const CheckoutPage = () => {
       },
       couponCode: appliedCoupon?.code || "",
       selectedShippingRate: selectedShippingRate,
-    }
-
-    console.log("orderData", orderData)
-
-    dispatch(createRazorpayOrder(orderData))
-  }, [validateAddress, cartItems, shippingAddress, appliedCoupon, selectedShippingRate, dispatch])
-
+    };
+    console.log("orderData", orderData);
+    dispatch(createRazorpayOrder(orderData));
+  }, [validateAddress, cartItems, shippingAddress, appliedCoupon, selectedShippingRate, dispatch, cartSummary.total]);
   const handlePlaceCodOrder = useCallback(() => {
-    console.log("calling cod order ")
-
+    console.log("calling cod order ");
     // console.log("user",user)
-
     // if (Object.keys(user).length === 0) {
     //       navigate("/login", { state: { from: window.location.pathname } })
     //       toast.error("Please login to place order")
     //       return
     //     }
-
     if (rzpInstanceRef.current) {
-      rzpInstanceRef.current.close()
-      rzpInstanceRef.current = null
+      rzpInstanceRef.current.close();
+      rzpInstanceRef.current = null;
     }
-
     if (!validateAddress()) {
-      alert("Please fill all required address fields")
-      return
+      alert("Please fill all required address fields");
+      return;
     }
-
     if (!cartItems.length) {
-      alert("Your cart is empty")
-      return
+      alert("Your cart is empty");
+      return;
     }
-
     const orderData = {
       items: cartItems.map((item) => ({
         productId: item.product?._id,
@@ -238,26 +218,22 @@ const CheckoutPage = () => {
       },
       couponCode: appliedCoupon?.code || "",
       selectedShippingRate: selectedShippingRate,
-    }
-
+    };
     dispatch(placeCodOrder(orderData)).then((result) => {
       if (result.type === "order/placeCodOrder/fulfilled") {
-        navigate(`/order-confirmation/${result.payload.order.id}`)
+        navigate(`/order-confirmation/${result.payload.order.id}`);
       } else {
-        console.error("COD Order failed:", result.error)
-        alert("Failed to place COD order. Please try again.")
+        console.error("COD Order failed:", result.error);
+        alert("Failed to place COD order. Please try again.");
       }
-    })
-  }, [validateAddress, cartItems, shippingAddress, appliedCoupon, selectedShippingRate, dispatch, navigate])
-
+    });
+  }, [validateAddress, cartItems, shippingAddress, appliedCoupon, selectedShippingRate, dispatch, navigate]);
   const handleRazorpayPayment = useCallback(() => {
-    if (!razorpayOrder) return
-
+    if (!razorpayOrder) return;
     if (rzpInstanceRef.current) {
-      rzpInstanceRef.current.close()
-      rzpInstanceRef.current = null
+      rzpInstanceRef.current.close();
+      rzpInstanceRef.current = null;
     }
-
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: razorpayOrder.amount,
@@ -274,9 +250,9 @@ const CheckoutPage = () => {
           }),
         ).then((result) => {
           if (result.type === "order/verifyPayment/fulfilled") {
-            navigate(`/order-confirmation/${result.payload.order.id}`)
+            navigate(`/order-confirmation/${result.payload.order.id}`);
           }
-        })
+        });
       },
       prefill: {
         name: shippingAddress.fullName,
@@ -293,27 +269,23 @@ const CheckoutPage = () => {
           //   rzpInstanceRef.current = null;
           // }
           // dispatch(clearSuccess());
-          console.log("closing razorpay")
-          rzpInstanceRef.current = null
-          window.location.reload()
+          console.log("closing razorpay");
+          rzpInstanceRef.current = null;
+          window.location.reload();
         },
       },
-    }
-
+    };
     if (window.Razorpay) {
-      rzpInstanceRef.current = new window.Razorpay(options)
-      rzpInstanceRef.current.open()
+      rzpInstanceRef.current = new window.Razorpay(options);
+      rzpInstanceRef.current.open();
     } else {
-      console.error("Razorpay SDK not loaded")
-      alert("Payment gateway not available. Please try again.")
+      console.error("Razorpay SDK not loaded");
+      alert("Payment gateway not available. Please try again.");
     }
-  }, [razorpayOrder, shippingAddress, user, dispatch, navigate, clearSuccess])
-
+  }, [razorpayOrder, shippingAddress, user, dispatch, navigate]);
   const handleShippingRateSelect = useCallback((rate) => {
-    setSelectedShippingRate(rate)
-    setShowShippingCalculator(false)
-  }, [])
-
+    setSelectedShippingRate(rate);
+  }, []);
   // Effects
   useEffect(() => {
     if (user?.name && !shippingAddress.fullName) {
@@ -321,36 +293,31 @@ const CheckoutPage = () => {
         ...prev,
         fullName: user.name,
         phoneNumber: user.phoneNumber?.replace("+91", "") || "",
-      }))
+      }));
     }
-  }, [user, shippingAddress.fullName])
-
+  }, [user, shippingAddress.fullName]);
   useEffect(() => {
     if (!cartItems.length) {
-      dispatch(fetchCart())
+      dispatch(fetchCart());
     }
-  }, [dispatch, cartItems.length])
-
+  }, [dispatch, cartItems.length]);
   useEffect(() => {
     if (orderSuccess.orderCreated && razorpayOrder) {
-      handleRazorpayPayment()
+      handleRazorpayPayment();
     }
-  }, [orderSuccess.orderCreated, razorpayOrder, handleRazorpayPayment])
-
+  }, [orderSuccess.orderCreated, razorpayOrder, handleRazorpayPayment]);
   useEffect(() => {
     if (orderError) {
-      const timer = setTimeout(() => dispatch(clearError()), 5000)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(() => dispatch(clearError()), 5000);
+      return () => clearTimeout(timer);
     }
-  }, [orderError, dispatch])
-
+  }, [orderError, dispatch]);
   useEffect(() => {
     if (couponError) {
-      const timer = setTimeout(() => dispatch(clearCouponError()), 5000)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(() => dispatch(clearCouponError()), 5000);
+      return () => clearTimeout(timer);
     }
-  }, [couponError, dispatch])
-
+  }, [couponError, dispatch]);
   // Auto-calculate shipping rates when pincode is entered
   // useEffect(() => {
   //   if (shippingAddress.pinCode.length === 6 && cartItems.length > 0) {
@@ -367,7 +334,6 @@ const CheckoutPage = () => {
   //     );
   //   }
   // }, [shippingAddress.pinCode, cartItems, dispatch]);
-
   if (!cartItems.length && !orderLoading.creating) {
     return (
       <div className="flex items-center justify-center min-h-screen px-4">
@@ -385,12 +351,10 @@ const CheckoutPage = () => {
           </button>
         </div>
       </div>
-    )
+    );
   }
-
-  console.log("Order Error:", orderError)
-  console.log("Coupon Error:", couponError)
-
+  console.log("Order Error:", orderError);
+  console.log("Coupon Error:", couponError);
   return (
     <div className="min-h-screen py-4 xs:py-6 sm:py-8 bg-blue-50">
       <div className="container px-2 mx-auto xs:px-4">
@@ -400,7 +364,6 @@ const CheckoutPage = () => {
             <h1 className="mb-2 text-2xl font-bold text-gray-800 xs:text-3xl">Checkout</h1>
             <p className="text-sm text-gray-600 xs:text-base">Review your order and complete your purchase</p>
           </div>
-
           {/* Error Display - Responsive */}
           {(orderError || couponError) && (
             <motion.div
@@ -411,7 +374,6 @@ const CheckoutPage = () => {
               {orderError || couponError}
             </motion.div>
           )}
-
           <div className="grid gap-4 xs:gap-6 lg:gap-8 lg:grid-cols-3">
             {/* Left Column - Forms - Responsive */}
             <div className="space-y-4 xs:space-y-6 lg:col-span-2">
@@ -547,7 +509,6 @@ const CheckoutPage = () => {
                   </div>
                 </div>
               </motion.div>
-
               {/* Shipping Options - Responsive */}
               {/* {shippingAddress.pinCode.length === 6 && (
                 <motion.div
@@ -606,7 +567,6 @@ const CheckoutPage = () => {
                   )}
                 </motion.div>
               )} */}
-
               {/* Coupon Section - Responsive */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -684,11 +644,9 @@ const CheckoutPage = () => {
                         </div>
                       </div>
                     )}
-
                     {/* Available Coupons (ALWAYS under the input/toggle) */}
                     <div className="mt-3 space-y-2">
                       <div className="text-sm font-semibold text-gray-700">Available Coupons</div>
-
                       {availableCoupons.length === 0 ? (
                         <div className="text-xs text-gray-500">
                           No active coupons right now. (To View Coupons please login)
@@ -696,11 +654,10 @@ const CheckoutPage = () => {
                       ) : (
                         <div className="space-y-2">
                           {availableCoupons.map((c) => {
-                            const subtotal = cartSummary?.subtotal || 0
-                            const min = c.minOrderValue || 0
-                            const eligible = subtotal >= min
-                            const shortBy = Math.max(0, min - subtotal)
-
+                            const subtotal = cartSummary?.subtotal || 0;
+                            const min = c.minOrderValue || 0;
+                            const eligible = subtotal >= min;
+                            const shortBy = Math.max(0, min - subtotal);
                             return (
                               <div key={c.code} className="flex items-center justify-between p-2 border rounded-xl">
                                 <div className="flex flex-col">
@@ -708,26 +665,25 @@ const CheckoutPage = () => {
                                   {c.description && <span className="text-xs text-gray-600">{c.description}</span>}
                                   {min > 0 && <span className="text-xs text-gray-500">Min order: ₹{min}</span>}
                                 </div>
-
                                 <button
                                   className="px-3 py-1 text-xs font-semibold text-white rounded-xl bg-red-600 disabled:opacity-50"
                                   disabled={!eligible}
                                   onClick={() => {
-                                    setShowCouponInput(true)
-                                    setCouponCode(c.code)
-                                    const orderValue = cartSummary?.subtotal || 0
+                                    setShowCouponInput(true);
+                                    setCouponCode(c.code);
+                                    const orderValue = cartSummary?.subtotal || 0;
                                     dispatch(
                                       validateCoupon({
                                         code: c.code,
                                         cartTotal: orderValue,
                                       }),
-                                    )
+                                    );
                                   }}
                                 >
                                   {eligible ? "Apply" : `Add ₹${shortBy} more`}
                                 </button>
                               </div>
-                            )
+                            );
                           })}
                         </div>
                       )}
@@ -736,7 +692,6 @@ const CheckoutPage = () => {
                 )}
               </motion.div>
             </div>
-
             {/* Right Column - Order Summary - Responsive */}
             <div className="lg:col-span-1">
               <motion.div
@@ -745,7 +700,6 @@ const CheckoutPage = () => {
                 className="sticky p-4 bg-white rounded-xl shadow-md xs:p-6 top-4"
               >
                 <h2 className="mb-4 text-lg font-semibold xs:text-xl">Order Summary</h2>
-
                 {/* Cart Items - Responsive */}
                 <div className="mb-4 space-y-3 xs:mb-6 xs:space-y-4">
                   {cartItems.map((item, index) => (
@@ -767,7 +721,6 @@ const CheckoutPage = () => {
                     </div>
                   ))}
                 </div>
-
                 {/* Pricing Breakdown - Responsive */}
                 <div className="pt-4 space-y-2 border-t">
                   <div className="flex justify-between text-sm">
@@ -802,7 +755,6 @@ const CheckoutPage = () => {
                     <span>₹{calculateFinalPricing.total}</span>
                   </div>
                 </div>
-
                 {/* Security Badge - Responsive */}
                 <div className="flex items-center justify-center mt-4 text-xs text-gray-600">
                   <Shield className="w-3 h-3 mr-1 xs:w-4 xs:h-4" />
@@ -812,7 +764,6 @@ const CheckoutPage = () => {
             </div>
           </div>
         </motion.div>
-
         {/* Enhanced responsive styles */}
         <style>{`
           @media (min-width: 475px) {
@@ -910,25 +861,21 @@ const CheckoutPage = () => {
               margin-top: 1.5rem;
             }
           }
-
           /* Touch-friendly mobile optimizations */
           @media (max-width: 640px) {
             .sticky {
               position: relative;
             }
-
             input,
             button {
               min-height: 44px;
             }
-
             .grid {
               gap: 1rem;
             }
           }
         `}</style>
       </div>
-
       {/* Fixed Confirm Order Button - Mobile Only */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-50 md:hidden">
         <div className="max-w-md mx-auto">
@@ -954,7 +901,6 @@ const CheckoutPage = () => {
           </p>
         </div>
       </div>
-
       {/* Desktop Confirm Order Button - Hidden on Mobile */}
       <div className="hidden md:block mt-6">
         <div className="max-w-6xl mx-auto px-2 xs:px-4">
@@ -987,7 +933,6 @@ const CheckoutPage = () => {
           </div>
         </div>
       </div>
-
       {/* Bottom padding to prevent content overlap with fixed button - Mobile Only */}
       <div className="pb-32 md:pb-0"></div>
    {showModal && (
@@ -1003,7 +948,6 @@ const CheckoutPage = () => {
              />
            )}
     </div>
-  )
-}
-
-export default CheckoutPage
+  );
+};
+export default CheckoutPage;

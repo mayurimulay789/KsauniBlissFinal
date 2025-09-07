@@ -1,31 +1,29 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useSearchParams, useNavigate } from "react-router-dom"
-import { useSelector, useDispatch } from "react-redux"
-import { motion, AnimatePresence } from "framer-motion"
-import { Grid, List, Filter, Search, X, Star } from "lucide-react"
-import { fetchProducts, setFilters, clearFilters } from "../store/slices/productSlice"
-import { fetchCategories } from "../store/slices/categorySlice"
+"use client";
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import { Grid, List, Filter, Search, X, Star } from "lucide-react";
+import { fetchProducts, setFilters, clearFilters } from "../store/slices/productSlice";
+import { fetchCategories } from "../store/slices/categorySlice";
 import {
   addToWishlist,
   removeFromWishlist,
   optimisticAddToWishlist,
   optimisticRemoveFromWishlist,
-} from "../store/slices/wishlistSlice"
-import { addToCart, optimisticAddToCart } from "../store/slices/cartSlice"
-import { useDebounce } from "use-debounce"
-import LoadingSpinner from "../components/LoadingSpinner"
-import ProductCard from "../components/ProductCard"
-import toast from "react-hot-toast"
-import FreeShippingNotice from "../components/FreeShippingNotice"
-import CategoryBanner from "../components/CategoryBanner"
-import Preloader from "../components/Preloader"
+} from "../store/slices/wishlistSlice";
+import { addToCart, optimisticAddToCart } from "../store/slices/cartSlice";
+import { useDebounce } from "use-debounce";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ProductCard from "../components/ProductCard";
+import toast from "react-hot-toast";
+import FreeShippingNotice from "../components/FreeShippingNotice";
+import CategoryBanner from "../components/CategoryBanner";
+import Preloader from "../components/Preloader";
 const ProductListingPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [localFilters, setLocalFilters] = useState({
     category: searchParams.get("category") || "",
     priceRange: [0, 10000],
@@ -34,32 +32,27 @@ const ProductListingPage = () => {
     rating: 0,
     sortBy: "newest",
     search: searchParams.get("search") || "",
-  })
-
-  const [debouncedFilters] = useDebounce(localFilters, 500)
-
-  const { products, filters, pagination, isLoading } = useSelector((state) => state.products)
-  const { categories } = useSelector((state) => state.categories)
-  const { items: wishlistItems } = useSelector((state) => state.wishlist)
-  const { user } = useSelector((state) => state.auth)
-
+  });
+  const [debouncedFilters] = useDebounce(localFilters, 500);
+  const { products, filters, pagination, isLoading } = useSelector((state) => state.products);
+  const { categories } = useSelector((state) => state.categories);
+  const { items: wishlistItems } = useSelector((state) => state.wishlist);
+  const { user } = useSelector((state) => state.auth);
   const [viewMode, setViewMode] = useState(() => {
     if (window.innerWidth < 768) {
-      return "grid"
+      return "grid";
     }
-    return "grid"
-  })
-  const [showFilters, setShowFilters] = useState(false)
-
+    return "grid";
+  });
+  const [showFilters, setShowFilters] = useState(false);
   const sortOptions = [
     { value: "newest", label: "Newest First" },
     { value: "price-low", label: "Price: Low to High" },
     { value: "price-high", label: "Price: High to Low" },
     { value: "rating", label: "Highest Rated" },
     { value: "popular", label: "Most Popular" },
-  ]
-
-  const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"]
+  ];
+  const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
   const colorOptions = [
     { name: "Red", value: "#FF6B35" },
     { name: "Black", value: "#000000" },
@@ -69,43 +62,37 @@ const ProductListingPage = () => {
     { name: "Pink", value: "#EC4899" },
     { name: "Yellow", value: "#F59E0B" },
     { name: "Purple", value: "#8B5CF6" },
-  ]
-
+  ];
   useEffect(() => {
-    dispatch(fetchCategories())
-  }, [dispatch])
-
+    dispatch(fetchCategories());
+  }, [dispatch]);
   useEffect(() => {
     const params = {
       page: 1,
       limit: 20,
       ...debouncedFilters,
-    }
-    dispatch(fetchProducts(params))
-    dispatch(setFilters(debouncedFilters))
-  }, [dispatch, debouncedFilters])
-
+    };
+    dispatch(fetchProducts(params));
+    dispatch(setFilters(debouncedFilters));
+  }, [dispatch, debouncedFilters]);
   const handleFilterChange = (key, value) => {
     setLocalFilters((prev) => ({
       ...prev,
       [key]: value,
-    }))
-  }
-
+    }));
+  };
   const handleSizeToggle = (size) => {
     setLocalFilters((prev) => ({
       ...prev,
       sizes: prev.sizes.includes(size) ? prev.sizes.filter((s) => s !== size) : [...prev.sizes, size],
-    }))
-  }
-
+    }));
+  };
   const handleColorToggle = (color) => {
     setLocalFilters((prev) => ({
       ...prev,
       colors: prev.colors.includes(color) ? prev.colors.filter((c) => c !== color) : [...prev.colors, color],
-    }))
-  }
-
+    }));
+  };
   const handleClearFilters = () => {
     setLocalFilters({
       category: "",
@@ -115,54 +102,52 @@ const ProductListingPage = () => {
       rating: 0,
       sortBy: "newest",
       search: "",
-    })
-    dispatch(clearFilters())
-    setSearchParams({})
-  }
-
+    });
+    dispatch(clearFilters());
+    setSearchParams({});
+  };
   const handleWishlistToggle = async (product) => {
     try {
-      const isInWishlist = wishlistItems.some((item) => item._id === product._id)
+      const isInWishlist = wishlistItems.some((item) => item._id === product._id);
       if (isInWishlist) {
-        dispatch(optimisticRemoveFromWishlist(product._id))
-        toast.success(`${product.name} removed from wishlist!`)
-        await dispatch(removeFromWishlist(product._id)).unwrap()
+        dispatch(optimisticRemoveFromWishlist(product._id));
+        toast.success(`${product.name} removed from wishlist!`);
+        await dispatch(removeFromWishlist(product._id)).unwrap();
       } else {
-        dispatch(optimisticAddToWishlist(product))
-        toast.success(`${product.name} added to wishlist!`)
-        await dispatch(addToWishlist(product)).unwrap()
+        dispatch(optimisticAddToWishlist(product));
+        toast.success(`${product.name} added to wishlist!`);
+        await dispatch(addToWishlist(product)).unwrap();
       }
-      const wishElement = document.querySelector("#wish")
+      const wishElement = document.querySelector("#wish");
       if (wishElement) {
-        wishElement.style.transform = "scale(1.2)"
+        wishElement.style.transform = "scale(1.2)";
         setTimeout(() => {
-          wishElement.style.transform = "scale(1)"
-        }, 200)
+          wishElement.style.transform = "scale(1)";
+        }, 200);
       }
     } catch (error) {
-      console.error("Wishlist toggle error:", error)
-      toast.error(error?.message || "Failed to update wishlist")
+      console.error("Wishlist toggle error:", error);
+      toast.error(error?.message || "Failed to update wishlist");
     }
-  }
-
+  };
   const handleAddToCart = async (product) => {
     try {
       if (!product.sizes || product.sizes.length === 0) {
-        toast.error(`${product.name} has no available sizes.`)
-        return
+        toast.error(`${product.name} has no available sizes.`);
+        return;
       }
       if (!product.colors || product.colors.length === 0) {
-        toast.error(`${product.name} has no available colors.`)
-        return
+        toast.error(`${product.name} has no available colors.`);
+        return;
       }
-      const defaultSize = product.sizes[0].size
-      const defaultColor = product.colors[0].name
+      const defaultSize = product.sizes[0].size;
+      const defaultColor = product.colors[0].name;
       const payload = {
         productId: product._id,
         quantity: 1,
         size: defaultSize,
         color: defaultColor,
-      }
+      };
       dispatch(
         optimisticAddToCart({
           product,
@@ -170,34 +155,31 @@ const ProductListingPage = () => {
           size: defaultSize,
           color: defaultColor,
         }),
-      )
-      toast.success(`${product.name} added to cart!`)
-      const bagElement = document.querySelector("#bag")
+      );
+      toast.success(`${product.name} added to cart!`);
+      const bagElement = document.querySelector("#bag");
       if (bagElement) {
-        bagElement.style.transform = "scale(1.2)"
+        bagElement.style.transform = "scale(1.2)";
         setTimeout(() => {
-          bagElement.style.transform = "scale(1)"
-        }, 200)
+          bagElement.style.transform = "scale(1)";
+        }, 200);
       }
-      await dispatch(addToCart(payload)).unwrap()
+      await dispatch(addToCart(payload)).unwrap();
     } catch (error) {
-      console.error("Add to cart error:", error)
-      toast.error(error?.message || "Failed to add to cart")
+      console.error("Add to cart error:", error);
+      toast.error(error?.message || "Failed to add to cart");
     }
-  }
-
+  };
   const handleQuickView = (product) => {
-    navigate(`/product/${product._id}`)
-  }
-
+    navigate(`/product/${product._id}`);
+  };
   if (isLoading && products.length === 0) {
     return (
       <div>
         <Preloader message="Loading products..." />
       </div>
-    )
+    );
   }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container max-w-full px-2 py-8 mx-auto sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl">
@@ -243,7 +225,6 @@ const ProductListingPage = () => {
             </button>
           </div>
         </div>
-
         <div className="flex gap-8">
           <AnimatePresence>
             {(showFilters || window.innerWidth >= 768) && (
@@ -362,7 +343,6 @@ const ProductListingPage = () => {
               </motion.div>
             )}
           </AnimatePresence>
-
           <div className="flex-1">
             {products.length === 0 ? (
               <div className="py-16 text-center">
@@ -405,7 +385,6 @@ const ProductListingPage = () => {
                 </AnimatePresence>
               </div>
             )}
-
             {pagination && pagination.totalPages > 1 && (
               <div className="flex justify-center mt-12">
                 <div className="flex items-center space-x-2">
@@ -413,8 +392,8 @@ const ProductListingPage = () => {
                     <button
                       key={index}
                       onClick={() => {
-                        const params = { ...localFilters, page: index + 1 }
-                        dispatch(fetchProducts(params))
+                        const params = { ...localFilters, page: index + 1 };
+                        dispatch(fetchProducts(params));
                       }}
                       className={`px-4 py-2 rounded-lg transition-colors ${
                         pagination.currentPage === index + 1
@@ -432,7 +411,6 @@ const ProductListingPage = () => {
         </div>
       </div>
     </div>
-  )
-}
-
-export default ProductListingPage
+  );
+};
+export default ProductListingPage;

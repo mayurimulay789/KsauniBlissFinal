@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPopupSetting, updatePopupSetting } from "../../store/slices/popupSlice";
-
 const PopupSettingControl = () => {
   const dispatch = useDispatch();
   const { showSalePopup, loading, error } = useSelector((state) => state.popup);
@@ -9,19 +8,15 @@ const PopupSettingControl = () => {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
-
   useEffect(() => {
     console.log("Dispatching fetchPopupSetting");
     dispatch(fetchPopupSetting());
   }, [dispatch]);
-
   // Removed useEffect that resets enabled on showSalePopup changes
-
   const handleToggle = () => {
     console.log("handleToggle called, current enabled:", enabled);
     setEnabled(!enabled);
   };
-
   const handleSave = async () => {
     setSaving(true);
     setSaveError(null);
@@ -35,9 +30,7 @@ const PopupSettingControl = () => {
       setSaving(false);
     }
   };
-
   console.log("Render PopupSettingControl, loading:", loading, "saving:", saving, "enabled:", enabled);
-
   return (
     <div className="p-4 bg-white rounded shadow max-w-md">
       <h2 className="text-xl font-semibold mb-4">Popup Visibility Control</h2>
@@ -64,5 +57,4 @@ const PopupSettingControl = () => {
     </div>
   );
 };
-
 export default PopupSettingControl;

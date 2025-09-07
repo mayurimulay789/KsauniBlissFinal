@@ -1,20 +1,17 @@
-"use client"
-
-import { useState, useEffect, useCallback } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { Plus, Search, Edit, Trash2 } from "lucide-react"
-import { fetchAllBanners, createBanner, updateBanner, deleteBanner, clearError } from "../../store/slices/bannerSlice"
-import { updatePopupSetting } from "../../store/slices/popupSlice"
-
+"use client";
+import { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Plus, Search, Edit, Trash2 } from "lucide-react";
+import { fetchAllBanners, createBanner, updateBanner, deleteBanner, clearError } from "../../store/slices/bannerSlice";
+import { updatePopupSetting } from "../../store/slices/popupSlice";
 const BannersManagement = () => {
-  const dispatch = useDispatch()
-  const { banners: allBanners, loading: isLoading, error } = useSelector((state) => state.banners)
-  const { showSalePopup, popupBanners } = useSelector((state) => state.popup)
-
-  const [showModal, setShowModal] = useState(false)
-  const [editingBanner, setEditingBanner] = useState(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterType, setFilterType] = useState("")
+  const dispatch = useDispatch();
+  const { banners: allBanners, loading: isLoading, error } = useSelector((state) => state.banners);
+  const { showSalePopup, popupBanners } = useSelector((state) => state.popup);
+  const [showModal, setShowModal] = useState(false);
+  const [editingBanner, setEditingBanner] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     subtitle: "",
@@ -26,67 +23,58 @@ const BannersManagement = () => {
     startDate: "",
     endDate: "",
     targetAudience: "all",
-  })
-  const [imageFile, setImageFile] = useState(null)
-  const [imagePreview, setImagePreview] = useState("")
-
+  });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   // Memoized fetch function to prevent infinite loops
   const fetchBanners = useCallback(() => {
-    dispatch(fetchAllBanners({ type: filterType }))
-  }, [dispatch, filterType])
-
+    dispatch(fetchAllBanners({ type: filterType }));
+  }, [dispatch, filterType]);
   useEffect(() => {
-    fetchBanners()
-  }, [fetchBanners])
-
+    fetchBanners();
+  }, [fetchBanners]);
   useEffect(() => {
     if (error) {
-      alert(error)
-      dispatch(clearError())
+      alert(error);
+      dispatch(clearError());
     }
-  }, [error, dispatch])
-
+  }, [error, dispatch]);
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    const formDataToSend = new FormData()
-
+    e.preventDefault();
+    const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
       if (formData[key]) {
-        formDataToSend.append(key, formData[key])
+        formDataToSend.append(key, formData[key]);
       }
-    })
-
+    });
     if (imageFile) {
-      formDataToSend.append("image", imageFile)
+      formDataToSend.append("image", imageFile);
     }
-
     try {
       if (editingBanner) {
-        await dispatch(updateBanner({ bannerId: editingBanner._id, bannerData: formDataToSend })).unwrap()
+        await dispatch(updateBanner({ bannerId: editingBanner._id, bannerData: formDataToSend })).unwrap();
       } else {
         if (!imageFile) {
-          alert("Please select an image for the banner.")
-          return
+          alert("Please select an image for the banner.");
+          return;
         }
-        await dispatch(createBanner(formDataToSend)).unwrap()
+        await dispatch(createBanner(formDataToSend)).unwrap();
       }
-      setShowModal(false)
-      resetForm()
+      setShowModal(false);
+      resetForm();
     } catch (error) {
-      console.error("Error saving banner:", error)
+      console.error("Error saving banner:", error);
     }
-  }
-
+  };
   const handleDelete = async (bannerId) => {
     if (window.confirm("Are you sure you want to delete this banner?")) {
       try {
-        await dispatch(deleteBanner(bannerId)).unwrap()
+        await dispatch(deleteBanner(bannerId)).unwrap();
       } catch (error) {
-        console.error("Error deleting banner:", error)
+        console.error("Error deleting banner:", error);
       }
     }
-  }
-
+  };
   const resetForm = () => {
     setFormData({
       title: "",
@@ -99,14 +87,13 @@ const BannersManagement = () => {
       startDate: "",
       endDate: "",
       targetAudience: "all",
-    })
-    setImageFile(null)
-    setImagePreview("")
-    setEditingBanner(null)
-  }
-
+    });
+    setImageFile(null);
+    setImagePreview("");
+    setEditingBanner(null);
+  };
   const openEditModal = (banner) => {
-    setEditingBanner(banner)
+    setEditingBanner(banner);
     setFormData({
       title: banner.title || "",
       subtitle: banner.subtitle || "",
@@ -118,25 +105,22 @@ const BannersManagement = () => {
       startDate: banner.startDate ? new Date(banner.startDate).toISOString().split("T")[0] : "",
       endDate: banner.endDate ? new Date(banner.endDate).toISOString().split("T")[0] : "",
       targetAudience: banner.targetAudience || "all",
-    })
-    setImagePreview(banner.image?.url || "")
-    setShowModal(true)
-  }
-
+    });
+    setImagePreview(banner.image?.url || "");
+    setShowModal(true);
+  };
   const handleImageChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setImageFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => setImagePreview(reader.result)
-      reader.readAsDataURL(file)
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
     }
-  }
-
+  };
   const filteredBanners = (allBanners || []).filter((banner) =>
     banner?.title?.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
-
+  );
   return (
     <div className="p-2 space-y-3 sm:p-4 sm:space-y-4">
       {/* Filters with Add Button */}
@@ -184,7 +168,6 @@ const BannersManagement = () => {
           </div>
         </div>
       </div>
-
       {/* Banners Grid - Responsive */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {isLoading ? (
@@ -227,15 +210,15 @@ const BannersManagement = () => {
                     type="checkbox"
                     checked={!!popupBanners.find((pb) => pb.bannerId === banner._id && pb.isActive)}
                     onChange={(e) => {
-                      const isChecked = e.target.checked
+                      const isChecked = e.target.checked;
                       const newPopupBanners = popupBanners.map((pb) => ({
                         ...pb,
                         isActive: pb.bannerId === banner._id ? isChecked : false,
-                      }))
+                      }));
                       if (!newPopupBanners.find((pb) => pb.bannerId === banner._id)) {
-                        newPopupBanners.push({ bannerId: banner._id, isActive: isChecked })
+                        newPopupBanners.push({ bannerId: banner._id, isActive: isChecked });
                       }
-                      dispatch(updatePopupSetting({ popupBanners: newPopupBanners }))
+                      dispatch(updatePopupSetting({ popupBanners: newPopupBanners }));
                     }}
                     className="w-4 h-4 text-blue-600 form-checkbox"
                   />
@@ -261,7 +244,6 @@ const BannersManagement = () => {
           ))
         )}
       </div>
-
       {/* Modal - Compact and Mobile Optimized */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-2 overflow-y-auto bg-gray-600 bg-opacity-50">
@@ -272,8 +254,8 @@ const BannersManagement = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    setShowModal(false)
-                    resetForm()
+                    setShowModal(false);
+                    resetForm();
                   }}
                   className="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900"
                 >
@@ -291,7 +273,6 @@ const BannersManagement = () => {
                   <span>Add Banner</span>
                 </button>
               </div>
-
               {/* Modal Body - Compact Form */}
               <div className="p-3">
                 <form onSubmit={handleSubmit} className="space-y-3">
@@ -387,7 +368,6 @@ const BannersManagement = () => {
                       />
                     </div>
                   </div>
-
                   <div>
                     <label className="block mb-1 text-xs font-medium text-gray-700">Description</label>
                     <textarea
@@ -397,7 +377,6 @@ const BannersManagement = () => {
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
-
                   <div>
                     <label className="block mb-1 text-xs font-medium text-gray-700">Banner Image</label>
                     <input
@@ -417,13 +396,12 @@ const BannersManagement = () => {
                       </div>
                     )}
                   </div>
-
                   <div className="flex pt-3 space-x-2 border-t">
                     <button
                       type="button"
                       onClick={() => {
-                        setShowModal(false)
-                        resetForm()
+                        setShowModal(false);
+                        resetForm();
                       }}
                       className="flex-1 px-3 py-1 text-sm text-gray-700 border border-gray-300 rounded hover:bg-gray-50"
                     >
@@ -444,7 +422,6 @@ const BannersManagement = () => {
         </div>
       )}
     </div>
-  )
-}
-
-export default BannersManagement
+  );
+};
+export default BannersManagement;
