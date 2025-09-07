@@ -639,7 +639,7 @@ const ProductDetailPage = () => {
           </div>
 
           {/* Related Products */}
-          <div className="border-t border-gray-200 px-4 sm:px-6 py-6 sm:py-8 bg-white">
+          <div className="border-t rounded-xl border-gray-200 px-4 sm:px-6 py-6 sm:py-8 bg-white">
             <RelatedProducts currentProduct={currentProduct} />
           </div>
         </div>

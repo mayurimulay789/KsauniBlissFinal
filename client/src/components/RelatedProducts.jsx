@@ -117,21 +117,18 @@ const RelatedProducts = ({ currentProduct }) => {
   }
 
   return (
-    <div className="px-4 py-8 bg-gray-50">
-      <div className="container mx-auto">
+    <div className="px-4 py-8 bg-gray-50 rounded-xl mx-auto">
         {/* Section Header */}
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800">You Might Also Like</h2>
+            <h3 className="text-xl font-bold text-gray-800">You Might Also Like</h3>
             <p className="text-gray-600">
               Similar products in {currentProduct.category?.name}
             </p>
-          </div>
           <Link
             to={`/products/${currentProduct.category?.slug || ""}`}
-            className="flex items-center text-sm font-medium text-ksauni-red hover:text-ksauni-dark-red"
+            className="flex items-center text-xs font-medium text-ksauni-red hover:text-ksauni-dark-red"
           >
-            View All <ChevronRight className="w-4 h-4 ml-1" />
+            View All <ChevronRight className="w-3 h-3 ml-1" />
           </Link>
         </div>
 
@@ -159,7 +156,7 @@ const RelatedProducts = ({ currentProduct }) => {
                       <img
                         src={product.images?.[0]?.url || "/placeholder.svg"}
                         alt={product.name}
-                        className="object-cover w-full h-full"
+                        className="object-cover w-full h-full rounded-xl"
                       />
                     </Link>
 
@@ -229,7 +226,6 @@ const RelatedProducts = ({ currentProduct }) => {
             })}
           </AnimatePresence>
         </div>
-      </div>
     </div>
   )
 }

@@ -1,23 +1,20 @@
 "use client"
 
-import React, { useEffect } from "react"
+import { useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import { Navigate, useLocation } from "react-router-dom"
-import { checkAuth } from "../store/slices/authSlice"
+import { initializeAuth } from "../store/slices/authSlice"
 import LoadingSpinner from "./LoadingSpinner"
 
 const ProtectedRoute = ({ children, adminOnly = false, digitalMarketerOnly = false }) => {
   const dispatch = useDispatch()
   const location = useLocation()
 
-  const { isAuthenticated, user, isLoading, initialized, token } = useSelector(
-    (state) => state.auth
-  )
+  const { isAuthenticated, user, isLoading, initialized, token } = useSelector((state) => state.auth)
 
   useEffect(() => {
-    // Run only once on app load
     if (!initialized) {
-      dispatch(checkAuth())
+      dispatch(initializeAuth())
     }
   }, [dispatch, initialized])
 

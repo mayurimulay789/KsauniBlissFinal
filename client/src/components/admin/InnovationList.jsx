@@ -24,7 +24,7 @@ const InnovationList = () => {
   const displayedInnovations = innovations.slice(0, 8)
 
   return (
-    <div className="space-y-0 px-5">
+    <div className="space-y-0 px-2">
       <h1 className="text-base font-bold mb-2 text-left px-3 py-1">
         <span className="text-black">KSAUNI INNOVATION FACTORY</span>
       </h1>
@@ -38,7 +38,7 @@ const InnovationList = () => {
       ) : (
         <>
           {/* Desktop View - 3 items visible */}
-          <div className="hidden md:flex justify-center">
+          <div className="hidden md:flex justify-center px-3">
             <div className="flex gap-2 overflow-x-auto scroll-smooth max-w-screen-xl py-0">
               {displayedInnovations.map((innovation) => (
                 <div
@@ -61,7 +61,7 @@ const InnovationList = () => {
               {displayedInnovations.map((innovation) => (
                 <div
                   key={innovation._id}
-                  className="relative overflow-hidden group cursor-pointer inline-block align-top w-[70%] flex-shrink-0"
+                  className="relative rounded-lg overflow-hidden group cursor-pointer inline-block align-top w-[70%] flex-shrink-0"
                 >
                   <img
                     src={innovation.image?.url || "/placeholder.svg?height=200&width=400&text=Innovation+Image"}

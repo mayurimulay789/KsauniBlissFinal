@@ -72,7 +72,7 @@ export default function Oversized899() {
   }, [products])
 
   return (
-    <section className="bg-white py-3 ml-2 sm:ml-7">
+    <section className="bg-white px-2 py-3 ml-2 sm:ml-5">
       <div>
         {/* Heading */}
         <div className="flex items-center justify-between mb-1">

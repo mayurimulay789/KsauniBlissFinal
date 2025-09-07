@@ -164,10 +164,10 @@ const Navbar = () => {
               {/* Logo - Adjusted for better display */}
               <div onClick={() => navigate("/")} className="flex items-center cursor-pointer">
                 <div className="hidden md:block">
-                  <img src={logo || "/placeholder.svg"} alt="company logo" className="object-contain w-auto h-12" />
+                  <img src="/KsauniLogo.png" alt="company logo" className="object-cover w-auto h-10" />
                 </div>
                 <div className="md:hidden">
-                  <img src="logo.png" alt="company logo" className="object-contain w-10 h-10" />
+                  <img src="/KsauniLogo.png" alt="company logo" className="object-cover w-25 h-10" />
                 </div>
               </div>
             </div>
@@ -602,10 +602,13 @@ const Navbar = () => {
 
           <div
             onClick={() => navigateToUnder999()}
-            className="flex flex-col items-center justify-center px-1 py-1 text-[4px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
+            className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
           >
-        <img src="/cyd.svg" alt="CYD Logo"/>
+                        <span className="text-lg font-bold mb-0.5 w-6 h-6">
 
+        <img src="cyd11.svg" alt="CYD Logo" className="object-contain w-full h-full" />
+    </span>
+      <span>Under 999</span>
           </div>
 
           <div

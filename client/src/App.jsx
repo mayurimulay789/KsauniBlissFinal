@@ -68,7 +68,6 @@ function AppContent() {
     debugEnvironment()
     console.log("🚀 Fashion E-commerce App started successfully")
 
-    // Initialize auth immediately
     dispatch(initializeAuth())
 
     // Set up Firebase auth state listener
@@ -108,7 +107,6 @@ function AppContent() {
     }, 100)
   }
 
-  // Show preloader until auth is initialized
   if (isLoading || !initialized) {
     return <Preloader onComplete={handlePreloaderComplete} />
   }
@@ -119,10 +117,9 @@ function AppContent() {
       <NetworkStatus />
       <main className="pt-2 main-content">
         <div className={isCartPage ? "hidden md:block" : ""}>
-                  <div className={isCheckoutPage ? "hidden md:block" : ""}>
-
-          <Navbar />
-        </div>
+          <div className={isCheckoutPage ? "hidden md:block" : ""}>
+            <Navbar />
+          </div>
         </div>
         <Suspense fallback={<div className="flex items-center justify-center py-10 text-gray-600">Loading…</div>}>
           <Routes>
@@ -192,10 +189,9 @@ function AppContent() {
         </Suspense>
       </main>
       <div className={isCartPage ? "hidden md:block" : ""}>
-      <div className={isCheckoutPage ? "hidden md:block" : ""}>
-
-        <Footer />
-      </div>
+        <div className={isCheckoutPage ? "hidden md:block" : ""}>
+          <Footer />
+        </div>
       </div>
     </div>
   )
