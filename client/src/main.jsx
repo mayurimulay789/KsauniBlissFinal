@@ -14,7 +14,6 @@ preconnect([
 ]);
 // Preload critical resources
 preloadResources([
-  { href: "/logo.webp", as: "image" },
   // Add other critical resources here
 ]);
 // Enable performance monitoring in development

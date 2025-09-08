@@ -571,7 +571,7 @@ const Navbar = () => {
             onClick={() => navigateToUnder999()}
             className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
           >
-            <img src="/cyd.svg" alt="CYD Logo" className="w-5 h-5 mb-0.5" />
+            <img src="/cyd.svg" alt="CYD Logo" className=" text-xl font-bold w-7 h-7 mb-0.5" />
             <span>Under ₹999</span>
           </div>
           <div
