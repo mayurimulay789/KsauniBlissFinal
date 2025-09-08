@@ -1,44 +1,22 @@
-#!/bin/bash
+# Manual .env Setup Instructions for VPS Deployment
 
-echo "=== KsauniBliss Deployment Started ==="
+## Option 1: Using the Updated Deployment Script
+The deployment script `vps-deploy.sh` now automatically creates the production .env file with all necessary variables.
 
-# Update system
-apt update && apt upgrade -y
+## Option 2: Manual .env Setup (if needed)
 
-# Install Node.js 18
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-apt-get install -y nodejs
+### 1. After connecting to your VPS, navigate to the server directory:
+```bash
+cd /var/www/ksaunibliss/server
+```
 
-# Install PM2
-npm install -g pm2
+### 2. Create the production .env file:
+```bash
+nano .env.production
+```
 
-# Install Nginx and other tools
-apt install nginx git certbot python3-certbot-nginx ufw -y
-
-# Remove old files and clone new
-cd /var/www
-rm -rf ksaunibliss html/* 2>/dev/null || true
-git clone https://github.com/mayurimulay789/KsauniBlissFinal.git ksaunibliss
-cd ksaunibliss
-
-# Set permissions
-chown -R www-data:www-data /var/www/ksaunibliss
-chmod -R 755 /var/www/ksaunibliss
-
-# Install dependencies
-npm install
-cd server && npm install
-cd ../client && npm install
-
-# Build client
-npm run build
-cd ..
-
-# Setup production environment
-cd server
-
-# Create production .env file with all required variables
-cat > .env.production << 'EOF'
+### 3. Copy and paste this content:
+```env
 # Server Configuration
 NODE_ENV=production
 PORT=5000
@@ -116,76 +94,62 @@ ENABLE_LOYALTY_PROGRAM=true
 DEBUG_MODE=false
 LOG_LEVEL=error
 ENABLE_SWAGGER=false
-EOF
+```
 
-echo "✅ Production .env file created successfully"
-cd ..
+### 4. Save and exit:
+- Press `Ctrl + X`
+- Press `Y` to confirm
+- Press `Enter` to save
 
-# Create logs directory
-mkdir -p logs
+### 5. Verify the file was created:
+```bash
+ls -la .env.production
+cat .env.production
+```
 
-# Start with PM2
-pm2 delete all 2>/dev/null || true
+## Option 3: Environment Variables via PM2
+
+You can also set environment variables directly in PM2:
+
+```bash
+pm2 set PM2_HOME /var/www/ksaunibliss/.pm2
 pm2 start ecosystem.config.js --env production
-pm2 save
-pm2 startup
+```
 
-# Configure Nginx
-cat > /etc/nginx/sites-available/ksaunibliss << 'EOF'
-server {
-    listen 80;
-    server_name ksaunibliss.com www.ksaunibliss.com;
-    root /var/www/ksaunibliss/client/dist;
-    index index.html index.htm;
-    
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_types text/plain text/css text/xml text/javascript application/javascript;
-    
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|webp)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-        try_files $uri =404;
-    }
-    
-    location /api {
-        proxy_pass http://localhost:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-    
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-    
-    add_header X-Frame-Options DENY;
-    add_header X-Content-Type-Options nosniff;
-    add_header X-XSS-Protection "1; mode=block";
-}
-EOF
+## Verification Commands
 
-# Enable site
-ln -sf /etc/nginx/sites-available/ksaunibliss /etc/nginx/sites-enabled/
-rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl restart nginx && systemctl enable nginx
+After setting up the .env file, verify it's working:
 
-# Setup firewall
-ufw --force enable
-ufw allow ssh
-ufw allow 80
-ufw allow 443
+```bash
+# Check if PM2 can read the environment file
+pm2 show ksaunibliss-server
 
-echo "=== Checking Status ==="
-pm2 status
-systemctl status nginx --no-pager
+# Check application logs
+pm2 logs ksaunibliss-server
 
-echo "=== Deployment Complete ==="
-echo "Site accessible at: http://ksaunibliss.com"
-echo "To setup SSL: certbot --nginx -d ksaunibliss.com -d www.ksaunibliss.com"
+# Test if environment variables are loaded
+pm2 exec -- node -e "console.log(process.env.NODE_ENV, process.env.PORT)"
+```
+
+## Troubleshooting
+
+### If .env is not being read:
+1. Check file permissions:
+```bash
+chmod 600 /var/www/ksaunibliss/server/.env.production
+```
+
+2. Check file location:
+```bash
+ls -la /var/www/ksaunibliss/server/.env.production
+```
+
+3. Restart PM2:
+```bash
+pm2 restart ksaunibliss-server
+```
+
+### If environment variables are still not working:
+1. Check ecosystem.config.js path
+2. Verify the env_file path is correct
+3. Make sure there are no syntax errors in .env.production
