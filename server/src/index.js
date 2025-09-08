@@ -1,7 +1,13 @@
 const dotenv = require("dotenv")
 const path = require("path")
-// Load environment variables first
-dotenv.config({ path: path.resolve(__dirname, "../.env") })
+// Load environment variables first - check for production env file first
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env'
+dotenv.config({ path: path.resolve(__dirname, `../${envFile}`) })
+
+// Fallback to regular .env if production file doesn't exist
+if (process.env.NODE_ENV === 'production' && !process.env.PORT) {
+  dotenv.config({ path: path.resolve(__dirname, "../.env") })
+}
 
 const express = require("express")
 const mongoose = require("mongoose")
@@ -10,6 +16,9 @@ const compression = require("compression")
 const helmet = require("helmet")
 const rateLimit = require("express-rate-limit")
 const app = express()
+
+// Trust proxy for proper client IP detection behind reverse proxy
+app.set('trust proxy', true)
 
 // Apply global security headers
 app.use(helmet())
