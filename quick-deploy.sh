@@ -36,7 +36,9 @@ cd server && npm install
 cd ../client && npm install
 
 # Build client
-echo "🏗️ Building client..."
+echo "🏗️ Building client for production..."
+cd /var/www/ksaunibliss/client
+cp .env.production .env
 npm run build
 cd ..
 
