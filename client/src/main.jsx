@@ -15,9 +15,9 @@ preconnect([
 ]);
 
 // ✅ Preload image correctly
-preloadResources([
-  { href: "/logo.webp", as: "image", type: "image/webp" },
-]);
+// preloadResources([
+//   { href: "/logo.webp", as: "image", type: "image/webp" },
+// ]);
 
 // Enable performance monitoring in development
 if (import.meta.env.MODE === "development") {
