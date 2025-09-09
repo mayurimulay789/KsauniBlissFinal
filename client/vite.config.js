@@ -6,10 +6,7 @@ import viteCompression from 'vite-plugin-compression';
 
 export default defineConfig({
   plugins: [
-    react({
-      // Skip ESLint during build
-      eslint: false,
-    }),
+    react(), // removed invalid eslint option
     viteImagemin({
       gifsicle: {
         optimizationLevel: 7,
@@ -37,11 +34,19 @@ export default defineConfig({
         ],
       },
     }),
+    // Gzip compression
     viteCompression({
+      verbose: true,
+      disable: false,
+      threshold: 10240,
       algorithm: 'gzip',
       ext: '.gz',
     }),
+    // Brotli compression
     viteCompression({
+      verbose: true,
+      disable: false,
+      threshold: 10240,
       algorithm: 'brotliCompress',
       ext: '.br',
     }),
@@ -54,13 +59,11 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path,
-        ws: true
-      }
-    }
+        ws: true,
+      },
+    },
   },
   build: {
-    // Optimize build output
     target: 'esnext',
     minify: 'esbuild',
     sourcemap: false,
@@ -74,28 +77,31 @@ export default defineConfig({
           charts: ['chart.js', 'react-chartjs-2', 'recharts'],
           three: ['three', '@react-three/fiber', '@react-three/drei'],
           firebase: [
-            'firebase/app', 
-            'firebase/auth', 
+            'firebase/app',
+            'firebase/auth',
             'firebase/firestore',
-            'firebase/storage'
+            'firebase/storage',
           ],
         },
-        // Improve caching by using deterministic names
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
     chunkSizeWarningLimit: 1000,
-    // Enable tree shaking
     emptyOutDir: true,
-    // Use Brotli compression for even smaller files
     brotliSize: true,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'axios', 'antd', 'react-redux', '@reduxjs/toolkit'],
+    include: [
+      'react',
+      'react-dom',
+      'axios',
+      'antd',
+      'react-redux',
+      '@reduxjs/toolkit',
+    ],
   },
-  // Enable compression
   esbuild: {
     drop: ['console', 'debugger'],
   },
