@@ -1,12 +1,12 @@
-// frontend/vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import viteImagemin from 'vite-plugin-imagemin';
 import viteCompression from 'vite-plugin-compression';
+import path from 'path';
 
 export default defineConfig({
   plugins: [
-    react(), // removed invalid eslint option
+    react(), 
     viteImagemin({
       gifsicle: {
         optimizationLevel: 7,
@@ -65,9 +65,16 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
-    minify: 'esbuild',
-    sourcemap: false,
+    minify: 'terser',
+    sourcemap: process.env.NODE_ENV === 'development',
     cssCodeSplit: true,
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log']
+      }
+    },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -83,14 +90,26 @@ export default defineConfig({
             'firebase/storage',
           ],
         },
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]',
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          let extType = assetInfo.name.split('.').at(1);
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico|webp/i.test(extType)) {
+            extType = 'img';
+          } else if (/woff|woff2|ttf|otf|eot/i.test(extType)) {
+            extType = 'fonts';
+          }
+          return `assets/${extType}/[name]-[hash][extname]`;
+        },
       },
+      input: {
+        main: path.resolve(process.cwd(), 'index.html')
+      }
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1500,
     emptyOutDir: true,
-    brotliSize: true,
+    assetsInlineLimit: 4096,
+    reportCompressedSize: false
   },
   optimizeDeps: {
     include: [
@@ -101,6 +120,20 @@ export default defineConfig({
       'react-redux',
       '@reduxjs/toolkit',
     ],
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(process.cwd(), './src'),
+      '@components': path.resolve(process.cwd(), './src/components'),
+      '@pages': path.resolve(process.cwd(), './src/pages'),
+      '@store': path.resolve(process.cwd(), './src/store'),
+      '@assets': path.resolve(process.cwd(), './src/assets'),
+      '@styles': path.resolve(process.cwd(), './src/styles'),
+      '@utils': path.resolve(process.cwd(), './src/utils'),
+      '@hooks': path.resolve(process.cwd(), './src/hooks'),
+      '@config': path.resolve(process.cwd(), './src/config'),
+      '@api': path.resolve(process.cwd(), './src/api')
+    }
   },
   esbuild: {
     drop: ['console', 'debugger'],
