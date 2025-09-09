@@ -11,9 +11,9 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
   signInWithPhoneNumber,
-  // RecaptchaVerifier,
+  RecaptchaVerifier,
 } from "firebase/auth";
-import { auth } from "../../config/firebase.js";
+import { auth, cleanupRecaptcha } from "../../config/firebase.js";
 import axios from "axios";
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 // Create axios instance
@@ -338,20 +338,20 @@ export const sendPhoneOTP = createAsyncThunk("auth/sendPhoneOTP", async (phoneNu
     // First, prepare the backend for OTP
     await axios.post(`${API_BASE_URL}/auth/phone/prepare-otp`, { phoneNumber });
     // Ensure reCAPTCHA is clean before initializing
-    // cleanupRecaptcha(); // Add this line
+    cleanupRecaptcha(); // Add this line
     // Initialize reCAPTCHA
-    // if (!window.recaptchaVerifier) {
-    //   window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-    //     size: "invisible",
-    //     callback: (response) => {
-    //       console.log("reCAPTCHA solved:", response);
-    //     },
-    //     "expired-callback": () => {
-    //       console.log("reCAPTCHA expired");
-    //       cleanupRecaptcha(); // Add this line
-    //     },
-    //   });
-    // }
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+        size: "invisible",
+        callback: (response) => {
+          console.log("reCAPTCHA solved:", response);
+        },
+        "expired-callback": () => {
+          console.log("reCAPTCHA expired");
+          cleanupRecaptcha(); // Add this line
+        },
+      });
+    }
     // Send OTP using Firebase
     const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
     return {
