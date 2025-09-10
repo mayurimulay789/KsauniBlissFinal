@@ -14,6 +14,7 @@ services:
       - NODE_ENV=production
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /etc/ssl/certs:/etc/ssl/certs:ro
     dns:
       - 8.8.8.8
       - 8.8.4.4
