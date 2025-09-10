@@ -1,3 +1,4 @@
+
 "use client"
 import { useEffect, useState, lazy, Suspense } from "react"
 import { useDispatch, useSelector } from "react-redux"
@@ -33,6 +34,7 @@ const CookiesPage = lazy(() => import("./pages/CookiesPage"))
 const ReturnPage = lazy(() => import("./pages/ReturnPage"))
 const ShippingPage = lazy(() => import("./pages/ShippingPage"))
 const OrderDetailsPage = lazy(() => import("./pages/OrderDetailsPage"))
+
 
 // Admin/Digital Marketer pages (lazy-loaded)
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"))
