@@ -11,6 +11,9 @@ services:
       - server
     environment:
       - NODE_ENV=production
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     networks:
       - app-network
 

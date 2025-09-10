@@ -1,18 +1,10 @@
-# Build stage
-FROM node:18-alpine as build
-
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-
-COPY . .
-RUN npm run build
-
-# Production stage
+# Using a simple nginx container
 FROM nginx:alpine
 
-# Copy built assets
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copy pre-built assets - we'll build locally first
+COPY dist /usr/share/nginx/html
+# Fix permissions on the static files
+RUN chmod -R 755 /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80

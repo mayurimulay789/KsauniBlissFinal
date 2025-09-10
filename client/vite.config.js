@@ -1,39 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import viteImagemin from 'vite-plugin-imagemin';
 import viteCompression from 'vite-plugin-compression';
 import path from 'path';
 
 export default defineConfig({
   plugins: [
-    react(), 
-    viteImagemin({
-      gifsicle: {
-        optimizationLevel: 7,
-        interlaced: false,
-      },
-      optipng: {
-        optimizationLevel: 7,
-      },
-      mozjpeg: {
-        quality: 80,
-      },
-      pngquant: {
-        quality: [0.7, 0.8],
-        speed: 4,
-      },
-      webp: {
-        quality: 75,
-      },
-      svgo: {
-        plugins: [
-          {
-            name: 'removeViewBox',
-            active: false,
-          },
-        ],
-      },
-    }),
+    react(),
     // Gzip compression
     viteCompression({
       verbose: true,
@@ -68,6 +40,7 @@ export default defineConfig({
     minify: 'terser',
     sourcemap: process.env.NODE_ENV === 'development',
     cssCodeSplit: true,
+    assetsInlineLimit: 0, // Disable inlining assets to avoid data:base64 URL issues
     terserOptions: {
       compress: {
         drop_console: true,
@@ -108,7 +81,6 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 1500,
     emptyOutDir: true,
-    assetsInlineLimit: 4096,
     reportCompressedSize: false
   },
   optimizeDeps: {
