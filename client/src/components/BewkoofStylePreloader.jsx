@@ -4,18 +4,23 @@ import { motion, AnimatePresence } from "framer-motion";
 const BewkoofStylePreloader = ({ onComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
   useEffect(() => {
+        console.log("Preloader mounted1")
+
     // 4 seconds minimum duration
     const timer = setTimeout(() => {
       setIsVisible(false);
+      console.log("Preloader mounted2")
+
       setTimeout(() => onComplete?.(), 500);
     }, 4000);
+    console.log("Preloader mounted3")
     return () => clearTimeout(timer);
   }, [onComplete]);
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-red-800"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
@@ -28,7 +33,7 @@ const BewkoofStylePreloader = ({ onComplete }) => {
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <motion.h1
-              className="text-4xl md:text-6xl font-bold tracking-wider text-center"
+              className="text-9xl md:text-6xl font-bold tracking-wider text-center"
               animate={{
                 color: [
                   "#ff6b35", // Orange
@@ -49,7 +54,7 @@ const BewkoofStylePreloader = ({ onComplete }) => {
                 ease: "easeInOut",
               }}
             >
-              kasunibliss
+            KSAUNIBLISS
             </motion.h1>
           </motion.div>
           {/* Animated Circles */}
