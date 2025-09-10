@@ -66,6 +66,7 @@
     "imagemin-webp": "^8.0.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
+    "terser": "^5.44.0",
     "vite": "^5.4.8",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-imagemin": "^0.6.1"
