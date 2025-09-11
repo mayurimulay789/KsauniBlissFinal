@@ -64,6 +64,21 @@ const adminAPIFunctions = {
   createInnovation: (data) => adminAPI.post('/innovations', data),
   updateInnovation: (innovationId, data) => adminAPI.put(`/innovations/${innovationId}`, data),
   deleteInnovation: (innovationId) => adminAPI.delete(`/innovations/${innovationId}`),
+  
+  // Products
+  getAllProducts: (params) => adminAPI.get('/products', { params }),
+  createProduct: (data) => adminAPI.post('/products', data),
+  updateProduct: (productId, data) => adminAPI.put(`/products/${productId}`, data),
+  deleteProduct: (productId) => adminAPI.delete(`/products/${productId}`),
+  
+  // Categories
+  getAllCategories: (params) => adminAPI.get('/categories', { params }),
+  
+  // Top 10 Products
+  getAllTop10Products: () => adminAPI.get('/top10'),
+  createTop10Product: (data) => adminAPI.post('/top10', data),
+  updateTop10Product: (id, data) => adminAPI.put(`/top10/${id}`, data),
+  deleteTop10Product: (id) => adminAPI.delete(`/top10/${id}`),
 };
 
 // Export the functions directly to match slice imports
