@@ -27,8 +27,8 @@ RUN npm install
 COPY . .
 
 # Set Node.js memory options and build the app
-ENV NODE_OPTIONS="--max-old-space-size=2048"
-RUN npm run build
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+RUN npm run build:memory
 
 # Production stage with nginx
 FROM nginx:alpine
