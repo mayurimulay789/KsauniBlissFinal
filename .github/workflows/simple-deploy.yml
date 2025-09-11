@@ -1,0 +1,42 @@
+name: Simple Deploy to VPS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script: |
+          echo "🚀 Starting Simple Deployment..."
+          
+          # Go to application directory
+          cd /var/www/KsauniBlissFinal
+          
+          # Pull latest code
+          git pull origin main
+          
+          # Stop containers
+          docker-compose down || true
+          
+          # Remove old containers and images
+          docker container prune -f
+          docker image prune -f
+          
+          # Build and start (this builds everything fresh)
+          docker-compose -f docker-compose.simple.yml up --build -d
+          
+          # Wait and check
+          sleep 30
+          docker ps
+          
+          echo "✅ Deployment Complete!"

@@ -1,40 +1,26 @@
 version: '3.8'
 
 services:
+  # Client - builds inside container (no pre-build needed)
   client:
     build:
       context: ./client
-      dockerfile: Dockerfile
-    # Uncomment below when using CI/CD with pre-built images
-    # image: YOUR_DOCKER_USERNAME/ksaunibliss-client:latest
+      dockerfile: Dockerfile.simple
     ports:
       - "80:80"
-      - "443:443"
     depends_on:
       - server
     environment:
       - NODE_ENV=production
-    volumes:
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /etc/ssl/certs:/etc/ssl/certs:ro
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
     networks:
       - app-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
+  # Server
   server:
     build:
       context: ./server
       dockerfile: Dockerfile
-    # Uncomment below when using CI/CD with pre-built images
-    # image: YOUR_DOCKER_USERNAME/ksaunibliss-server:latest
     ports:
       - "5000:5000"
     environment:
@@ -42,17 +28,9 @@ services:
       - PORT=5000
       - MONGODB_URI=mongodb+srv://ksaunibliss:LGaRwEasIMDN1M2x@cluster0.lbc8x6q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       - FRONTEND_URL=https://ksaunibliss.com
-    volumes:
-      - ./server:/app
-      - /app/node_modules
     networks:
       - app-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
 networks:
   app-network:
