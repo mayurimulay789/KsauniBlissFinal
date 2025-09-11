@@ -1,128 +1,127 @@
-"use client";
-import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Search, ShoppingBag, User, Heart, Mic, Clock, Trash2, Shirt } from "lucide-react";
-import { useDebounce } from "use-debounce";
-import { logout } from "../store/slices/authSlice";
-import { fetchCategories } from "../store/slices/categorySlice";
-import { fetchCart, selectCartTotalQuantity } from "../store/slices/cartSlice";
-import { fetchWishlist, selectWishlistCount } from "../store/slices/wishlistSlice";
+"use client"
+import { useState, useEffect, useRef } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
+import { useSelector, useDispatch } from "react-redux"
+import { motion, AnimatePresence } from "framer-motion"
+import { Menu, X, ChevronDown, Search, ShoppingBag, User, Heart, Mic, Clock, Trash2, Shirt } from "lucide-react"
+import { useDebounce } from "use-debounce"
+import { logout } from "../store/slices/authSlice"
+import { fetchCategories } from "../store/slices/categorySlice"
+import { fetchCart, selectCartTotalQuantity } from "../store/slices/cartSlice"
+import { fetchWishlist, selectWishlistCount } from "../store/slices/wishlistSlice"
 import {
   getSearchSuggestions,
   addRecentSearch,
   removeRecentSearch,
   clearRecentSearches,
-} from "../store/slices/searchSlice";
-import logo from "../../public/KsauniLogo.png";
+} from "../store/slices/searchSlice"
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const searchRef = useRef(null);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const location = useLocation();
-  const { user, token } = useSelector((state) => state.auth || {});
-  const { categories } = useSelector((state) => state.categories || {});
-  const { suggestions, recentSearches, suggestionsLoading } = useSelector((state) => state.search || {});
-  const cartTotalQuantity = useSelector(selectCartTotalQuantity);
-  const wishlistCount = useSelector(selectWishlistCount);
-  const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const [searchFocused, setSearchFocused] = useState(false)
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false)
+  const searchRef = useRef(null)
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const location = useLocation()
+  const { user, token } = useSelector((state) => state.auth || {})
+  const { categories } = useSelector((state) => state.categories || {})
+  const { suggestions, recentSearches, suggestionsLoading } = useSelector((state) => state.search || {})
+  const cartTotalQuantity = useSelector(selectCartTotalQuantity)
+  const wishlistCount = useSelector(selectWishlistCount)
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 300)
   useEffect(() => {
     if (token && user != null) {
-      dispatch(fetchCart());
-      dispatch(fetchWishlist());
+      dispatch(fetchCart())
+      dispatch(fetchWishlist())
     }
-  }, [user, dispatch, token]);
+  }, [user, dispatch, token])
   useEffect(() => {
-    dispatch(fetchCategories({ showOnHomepage: true }));
-  }, [dispatch]);
+    dispatch(fetchCategories({ showOnHomepage: true }))
+  }, [dispatch])
   useEffect(() => {
     if (debouncedSearchQuery.trim() && searchFocused) {
-      dispatch(getSearchSuggestions(debouncedSearchQuery.trim()));
+      dispatch(getSearchSuggestions(debouncedSearchQuery.trim()))
     }
-  }, [debouncedSearchQuery, searchFocused, dispatch]);
+  }, [debouncedSearchQuery, searchFocused, dispatch])
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
-        setShowSearchDropdown(false);
-        setSearchFocused(false);
+        setShowSearchDropdown(false)
+        setSearchFocused(false)
       }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-  const navigateToCategory = (categoryId = "") => {
-    const base = "/products?";
-    console.log("[v0] Navigating to category:", categoryId);
-    navigate(categoryId ? `${base}category=${categoryId}` : base);
-  };
-  const navigateToUnder999 = () => {
-    navigate("/products?maxPrice=999");
-  };
-  const handleLogout = () => {
-    dispatch(logout());
-    setShowUserMenu(false);
-    navigate("/");
-  };
-  const handleSearch = (e, query = searchQuery) => {
-    e?.preventDefault();
-    const searchTerm = query.trim();
-    if (searchTerm) {
-      dispatch(addRecentSearch(searchTerm));
-      navigate(`/products?search=${encodeURIComponent(searchTerm)}`);
-      setShowSearchDropdown(false);
-      setSearchQuery("");
-      setSearchFocused(false);
     }
-  };
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+  const navigateToCategory = (categoryId = "") => {
+    const base = "/products?"
+    console.log("[v0] Navigating to category:", categoryId)
+    navigate(categoryId ? `${base}category=${categoryId}` : base)
+  }
+  const navigateToUnder999 = () => {
+    navigate("/products?maxPrice=999")
+  }
+  const handleLogout = () => {
+    dispatch(logout())
+    setShowUserMenu(false)
+    navigate("/")
+  }
+  const handleSearch = (e, query = searchQuery) => {
+    e?.preventDefault()
+    const searchTerm = query.trim()
+    if (searchTerm) {
+      dispatch(addRecentSearch(searchTerm))
+      navigate(`/products?search=${encodeURIComponent(searchTerm)}`)
+      setShowSearchDropdown(false)
+      setSearchQuery("")
+      setSearchFocused(false)
+    }
+  }
   const handleSearchFocus = () => {
-    setSearchFocused(true);
-    setShowSearchDropdown(true);
-  };
+    setSearchFocused(true)
+    setShowSearchDropdown(true)
+  }
   const handleSuggestionClick = (suggestion) => {
-    setSearchQuery(suggestion);
-    handleSearch(null, suggestion);
-  };
+    setSearchQuery(suggestion)
+    handleSearch(null, suggestion)
+  }
   const handleRecentSearchClick = (recentSearch) => {
-    setSearchQuery(recentSearch);
-    handleSearch(null, recentSearch);
-  };
+    setSearchQuery(recentSearch)
+    handleSearch(null, recentSearch)
+  }
   const searchVariants = {
     focused: { scale: 1.02 },
     unfocused: { scale: 1 },
-  };
-  const desiredMobileCategoryNames = ["Oversized", "New Arrival", "Minimalist", "Regular"];
-  const categoriesForMobileScroll = [];
+  }
+  const desiredMobileCategoryNames = ["Oversized", "New Arrival", "Minimalist", "Regular"]
+  const categoriesForMobileScroll = []
   desiredMobileCategoryNames.forEach((name) => {
-    const foundCat = categories.find((cat) => cat.name === name);
+    const foundCat = categories.find((cat) => cat.name === name)
     if (foundCat) {
-      categoriesForMobileScroll.push(foundCat);
+      categoriesForMobileScroll.push(foundCat)
     }
-  });
+  })
   if (categoriesForMobileScroll.length < 5 && categories.length > 0) {
-    const existingNames = new Set(categoriesForMobileScroll.map((cat) => cat.name));
+    const existingNames = new Set(categoriesForMobileScroll.map((cat) => cat.name))
     categories.forEach((cat) => {
       if (!existingNames.has(cat.name) && categoriesForMobileScroll.length < 5) {
-        categoriesForMobileScroll.push(cat);
-        existingNames.add(cat.name);
+        categoriesForMobileScroll.push(cat)
+        existingNames.add(cat.name)
       }
-    });
+    })
   }
   const cydCategory = {
     _id: "cyd-promo",
     name: "Under ₹999",
-    image: { url: "cydlogo.jpeg", alt: "CYD logo" },
-  };
-  if (!categoriesForMobileScroll.some((cat) => cat.name === cydCategory.name)) {
-    categoriesForMobileScroll.unshift(cydCategory);
+    image: { url: "/cydlogo.jpeg", alt: "CYD logo" },
   }
-  const isProductDetailPage = window.location.pathname.startsWith("/product/");
-  const isCartPage = location.pathname === "/cart";
+  if (!categoriesForMobileScroll.some((cat) => cat.name === cydCategory.name)) {
+    categoriesForMobileScroll.unshift(cydCategory)
+  }
+  const isProductDetailPage = window.location.pathname.startsWith("/product/")
+  const isCartPage = location.pathname === "/cart"
   return (
     <>
       <motion.nav
@@ -204,8 +203,8 @@ const Navbar = () => {
                                 </div>
                                 <button
                                   onClick={(e) => {
-                                    e.stopPropagation();
-                                    dispatch(removeRecentSearch(search));
+                                    e.stopPropagation()
+                                    dispatch(removeRecentSearch(search))
                                   }}
                                   className="p-1 text-gray-400 hover:text-gray-600"
                                 >
@@ -298,8 +297,8 @@ const Navbar = () => {
                 <User className="w-5 h-5 mr-1" />
                 <span
                   onClick={() => {
-                    if (!token) navigate("/login");
-                    else setShowUserMenu(!showUserMenu);
+                    if (!token) navigate("/login")
+                    else setShowUserMenu(!showUserMenu)
                   }}
                   className="text-sm"
                 >
@@ -316,8 +315,8 @@ const Navbar = () => {
                     >
                       <div
                         onClick={() => {
-                          navigate("/profile");
-                          setShowUserMenu(false);
+                          navigate("/profile")
+                          setShowUserMenu(false)
                         }}
                         className="px-4 py-2 text-sm hover:bg-red-50"
                       >
@@ -325,8 +324,8 @@ const Navbar = () => {
                       </div>
                       <div
                         onClick={() => {
-                          navigate("/orders");
-                          setShowUserMenu(false);
+                          navigate("/orders")
+                          setShowUserMenu(false)
                         }}
                         className="px-4 py-2 text-sm hover:bg-red-50"
                       >
@@ -335,8 +334,8 @@ const Navbar = () => {
                       {user?.role === "admin" && (
                         <div
                           onClick={() => {
-                            navigate("/admin");
-                            setShowUserMenu(false);
+                            navigate("/admin")
+                            setShowUserMenu(false)
                           }}
                           className="px-4 py-2 text-sm hover:bg-red-50"
                         >
@@ -346,8 +345,8 @@ const Navbar = () => {
                       {user?.role === "digitalMarketer" && (
                         <div
                           onClick={() => {
-                            navigate("/digitalMarketer");
-                            setShowUserMenu(false);
+                            navigate("/digitalMarketer")
+                            setShowUserMenu(false)
                           }}
                           className="px-4 py-2 text-sm hover:bg-red-50"
                         >
@@ -416,8 +415,8 @@ const Navbar = () => {
                               </div>
                               <button
                                 onClick={(e) => {
-                                  e.stopPropagation();
-                                  dispatch(removeRecentSearch(search));
+                                  e.stopPropagation()
+                                  dispatch(removeRecentSearch(search))
                                 }}
                                 className="p-1 text-gray-400 hover:text-gray-600"
                               >
@@ -481,9 +480,9 @@ const Navbar = () => {
                   className="flex flex-col items-center flex-shrink-0 text-gray-700 cursor-pointer hover:text-red-600"
                   onClick={() => {
                     if (cat._id === "cyd-promo") {
-                      navigateToUnder999();
+                      navigateToUnder999()
                     } else {
-                      navigateToCategory(cat._id);
+                      navigateToCategory(cat._id)
                     }
                   }}
                 >
@@ -513,8 +512,8 @@ const Navbar = () => {
                     <div
                       key={cat._id}
                       onClick={() => {
-                        navigateToCategory(cat._id);
-                        setIsMenuOpen(false);
+                        navigateToCategory(cat._id)
+                        setIsMenuOpen(false)
                       }}
                       className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"
                     >
@@ -523,8 +522,8 @@ const Navbar = () => {
                   ))}
                   <div
                     onClick={() => {
-                      navigate("/wishlist");
-                      setIsMenuOpen(false);
+                      navigate("/wishlist")
+                      setIsMenuOpen(false)
                     }}
                     className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"
                   >
@@ -532,8 +531,8 @@ const Navbar = () => {
                   </div>
                   <div
                     onClick={() => {
-                      navigate("/cart");
-                      setIsMenuOpen(false);
+                      navigate("/cart")
+                      setIsMenuOpen(false)
                     }}
                     className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"
                   >
@@ -541,9 +540,9 @@ const Navbar = () => {
                   </div>
                   <div
                     onClick={() => {
-                      if (!token) navigate("/login");
-                      else setShowUserMenu(!showUserMenu);
-                      setIsMenuOpen(false);
+                      if (!token) navigate("/login")
+                      else setShowUserMenu(!showUserMenu)
+                      setIsMenuOpen(false)
                     }}
                     className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"
                   >
@@ -563,7 +562,7 @@ const Navbar = () => {
             className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-red-600 cursor-pointer"
           >
             <span className="text-xl font-bold mb-0.5 w-6 h-6">
-              <img src="logo.png" alt="company logo" className="object-contain w-full h-full" />
+              <img src="/logo.png" alt="company logo" className="object-contain w-full h-full" />
             </span>
             <span>Home</span>
           </div>
@@ -571,7 +570,9 @@ const Navbar = () => {
             onClick={() => navigateToUnder999()}
             className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
           >
-            <img src="/cyd.svg" alt="CYD Logo" className=" text-xl font-bold w-7 h-7 mb-0.5" />
+            <div className="flex items-center justify-center w-10 h-10 mb-0.5 bg-red-50 rounded-full">
+              <img src="/cydlogo.jpeg" alt="CYD Logo" className="w-8 h-8 object-contain rounded-full" />
+            </div>
             <span>Under ₹999</span>
           </div>
           <div
@@ -583,8 +584,8 @@ const Navbar = () => {
           </div>
           <div
             onClick={() => {
-              if (token) navigate("/profile");
-              else navigate("/login");
+              if (token) navigate("/profile")
+              else navigate("/login")
             }}
             className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
           >
@@ -594,6 +595,6 @@ const Navbar = () => {
         </div>
       )}
     </>
-  );
-};
-export default Navbar;
+  )
+}
+export default Navbar
