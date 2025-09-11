@@ -26,7 +26,8 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Build the app
+# Set Node.js memory options and build the app
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 RUN npm run build
 
 # Production stage with nginx

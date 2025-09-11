@@ -38,8 +38,8 @@ export default defineConfig({
   build: {
     target: 'esnext',
     minify: 'terser',
-    sourcemap: process.env.NODE_ENV === 'development',
-    cssCodeSplit: true,
+    sourcemap: false, // Disable sourcemaps to reduce memory usage
+    cssCodeSplit: false, // Disable CSS code splitting to reduce memory
     assetsInlineLimit: 0, // Disable inlining assets to avoid data:base64 URL issues
     terserOptions: {
       compress: {
@@ -51,32 +51,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['antd', '@ant-design/icons'],
-          animations: ['framer-motion', 'animate.css'],
-          charts: ['chart.js', 'react-chartjs-2', 'recharts'],
-          three: ['three', '@react-three/fiber', '@react-three/drei'],
-          firebase: [
-            'firebase/app',
-            'firebase/auth',
-            'firebase/firestore',
-            'firebase/storage',
-          ],
+          vendor: ['react', 'react-dom'],
+          firebase: ['firebase/app', 'firebase/auth']
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
-        assetFileNames: (assetInfo) => {
-          let extType = assetInfo.name.split('.').at(1);
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico|webp/i.test(extType)) {
-            extType = 'img';
-          } else if (/woff|woff2|ttf|otf|eot/i.test(extType)) {
-            extType = 'fonts';
-          }
-          return `assets/${extType}/[name]-[hash][extname]`;
-        },
-      },
-      input: {
-        main: path.resolve(process.cwd(), 'index.html')
+        assetFileNames: 'assets/[ext]/[name]-[hash][extname]'
       }
     },
     chunkSizeWarningLimit: 1500,
