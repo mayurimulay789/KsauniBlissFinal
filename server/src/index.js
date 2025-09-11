@@ -19,9 +19,8 @@ const app = express()
 
 
 
-// Trust proxy for proper client IP detection behind reverse proxy
-app.set('trust proxy', true)
-
+// Trust proxy only for specific IPs (Docker network)
+app.set('trust proxy', ['127.0.0.1', '172.16.0.0/12', '192.168.0.0/16'])
 
 
 // Apply global security headers
@@ -36,13 +35,15 @@ app.use(compression({ level: 6 })) // Moderate compression level for balance
 // Rate limiting
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // limit each IP to 200 requests per windowMs
+  max: 10000, // limit each IP to 1000 requests per windowMs
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   message: {
     success: false,
     message: "Too many requests, please try again later."
-  }
+  },
+  // Configure trusted proxies
+  trustProxy: false // Disable automatic trust proxy
 })
 
 
