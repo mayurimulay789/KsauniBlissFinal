@@ -58,6 +58,12 @@ const adminAPIFunctions = {
   // Auth
   loginAdmin: (credentials) => adminAPI.post('/auth/login', credentials),
   verifyAdminToken: () => adminAPI.get('/auth/verify'),
+  
+  // Innovations
+  getAllInnovations: () => adminAPI.get('/innovations'),
+  createInnovation: (data) => adminAPI.post('/innovations', data),
+  updateInnovation: (innovationId, data) => adminAPI.put(`/innovations/${innovationId}`, data),
+  deleteInnovation: (innovationId) => adminAPI.delete(`/innovations/${innovationId}`),
 };
 
 // Export the functions directly to match slice imports
