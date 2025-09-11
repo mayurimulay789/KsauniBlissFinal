@@ -3,6 +3,20 @@ FROM node:20-alpine as build-stage
 
 WORKDIR /app
 
+# Install build dependencies
+RUN apk add --no-cache \
+    autoconf \
+    automake \
+    libtool \
+    nasm \
+    build-base \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    giflib-dev \
+    python3 \
+    make \
+    g++
+
 # Copy package files
 COPY package*.json ./
 
