@@ -1,0 +1,71 @@
+name: Deploy to Hostinger VPS (Local Build)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to Hostinger VPS
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script: |
+          echo "Starting deployment..."
+          
+          # Navigate to application directory
+          cd /home/${{ secrets.USERNAME }}/ksaunibliss || {
+            echo "Creating application directory..."
+            mkdir -p /home/${{ secrets.USERNAME }}/ksaunibliss
+            cd /home/${{ secrets.USERNAME }}/ksaunibliss
+            git clone https://github.com/${{ github.repository }} .
+          }
+          
+          # Pull latest changes
+          git fetch origin
+          git reset --hard origin/main
+          git clean -fd
+          
+          # Stop existing containers
+          docker-compose down || true
+          
+          # Remove old images to free space
+          docker image prune -f
+          
+          # Build and start containers locally
+          docker-compose up --build -d
+          
+          # Wait for services to start
+          sleep 30
+          
+          # Verify deployment
+          if docker ps | grep -q "ksaunibliss"; then
+            echo "✅ Deployment successful!"
+            docker ps
+          else
+            echo "❌ Deployment failed!"
+            docker logs $(docker ps -aq) --tail 50
+            exit 1
+          fi
+          
+          # Cleanup
+          docker system prune -f
+          
+          echo "🚀 Deployment completed successfully!"
+
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Deployment to Hostinger completed successfully!"
+        else
+          echo "❌ Deployment to Hostinger failed!"
+        fi

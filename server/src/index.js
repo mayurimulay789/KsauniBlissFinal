@@ -17,14 +17,21 @@ const helmet = require("helmet")
 const rateLimit = require("express-rate-limit")
 const app = express()
 
+
+
 // Trust proxy for proper client IP detection behind reverse proxy
 app.set('trust proxy', true)
+
+
 
 // Apply global security headers
 app.use(helmet())
 
+
 // Compress all responses
 app.use(compression({ level: 6 })) // Moderate compression level for balance
+
+
 
 // Rate limiting
 const apiLimiter = rateLimit({
@@ -38,8 +45,12 @@ const apiLimiter = rateLimit({
   }
 })
 
+
+
 // Apply rate limiting to all requests
 app.use("/api/", apiLimiter)
+
+
 
 // More strict rate limiting for authentication routes
 const authLimiter = rateLimit({
@@ -63,6 +74,7 @@ app.use((req, res, next) => {
   next()
 })
 
+
 // Debug environment variables
 console.log("🔧 Environment Check:")
 console.log("NODE_ENV:", process.env.NODE_ENV)
@@ -70,9 +82,11 @@ console.log("PORT:", process.env.PORT)
 console.log("MONGODB_URI:", process.env.MONGODB_URI ? "✅ Set" : "❌ Missing")
 console.log("FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID ? "✅ Set" : "❌ Missing")
 
+
 // Middleware
 // Parse CORS_ORIGIN from environment variables
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000").split(",").filter(Boolean)
+
 
 app.use(
   cors({
@@ -111,6 +125,8 @@ app.get("/", (req, res) => {
   })
 })
 
+
+
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
@@ -119,6 +135,8 @@ app.get("/api/health", (req, res) => {
     database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
   })
 })
+
+
 
 // Routes
 app.use("/api/auth", require("../routes/auth"))
@@ -176,8 +194,11 @@ const connectDB = async () => {
   }
 }
 
+
+
 // Connect to database
 connectDB()
+
 
 // Start server
 const PORT = process.env.PORT || 5000 // Changed back to 5000 to match frontend
@@ -189,10 +210,17 @@ app.listen(PORT, () => {
 })
 
 // Graceful shutdown
-process.on("SIGTERM", () => {
+process.on("SIGTERM", async () => {
   console.log("👋 SIGTERM received, shutting down gracefully")
-  mongoose.connection.close(() => {
+  try {
+    await mongoose.connection.close()
     console.log("📊 MongoDB connection closed")
     process.exit(0)
-  })
+  } catch (err) {
+    console.error("Error closing MongoDB connection:", err)
+    process.exit(1)
+  }
 })
+
+
+

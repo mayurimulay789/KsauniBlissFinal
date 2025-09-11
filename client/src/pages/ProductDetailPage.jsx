@@ -47,7 +47,7 @@ const ProductDetailPage = () => {
   }, [dispatch, id]);
   useEffect(() => {
     if (currentProduct) {
-      // if (currentProduct.sizes?.length > 0) setSelectedSize(currentProduct.sizes[0].size)
+      if (currentProduct.sizes?.length > 0) setSelectedSize(currentProduct.sizes[0].size);
       if (currentProduct.colors?.length > 0) setSelectedColor(currentProduct.colors[0].name);
     }
   }, [currentProduct]);
@@ -81,35 +81,111 @@ const ProductDetailPage = () => {
         ? String(currentProduct.material)
         : "COTTON";
   const handleAddToCart = async () => {
-    if (currentProduct.sizes?.length && !selectedSize) return toast.error("Please select a size");
-    if (currentProduct.colors?.length && !selectedColor) return toast.error("Please select a color");
+    console.log("=== ADD TO CART CLICKED ===");
+    console.log("handleAddToCart called");
+    console.log("currentProduct:", currentProduct);
+    console.log("selectedSize:", selectedSize);
+    console.log("selectedColor:", selectedColor);
+    console.log("quantity:", quantity);
+    
+    if (currentProduct.sizes?.length && !selectedSize) {
+      console.log("No size selected, showing error");
+      toast.error("Please select a size");
+      return false; // Return false instead of returning early
+    }
+    if (currentProduct.colors?.length && !selectedColor) {
+      console.log("No color selected, showing error");
+      toast.error("Please select a color");
+      return false; // Return false instead of returning early
+    }
+    
+    // Check stock availability
+    const sizeStock = getSelectedSizeStock();
+    if (quantity > sizeStock) {
+      return toast.error(`Only ${sizeStock} items available in stock`);
+    }
+    
     const payload = { productId: currentProduct._id, quantity, size: selectedSize, color: selectedColor };
+    console.log("Cart payload:", payload);
+    
+    // Optimistic update for better UX
     dispatch(optimisticAddToCart({ product: currentProduct, quantity, size: selectedSize, color: selectedColor }));
     toast.success(`${currentProduct.name} added to cart!`);
+    
     const bag = document.querySelector("#bag");
     if (bag) {
       bag.style.transform = "scale(1.2)";
       setTimeout(() => (bag.style.transform = "scale(1)"), 200);
     }
+    
     try {
-      await dispatch(addToCart(payload)).unwrap();
+      console.log("Dispatching addToCart action...");
+      const result = await dispatch(addToCart(payload));
+      console.log("Add to cart result:", result);
+      
+      if (result.type.endsWith('/fulfilled')) {
+        console.log("Added to cart successfully:", result.payload);
+        return true; // Return success for Buy Now flow
+      } else {
+        console.error("Add to cart failed:", result);
+        toast.error(result.payload?.message || "Failed to add to cart");
+        return false; // Return failure for Buy Now flow
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Add to cart error:", err);
       toast.error(err?.message || "Failed to add to cart");
+      return false; // Return failure for Buy Now flow
     }
   };
   const handleBuyNow = async () => {
-    if (currentProduct.sizes?.length && !selectedSize) return toast.error("Please select a size");
-    if (currentProduct.colors?.length && !selectedColor) return toast.error("Please select a color");
-    await handleAddToCart();
-    navigate("/checkout", {
-      state: {
-        product: currentProduct,
-        quantity,
-        size: selectedSize,
-        color: selectedColor,
-      },
-    });
+    console.log("=== BUY NOW CLICKED ===");
+    console.log("handleBuyNow called");
+    console.log("currentProduct:", currentProduct?._id);
+    console.log("selectedSize:", selectedSize);
+    console.log("selectedColor:", selectedColor);
+    
+    if (currentProduct.sizes?.length && !selectedSize) {
+      console.log("No size selected, showing error");
+      toast.error("Please select a size");
+      return false; // Return false instead of returning early
+    }
+    if (currentProduct.colors?.length && !selectedColor) {
+      console.log("No color selected, showing error");
+      toast.error("Please select a color");
+      return false; // Return false instead of returning early
+    }
+    
+    // Check stock availability
+    const sizeStock = getSelectedSizeStock();
+    if (quantity > sizeStock) {
+      console.log("Not enough stock, showing error");
+      return toast.error(`Only ${sizeStock} items available in stock`);
+    }
+    
+    // First add to cart, then navigate to checkout if successful
+    console.log("Calling handleAddToCart from Buy Now...");
+    try {
+      const success = await handleAddToCart();
+      console.log("handleAddToCart returned:", success);
+      
+      if (success) {
+        console.log("Success! Navigating to checkout...");
+        navigate("/checkout", {
+          state: {
+            product: currentProduct,
+            quantity,
+            size: selectedSize,
+            color: selectedColor,
+            buyNow: true // Mark this as a buy now transaction
+          },
+        });
+        console.log("Navigation triggered");
+      } else {
+        console.log("handleAddToCart returned false, not navigating");
+      }
+    } catch (error) {
+      console.error("Error in handleBuyNow:", error);
+    }
   };
   const handleWishlistToggle = async () => {
     try {
@@ -565,7 +641,7 @@ const ProductDetailPage = () => {
                 <div className="flex gap-3 max-w-md">
                   <button
                     onClick={handleAddToCart}
-                    disabled={isAddingToCart || getSelectedSizeStock() === 0}
+                    disabled={isAddingToCart || (selectedSize && getSelectedSizeStock() === 0)}
                     className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShoppingCart className="w-5 h-5" />
@@ -573,7 +649,7 @@ const ProductDetailPage = () => {
                   </button>
                   <button
                     onClick={handleBuyNow}
-                    disabled={isAddingToCart || getSelectedSizeStock() === 0}
+                    disabled={isAddingToCart || (selectedSize && getSelectedSizeStock() === 0)}
                     className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <img src="/buynow1.svg" className="w-8 h-8" />
@@ -763,7 +839,7 @@ const ProductDetailPage = () => {
           {/* Add to Cart */}
           <button
             onClick={handleAddToCart}
-            disabled={isAddingToCart || getSelectedSizeStock() === 0}
+            disabled={isAddingToCart || (selectedSize && getSelectedSizeStock() === 0)}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
           >
             <ShoppingCart className="w-4 h-4" />
@@ -772,7 +848,7 @@ const ProductDetailPage = () => {
           {/* Buy Now */}
           <button
             onClick={handleBuyNow}
-            disabled={isAddingToCart || getSelectedSizeStock() === 0}
+            disabled={isAddingToCart || (selectedSize && getSelectedSizeStock() === 0)}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
           >
             <img src="/buynow1.svg" className="w-8 h-8 rounded-lg" />

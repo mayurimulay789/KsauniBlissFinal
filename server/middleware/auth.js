@@ -98,9 +98,63 @@ const digitalMarketerAuth = (req, res, next) => {
   next();
 };
 
+// =============================
+// 🔒 Optional Auth Middleware
+// =============================
+const optionalProtect = async (req, res, next) => {
+  try {
+    const authHeader = req.header("Authorization");
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      // No token provided, continue as guest user
+      req.user = null;
+      return next();
+    }
+
+    const token = authHeader.split(" ")[1].trim();
+
+    if (!token) {
+      // No token provided, continue as guest user
+      req.user = null;
+      return next();
+    }
+
+    try {
+      // Verify JWT token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Find user by decoded userId
+      const user = await User.findById(decoded.userId).select("-otp -otpExpiry");
+
+      if (!user) {
+        req.user = null;
+        return next();
+      }
+
+      // Attach user to request object
+      req.user = {
+        userId: user._id,
+        role: user.role,
+        phoneNumber: user.phoneNumber,
+        name: user.name,
+        email: user.email,
+      };
+    } catch (tokenError) {
+      // Invalid token, continue as guest
+      req.user = null;
+    }
+
+    next();
+  } catch (error) {
+    console.error("Optional auth middleware error:", error);
+    req.user = null;
+    next();
+  }
+};
 
 module.exports = {
   protect,
   adminAuth,
   digitalMarketerAuth,
+  optionalProtect,
 };

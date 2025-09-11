@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "./config/firebase"
 import { initializeAuth, setFirebaseUser, logout } from "./store/slices/authSlice"
+import { loadCartFromStorage, fetchCart } from "./store/slices/cartSlice"
 import NetworkStatus from "./components/NetworkStatus"
 import { validateEnvironment, debugEnvironment } from "./utils/envValidation"
 
@@ -72,6 +73,9 @@ function AppContent() {
 
     dispatch(initializeAuth())
 
+    // Load cart from localStorage for guest users
+    dispatch(loadCartFromStorage())
+
     // Set up Firebase auth state listener
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
@@ -87,13 +91,17 @@ function AppContent() {
               photoURL: firebaseUser.photoURL,
             }),
           )
+          // Fetch user's cart from server
+          dispatch(fetchCart())
         } else {
-          // User is signed out
-          dispatch(logout())
+          // User is signed out, load guest cart from localStorage
+          dispatch(loadCartFromStorage())
         }
       } catch (error) {
         console.error("Auth state change error:", error)
         dispatch(logout())
+        // Load guest cart even if auth fails
+        dispatch(loadCartFromStorage())
       }
     })
 

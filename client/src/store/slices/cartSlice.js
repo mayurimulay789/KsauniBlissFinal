@@ -57,6 +57,7 @@ const initialState = {
   lastUpdated: null,
   isAddingToCart: false,
   isUpdatingCart: false,
+  isGuest: false, // Track if we're using guest cart mode
 };
 // Helper function to calculate totals
 const calculateTotals = (items) => {
@@ -210,13 +211,44 @@ const cartSlice = createSlice({
       .addCase(addToCart.fulfilled, (state, action) => {
         state.isAddingToCart = false;
         state.isLoading = false;
+        
         // Update the cart with returned data
         if (action.payload.cart) {
           state.items = action.payload.cart.items || [];
           state.summary = action.payload.cart.summary || initialState.summary;
-          // Calculate totalQuantity for badge
-          state.totalQuantity = state.items.reduce((total, item) => total + (item.quantity || 0), 0);
+        } else if (action.payload.cartItem) {
+          // Handle case when only a cart item is returned (guest user)
+          const newItem = action.payload.cartItem;
+          
+          // Check if item already exists
+          const existingItemIndex = state.items.findIndex(item => 
+            item.product?._id === newItem.product?._id && 
+            item.size === newItem.size && 
+            item.color === newItem.color
+          );
+          
+          if (existingItemIndex > -1) {
+            state.items[existingItemIndex].quantity += newItem.quantity;
+          } else {
+            state.items.push(newItem);
+          }
+          
+          // Recalculate totals
+          const subtotal = state.items.reduce((total, item) => total + (item.product?.price * item.quantity || 0), 0);
+          const shipping = subtotal > 999 ? 0 : 99;
+          
+          state.summary = {
+            totalItems: state.items.length,
+            subtotal,
+            shipping,
+            total: subtotal + shipping
+          };
         }
+        
+        // Calculate totalQuantity for badge
+        state.totalQuantity = state.items.reduce((total, item) => total + (item.quantity || 0), 0);
+        
+        // Update last updated time
         state.lastUpdated = new Date().toISOString();
         cartSlice.caseReducers.saveCartToStorage(state);
       })
