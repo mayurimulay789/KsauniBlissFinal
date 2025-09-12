@@ -49,6 +49,7 @@ import ToastProvider from "./components/ToastProvider"
 
 // Styles
 import "./App.css"
+import ScrollToTop from "./components/ScrollToTop"
 
 function AppContent() {
   const location = useLocation()
@@ -210,6 +211,7 @@ function AppContent() {
 function App() {
   return (
     <Router>
+      <ScrollToTop/>
       <AppContent />
     </Router>
   )

@@ -17,19 +17,23 @@ import { fetchProductReviews, likeReview } from "../store/slices/reviewSlice";
 import { formatDistanceToNow } from "date-fns";
 import reviewAPI from "../store/api/reviewAPI";
 import { toast } from "react-toastify";
+
 const ProductReviews = ({ productId }) => {
   const dispatch = useDispatch();
-  const currentProductReviews = useSelector((state) => state.reviews?.currentProductReviews || []);
+  const currentProductReviews = useSelector(
+    (state) => state.reviews?.currentProductReviews || []
+  );
   const reviewStats = useSelector(
     (state) =>
       state.reviews?.reviewStats || {
         averageRating: 0,
         totalReviews: 0,
         ratingDistribution: {},
-      },
+      }
   );
   const loading = useSelector((state) => state.reviews?.loading || false);
   const { user } = useSelector((state) => state.auth);
+
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewForm, setReviewForm] = useState({
     rating: 5,
@@ -41,16 +45,20 @@ const ProductReviews = ({ productId }) => {
   const [images, setImages] = useState([]);
   const [expandedReviews, setExpandedReviews] = useState({});
   const [showAllReviews, setShowAllReviews] = useState(false);
-  const REVIEWS_TO_SHOW = 5;
+
+  const REVIEWS_TO_SHOW = 2;
+
   useEffect(() => {
     if (productId) {
       dispatch(fetchProductReviews(productId));
     }
   }, [dispatch, productId]);
+
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files).slice(0, 5);
     setImages(files);
   };
+
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -61,6 +69,7 @@ const ProductReviews = ({ productId }) => {
     formData.append("pros", reviewForm.pros);
     formData.append("cons", reviewForm.cons);
     images.forEach((img) => formData.append("images", img));
+
     try {
       const { data } = await reviewAPI.createReview(formData);
       if (data.success) {
@@ -75,19 +84,28 @@ const ProductReviews = ({ productId }) => {
       toast.error("Failed to submit review");
     }
   };
-  const handleLikeReview = (reviewId) => {
+
+  // ✅ FIX 1: Like refresh
+  const handleLikeReview = async (reviewId) => {
     if (!user) {
       toast.info("Please login to like reviews");
       return;
     }
-    dispatch(likeReview(reviewId));
+    try {
+      await dispatch(likeReview(reviewId)).unwrap();
+      dispatch(fetchProductReviews(productId)); // refresh likes
+    } catch (err) {
+      toast.error("Failed to like review");
+    }
   };
+
   const toggleReviewExpansion = (reviewId) => {
     setExpandedReviews((prev) => ({
       ...prev,
       [reviewId]: !prev[reviewId],
     }));
   };
+
   const renderStars = (rating, size = "w-4 h-4", interactive = false, onStarClick = null) => (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
@@ -103,14 +121,15 @@ const ProductReviews = ({ productId }) => {
               star <= rating
                 ? "text-amber-400 fill-amber-400"
                 : interactive
-                  ? "text-gray-300 hover:text-amber-200"
-                  : "text-gray-300"
+                ? "text-gray-300 hover:text-amber-200"
+                : "text-gray-300"
             }`}
           />
         </button>
       ))}
     </div>
   );
+
   const renderRatingDistribution = () => {
     const { ratingDistribution, totalReviews } = reviewStats;
     return (
@@ -137,14 +156,19 @@ const ProductReviews = ({ productId }) => {
       </div>
     );
   };
+
   const getDisplayedReviews = () => {
     if (showAllReviews || currentProductReviews.length <= REVIEWS_TO_SHOW) {
       return currentProductReviews;
     }
     return currentProductReviews.slice(0, REVIEWS_TO_SHOW);
   };
+
   const displayedReviews = getDisplayedReviews();
-  const hasMoreReviews = currentProductReviews.length > REVIEWS_TO_SHOW;
+
+  // ✅ FIX 2: Only show "Show More" if > 2 reviews
+  const hasMoreReviews = currentProductReviews.length > REVIEWS_TO_SHOW && currentProductReviews.length > 2;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -155,6 +179,7 @@ const ProductReviews = ({ productId }) => {
       </div>
     );
   }
+
   return (
     <div className="max-w-6xl mx-auto space-y-4">
       {/* Review Summary */}
@@ -179,6 +204,7 @@ const ProductReviews = ({ productId }) => {
           </div>
         </div>
       </div>
+
       {/* Write Review Button */}
       {user && (
         <button
@@ -193,6 +219,7 @@ const ProductReviews = ({ productId }) => {
           {showReviewForm ? "Cancel Review" : "Write a Review"}
         </button>
       )}
+
       {/* Review Form */}
       {showReviewForm && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -200,8 +227,14 @@ const ProductReviews = ({ productId }) => {
             {/* Rating */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">Your Rating</label>
-              {renderStars(reviewForm.rating, "w-6 h-6", true, (rating) => setReviewForm({ ...reviewForm, rating }))}
+              {renderStars(
+                reviewForm.rating,
+                "w-6 h-6",
+                true,
+                (rating) => setReviewForm({ ...reviewForm, rating })
+              )}
             </div>
+
             {/* Title */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-1">Review Title</label>
@@ -214,6 +247,7 @@ const ProductReviews = ({ productId }) => {
                 required
               />
             </div>
+
             {/* Comment */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-1">Your Review</label>
@@ -226,6 +260,7 @@ const ProductReviews = ({ productId }) => {
                 required
               />
             </div>
+
             {/* Pros and Cons */}
             <div className="grid grid-cols-1 gap-3">
               <div>
@@ -253,6 +288,7 @@ const ProductReviews = ({ productId }) => {
                 />
               </div>
             </div>
+
             {/* Image Upload */}
             <div>
               <label className="flex items-center gap-1 text-sm font-semibold text-gray-900 mb-1">
@@ -287,6 +323,7 @@ const ProductReviews = ({ productId }) => {
                 </div>
               )}
             </div>
+
             <button
               type="submit"
               className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all text-sm font-semibold shadow-sm"
@@ -296,6 +333,7 @@ const ProductReviews = ({ productId }) => {
           </form>
         </div>
       )}
+
       {/* Reviews List */}
       <div className="space-y-3">
         {currentProductReviews.length === 0 ? (
@@ -326,14 +364,15 @@ const ProductReviews = ({ productId }) => {
                       <p className="text-xs text-gray-600">{review.user?.name || "Anonymous"}</p>
                     </div>
                   </div>
-                  <button
+                  {/* <button
                     onClick={() => handleLikeReview(review._id)}
                     className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                   >
                     <ThumbsUp className="w-3 h-3" />
                     {review.likes?.length || 0}
-                  </button>
+                  </button> */}
                 </div>
+
                 {/* Review Content */}
                 <div className="p-3">
                   <h4 className="text-sm font-semibold text-gray-900 mb-1">{review.title}</h4>
@@ -357,6 +396,7 @@ const ProductReviews = ({ productId }) => {
                       </button>
                     )}
                   </div>
+
                   {/* Pros and Cons */}
                   {(review.pros || review.cons) && (
                     <div className="grid grid-cols-1 gap-2 mt-2">
@@ -380,6 +420,7 @@ const ProductReviews = ({ productId }) => {
                       )}
                     </div>
                   )}
+
                   {/* Review Images */}
                   {review.images?.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
@@ -401,6 +442,7 @@ const ProductReviews = ({ productId }) => {
                 </div>
               </div>
             ))}
+
             {hasMoreReviews && (
               <div className="flex justify-center pt-4">
                 <button
@@ -427,4 +469,5 @@ const ProductReviews = ({ productId }) => {
     </div>
   );
 };
+
 export default ProductReviews;
