@@ -198,15 +198,15 @@ const ProductFilters = memo(({ filters, categories, onFilterChange, onClearFilte
           onClick={() => toggleSection("rating")}
           className="flex items-center justify-between w-full py-2 text-left"
         >
-          <h3 className="flex items-center text-lg font-semibold text-gray-800">
+          {/* <h3 className="flex items-center text-lg font-semibold text-gray-800">
             <Star className="w-5 h-5 mr-2 text-ksauni-red" />
             Customer Rating
-          </h3>
-          <motion.div animate={{ rotate: expandedSections.rating ? 180 : 0 }}>
+          </h3> */}
+          {/* <motion.div animate={{ rotate: expandedSections.rating ? 180 : 0 }}>
             <ChevronDown className="w-5 h-5 text-gray-500" />
-          </motion.div>
+          </motion.div> */}
         </motion.button>
-        <AnimatePresence>
+        {/* <AnimatePresence>
           {expandedSections.rating && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
@@ -244,7 +244,7 @@ const ProductFilters = memo(({ filters, categories, onFilterChange, onClearFilte
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence> */}
       </div>
     </motion.div>
   );

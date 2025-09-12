@@ -33,16 +33,16 @@ const ProductsPage = () => {
   const { user } = useSelector(selectAuth);
   const { items: wishlistItems } = useSelector(selectWishlist);
   // Memoized values
-  const activeFiltersCount = useMemo(
-    () =>
-      Object.entries(filters).reduce((count, [key, value]) => {
-        if (Array.isArray(value) ? value.length > 0 : Boolean(value)) {
-          return count + 1;
-        }
-        return count;
-      }, 0),
-    [filters],
-  );
+  // const activeFiltersCount = useMemo(
+  //   () =>
+  //     Object.entries(filters).reduce((count, [key, value]) => {
+  //       if (Array.isArray(value) ? value.length > 0 : Boolean(value)) {
+  //         return count + 1;
+  //       }
+  //       return count;
+  //     }, 0),
+  //   [filters],
+  // );
   const getFiltersFromURL = useCallback(() => {
     const urlFilters = {
       category: searchParams.get("category") || "",

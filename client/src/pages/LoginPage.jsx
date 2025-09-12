@@ -191,7 +191,7 @@ const LoginPage = () => {
         <img
           src={image || "/placeholder.svg"} // Placeholder for young girl image
           alt="Fashion Model"
-          className="absolute inset-0 object-cover w-full h-full"
+          className="absolute inset-0 object-full w-full h-full"
         />
         {/* Removed Gradient Overlay */}
       </div>
