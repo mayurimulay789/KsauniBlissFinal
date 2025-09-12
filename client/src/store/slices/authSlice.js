@@ -180,6 +180,7 @@ export const checkAuth = createAsyncThunk("auth/checkAuth", async (_, { rejectWi
     // Update local storage
     localStorage.setItem("user", JSON.stringify(response.data.user));
     localStorage.setItem("authToken", response.data.jwtToken);
+    localStorage.setItem("fashionhub_token", response.data.jwtToken);
     return {
       firebaseUser: {
         uid: user.uid,
@@ -610,6 +611,7 @@ export const refreshUserData = createAsyncThunk("auth/refreshUserData", async (_
     const response = await api.post("/auth/verify-token", { idToken });
     localStorage.setItem("user", JSON.stringify(response.data.user));
     localStorage.setItem("authToken", response.data.jwtToken);
+    localStorage.setItem("fashionhub_token", response.data.jwtToken);
     return response.data;
   } catch (error) {
     console.error("Refresh user data error:", error);

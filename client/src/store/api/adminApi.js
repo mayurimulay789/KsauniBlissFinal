@@ -14,7 +14,8 @@ const adminAPI = axios.create({
 // Request interceptor to add auth token
 adminAPI.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    // Try both token keys used by the auth system
+    const token = localStorage.getItem('authToken') || localStorage.getItem('fashionhub_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -28,8 +29,14 @@ adminAPI.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Clear all auth tokens that might be used
       localStorage.removeItem('token');
-      window.location.href = '/admin/login';
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('fashionhub_token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('tokenExpiry');
+      // Redirect to regular login instead of admin login
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
