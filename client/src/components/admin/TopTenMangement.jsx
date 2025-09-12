@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Plus, Search, Edit, Trash2, Star, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
-import adminAPI from "../../store/api/adminAPI";
+import adminAPI from "../../store/api/adminApi";
 const TopTenManagement = () => {
   const dispatch = useDispatch();
   const [top10Products, setTop10Products] = useState([]);
