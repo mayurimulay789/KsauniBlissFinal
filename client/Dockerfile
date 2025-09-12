@@ -20,15 +20,18 @@ RUN apk add --no-cache \
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies with production only
+RUN npm ci --only=production --legacy-peer-deps
+
+# Install dev dependencies separately to optimize memory
+RUN npm install --only=dev --legacy-peer-deps
 
 # Copy source code
 COPY . .
 
-# Set Node.js memory options and build the app
-ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN npm run build:memory
+# Set Node.js memory options and build the app with simpler config
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+RUN npm run build:docker
 
 # Production stage with nginx
 FROM nginx:alpine
