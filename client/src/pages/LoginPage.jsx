@@ -17,7 +17,7 @@ import {
   clearPhoneAuthState,
 } from "../store/slices/authSlice";
 import toast from "react-hot-toast";
-import { cleanupRecaptcha } from "../config/firebase.js"; // Make sure this is imported
+import { cleanupRecaptcha } from "../config/firebase"; // Make sure this is imported
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
