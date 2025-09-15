@@ -11,8 +11,14 @@ export const fetchCart = createAsyncThunk("cart/fetchCart", async (_, { rejectWi
     return rejectWithValue(error.response?.data?.message || "Failed to fetch cart");
   }
 });
-export const addToCart = createAsyncThunk("cart/addToCart", async (cartData, { rejectWithValue }) => {
+export const addToCart = createAsyncThunk("cart/addToCart", async (cartData, { rejectWithValue, getState }) => {
   try {
+    // Check if we're already adding to cart to prevent duplicates
+    const currentState = getState();
+    if (currentState.cart.isAddingToCart) {
+      return rejectWithValue("Already adding to cart");
+    }
+    
     const response = await cartAPI.addToCart(cartData);
     return response.data; // Assuming this returns { cart: { items, summary } }
   } catch (error) {
@@ -88,6 +94,9 @@ const cartSlice = createSlice({
       state.items = [];
       state.summary = initialState.summary;
       state.totalQuantity = 0;
+      // Clear localStorage when clearing locally
+      localStorage.removeItem("guestCart");
+      localStorage.removeItem("cart");
     },
     updateLocalQuantity: (state, action) => {
       const { itemId, quantity } = action.payload;
@@ -325,7 +334,9 @@ const cartSlice = createSlice({
         state.summary = initialState.summary;
         state.totalQuantity = 0;
         state.lastUpdated = new Date().toISOString();
-        cartSlice.caseReducers.saveCartToStorage(state);
+        // Clear localStorage immediately
+        localStorage.removeItem("guestCart");
+        localStorage.removeItem("cart");
       })
       .addCase(clearCart.rejected, (state, action) => {
         state.isLoading = false;
