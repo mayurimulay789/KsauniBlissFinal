@@ -90,6 +90,21 @@ const ProductDetailPage = () => {
     console.log("selectedColor:", selectedColor)
     console.log("quantity:", quantity)
 
+    // Prevent multiple simultaneous requests AND debounce rapid clicks
+    if (isAddingToCart) {
+      console.log("Already adding to cart, preventing duplicate")
+      return false
+    }
+
+    // Additional debounce check - prevent clicks within 1 second
+    const now = Date.now()
+    const lastClick = window.lastAddToCartClick || 0
+    if (now - lastClick < 1000) {
+      console.log("Rapid click detected, ignoring")
+      return false
+    }
+    window.lastAddToCartClick = now
+
     if (currentProduct.sizes?.length && !selectedSize) {
       console.log("No size selected, showing error")
       toast.error("Please select a size first before adding to cart", {
@@ -453,7 +468,7 @@ const ProductDetailPage = () => {
                   </p>
                 )}
 
-                {/* Price under description */}
+                {/* Price after title */}
                 <div className="mt-3">
                   <span className="text-2xl font-bold text-gray-900">₹{currentProduct.price.toLocaleString()}</span>
                   {currentProduct.originalPrice && currentProduct.originalPrice > currentProduct.price && (
@@ -466,6 +481,7 @@ const ProductDetailPage = () => {
                   )}
                 </div>
 
+                {/* Description after price */}
                 <div className="mt-4">
                   <span className="font-semibold">Product Description</span>
                   <p className={`text-sm text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
@@ -497,13 +513,6 @@ const ProductDetailPage = () => {
                   <p className="text-lg font-semibold text-gray-900">
                     <span>{currentProduct.brand || "Ksauni Bliss"}</span>
                   </p>
-                  {currentProduct.description && (
-                    <p className="text-base text-gray-600 mb-2">
-                      {typeof currentProduct.description === "string"
-                        ? currentProduct.description
-                        : JSON.stringify(currentProduct.description)}
-                    </p>
-                  )}
                   {/* Price section */}
                   <span className="text-3xl font-bold text-gray-900">₹{currentProduct.price.toLocaleString()}</span>
                   {currentProduct.originalPrice && currentProduct.originalPrice > currentProduct.price && (
@@ -513,6 +522,13 @@ const ProductDetailPage = () => {
                   )}
                   {getDiscountPercentage() > 0 && (
                     <span className="ml-3 text-base font-medium text-green-600">{getDiscountPercentage()}% OFF</span>
+                  )}
+                  {currentProduct.description && (
+                    <p className="text-base text-gray-600 mb-2 mt-2">
+                      {typeof currentProduct.description === "string"
+                        ? currentProduct.description
+                        : JSON.stringify(currentProduct.description)}
+                    </p>
                   )}
                 </div>
               </div>
@@ -696,7 +712,7 @@ const ProductDetailPage = () => {
                     } ${isAddingToCart ? "opacity-50" : ""}`}
                   >
                     <ShoppingCart className="w-5 h-5" />
-                    {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE FIRST" : "ADD TO CART"}
+                    {currentProduct.sizes?.length > 0 && !selectedSize ? "PLEASE SELECT SIZE" : "ADD TO CART"}
                   </button>
                   <button
                     onClick={handleBuyNow}
@@ -712,7 +728,7 @@ const ProductDetailPage = () => {
                     } ${isAddingToCart ? "opacity-50" : ""}`}
                   >
                     <img src="/buynow1.svg" className="w-8 h-8" />
-                    {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE FIRST" : "BUY NOW"}
+                    {currentProduct.sizes?.length > 0 && !selectedSize ? "PLEASE SELECT SIZE" : "BUY NOW"}
                   </button>
                 </div>
               </div>
@@ -891,7 +907,7 @@ const ProductDetailPage = () => {
             } ${isAddingToCart ? "opacity-50" : ""}`}
           >
             <ShoppingCart className="w-4 h-4" />
-            {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE" : "ADD TO CART"}
+            {currentProduct.sizes?.length > 0 && !selectedSize ? "PLEASE SELECT SIZE" : "ADD TO CART"}
           </button>
           {/* Buy Now */}
           <button
@@ -908,7 +924,7 @@ const ProductDetailPage = () => {
             } ${isAddingToCart ? "opacity-50" : ""}`}
           >
             <img src="/buynow1.svg" className="w-8 h-8 rounded-lg" />
-            {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE" : "BUY NOW"}
+            {currentProduct.sizes?.length > 0 && !selectedSize ? "PLEASE SELECT SIZE" : "BUY NOW"}
           </button>
         </div>
       </div>

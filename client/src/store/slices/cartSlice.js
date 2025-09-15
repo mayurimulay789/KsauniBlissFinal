@@ -11,12 +11,26 @@ export const fetchCart = createAsyncThunk("cart/fetchCart", async (_, { rejectWi
   } catch (error) {
     return rejectWithValue(error.response?.data?.message || "Failed to fetch cart")
   }
+<<<<<<< HEAD
 })
 
 export const addToCart = createAsyncThunk("cart/addToCart", async (cartData, { rejectWithValue }) => {
   try {
     const response = await cartAPI.addToCart(cartData)
     return response.data // Assuming this returns { cart: { items, summary } }
+=======
+});
+export const addToCart = createAsyncThunk("cart/addToCart", async (cartData, { rejectWithValue, getState }) => {
+  try {
+    // Check if we're already adding to cart to prevent duplicates
+    const currentState = getState();
+    if (currentState.cart.isAddingToCart) {
+      return rejectWithValue("Already adding to cart");
+    }
+    
+    const response = await cartAPI.addToCart(cartData);
+    return response.data; // Assuming this returns { cart: { items, summary } }
+>>>>>>> 4f91f22e3ad83d04b15f3344429c37af71905aaf
   } catch (error) {
     return rejectWithValue(error.response?.data?.message || "Failed to add item to cart")
   }
@@ -93,9 +107,18 @@ const cartSlice = createSlice({
       state.error = null
     },
     clearCartLocal: (state) => {
+<<<<<<< HEAD
       state.items = []
       state.summary = initialState.summary
       state.totalQuantity = 0
+=======
+      state.items = [];
+      state.summary = initialState.summary;
+      state.totalQuantity = 0;
+      // Clear localStorage when clearing locally
+      localStorage.removeItem("guestCart");
+      localStorage.removeItem("cart");
+>>>>>>> 4f91f22e3ad83d04b15f3344429c37af71905aaf
     },
     updateLocalQuantity: (state, action) => {
       const { itemId, quantity } = action.payload
@@ -316,12 +339,23 @@ const cartSlice = createSlice({
         state.error = null
       })
       .addCase(clearCart.fulfilled, (state) => {
+<<<<<<< HEAD
         state.isLoading = false
         state.items = []
         state.summary = initialState.summary
         state.totalQuantity = 0
         state.lastUpdated = new Date().toISOString()
         cartSlice.caseReducers.saveCartToStorage(state)
+=======
+        state.isLoading = false;
+        state.items = [];
+        state.summary = initialState.summary;
+        state.totalQuantity = 0;
+        state.lastUpdated = new Date().toISOString();
+        // Clear localStorage immediately
+        localStorage.removeItem("guestCart");
+        localStorage.removeItem("cart");
+>>>>>>> 4f91f22e3ad83d04b15f3344429c37af71905aaf
       })
       .addCase(clearCart.rejected, (state, action) => {
         state.isLoading = false
