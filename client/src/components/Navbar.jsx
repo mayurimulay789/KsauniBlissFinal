@@ -570,7 +570,7 @@ const Navbar = () => {
             onClick={() => navigateToUnder999()}
             className="flex flex-col items-center justify-center px-1 py-1 text-[12px] font-semibold text-gray-700 cursor-pointer hover:text-red-600"
           >
-            <div className="flex items-center justify-center w-10 h-10 mb-0.5 bg-red-50 rounded-full">
+            <div className="flex items-center justify-center">
               <img src="/cydlogo.jpeg" alt="CYD Logo" className="w-8 h-8 object-contain rounded-full" />
             </div>
             <span>Under ₹999</span>

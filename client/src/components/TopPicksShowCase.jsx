@@ -79,6 +79,15 @@ export default function TopPicksShowcase() {
   };
   const handleAddToCart = async (product) => {
     try {
+      // Prevent rapid clicks
+      const now = Date.now()
+      const lastClick = window.lastTopPicksAddToCartClick || 0
+      if (now - lastClick < 1000) {
+        console.log("Rapid click detected in TopPicks, ignoring")
+        return
+      }
+      window.lastTopPicksAddToCartClick = now
+      
       const rawSize = product.sizes?.[0]?.size || "";
       const size = rawSize.includes(",") ? rawSize.split(",")[0].trim() : rawSize;
       const rawColor = product.colors?.[0]?.name || "";
