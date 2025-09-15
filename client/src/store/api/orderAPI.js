@@ -1,5 +1,4 @@
 import axios from "axios";
-import { trackOrder } from "../slices/orderSlice";
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 // Create axios instance with interceptors
@@ -23,9 +22,24 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Only redirect to login for authenticated routes, not guest checkout
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+      const requestUrl = error.config?.url || '';
+      
+      // Don't redirect for guest checkout routes
+      const guestRoutes = [
+        '/orders/create-razorpay-order',
+        '/orders/cod',
+        '/orders/verify-payment',
+        '/orders/shipping-rates'
+      ];
+      
+      const isGuestRoute = guestRoutes.some(route => requestUrl.includes(route));
+      
+      if (!isGuestRoute) {
+        localStorage.removeItem("fashionhub_token");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }
