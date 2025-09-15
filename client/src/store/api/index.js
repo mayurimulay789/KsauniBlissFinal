@@ -1,5 +1,5 @@
 // API exports for easier importing
-export { default as adminAPI } from './adminAPI';
+export { default as adminAPI } from './adminApi';
 export { default as authAPI } from './authAPI';
 export { default as cartAPI } from './cartAPI';
 export { default as wishlistAPI } from './wishlistAPI';

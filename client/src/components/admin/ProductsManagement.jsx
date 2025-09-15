@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useDispatch } from "react-redux"
 import { Plus, Search, Edit, Trash2, ArrowUp, ArrowDown, Star } from "lucide-react"
-import adminAPI from "../../store/api/adminAPI"
+import adminAPI from "../../store/api/adminApi"
 
 const ProductsManagement = () => {
   const dispatch = useDispatch()
@@ -253,7 +253,9 @@ const ProductsManagement = () => {
       const [removed] = next.splice(index, 1)
       try {
         if (removed?.preview) URL.revokeObjectURL(removed.preview)
-      } catch {}
+      } catch {
+        // Ignore error when revoking object URL
+      }
       return next
     })
   }
@@ -264,7 +266,9 @@ const ProductsManagement = () => {
       images.forEach((img) => {
         try {
           if (img?.preview) URL.revokeObjectURL(img.preview)
-        } catch {}
+        } catch {
+          // Ignore error when revoking object URL
+        }
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
