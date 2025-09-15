@@ -3,34 +3,17 @@ FROM node:20-alpine as build-stage
 
 WORKDIR /app
 
-# Install build dependencies
-RUN apk add --no-cache \
-    autoconf \
-    automake \
-    libtool \
-    nasm \
-    build-base \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    giflib-dev \
-    python3 \
-    make \
-    g++
-
-# Copy package files
+# Copy package files first for better caching
 COPY package*.json ./
 
-# Install dependencies with production only
-RUN npm ci --only=production --legacy-peer-deps
-
-# Install dev dependencies separately to optimize memory
-RUN npm install --only=dev --legacy-peer-deps
+# Install dependencies with minimal memory footprint
+RUN npm ci --production=false --no-audit --no-fund --legacy-peer-deps
 
 # Copy source code
 COPY . .
 
-# Set Node.js memory options and build the app with simpler config
-ENV NODE_OPTIONS="--max-old-space-size=2048"
+# Set Node.js memory options and build the app with optimized config
+ENV NODE_OPTIONS="--max-old-space-size=1536"
 RUN npm run build:docker
 
 # Production stage with nginx

@@ -8,7 +8,7 @@
     "build": "vite build --mode production",
     "build:simple": "NODE_OPTIONS='--max-old-space-size=1024' vite build --mode production",
     "build:memory": "NODE_OPTIONS='--max-old-space-size=4096' vite build --mode production --minify false",
-    "build:docker": "NODE_OPTIONS='--max-old-space-size=2048' vite build --mode production --minify esbuild",
+    "build:docker": "NODE_OPTIONS='--max-old-space-size=1536' vite build --config vite.config.docker.js --mode production",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
