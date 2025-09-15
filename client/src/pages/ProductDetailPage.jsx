@@ -343,7 +343,7 @@ const ProductDetailPage = () => {
                         <img
                           src={img.url || "/placeholder.svg"}
                           alt={currentProduct.name}
-                          className="w-full aspect-[3/4] object-cover cursor-zoom-in"
+                          className="w-full h-auto max-w-full aspect-[3/4] object-cover cursor-zoom-in"
                           loading="lazy"
                           onClick={() => {
                             setSelectedImage(idx)
@@ -388,11 +388,11 @@ const ProductDetailPage = () => {
                 >
                   {currentProduct.images.map((img, idx) => (
                     <SwiperSlide key={idx}>
-                      <div className="aspect-auto bg-gray-100 rounded-xl overflow-hidden border-transparent hover:border-primary cursor-pointer">
+                      <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden border-transparent hover:border-primary cursor-pointer">
                         <img
                           src={img.url || "/placeholder.svg"}
                           alt={`${currentProduct.name} ${idx + 1}`}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full max-w-full object-cover"
                           loading="lazy"
                         />
                       </div>
@@ -407,7 +407,7 @@ const ProductDetailPage = () => {
                   <motion.img
                     src={currentProduct.images[selectedImage]?.url}
                     alt={currentProduct.name}
-                    className="max-w-full max-h-full object-contain cursor-zoom-in"
+                    className="w-full h-auto max-w-full object-contain cursor-zoom-in"
                     onClick={() => setShowImageModal(true)}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -433,7 +433,7 @@ const ProductDetailPage = () => {
                       <img
                         src={img.url || "/placeholder.svg"}
                         alt={`${currentProduct.name} ${idx + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full max-w-full object-cover"
                         loading="lazy"
                       />
                     </button>
@@ -465,7 +465,6 @@ const ProductDetailPage = () => {
                     <span className="ml-2 text-sm font-medium text-green-600">{getDiscountPercentage()}% OFF</span>
                   )}
                 </div>
-
               </div>
 
               {/* Share Button */}
@@ -501,23 +500,9 @@ const ProductDetailPage = () => {
                   {getDiscountPercentage() > 0 && (
                     <span className="ml-3 text-base font-medium text-green-600">{getDiscountPercentage()}% OFF</span>
                   )}
-                
                 </div>
-                
               </div>
-              <div className="mt-4">
-                  <span className="font-semibold">Product Description</span>
-                  <p className={`text-sm text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
-                    {currentProduct?.description}
-                  </p>
-
-                  <button
-                    onClick={() => setShowFullDescription(!showFullDescription)}
-                    className="text-red-500 text-xs font-semibold mt-1"
-                  >
-                    {showFullDescription ? "Show Less" : "Read More"}
-                  </button>
-                </div>
+            
               <div className="lg:hidden -mt-2">
                 <div className="grid grid-cols-3 gap-2">
                   {/* Tags */}
@@ -717,24 +702,23 @@ const ProductDetailPage = () => {
                     {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE FIRST" : "BUY NOW"}
                   </button>
                 </div>
-              
-              <div className="mt-4">
-                  <span className="font-semibold">Product Description</span>
-                  <p className={`text-sm text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
-                    {currentProduct?.description}
-                  </p>
+                <div className="mt-4">
+                <span className="font-semibold">Product Description</span>
+                <p className={`text-sm text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
+                  {currentProduct?.description}
+                </p>
 
-                  <button
-                    onClick={() => setShowFullDescription(!showFullDescription)}
-                    className="text-red-500 text-xs font-semibold mt-1"
-                  >
-                    {showFullDescription ? "Show Less" : "Read More"}
-                  </button>
-                </div></div>
+                <button
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                  className="text-red-500 text-xs font-semibold mt-1"
+                >
+                  {showFullDescription ? "Show Less" : "Read More"}
+                </button>
+              </div>
+              </div>
             </div>
-            
           </div>
-          
+
           {/* Static Design Section */}
           <StaticDesignSection />
           {/* Reviews Section */}
@@ -779,7 +763,7 @@ const ProductDetailPage = () => {
                 <img
                   src={currentProduct.images[selectedImage]?.url || "/placeholder.svg"}
                   alt={currentProduct.name}
-                  className="object-contain max-w-full max-h-full"
+                  className="w-full h-auto max-w-full max-h-full object-contain"
                   loading="lazy"
                 />
               </div>
@@ -936,7 +920,7 @@ const StaticDesignSection = () => {
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm mt-2 mb-2 py-4 px-4 sm:px-8">
       <div className="max-w-3xl mx-auto">
-        <img src="/badge.jpeg" className="rounded-xl" />
+        <img src="/badge.jpeg" className="w-full h-auto max-w-full rounded-xl" />
       </div>
     </div>
   )
