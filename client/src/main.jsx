@@ -28,13 +28,7 @@ const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
 
 root.render(
-<<<<<<< HEAD
-    <Provider store={store}>
-      <App />
-    </Provider>
-=======
   <Provider store={store}>
     <App />
   </Provider>
->>>>>>> 4f91f22e3ad83d04b15f3344429c37af71905aaf
 );
