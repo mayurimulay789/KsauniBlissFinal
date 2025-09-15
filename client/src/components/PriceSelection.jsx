@@ -49,7 +49,7 @@ const PriceSelection = ({ selectedPrice }) => {
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleOptionClick(option)}
-              className={`relative w-full cursor-pointer transition-all duration-300 ${
+              className={`relative w-full text-xl cursor-pointer transition-all duration-300 ${
                 selectedOption === option.id ? "ring-4 ring-red-800" : ""
               }`}
             >

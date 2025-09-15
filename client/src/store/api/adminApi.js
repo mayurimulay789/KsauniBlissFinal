@@ -1,93 +1,128 @@
-import axios from "axios";
+import axios from "axios"
 
-// Get API base URL from environment or default
-// Admin API for handling admin operations
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ksaunibliss.com/api';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api"
 
-// Create axios instance for admin API
-const adminAPI = axios.create({
-  baseURL: `${API_BASE_URL}/admin`,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Request interceptor to add auth token
-adminAPI.interceptors.request.use(
-  (config) => {
-    // Try both token keys used by the auth system
-    const token = localStorage.getItem('authToken') || localStorage.getItem('fashionhub_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor for error handling
-adminAPI.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Clear all auth tokens that might be used
-      localStorage.removeItem('token');
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('fashionhub_token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('tokenExpiry');
-      // Redirect to regular login instead of admin login
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
+// ----------------- Helpers -----------------
+const createAuthHeaders = () => {
+  const token = localStorage.getItem("fashionhub_token")
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   }
-);
+}
 
-// Admin API methods to match adminSlice expectations
-const adminAPIFunctions = {
-  // Dashboard
-  getDashboardStats: () => adminAPI.get('/dashboard/stats'),
-  
-  // Users
-  getAllUsers: (params) => adminAPI.get('/users', { params }),
-  updateUserRole: (userId, data) => adminAPI.patch(`/users/${userId}/role`, data),
-  deleteUser: (userId) => adminAPI.delete(`/users/${userId}`),
-  
-  // Orders
-  getAllOrders: (params) => adminAPI.get('/orders', { params }),
-  updateOrderStatus: (orderId, data) => adminAPI.patch(`/orders/${orderId}/status`, data),
-  
-  // Coupons
-  getAllCoupons: (params) => adminAPI.get('/coupons', { params }),
-  createCoupon: (data) => adminAPI.post('/coupons', data),
-  updateCoupon: (couponId, data) => adminAPI.put(`/coupons/${couponId}`, data),
-  deleteCoupon: (couponId) => adminAPI.delete(`/coupons/${couponId}`),
-  
-  // Auth
-  loginAdmin: (credentials) => adminAPI.post('/auth/login', credentials),
-  verifyAdminToken: () => adminAPI.get('/auth/verify'),
-  
-  // Innovations
-  getAllInnovations: () => adminAPI.get('/innovations'),
-  createInnovation: (data) => adminAPI.post('/innovations', data),
-  updateInnovation: (innovationId, data) => adminAPI.put(`/innovations/${innovationId}`, data),
-  deleteInnovation: (innovationId) => adminAPI.delete(`/innovations/${innovationId}`),
-  
-  // Products
-  getAllProducts: (params) => adminAPI.get('/products', { params }),
-  createProduct: (data) => adminAPI.post('/products', data),
-  updateProduct: (productId, data) => adminAPI.put(`/products/${productId}`, data),
-  deleteProduct: (productId) => adminAPI.delete(`/products/${productId}`),
-  
-  // Categories
-  getAllCategories: (params) => adminAPI.get('/categories', { params }),
-  
-  // Top 10 Products
-  getAllTop10Products: () => adminAPI.get('/top10'),
-  createTop10Product: (data) => adminAPI.post('/top10', data),
-  updateTop10Product: (id, data) => adminAPI.put(`/top10/${id}`, data),
-  deleteTop10Product: (id) => adminAPI.delete(`/top10/${id}`),
-};
+const createFormDataHeaders = () => {
+  const token = localStorage.getItem("fashionhub_token")
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  }
+}
 
-// Export the functions directly to match slice imports
-export default adminAPIFunctions;
+// ----------------- Admin API -----------------
+const adminAPI = {
+  // Dashboard Stats
+  getDashboardStats: () =>
+    axios.get(`${API_URL}/admin/dashboard/stats`, createAuthHeaders()),
+
+  // User Management
+  getAllUsers: (params) =>
+    axios.get(`${API_URL}/admin/users`, {
+      ...createAuthHeaders(),
+      params,
+    }),
+  updateUserRole: (userId, data) =>
+    axios.put(`${API_URL}/admin/users/${userId}/role`, data, createAuthHeaders()),
+  deleteUser: (userId) =>
+    axios.delete(`${API_URL}/admin/users/${userId}`, createAuthHeaders()),
+
+  // Order Management
+  getAllOrders: (params) =>
+    axios.get(`${API_URL}/admin/orders`, {
+      ...createAuthHeaders(),
+      params,
+    }),
+  updateOrderStatus: (orderId, data) =>
+    axios.put(`${API_URL}/admin/orders/${orderId}/status`, data, createAuthHeaders()),
+
+  // Product Management
+  getAllProducts: (params) =>
+    axios.get(`${API_URL}/admin/products`, {
+      ...createAuthHeaders(),
+      params,
+    }),
+  createProduct: (formData) =>
+    axios.post(`${API_URL}/admin/products`, formData, createFormDataHeaders()),
+  updateProduct: (productId, formData) =>
+    axios.put(`${API_URL}/admin/products/${productId}`, formData, createFormDataHeaders()),
+  deleteProduct: (productId) =>
+    axios.delete(`${API_URL}/admin/products/${productId}`, createAuthHeaders()),
+
+  // Top10 Management
+  getAllTop10Products: () => axios.get(`${API_URL}/top10`, createAuthHeaders()),
+  getTop10Product: (id) => axios.get(`${API_URL}/top10/${id}`, createAuthHeaders()),
+  createTop10Product: (data) =>
+    axios.post(`${API_URL}/top10`, data, createAuthHeaders()),
+  updateTop10Product: (id, data) =>
+    axios.put(`${API_URL}/top10/${id}`, data, createAuthHeaders()),
+  deleteTop10Product: (id) =>
+    axios.delete(`${API_URL}/top10/${id}`, createAuthHeaders()),
+
+  // Category Management
+  getAllCategories: (params) =>
+    axios.get(`${API_URL}/admin/categories`, {
+      ...createAuthHeaders(),
+      params,
+    }),
+  createCategory: (formData) =>
+    axios.post(`${API_URL}/admin/categories`, formData, createFormDataHeaders()),
+  updateCategory: (categoryId, formData) =>
+    axios.put(`${API_URL}/admin/categories/${categoryId}`, formData, createFormDataHeaders()),
+  deleteCategory: (categoryId) =>
+    axios.delete(`${API_URL}/admin/categories/${categoryId}`, createAuthHeaders()),
+
+  // Banner Management
+  getAllBanners: (params) =>
+    axios.get(`${API_URL}/admin/banners`, {
+      ...createAuthHeaders(),
+      params,
+    }),
+  createBanner: (formData) =>
+    axios.post(`${API_URL}/admin/banners`, formData, createFormDataHeaders()),
+  updateBanner: (bannerId, formData) =>
+    axios.put(`${API_URL}/admin/banners/${bannerId}`, formData, createFormDataHeaders()),
+  deleteBanner: (bannerId) =>
+    axios.delete(`${API_URL}/admin/banners/${bannerId}`, createAuthHeaders()),
+
+  // Coupon Management
+  getAllCoupons: (params) =>
+    axios.get(`${API_URL}/admin/coupons`, {
+      ...createAuthHeaders(),
+      params,
+    }),
+  createCoupon: (data) =>
+    axios.post(`${API_URL}/admin/coupons`, data, createAuthHeaders()),
+  updateCoupon: (couponId, data) =>
+    axios.put(`${API_URL}/admin/coupons/${couponId}`, data, createAuthHeaders()),
+  deleteCoupon: (couponId) =>
+    axios.delete(`${API_URL}/admin/coupons/${couponId}`, createAuthHeaders()),
+
+  // Innovation Management (ADMIN ONLY)
+  getAllInnovations: (params) =>
+    axios.get(`${API_URL}/innovations/admin`, {
+      ...createAuthHeaders(),
+      params,
+    }),
+  createInnovation: (formData) =>
+    axios.post(`${API_URL}/innovations`, formData, createFormDataHeaders()),
+  updateInnovation: (innovationId, formData) =>
+    axios.put(`${API_URL}/innovations/${innovationId}`, formData, createFormDataHeaders()),
+  deleteInnovation: (innovationId) =>
+    axios.delete(`${API_URL}/innovations/${innovationId}`, createAuthHeaders()),
+}
+
+export default adminAPI;

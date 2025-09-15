@@ -1,18 +1,18 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { motion, AnimatePresence } from "framer-motion";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { FreeMode, Navigation, Thumbs, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/free-mode";
-import "swiper/css/navigation";
-import "swiper/css/thumbs";
-import "swiper/css/pagination";
-import { Heart, Minus, Plus, X, AlertCircle, Ruler, ShoppingCart } from "lucide-react";
-import { fetchProductById } from "../store/slices/productSlice";
-import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice";
+"use client"
+import { useState, useEffect } from "react"
+import { useParams, Link, useNavigate } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { motion, AnimatePresence } from "framer-motion"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { FreeMode, Navigation, Thumbs, Pagination } from "swiper/modules"
+import "swiper/css"
+import "swiper/css/free-mode"
+import "swiper/css/navigation"
+import "swiper/css/thumbs"
+import "swiper/css/pagination"
+import { Heart, Minus, Plus, X, AlertCircle, Ruler, ShoppingCart } from "lucide-react"
+import { fetchProductById } from "../store/slices/productSlice"
+import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice"
 import {
   addToWishlist,
   removeFromWishlist,
@@ -20,194 +20,230 @@ import {
   optimisticRemoveFromWishlist,
   selectIsAddingToWishlist,
   selectIsRemovingFromWishlist,
-} from "../store/slices/wishlistSlice";
-import ProductReviews from "../components/ProductReviews";
-import RelatedProducts from "../components/RelatedProducts";
-import Preloader from "../components/Preloader";
-import toast from "react-hot-toast";
+} from "../store/slices/wishlistSlice"
+import ProductReviews from "../components/ProductReviews"
+import RelatedProducts from "../components/RelatedProducts"
+import Preloader from "../components/Preloader"
+import toast from "react-hot-toast"
 const ProductDetailPage = () => {
-  const { id } = useParams();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { currentProduct, isLoading, error } = useSelector((state) => state.products);
-  const { items: wishlistItems } = useSelector((state) => state.wishlist);
-  const isAddingToCart = useSelector(selectIsAddingToCart);
-  const isAddingToWishlist = useSelector(selectIsAddingToWishlist);
-  const isRemovingFromWishlist = useSelector(selectIsRemovingFromWishlist);
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [showImageModal, setShowImageModal] = useState(false);
-  const [showSizeGuide, setShowSizeGuide] = useState(false);
-  const [thumbsSwiper, setThumbsSwiper] = useState(null);
-  const isInWishlist = wishlistItems.some((item) => item._id === currentProduct?._id);
+  const { id } = useParams()
+  const [showFullDescription, setShowFullDescription] = useState(false)
+
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { currentProduct, isLoading, error } = useSelector((state) => state.products)
+  const { items: wishlistItems } = useSelector((state) => state.wishlist)
+  const isAddingToCart = useSelector(selectIsAddingToCart)
+  const isAddingToWishlist = useSelector(selectIsAddingToWishlist)
+  const isRemovingFromWishlist = useSelector(selectIsRemovingFromWishlist)
+  const [selectedImage, setSelectedImage] = useState(0)
+  const [selectedSize, setSelectedSize] = useState("")
+  const [selectedColor, setSelectedColor] = useState("")
+  const [quantity, setQuantity] = useState(1)
+  const [showImageModal, setShowImageModal] = useState(false)
+  const [showSizeGuide, setShowSizeGuide] = useState(false)
+  const [thumbsSwiper, setThumbsSwiper] = useState(null)
+  const isInWishlist = wishlistItems.some((item) => item._id === currentProduct?._id)
   useEffect(() => {
-    if (id) dispatch(fetchProductById(id));
-  }, [dispatch, id]);
+    if (id) dispatch(fetchProductById(id))
+  }, [dispatch, id])
   useEffect(() => {
     if (currentProduct) {
-      if (currentProduct.sizes?.length > 0) setSelectedSize(currentProduct.sizes[0].size);
-      if (currentProduct.colors?.length > 0) setSelectedColor(currentProduct.colors[0].name);
+      if (currentProduct.sizes?.length > 0) setSelectedSize(currentProduct.sizes[0].size)
+      if (currentProduct.colors?.length > 0) setSelectedColor(currentProduct.colors[0].name)
     }
-  }, [currentProduct]);
+  }, [currentProduct])
   const getDiscountPercentage = () => {
     if (currentProduct?.originalPrice && currentProduct.originalPrice > currentProduct.price) {
-      return Math.round(((currentProduct.originalPrice - currentProduct.price) / currentProduct.originalPrice) * 100);
+      return Math.round(((currentProduct.originalPrice - currentProduct.price) / currentProduct.originalPrice) * 100)
     }
-    return 0;
-  };
+    return 0
+  }
   const getSelectedSizeStock = () => {
-    if (!selectedSize || !currentProduct?.sizes) return currentProduct?.stock || 0;
-    const sizeData = currentProduct.sizes.find((s) => s.size === selectedSize);
-    return sizeData?.stock || 0;
-  };
+    if (!selectedSize || !currentProduct?.sizes) return currentProduct?.stock || 0
+    const sizeData = currentProduct.sizes.find((s) => s.size === selectedSize)
+    return sizeData?.stock || 0
+  }
   const tagText =
     (Array.isArray(currentProduct?.tags) && currentProduct.tags[0]) ||
     (currentProduct?.isTrending && "TRENDING") ||
     (currentProduct?.isNewArrival && "NEW ARRIVAL") ||
     (currentProduct?.isFeatured && "FEATURED") ||
-    "DESIGN OF THE WEEK";
+    "DESIGN OF THE WEEK"
   const fitText =
     typeof currentProduct?.fits === "string"
       ? `${currentProduct.fits} FIT`
       : currentProduct?.fits
         ? `${String(currentProduct.fits)} FIT`
-        : "REGULAR FIT";
+        : "REGULAR FIT"
   const materialText =
     typeof currentProduct?.material === "string"
       ? currentProduct.material
       : currentProduct?.material
         ? String(currentProduct.material)
-        : "COTTON";
+        : "COTTON"
   const handleAddToCart = async () => {
-    console.log("=== ADD TO CART CLICKED ===");
-    console.log("handleAddToCart called");
-    console.log("currentProduct:", currentProduct);
-    console.log("selectedSize:", selectedSize);
-    console.log("selectedColor:", selectedColor);
-    console.log("quantity:", quantity);
-    
+    console.log("=== ADD TO CART CLICKED ===")
+    console.log("handleAddToCart called")
+    console.log("currentProduct:", currentProduct)
+    console.log("selectedSize:", selectedSize)
+    console.log("selectedColor:", selectedColor)
+    console.log("quantity:", quantity)
+
     if (currentProduct.sizes?.length && !selectedSize) {
-      console.log("No size selected, showing error");
-      toast.error("Please select a size");
-      return false; // Return false instead of returning early
+      console.log("No size selected, showing error")
+      toast.error("Please select a size first before adding to cart", {
+        duration: 3000,
+        style: {
+          background: "#fee2e2",
+          color: "#dc2626",
+          fontWeight: "bold",
+        },
+      })
+      // Scroll to size selection area
+      const sizeSection = document.querySelector("[data-size-section]")
+      if (sizeSection) {
+        sizeSection.scrollIntoView({ behavior: "smooth", block: "center" })
+        // Add visual highlight to size section
+        sizeSection.classList.add("ring-2", "ring-red-500", "ring-opacity-50")
+        setTimeout(() => {
+          sizeSection.classList.remove("ring-2", "ring-red-500", "ring-opacity-50")
+        }, 2000)
+      }
+      return false
     }
     if (currentProduct.colors?.length && !selectedColor) {
-      console.log("No color selected, showing error");
-      toast.error("Please select a color");
-      return false; // Return false instead of returning early
+      console.log("No color selected, showing error")
+      toast.error("Please select a color")
+      return false
     }
-    
+
     // Check stock availability
-    const sizeStock = getSelectedSizeStock();
+    const sizeStock = getSelectedSizeStock()
     if (quantity > sizeStock) {
-      return toast.error(`Only ${sizeStock} items available in stock`);
+      return toast.error(`Only ${sizeStock} items available in stock`)
     }
-    
-    const payload = { productId: currentProduct._id, quantity, size: selectedSize, color: selectedColor };
-    console.log("Cart payload:", payload);
-    
+
+    const payload = { productId: currentProduct._id, quantity, size: selectedSize, color: selectedColor }
+    console.log("Cart payload:", payload)
+
     // Optimistic update for better UX
-    dispatch(optimisticAddToCart({ product: currentProduct, quantity, size: selectedSize, color: selectedColor }));
-    toast.success(`${currentProduct.name} added to cart!`);
-    
-    const bag = document.querySelector("#bag");
+    dispatch(optimisticAddToCart({ product: currentProduct, quantity, size: selectedSize, color: selectedColor }))
+    toast.success(`${currentProduct.name} added to cart!`)
+
+    const bag = document.querySelector("#bag")
     if (bag) {
-      bag.style.transform = "scale(1.2)";
-      setTimeout(() => (bag.style.transform = "scale(1)"), 200);
+      bag.style.transform = "scale(1.2)"
+      setTimeout(() => (bag.style.transform = "scale(1)"), 200)
     }
-    
+
     try {
-      console.log("Dispatching addToCart action...");
-      const result = await dispatch(addToCart(payload));
-      console.log("Add to cart result:", result);
-      
-      if (result.type.endsWith('/fulfilled')) {
-        console.log("Added to cart successfully:", result.payload);
-        return true; // Return success for Buy Now flow
+      console.log("Dispatching addToCart action...")
+      const result = await dispatch(addToCart(payload))
+      console.log("Add to cart result:", result)
+
+      if (result.type.endsWith("/fulfilled")) {
+        console.log("Added to cart successfully:", result.payload)
+        return true // Return success for Buy Now flow
       } else {
-        console.error("Add to cart failed:", result);
-        toast.error(result.payload?.message || "Failed to add to cart");
-        return false; // Return failure for Buy Now flow
+        console.error("Add to cart failed:", result)
+        toast.error(result.payload?.message || "Failed to add to cart")
+        return false // Return failure for Buy Now flow
       }
     } catch (err) {
-      console.error("Add to cart error:", err);
-      toast.error(err?.message || "Failed to add to cart");
-      return false; // Return failure for Buy Now flow
+      console.error("Add to cart error:", err)
+      toast.error(err?.message || "Failed to add to cart")
+      return false // Return failure for Buy Now flow
     }
-  };
+  }
   const handleBuyNow = async () => {
-    console.log("=== BUY NOW CLICKED ===");
-    console.log("handleBuyNow called");
-    console.log("currentProduct:", currentProduct?._id);
-    console.log("selectedSize:", selectedSize);
-    console.log("selectedColor:", selectedColor);
-    
+    console.log("=== BUY NOW CLICKED ===")
+    console.log("handleBuyNow called")
+    console.log("currentProduct:", currentProduct?._id)
+    console.log("selectedSize:", selectedSize)
+    console.log("selectedColor:", selectedColor)
+
     if (currentProduct.sizes?.length && !selectedSize) {
-      console.log("No size selected, showing error");
-      toast.error("Please select a size");
-      return false; // Return false instead of returning early
+      console.log("No size selected, showing error")
+      toast.error("Please select a size first before proceeding to buy", {
+        duration: 3000,
+        style: {
+          background: "#fee2e2",
+          color: "#dc2626",
+          fontWeight: "bold",
+        },
+      })
+      // Scroll to size selection area
+      const sizeSection = document.querySelector("[data-size-section]")
+      if (sizeSection) {
+        sizeSection.scrollIntoView({ behavior: "smooth", block: "center" })
+        // Add visual highlight to size section
+        sizeSection.classList.add("ring-2", "ring-red-500", "ring-opacity-50")
+        setTimeout(() => {
+          sizeSection.classList.remove("ring-2", "ring-red-500", "ring-opacity-50")
+        }, 2000)
+      }
+      return false
     }
     if (currentProduct.colors?.length && !selectedColor) {
-      console.log("No color selected, showing error");
-      toast.error("Please select a color");
-      return false; // Return false instead of returning early
+      console.log("No color selected, showing error")
+      toast.error("Please select a color")
+      return false
     }
-    
+
     // Check stock availability
-    const sizeStock = getSelectedSizeStock();
+    const sizeStock = getSelectedSizeStock()
     if (quantity > sizeStock) {
-      console.log("Not enough stock, showing error");
-      return toast.error(`Only ${sizeStock} items available in stock`);
+      console.log("Not enough stock, showing error")
+      return toast.error(`Only ${sizeStock} items available in stock`)
     }
-    
+
     // First add to cart, then navigate to checkout if successful
-    console.log("Calling handleAddToCart from Buy Now...");
+    console.log("Calling handleAddToCart from Buy Now...")
     try {
-      const success = await handleAddToCart();
-      console.log("handleAddToCart returned:", success);
-      
+      const success = await handleAddToCart()
+      console.log("handleAddToCart returned:", success)
+
       if (success) {
-        console.log("Success! Navigating to checkout...");
+        console.log("Success! Navigating to checkout...")
         navigate("/checkout", {
           state: {
             product: currentProduct,
             quantity,
             size: selectedSize,
             color: selectedColor,
-            buyNow: true // Mark this as a buy now transaction
+            buyNow: true, // Mark this as a buy now transaction
           },
-        });
-        console.log("Navigation triggered");
+        })
+        console.log("Navigation triggered")
       } else {
-        console.log("handleAddToCart returned false, not navigating");
+        console.log("handleAddToCart returned false, not navigating")
       }
     } catch (error) {
-      console.error("Error in handleBuyNow:", error);
+      console.error("Error in handleBuyNow:", error)
     }
-  };
+  }
   const handleWishlistToggle = async () => {
     try {
       if (isInWishlist) {
-        dispatch(optimisticRemoveFromWishlist(currentProduct._id));
-        toast.success(`${currentProduct.name} removed from wishlist!`);
-        await dispatch(removeFromWishlist(currentProduct._id)).unwrap();
+        dispatch(optimisticRemoveFromWishlist(currentProduct._id))
+        toast.success(`${currentProduct.name} removed from wishlist!`)
+        await dispatch(removeFromWishlist(currentProduct._id)).unwrap()
       } else {
-        dispatch(optimisticAddToWishlist(currentProduct));
-        toast.success(`${currentProduct.name} added to wishlist!`);
-        await dispatch(addToWishlist(currentProduct)).unwrap();
+        dispatch(optimisticAddToWishlist(currentProduct))
+        toast.success(`${currentProduct.name} added to wishlist!`)
+        await dispatch(addToWishlist(currentProduct)).unwrap()
       }
-      const wish = document.querySelector("#wish");
+      const wish = document.querySelector("#wish")
       if (wish) {
-        wish.style.transform = "scale(1.2)";
-        setTimeout(() => (wish.style.transform = "scale(1)"), 200);
+        wish.style.transform = "scale(1.2)"
+        setTimeout(() => (wish.style.transform = "scale(1)"), 200)
       }
     } catch (err) {
-      console.error(err);
-      toast.error(err?.message || "Failed to update wishlist");
+      console.error(err)
+      toast.error(err?.message || "Failed to update wishlist")
     }
-  };
+  }
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -215,28 +251,28 @@ const ProductDetailPage = () => {
           title: currentProduct.name,
           text: currentProduct.description,
           url: window.location.href,
-        });
+        })
       } catch {
         // User cancelled sharing
-        toast.error("Failed to share product");
+        toast.error("Failed to share product")
       }
     } else {
       try {
-        await navigator.clipboard.writeText(window.location.href);
-        toast.success("Link copied");
+        await navigator.clipboard.writeText(window.location.href)
+        toast.success("Link copied")
       } catch {
-        toast.error("Failed to copy");
+        toast.error("Failed to copy")
       }
     }
-  };
+  }
   const handleViewSimilar = () => {
     if (currentProduct?.category?.slug) {
-      navigate(`/products?category=${currentProduct.category.slug}`);
+      navigate(`/products?category=${currentProduct.category.slug}`)
     } else {
-      navigate("/products");
+      navigate("/products")
     }
-  };
-  if (isLoading) return <Preloader message="Loading product…" />;
+  }
+  if (isLoading) return <Preloader message="Loading product…" />
   if (error || !currentProduct)
     return (
       <div className="text-center">
@@ -250,7 +286,7 @@ const ProductDetailPage = () => {
           Browse Products
         </Link>
       </div>
-    );
+    )
   return (
     <div className=" bg-gray-50 sm:pb-0 pb-10">
       {/* Desktop Breadcrumb - Hidden on mobile */}
@@ -310,8 +346,8 @@ const ProductDetailPage = () => {
                           className="w-full aspect-[3/4] object-cover cursor-zoom-in"
                           loading="lazy"
                           onClick={() => {
-                            setSelectedImage(idx);
-                            setShowImageModal(true);
+                            setSelectedImage(idx)
+                            setShowImageModal(true)
                           }}
                         />
                         {/* Discount badge removed on mobile to match requested UI */}
@@ -364,6 +400,7 @@ const ProductDetailPage = () => {
                   ))}
                 </Swiper>
               </div>
+
               {/* Desktop Image Display */}
               <div className="hidden lg:block">
                 <div className="relative bg-gray-50 rounded-xl overflow-hidden group">
@@ -377,24 +414,6 @@ const ProductDetailPage = () => {
                     transition={{ duration: 0.4 }}
                     loading="lazy"
                   />
-                  {/*
-                  {currentProduct.images.length > 1 && (
-                    <>
-                      <button
-                        onClick={() => setSelectedImage(prev => (prev - 1 + currentProduct.images.length) % currentProduct.images.length)}
-                        className="absolute left-4 top-1/2 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 hover:bg-gray-100 transition-opacity"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => setSelectedImage(prev => (prev + 1) % currentProduct.images.length)}
-                        className="absolute right-4 top-1/2 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 hover:bg-gray-100 transition-opacity"
-                      >
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    </>
-                  )}
-                  */}
                   {getSelectedSizeStock() === 0 && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
                       <span className="bg-white text-gray-800 px-4 py-2 rounded-full font-medium">Out of Stock</span>
@@ -433,6 +452,7 @@ const ProductDetailPage = () => {
                       : JSON.stringify(currentProduct.name)}
                   </p>
                 )}
+
                 {/* Price under description */}
                 <div className="mt-3">
                   <span className="text-2xl font-bold text-gray-900">₹{currentProduct.price.toLocaleString()}</span>
@@ -445,7 +465,22 @@ const ProductDetailPage = () => {
                     <span className="ml-2 text-sm font-medium text-green-600">{getDiscountPercentage()}% OFF</span>
                   )}
                 </div>
+
+                <div className="mt-4">
+                  <span className="font-semibold">Product Description</span>
+                  <p className={`text-sm text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
+                    {currentProduct?.description}
+                  </p>
+
+                  <button
+                    onClick={() => setShowFullDescription(!showFullDescription)}
+                    className="text-red-500 text-xs font-semibold mt-1"
+                  >
+                    {showFullDescription ? "Show Less" : "Read More"}
+                  </button>
+                </div>
               </div>
+
               {/* Share Button */}
               {/* <button
                 onClick={handleShare}
@@ -529,10 +564,13 @@ const ProductDetailPage = () => {
               )}
               {/* Sizes */}
               {currentProduct.sizes?.length > 0 && (
-                <div>
+                <div data-size-section>
                   <div className="flex items-center justify-between mb-3 pt-1">
                     <h3 className="text-lg font-semibold text-gray-800">
-                      Size: <span className="font-normal rounded-sm">{selectedSize || "Please select"}</span>
+                      Size:{" "}
+                      <span className={`font-normal rounded-sm ${!selectedSize ? "text-red-500" : ""}`}>
+                        {selectedSize || "Please select a size"}
+                      </span>
                     </h3>
                     <button
                       onClick={() => setShowSizeGuide(true)}
@@ -542,6 +580,11 @@ const ProductDetailPage = () => {
                       Size Guide
                     </button>
                   </div>
+                  {!selectedSize && (
+                    <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-600 font-medium">⚠️ Please select a size to continue</p>
+                    </div>
+                  )}
                   <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 p-3 border border-gray-200 rounded-xl">
                     {currentProduct.sizes.map((s) => (
                       <motion.button
@@ -641,19 +684,35 @@ const ProductDetailPage = () => {
                 <div className="flex gap-3 max-w-md">
                   <button
                     onClick={handleAddToCart}
-                    disabled={isAddingToCart || (selectedSize && getSelectedSizeStock() === 0)}
-                    className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={
+                      isAddingToCart ||
+                      (selectedSize && getSelectedSizeStock() === 0) ||
+                      (currentProduct.sizes?.length > 0 && !selectedSize)
+                    }
+                    className={`flex-1 flex items-center justify-center gap-2 px-8 py-2 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed ${
+                      currentProduct.sizes?.length > 0 && !selectedSize
+                        ? "bg-gray-100 border-gray-300 text-gray-400"
+                        : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50"
+                    } ${isAddingToCart ? "opacity-50" : ""}`}
                   >
                     <ShoppingCart className="w-5 h-5" />
-                    ADD TO CART
+                    {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE FIRST" : "ADD TO CART"}
                   </button>
                   <button
                     onClick={handleBuyNow}
-                    disabled={isAddingToCart || (selectedSize && getSelectedSizeStock() === 0)}
-                    className="flex-1 flex items-center justify-center gap-2 px-8 py-2 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={
+                      isAddingToCart ||
+                      (selectedSize && getSelectedSizeStock() === 0) ||
+                      (currentProduct.sizes?.length > 0 && !selectedSize)
+                    }
+                    className={`flex-1 flex items-center justify-center gap-2 px-8 py-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed ${
+                      currentProduct.sizes?.length > 0 && !selectedSize
+                        ? "bg-gray-400 text-gray-200"
+                        : "bg-red-600 text-white hover:bg-red-700"
+                    } ${isAddingToCart ? "opacity-50" : ""}`}
                   >
                     <img src="/buynow1.svg" className="w-8 h-8" />
-                    BUY NOW
+                    {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE FIRST" : "BUY NOW"}
                   </button>
                 </div>
               </div>
@@ -707,24 +766,6 @@ const ProductDetailPage = () => {
                   loading="lazy"
                 />
               </div>
-              {/*
-              {currentProduct.images.length > 1 && (
-                <>
-                  <button
-                    onClick={() => setSelectedImage(prev => (prev - 1 + currentProduct.images.length) % currentProduct.images.length)}
-                    className="absolute left-0 top-1/2 p-3 text-white hover:text-gray-300"
-                  >
-                    <ChevronLeft className="w-8 h-8" />
-                  </button>
-                  <button
-                    onClick={() => setSelectedImage(prev => (prev + 1) % currentProduct.images.length)}
-                    className="absolute right-0 top-1/2 p-3 text-white hover:text-gray-300"
-                  >
-                    <ChevronRight className="w-8 h-8 text-gray-500" />
-                  </button>
-                </>
-              )}
-              */}
             </motion.div>
           </motion.div>
         )}
@@ -835,30 +876,45 @@ const ProductDetailPage = () => {
       {/* Fixed Mobile Action Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 shadow-lg">
         <div className="flex gap-3 max-w-md mx-auto">
-          {/* View Similar */}
           {/* Add to Cart */}
           <button
             onClick={handleAddToCart}
-            disabled={isAddingToCart || (selectedSize && getSelectedSizeStock() === 0)}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            disabled={
+              isAddingToCart ||
+              (selectedSize && getSelectedSizeStock() === 0) ||
+              (currentProduct.sizes?.length > 0 && !selectedSize)
+            }
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed text-sm ${
+              currentProduct.sizes?.length > 0 && !selectedSize
+                ? "bg-gray-100 border-gray-300 text-gray-400"
+                : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50"
+            } ${isAddingToCart ? "opacity-50" : ""}`}
           >
             <ShoppingCart className="w-4 h-4" />
-            ADD TO CART
+            {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE" : "ADD TO CART"}
           </button>
           {/* Buy Now */}
           <button
             onClick={handleBuyNow}
-            disabled={isAddingToCart || (selectedSize && getSelectedSizeStock() === 0)}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            disabled={
+              isAddingToCart ||
+              (selectedSize && getSelectedSizeStock() === 0) ||
+              (currentProduct.sizes?.length > 0 && !selectedSize)
+            }
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed text-sm ${
+              currentProduct.sizes?.length > 0 && !selectedSize
+                ? "bg-gray-400 text-gray-200"
+                : "bg-red-600 text-white hover:bg-red-700"
+            } ${isAddingToCart ? "opacity-50" : ""}`}
           >
             <img src="/buynow1.svg" className="w-8 h-8 rounded-lg" />
-            BUY NOW
+            {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE" : "BUY NOW"}
           </button>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 const StaticDesignSection = () => {
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm mt-2 mb-2 py-4 px-4 sm:px-8">
@@ -866,6 +922,6 @@ const StaticDesignSection = () => {
         <img src="/badge.jpeg" className="rounded-xl" />
       </div>
     </div>
-  );
-};
-export default ProductDetailPage;
+  )
+}
+export default ProductDetailPage

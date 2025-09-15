@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useDispatch } from "react-redux"
 import { Plus, Search, Edit, Trash2, ArrowUp, ArrowDown, Star } from "lucide-react"
-import adminAPI from "../../store/api/adminApi"
+import adminAPI from "../../store/api/adminAPI"
 
 const ProductsManagement = () => {
   const dispatch = useDispatch()
@@ -183,6 +183,7 @@ const ProductsManagement = () => {
       file,
       name: file.name,
       preview: URL.createObjectURL(file),
+      sizeKB: Math.round(file.size / 1024),
     }))
     setImages((prev) => [...prev, ...wrapped])
   }
@@ -640,6 +641,7 @@ const ProductsManagement = () => {
                                 </span>
                               )}
                             </div>
+                            <div className="mt-1 text-xs text-gray-600 font-medium">{img.sizeKB} KB</div>
                             <div className="flex items-center gap-1 mt-2">
                               <button
                                 type="button"

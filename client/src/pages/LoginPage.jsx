@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { Mail, Phone, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
-import image from "../../public/01.jpg"
 import {
   registerWithEmail,
   loginWithEmail,
@@ -192,7 +191,7 @@ const LoginPage = () => {
   // style={{ backgroundColor: "#b80b0c" }}
 >
   <img
-    src="/02.webp"
+    src="/01.webp"
     alt="Fashion Model"
     className="absolute inset-0 w-full h-full object-cover
     "

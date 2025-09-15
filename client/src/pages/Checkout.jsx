@@ -1,24 +1,14 @@
-"use client";
-import { useState, useEffect, useMemo, useCallback,useRef  } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import {
-  ShoppingBag,
-  MapPin,
-  CreditCard,
-  Tag,
-  Truck,
-  Shield,
-  X,
-  Calculator,
-} from "lucide-react";
+"use client"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
+import { useSelector, useDispatch } from "react-redux"
+import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
+import { ShoppingBag, MapPin, CreditCard, Tag, Truck, Shield, X } from "lucide-react"
 import {
   createRazorpayOrder,
   clearError,
   clearSuccess,
   placeCodOrder,
-  getShippingRates,
   verifyPayment,
   selectRazorpayOrder,
   selectOrderSummary,
@@ -32,38 +22,35 @@ import {
   selectCouponLoading,
   selectCouponError,
   selectUser,
-} from "../store/slices/orderSlice";
+} from "../store/slices/orderSlice"
 import {
   validateCoupon,
   removeCoupon,
   clearError as clearCouponError,
   fetchAvailableCoupons,
-} from "../store/slices/couponSlice";
-import { fetchCart } from "../store/slices/cartSlice";
-import LoadingSpinner from "../components/LoadingSpinner";
-import { PaymentModal } from "./PaymentModal";
-import ShippingRateCalculator from "../components/ShippingRateCalculator";
-import { toast } from "react-toastify";
+} from "../store/slices/couponSlice"
+import { fetchCart } from "../store/slices/cartSlice"
+import LoadingSpinner from "../components/LoadingSpinner"
+import { PaymentModal } from "./PaymentModal"
+
 const CheckoutPage = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const rzpInstanceRef = useRef(null);
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const rzpInstanceRef = useRef(null)
   // Use memoized selectors
-  const razorpayOrder = useSelector(selectRazorpayOrder);
-  const orderSummary = useSelector(selectOrderSummary);
-  const orderLoading = useSelector(selectOrderLoading);
-  const orderError = useSelector(selectOrderError);
-  const orderSuccess = useSelector(selectOrderSuccess);
-  const shippingRates = useSelector(selectShippingRates);
-  const cartItems = useSelector(selectCartItems);
-  const cartSummary = useSelector(selectCartSummary);
-  const appliedCoupon = useSelector(selectAppliedCoupon);
-  const availableCoupons = useSelector(
-    (state) => state.coupons.availableCoupons || []
-  );
-  const couponLoading = useSelector(selectCouponLoading);
-  const couponError = useSelector(selectCouponError);
-  const user = useSelector(selectUser);
+  const razorpayOrder = useSelector(selectRazorpayOrder)
+  const orderSummary = useSelector(selectOrderSummary)
+  const orderLoading = useSelector(selectOrderLoading)
+  const orderError = useSelector(selectOrderError)
+  const orderSuccess = useSelector(selectOrderSuccess)
+  const shippingRates = useSelector(selectShippingRates)
+  const cartItems = useSelector(selectCartItems)
+  const cartSummary = useSelector(selectCartSummary)
+  const appliedCoupon = useSelector(selectAppliedCoupon)
+  const availableCoupons = useSelector((state) => state.coupons.availableCoupons || [])
+  const couponLoading = useSelector(selectCouponLoading)
+  const couponError = useSelector(selectCouponError)
+  const user = useSelector(selectUser)
   const [shippingAddress, setShippingAddress] = useState({
     fullName: user?.name || "",
     phoneNumber: user?.phoneNumber?.replace("+91", "") || "",
@@ -73,95 +60,108 @@ const CheckoutPage = () => {
     state: "",
     pinCode: "",
     landmark: "",
-  });
-  const [couponCode, setCouponCode] = useState("");
-  const [showCouponInput, setShowCouponInput] = useState(false);
-  const [addressErrors, setAddressErrors] = useState({});
-  const [showModal, setShowModal] = useState(false);
-  const [selectedShippingRate, setSelectedShippingRate] = useState(null);
-  const [showShippingCalculator, setShowShippingCalculator] = useState(false);
- useEffect(() => {
+  })
+  const [couponCode, setCouponCode] = useState("")
+  const [showCouponInput, setShowCouponInput] = useState(false)
+  const [addressErrors, setAddressErrors] = useState({})
+  const [showModal, setShowModal] = useState(false)
+  const [selectedShippingRate, setSelectedShippingRate] = useState(null)
+  const [showShippingCalculator, setShowShippingCalculator] = useState(false)
+  const [showCongratulationsPopup, setShowCongratulationsPopup] = useState(false)
+  const [congratulationsData, setCongratulationsData] = useState({
+    couponCode: "",
+    savingsAmount: 0,
+  })
+
+  useEffect(() => {
     // Close existing instance if any
     // Clear any existing order state when checkout page loads
-    dispatch(removeCoupon());
-    setCouponCode("");
-    setShowCouponInput(false);
-    console.log("rzpInstanceRef.current",rzpInstanceRef.current);
+    dispatch(removeCoupon())
+    setCouponCode("")
+    setShowCouponInput(false)
+    console.log("rzpInstanceRef.current", rzpInstanceRef.current)
     if (rzpInstanceRef.current) {
-      rzpInstanceRef.current.close();
-      rzpInstanceRef.current = null;
+      rzpInstanceRef.current.close()
+      rzpInstanceRef.current = null
     }
     // Cleanup on unmount
     return () => {
       if (rzpInstanceRef.current) {
-        rzpInstanceRef.current.close();
-        rzpInstanceRef.current = null;
+        rzpInstanceRef.current.close()
+        rzpInstanceRef.current = null
       }
-    };
-  }, []);
+    }
+  }, [])
+
   // Load available coupons for the logged-in user
   useEffect(() => {
     if (Object.keys(user).length != 0) {
-      console.log("user",user);
-      dispatch(fetchAvailableCoupons());
+      console.log("user", user)
+      dispatch(fetchAvailableCoupons())
     }
-  }, [dispatch, user]);
+  }, [dispatch, user])
+
+  useEffect(() => {
+    if (appliedCoupon && appliedCoupon.discountAmount > 0) {
+      setCongratulationsData({
+        couponCode: appliedCoupon.code,
+        savingsAmount: appliedCoupon.discountAmount,
+      })
+      setShowCongratulationsPopup(true)
+    }
+  }, [appliedCoupon])
+
   // Memoized functions and values
   const validateAddress = useCallback(() => {
-    const errors = {};
-    if (!shippingAddress.fullName.trim())
-      errors.fullName = "Full name is required";
-    if (!shippingAddress.phoneNumber.trim())
-      errors.phoneNumber = "Phone number is required";
+    const errors = {}
+    if (!shippingAddress.fullName.trim()) errors.fullName = "Full name is required"
+    if (!shippingAddress.phoneNumber.trim()) errors.phoneNumber = "Phone number is required"
     else if (!/^[6789]\d{9}$/.test(shippingAddress.phoneNumber)) {
-      errors.phoneNumber = "Please enter a valid 10-digit mobile number";
+      errors.phoneNumber = "Please enter a valid 10-digit mobile number"
     }
-    if (!shippingAddress.addressLine1.trim())
-      errors.addressLine1 = "Address is required";
-    if (!shippingAddress.city.trim()) errors.city = "City is required";
-    if (!shippingAddress.state.trim()) errors.state = "State is required";
-    if (!shippingAddress.pinCode.trim())
-      errors.pinCode = "PIN code is required";
+    if (!shippingAddress.addressLine1.trim()) errors.addressLine1 = "Address is required"
+    if (!shippingAddress.city.trim()) errors.city = "City is required"
+    if (!shippingAddress.state.trim()) errors.state = "State is required"
+    if (!shippingAddress.pinCode.trim()) errors.pinCode = "PIN code is required"
     else if (!/^[1-9][0-9]{5}$/.test(shippingAddress.pinCode)) {
-      errors.pinCode = "Please enter a valid 6-digit PIN code";
+      errors.pinCode = "Please enter a valid 6-digit PIN code"
     }
-    setAddressErrors(errors);
-    return Object.keys(errors).length === 0;
-  }, [shippingAddress]);
+    setAddressErrors(errors)
+    return Object.keys(errors).length === 0
+  }, [shippingAddress])
+
   const handleAddressChange = useCallback((field, value) => {
-    setShippingAddress((prev) => ({ ...prev, [field]: value }));
-    setAddressErrors((prev) => ({ ...prev, [field]: "" }));
-  }, []);
+    setShippingAddress((prev) => ({ ...prev, [field]: value }))
+    setAddressErrors((prev) => ({ ...prev, [field]: "" }))
+  }, [])
+
   const handleApplyCoupon = useCallback(() => {
-    if (!couponCode.trim()) return;
-    const orderValue = cartSummary.subtotal || 0;
-    dispatch(validateCoupon({ code: couponCode, cartTotal: orderValue }));
-  }, [couponCode, cartSummary.subtotal, dispatch]);
+    if (!couponCode.trim()) return
+    const orderValue = cartSummary.subtotal || 0
+    dispatch(validateCoupon({ code: couponCode, cartTotal: orderValue }))
+  }, [couponCode, cartSummary.subtotal, dispatch])
+
   const handleRemoveCoupon = useCallback(() => {
-    dispatch(removeCoupon());
-    setCouponCode("");
-    setShowCouponInput(false);
-  }, [dispatch]);
+    dispatch(removeCoupon())
+    setCouponCode("")
+    setShowCouponInput(false)
+  }, [dispatch])
+
   const calculateFinalPricing = useMemo(() => {
-    const subtotal = cartSummary.subtotal || 0;
+    const subtotal = cartSummary.subtotal || 0
     // Updated free shipping threshold from 999 to 399
-    const shippingCharges = selectedShippingRate
-      ? selectedShippingRate.freight_charge
-      : subtotal >= 399
-      ? 0
-      : 99;
-    const discount = appliedCoupon?.discountAmount || 0;
+    const shippingCharges = selectedShippingRate ? selectedShippingRate.freight_charge : subtotal >= 399 ? 0 : 99
+    const discount = appliedCoupon?.discountAmount || 0
     // Removed GST (Tax) calculation as per requirement
-    const total = Math.round(
-      subtotal + shippingCharges - discount
-    );
+    const total = Math.round(subtotal + shippingCharges - discount)
     return {
       subtotal,
       shippingCharges,
       discount,
       total,
-    };
-  }, [cartSummary.subtotal, selectedShippingRate, appliedCoupon]);
+    }
+  }, [cartSummary.subtotal, selectedShippingRate, appliedCoupon])
+
   const handlePlaceOrder = useCallback(() => {
     // console.log("user",user)
     // if (Object.keys(user).length === 0) {
@@ -169,18 +169,18 @@ const CheckoutPage = () => {
     //   toast.error("Please login to place order")
     //   return
     // }
-    console.log("calling on;ine order ");
+    console.log("calling on;ine order ")
     if (rzpInstanceRef.current) {
-      rzpInstanceRef.current.close();
-      rzpInstanceRef.current = null;
+      rzpInstanceRef.current.close()
+      rzpInstanceRef.current = null
     }
     if (!validateAddress()) {
-      alert("Please fill all required address fields");
-      return;
+      alert("Please fill all required address fields")
+      return
     }
     if (!cartItems.length) {
-      alert("Your cart is empty");
-      return;
+      alert("Your cart is empty")
+      return
     }
     const orderData = {
       amount: cartSummary.total,
@@ -196,36 +196,30 @@ const CheckoutPage = () => {
       },
       couponCode: appliedCoupon?.code || "",
       selectedShippingRate: selectedShippingRate,
-    };
-    console.log("orderData",orderData);
-    dispatch(createRazorpayOrder(orderData));
-  }, [
-    validateAddress,
-    cartItems,
-    shippingAddress,
-    appliedCoupon,
-    selectedShippingRate,
-    dispatch,
-  ]);
+    }
+    console.log("orderData", orderData)
+    dispatch(createRazorpayOrder(orderData))
+  }, [validateAddress, cartItems, shippingAddress, appliedCoupon, selectedShippingRate, dispatch])
+
   const handlePlaceCodOrder = useCallback(() => {
-  console.log("calling cod order ");
-  // console.log("user",user)
+    console.log("calling cod order ")
+    // console.log("user",user)
     // if (Object.keys(user).length === 0) {
     //       navigate("/login", { state: { from: window.location.pathname } })
     //       toast.error("Please login to place order")
     //       return
     //     }
     if (rzpInstanceRef.current) {
-      rzpInstanceRef.current.close();
-      rzpInstanceRef.current = null;
+      rzpInstanceRef.current.close()
+      rzpInstanceRef.current = null
     }
     if (!validateAddress()) {
-      alert("Please fill all required address fields");
-      return;
+      alert("Please fill all required address fields")
+      return
     }
     if (!cartItems.length) {
-      alert("Your cart is empty");
-      return;
+      alert("Your cart is empty")
+      return
     }
     const orderData = {
       items: cartItems.map((item) => ({
@@ -240,29 +234,22 @@ const CheckoutPage = () => {
       },
       couponCode: appliedCoupon?.code || "",
       selectedShippingRate: selectedShippingRate,
-    };
+    }
     dispatch(placeCodOrder(orderData)).then((result) => {
       if (result.type === "order/placeCodOrder/fulfilled") {
-        navigate(`/order-confirmation/${result.payload.order.id}`);
+        navigate(`/order-confirmation/${result.payload.order.id}`)
       } else {
-        console.error("COD Order failed:", result.error);
-        alert("Failed to place COD order. Please try again.");
+        console.error("COD Order failed:", result.error)
+        alert("Failed to place COD order. Please try again.")
       }
-    });
-  }, [
-    validateAddress,
-    cartItems,
-    shippingAddress,
-    appliedCoupon,
-    selectedShippingRate,
-    dispatch,
-    navigate,
-  ]);
+    })
+  }, [validateAddress, cartItems, shippingAddress, appliedCoupon, selectedShippingRate, dispatch, navigate])
+
   const handleRazorpayPayment = useCallback(() => {
-    if (!razorpayOrder) return;
-     if (rzpInstanceRef.current) {
-      rzpInstanceRef.current.close();
-      rzpInstanceRef.current = null;
+    if (!razorpayOrder) return
+    if (rzpInstanceRef.current) {
+      rzpInstanceRef.current.close()
+      rzpInstanceRef.current = null
     }
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
@@ -277,12 +264,12 @@ const CheckoutPage = () => {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
-          })
+          }),
         ).then((result) => {
           if (result.type === "order/verifyPayment/fulfilled") {
-            navigate(`/order-confirmation/${result.payload.order.id}`);
+            navigate(`/order-confirmation/${result.payload.order.id}`)
           }
-        });
+        })
       },
       prefill: {
         name: shippingAddress.fullName,
@@ -299,24 +286,26 @@ const CheckoutPage = () => {
           //   rzpInstanceRef.current = null;
           // }
           // dispatch(clearSuccess());
-          console.log("closing razorpay");
-           rzpInstanceRef.current = null;
-           window.location.reload();
+          console.log("closing razorpay")
+          rzpInstanceRef.current = null
+          window.location.reload()
         },
       },
-    };
-    if (window.Razorpay) {
-      rzpInstanceRef.current = new window.Razorpay(options);
-      rzpInstanceRef.current.open();
-    } else {
-      console.error("Razorpay SDK not loaded");
-      alert("Payment gateway not available. Please try again.");
     }
-  }, [razorpayOrder, shippingAddress, user, dispatch, navigate, clearSuccess]);
+    if (window.Razorpay) {
+      rzpInstanceRef.current = new window.Razorpay(options)
+      rzpInstanceRef.current.open()
+    } else {
+      console.error("Razorpay SDK not loaded")
+      alert("Payment gateway not available. Please try again.")
+    }
+  }, [razorpayOrder, shippingAddress, user, dispatch, navigate, clearSuccess])
+
   const handleShippingRateSelect = useCallback((rate) => {
-    setSelectedShippingRate(rate);
-    setShowShippingCalculator(false);
-  }, []);
+    setSelectedShippingRate(rate)
+    setShowShippingCalculator(false)
+  }, [])
+
   // Effects
   useEffect(() => {
     if (user?.name && !shippingAddress.fullName) {
@@ -324,31 +313,36 @@ const CheckoutPage = () => {
         ...prev,
         fullName: user.name,
         phoneNumber: user.phoneNumber?.replace("+91", "") || "",
-      }));
+      }))
     }
-  }, [user, shippingAddress.fullName]);
+  }, [user, shippingAddress.fullName])
+
   useEffect(() => {
     if (!cartItems.length) {
-      dispatch(fetchCart());
+      dispatch(fetchCart())
     }
-  }, [dispatch, cartItems.length]);
+  }, [dispatch, cartItems.length])
+
   useEffect(() => {
     if (orderSuccess.orderCreated && razorpayOrder) {
-      handleRazorpayPayment();
+      handleRazorpayPayment()
     }
-  }, [orderSuccess.orderCreated, razorpayOrder, handleRazorpayPayment]);
+  }, [orderSuccess.orderCreated, razorpayOrder, handleRazorpayPayment])
+
   useEffect(() => {
     if (orderError) {
-      const timer = setTimeout(() => dispatch(clearError()), 5000);
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => dispatch(clearError()), 5000)
+      return () => clearTimeout(timer)
     }
-  }, [orderError, dispatch]);
+  }, [orderError, dispatch])
+
   useEffect(() => {
     if (couponError) {
-      const timer = setTimeout(() => dispatch(clearCouponError()), 5000);
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => dispatch(clearCouponError()), 5000)
+      return () => clearTimeout(timer)
     }
-  }, [couponError, dispatch]);
+  }, [couponError, dispatch])
+
   // Auto-calculate shipping rates when pincode is entered
   // useEffect(() => {
   //   if (shippingAddress.pinCode.length === 6 && cartItems.length > 0) {
@@ -365,14 +359,13 @@ const CheckoutPage = () => {
   //     );
   //   }
   // }, [shippingAddress.pinCode, cartItems, dispatch]);
+
   if (!cartItems.length && !orderLoading.creating) {
     return (
       <div className="flex items-center justify-center min-h-screen px-4">
         <div className="max-w-md mx-auto text-center">
           <ShoppingBag className="w-12 h-12 mx-auto mb-4 text-gray-400 xs:w-16 xs:h-16" />
-          <h2 className="mb-2 text-xl font-bold text-gray-800 xs:text-2xl">
-            Your cart is empty
-          </h2>
+          <h2 className="mb-2 text-xl font-bold text-gray-800 xs:text-2xl">Your cart is empty</h2>
           <p className="mb-4 text-sm text-gray-600 xs:text-base">
             Add some items to your cart to proceed with checkout
           </p>
@@ -384,26 +377,18 @@ const CheckoutPage = () => {
           </button>
         </div>
       </div>
-    );
+    )
   }
-  console.log("Order Error:", orderError);
-  console.log("Coupon Error:", couponError);
+  console.log("Order Error:", orderError)
+  console.log("Coupon Error:", couponError)
   return (
-    <div className="min-h-screen py-4 xs:py-6 sm:py-8 bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="container px-2 mx-auto xs:px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-6xl mx-auto"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto">
           {/* Header - Responsive */}
           <div className="mb-6 text-center xs:mb-8 sm:text-left">
-            <h1 className="mb-2 text-2xl font-bold text-gray-800 xs:text-3xl">
-              Checkout
-            </h1>
-            <p className="text-sm text-gray-600 xs:text-base">
-              Review your order and complete your purchase
-            </p>
+            <h1 className="mb-2 text-2xl font-bold text-gray-800 xs:text-3xl">Checkout</h1>
+            <p className="text-sm text-gray-600 xs:text-base">Review your order and complete your purchase</p>
           </div>
           {/* Error Display - Responsive */}
           {(orderError || couponError) && (
@@ -426,38 +411,26 @@ const CheckoutPage = () => {
               >
                 <div className="flex items-center mb-4">
                   <MapPin className="w-4 h-4 mr-2 text-pink-600 xs:w-5 xs:h-5" />
-                  <h2 className="text-lg font-semibold xs:text-xl">
-                    Shipping Address
-                  </h2>
+                  <h2 className="text-lg font-semibold xs:text-xl">Shipping Address</h2>
                 </div>
                 <div className="grid gap-3 xs:gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Full Name *
-                    </label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Full Name *</label>
                     <input
                       type="text"
                       value={shippingAddress.fullName}
-                      onChange={(e) =>
-                        handleAddressChange("fullName", e.target.value)
-                      }
+                      onChange={(e) => handleAddressChange("fullName", e.target.value)}
                       className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
-                        addressErrors.fullName
-                          ? "border-red-500"
-                          : "border-gray-300"
+                        addressErrors.fullName ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="Enter your full name"
                     />
                     {addressErrors.fullName && (
-                      <p className="mt-1 text-xs text-red-500 xs:text-sm">
-                        {addressErrors.fullName}
-                      </p>
+                      <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.fullName}</p>
                     )}
                   </div>
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Phone Number *
-                    </label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Phone Number *</label>
                     <div className="flex">
                       <span className="inline-flex items-center px-2 text-xs text-gray-500 border border-r-0 border-gray-300 rounded-l-lg xs:px-3 xs:text-sm bg-gray-50">
                         +91
@@ -466,144 +439,92 @@ const CheckoutPage = () => {
                         type="tel"
                         value={shippingAddress.phoneNumber}
                         onChange={(e) =>
-                          handleAddressChange(
-                            "phoneNumber",
-                            e.target.value.replace(/\D/g, "").slice(0, 10)
-                          )
+                          handleAddressChange("phoneNumber", e.target.value.replace(/\D/g, "").slice(0, 10))
                         }
                         className={`w-full px-3 py-2 text-sm xs:text-base border rounded-r-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
-                          addressErrors.phoneNumber
-                            ? "border-red-500"
-                            : "border-gray-300"
+                          addressErrors.phoneNumber ? "border-red-500" : "border-gray-300"
                         }`}
                         placeholder="Enter 10-digit mobile number"
                       />
                     </div>
                     {addressErrors.phoneNumber && (
-                      <p className="mt-1 text-xs text-red-500 xs:text-sm">
-                        {addressErrors.phoneNumber}
-                      </p>
+                      <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.phoneNumber}</p>
                     )}
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Address Line 1 *
-                    </label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Address Line 1 *</label>
                     <input
                       type="text"
                       value={shippingAddress.addressLine1}
-                      onChange={(e) =>
-                        handleAddressChange("addressLine1", e.target.value)
-                      }
+                      onChange={(e) => handleAddressChange("addressLine1", e.target.value)}
                       className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
-                        addressErrors.addressLine1
-                          ? "border-red-500"
-                          : "border-gray-300"
+                        addressErrors.addressLine1 ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="House/Flat No., Building Name, Street"
                     />
                     {addressErrors.addressLine1 && (
-                      <p className="mt-1 text-xs text-red-500 xs:text-sm">
-                        {addressErrors.addressLine1}
-                      </p>
+                      <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.addressLine1}</p>
                     )}
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Address Line 2
-                    </label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Address Line 2</label>
                     <input
                       type="text"
                       value={shippingAddress.addressLine2}
-                      onChange={(e) =>
-                        handleAddressChange("addressLine2", e.target.value)
-                      }
+                      onChange={(e) => handleAddressChange("addressLine2", e.target.value)}
                       className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg xs:text-base focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
                       placeholder="Area, Locality (Optional)"
                     />
                   </div>
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      City *
-                    </label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">City *</label>
                     <input
                       type="text"
                       value={shippingAddress.city}
-                      onChange={(e) =>
-                        handleAddressChange("city", e.target.value)
-                      }
+                      onChange={(e) => handleAddressChange("city", e.target.value)}
                       className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
-                        addressErrors.city
-                          ? "border-red-500"
-                          : "border-gray-300"
+                        addressErrors.city ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="Enter your city"
                     />
-                    {addressErrors.city && (
-                      <p className="mt-1 text-xs text-red-500 xs:text-sm">
-                        {addressErrors.city}
-                      </p>
-                    )}
+                    {addressErrors.city && <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.city}</p>}
                   </div>
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      State *
-                    </label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">State *</label>
                     <input
                       type="text"
                       value={shippingAddress.state}
-                      onChange={(e) =>
-                        handleAddressChange("state", e.target.value)
-                      }
+                      onChange={(e) => handleAddressChange("state", e.target.value)}
                       className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
-                        addressErrors.state
-                          ? "border-red-500"
-                          : "border-gray-300"
+                        addressErrors.state ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="Enter your state"
                     />
                     {addressErrors.state && (
-                      <p className="mt-1 text-xs text-red-500 xs:text-sm">
-                        {addressErrors.state}
-                      </p>
+                      <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.state}</p>
                     )}
                   </div>
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      PIN Code *
-                    </label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">PIN Code *</label>
                     <input
                       type="text"
                       value={shippingAddress.pinCode}
-                      onChange={(e) =>
-                        handleAddressChange(
-                          "pinCode",
-                          e.target.value.replace(/\D/g, "").slice(0, 6)
-                        )
-                      }
+                      onChange={(e) => handleAddressChange("pinCode", e.target.value.replace(/\D/g, "").slice(0, 6))}
                       className={`w-full px-3 py-2 text-sm xs:text-base border rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 ${
-                        addressErrors.pinCode
-                          ? "border-red-500"
-                          : "border-gray-300"
+                        addressErrors.pinCode ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="Enter 6-digit PIN code"
                     />
                     {addressErrors.pinCode && (
-                      <p className="mt-1 text-xs text-red-500 xs:text-sm">
-                        {addressErrors.pinCode}
-                      </p>
+                      <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.pinCode}</p>
                     )}
                   </div>
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      Landmark
-                    </label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Landmark</label>
                     <input
                       type="text"
                       value={shippingAddress.landmark}
-                      onChange={(e) =>
-                        handleAddressChange("landmark", e.target.value)
-                      }
+                      onChange={(e) => handleAddressChange("landmark", e.target.value)}
                       className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg xs:text-base focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
                       placeholder="Nearby landmark (Optional)"
                     />
@@ -677,19 +598,13 @@ const CheckoutPage = () => {
               >
                 <div className="flex items-center mb-4">
                   <Tag className="w-4 h-4 mr-2 text-pink-600 xs:w-5 xs:h-5" />
-                  <h2 className="text-lg font-semibold xs:text-xl">
-                    Promo Code
-                  </h2>
+                  <h2 className="text-lg font-semibold xs:text-xl">Promo Code</h2>
                 </div>
                 {appliedCoupon ? (
                   <div className="flex flex-col justify-between p-3 space-y-2 border border-green-200 rounded-lg xs:flex-row xs:items-center xs:p-4 bg-green-50 xs:space-y-0">
                     <div>
-                      <p className="text-sm font-medium text-green-800 xs:text-base">
-                        {appliedCoupon.code}
-                      </p>
-                      <p className="text-xs text-green-600 xs:text-sm">
-                        You saved ₹{appliedCoupon.discountAmount}!
-                      </p>
+                      <p className="text-sm font-medium text-green-800 xs:text-base">{appliedCoupon.code}</p>
+                      <p className="text-xs text-green-600 xs:text-sm">You saved ₹{appliedCoupon.discountAmount}!</p>
                     </div>
                     <button
                       onClick={handleRemoveCoupon}
@@ -713,23 +628,17 @@ const CheckoutPage = () => {
                         <input
                           type="text"
                           value={couponCode}
-                          onChange={(e) =>
-                            setCouponCode(e.target.value.toUpperCase())
-                          }
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                           placeholder="Enter promo code"
                           className="flex-1 px-3 py-2 text-sm border rounded-md outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={handleApplyCoupon}
-                            disabled={
-                              !couponCode.trim() || couponLoading?.validating
-                            }
+                            disabled={!couponCode.trim() || couponLoading?.validating}
                             className="px-4 py-2 text-sm font-semibold text-white rounded-md bg-pink-600 disabled:opacity-50"
                           >
-                            {couponLoading?.validating
-                              ? "Applying..."
-                              : "Apply"}
+                            {couponLoading?.validating ? "Applying..." : "Apply"}
                           </button>
                           {appliedCoupon && (
                             <button
@@ -744,9 +653,7 @@ const CheckoutPage = () => {
                     )}
                     {/* Available Coupons (ALWAYS under the input/toggle) */}
                     <div className="mt-3 space-y-2">
-                      <div className="text-sm font-semibold text-gray-700">
-                        Available Coupons
-                      </div>
+                      <div className="text-sm font-semibold text-gray-700">Available Coupons</div>
                       {availableCoupons.length === 0 ? (
                         <div className="text-xs text-gray-500">
                           No active coupons right now. (To View Coupons please login)
@@ -754,50 +661,36 @@ const CheckoutPage = () => {
                       ) : (
                         <div className="space-y-2">
                           {availableCoupons.map((c) => {
-                            const subtotal = cartSummary?.subtotal || 0;
-                            const min = c.minOrderValue || 0;
-                            const eligible = subtotal >= min;
-                            const shortBy = Math.max(0, min - subtotal);
+                            const subtotal = cartSummary?.subtotal || 0
+                            const min = c.minOrderValue || 0
+                            const eligible = subtotal >= min
+                            const shortBy = Math.max(0, min - subtotal)
                             return (
-                              <div
-                                key={c.code}
-                                className="flex items-center justify-between p-2 border rounded-md"
-                              >
+                              <div key={c.code} className="flex items-center justify-between p-2 border rounded-md">
                                 <div className="flex flex-col">
-                                  <span className="text-sm font-mono font-semibold">
-                                    {c.code}
-                                  </span>
-                                  {c.description && (
-                                    <span className="text-xs text-gray-600">
-                                      {c.description}
-                                    </span>
-                                  )}
-                                  {min > 0 && (
-                                    <span className="text-xs text-gray-500">
-                                      Min order: ₹{min}
-                                    </span>
-                                  )}
+                                  <span className="text-sm font-mono font-semibold">{c.code}</span>
+                                  {c.description && <span className="text-xs text-gray-600">{c.description}</span>}
+                                  {min > 0 && <span className="text-xs text-gray-500">Min order: ₹{min}</span>}
                                 </div>
                                 <button
                                   className="px-3 py-1 text-xs font-semibold text-white rounded bg-pink-600 disabled:opacity-50"
                                   disabled={!eligible}
                                   onClick={() => {
-                                    setShowCouponInput(true);
-                                    setCouponCode(c.code);
-                                    const orderValue =
-                                      cartSummary?.subtotal || 0;
+                                    setShowCouponInput(true)
+                                    setCouponCode(c.code)
+                                    const orderValue = cartSummary?.subtotal || 0
                                     dispatch(
                                       validateCoupon({
                                         code: c.code,
                                         cartTotal: orderValue,
-                                      })
-                                    );
+                                      }),
+                                    )
                                   }}
                                 >
                                   {eligible ? "Apply" : `Add ₹${shortBy} more`}
                                 </button>
                               </div>
-                            );
+                            )
                           })}
                         </div>
                       )}
@@ -813,20 +706,14 @@ const CheckoutPage = () => {
                 animate={{ opacity: 1, x: 0 }}
                 className="sticky p-4 bg-white rounded-lg shadow-md xs:p-6 top-4"
               >
-                <h2 className="mb-4 text-lg font-semibold xs:text-xl">
-                  Order Summary
-                </h2>
+                <h2 className="mb-4 text-lg font-semibold xs:text-xl">Order Summary</h2>
                 {/* Cart Items - Responsive */}
                 <div className="mb-4 space-y-3 xs:mb-6 xs:space-y-4">
                   {cartItems.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center space-x-2 xs:space-x-3"
-                    >
+                    <div key={index} className="flex items-center space-x-2 xs:space-x-3">
                       <img
                         src={
-                          item.product?.images?.[0]?.url ||
-                          "/placeholder.svg?height=64&width=64"
+                          item.product?.images?.[0]?.url || "/placeholder.svg?height=64&width=64" || "/placeholder.svg"
                         }
                         alt={item.product?.name || "Product"}
                         className="object-cover w-12 h-12 rounded-lg xs:w-16 xs:h-16"
@@ -838,9 +725,7 @@ const CheckoutPage = () => {
                         <p className="text-xs text-gray-600">
                           Size: {item.size || "M"} | Qty: {item.quantity || 1}
                         </p>
-                        <p className="text-xs font-semibold xs:text-sm">
-                          ₹{item.product?.price || 0}
-                        </p>
+                        <p className="text-xs font-semibold xs:text-sm">₹{item.product?.price || 0}</p>
                       </div>
                     </div>
                   ))}
@@ -853,30 +738,21 @@ const CheckoutPage = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Shipping</span>
-                    <span
-                      className={
-                        calculateFinalPricing.shippingCharges === 0
-                          ? "text-green-600"
-                          : ""
-                      }
-                    >
+                    <span className={calculateFinalPricing.shippingCharges === 0 ? "text-green-600" : ""}>
                       {calculateFinalPricing.shippingCharges === 0
                         ? "FREE"
                         : `₹${calculateFinalPricing.shippingCharges}`}
                     </span>
                   </div>
                   {selectedShippingRate && (
-                    <div className="text-xs text-gray-500">
-                      via {selectedShippingRate.courier_name}
+                    <div className="text-xs text-gray-500">via {selectedShippingRate.courier_name}</div>
+                  )}
+                  {calculateFinalPricing.shippingCharges === 0 && !selectedShippingRate && (
+                    <div className="flex items-center text-xs text-green-600">
+                      <Truck className="w-3 h-3 mr-1" />
+                      <span>Free shipping on orders above ₹399</span>
                     </div>
                   )}
-                  {calculateFinalPricing.shippingCharges === 0 &&
-                    !selectedShippingRate && (
-                      <div className="flex items-center text-xs text-green-600">
-                        <Truck className="w-3 h-3 mr-1" />
-                        <span>Free shipping on orders above ₹399</span>
-                      </div>
-                    )}
                   {calculateFinalPricing.discount > 0 && (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Discount ({appliedCoupon?.code})</span>
@@ -924,11 +800,77 @@ const CheckoutPage = () => {
             onClose={() => setShowModal(false)}
             onOnline={handlePlaceOrder}
             onCOD={() => {
-              handlePlaceCodOrder();
-              setShowModal(false);
+              handlePlaceCodOrder()
+              setShowModal(false)
             }}
             amount={calculateFinalPricing.total}
           />
+        )}
+        {showCongratulationsPopup && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 20 }}
+              className="relative w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl"
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setShowCongratulationsPopup(false)}
+                className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Celebration content */}
+              <div className="text-center">
+                {/* Celebration emoji/icon */}
+                <div className="mb-4">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
+                    <span className="text-3xl">🎉</span>
+                  </div>
+                </div>
+
+                {/* Main message */}
+                <h2 className="mb-2 text-2xl font-bold text-gray-900">Congratulations!</h2>
+                <p className="mb-4 text-gray-600">Your promo code has been applied successfully!</p>
+
+                {/* Savings details */}
+                <div className="p-4 mb-6 bg-green-50 rounded-lg border border-green-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-green-800">Code: {congratulationsData.couponCode}</span>
+                    <span className="text-lg font-bold text-green-600">₹{congratulationsData.savingsAmount} OFF</span>
+                  </div>
+                  <p className="mt-1 text-xs text-green-600">
+                    You saved ₹{congratulationsData.savingsAmount} on your order!
+                  </p>
+                </div>
+
+                {/* Action button */}
+                <button
+                  onClick={() => setShowCongratulationsPopup(false)}
+                  className="w-full px-6 py-3 text-white bg-pink-600 rounded-lg hover:bg-pink-700 transition-colors font-semibold"
+                >
+                  Continue Shopping
+                </button>
+              </div>
+
+              {/* Decorative elements */}
+              <div className="absolute -top-2 -left-2 w-4 h-4 bg-yellow-400 rounded-full animate-bounce"></div>
+              <div
+                className="absolute -top-1 -right-3 w-3 h-3 bg-pink-400 rounded-full animate-bounce"
+                style={{ animationDelay: "0.2s" }}
+              ></div>
+              <div
+                className="absolute -bottom-2 -left-3 w-3 h-3 bg-blue-400 rounded-full animate-bounce"
+                style={{ animationDelay: "0.4s" }}
+              ></div>
+              <div
+                className="absolute -bottom-1 -right-2 w-4 h-4 bg-green-400 rounded-full animate-bounce"
+                style={{ animationDelay: "0.6s" }}
+              ></div>
+            </motion.div>
+          </div>
         )}
       </div>
       {/* Enhanced responsive styles */}
@@ -993,7 +935,7 @@ const CheckoutPage = () => {
           }
           .xs\\:space-y-0 > :not([hidden]) ~ :not([hidden]) {
             --tw-space-y-reverse: 0;
-            margin-top: calc(0px * calc(1 - var(--tw-space-y-reverse)));
+            margin-top: calc(0px * var(--tw-space-y-reverse)));
             margin-bottom: calc(0px * var(--tw-space-y-reverse));
           }
           .xs\\:w-4 {
@@ -1007,7 +949,7 @@ const CheckoutPage = () => {
           }
           .xs\\:space-x-3 > :not([hidden]) ~ :not([hidden]) {
             --tw-space-x-reverse: 0;
-            margin-right: calc(0.75rem * var(--tw-space-x-reverse));
+            margin-right: calc(0.75rem * var(--tw-space-x-reverse)));
             margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
           }
           .xs\\:w-16 {
@@ -1043,6 +985,7 @@ const CheckoutPage = () => {
         }
       `}</style>
     </div>
-  );
-};
-export default CheckoutPage;
+  )
+}
+
+export default CheckoutPage

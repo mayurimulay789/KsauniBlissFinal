@@ -1,23 +1,32 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import adminAPI from "../api/adminApi";
-// Dashboard Stats
-export const fetchDashboardStats = createAsyncThunk("admin/fetchDashboardStats", async (_, { rejectWithValue }) => {
-  try {
-    const response = await adminAPI.getDashboardStats();
-    return response.data;
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || "Failed to fetch dashboard stats");
+import adminAPI from "../api/adminAPI";
+
+// ----------------- Dashboard -----------------
+export const fetchDashboardStats = createAsyncThunk(
+  "admin/fetchDashboardStats",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.getDashboardStats();
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch dashboard stats");
+    }
   }
-});
-// User Management
-export const fetchAllUsers = createAsyncThunk("admin/fetchAllUsers", async (params, { rejectWithValue }) => {
-  try {
-    const response = await adminAPI.getAllUsers(params);
-    return response.data;
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || "Failed to fetch users");
+);
+
+// ----------------- Users -----------------
+export const fetchAllUsers = createAsyncThunk(
+  "admin/fetchAllUsers",
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.getAllUsers(params);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch users");
+    }
   }
-});
+);
+
 export const updateUserRole = createAsyncThunk(
   "admin/updateUserRole",
   async ({ userId, role }, { rejectWithValue }) => {
@@ -27,25 +36,34 @@ export const updateUserRole = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to update user role");
     }
-  },
+  }
 );
-export const deleteUser = createAsyncThunk("admin/deleteUser", async (userId, { rejectWithValue }) => {
-  try {
-    await adminAPI.deleteUser(userId);
-    return userId;
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || "Failed to delete user");
+
+export const deleteUser = createAsyncThunk(
+  "admin/deleteUser",
+  async (userId, { rejectWithValue }) => {
+    try {
+      await adminAPI.deleteUser(userId);
+      return userId;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to delete user");
+    }
   }
-});
-// Order Management
-export const fetchAllOrders = createAsyncThunk("admin/fetchAllOrders", async (params, { rejectWithValue }) => {
-  try {
-    const response = await adminAPI.getAllOrders(params);
-    return response.data;
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || "Failed to fetch orders");
+);
+
+// ----------------- Orders -----------------
+export const fetchAllOrders = createAsyncThunk(
+  "admin/fetchAllOrders",
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.getAllOrders(params);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch orders");
+    }
   }
-});
+);
+
 export const updateOrderStatus = createAsyncThunk(
   "admin/updateOrderStatus",
   async ({ orderId, status, trackingNumber, carrier, notes }, { rejectWithValue }) => {
@@ -60,25 +78,34 @@ export const updateOrderStatus = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to update order status");
     }
-  },
+  }
 );
-// Coupon Management
-export const fetchAllCoupons = createAsyncThunk("admin/fetchAllCoupons", async (params, { rejectWithValue }) => {
-  try {
-    const response = await adminAPI.getAllCoupons(params);
-    return response.data;
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || "Failed to fetch coupons");
+
+// ----------------- Coupons -----------------
+export const fetchAllCoupons = createAsyncThunk(
+  "admin/fetchAllCoupons",
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.getAllCoupons(params);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch coupons");
+    }
   }
-});
-export const createCoupon = createAsyncThunk("admin/createCoupon", async (couponData, { rejectWithValue }) => {
-  try {
-    const response = await adminAPI.createCoupon(couponData);
-    return response.data;
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || "Failed to create coupon");
+);
+
+export const createCoupon = createAsyncThunk(
+  "admin/createCoupon",
+  async (couponData, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.createCoupon(couponData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to create coupon");
+    }
   }
-});
+);
+
 export const updateCoupon = createAsyncThunk(
   "admin/updateCoupon",
   async ({ couponId, couponData }, { rejectWithValue }) => {
@@ -88,16 +115,71 @@ export const updateCoupon = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to update coupon");
     }
-  },
-);
-export const deleteCoupon = createAsyncThunk("admin/deleteCoupon", async (couponId, { rejectWithValue }) => {
-  try {
-    await adminAPI.deleteCoupon(couponId);
-    return couponId;
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || "Failed to delete coupon");
   }
-});
+);
+
+export const deleteCoupon = createAsyncThunk(
+  "admin/deleteCoupon",
+  async (couponId, { rejectWithValue }) => {
+    try {
+      await adminAPI.deleteCoupon(couponId);
+      return couponId;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to delete coupon");
+    }
+  }
+);
+
+// ----------------- Products -----------------
+export const fetchAllProducts = createAsyncThunk(
+  "admin/fetchAllProducts",
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.getAllProducts(params);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+    }
+  }
+);
+
+export const createProduct = createAsyncThunk(
+  "admin/createProduct",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.createProduct(formData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to create product");
+    }
+  }
+);
+
+export const updateProduct = createAsyncThunk(
+  "admin/updateProduct",
+  async ({ productId, formData }, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.updateProduct(productId, formData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to update product");
+    }
+  }
+);
+
+export const deleteProduct = createAsyncThunk(
+  "admin/deleteProduct",
+  async (productId, { rejectWithValue }) => {
+    try {
+      await adminAPI.deleteProduct(productId);
+      return productId;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to delete product");
+    }
+  }
+);
+
+// ----------------- Initial State -----------------
 const initialState = {
   // Dashboard
   dashboardStats: null,
@@ -114,11 +196,17 @@ const initialState = {
   coupons: [],
   couponsPagination: null,
   couponsLoading: false,
+  // Products
+  products: [],
+  productsPagination: null,
+  productsLoading: false,
   // UI State
   loading: false,
   error: null,
   success: null,
 };
+
+// ----------------- Slice -----------------
 const adminSlice = createSlice({
   name: "admin",
   initialState,
@@ -135,7 +223,7 @@ const adminSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Dashboard Stats
+      // Dashboard
       .addCase(fetchDashboardStats.pending, (state) => {
         state.dashboardLoading = true;
         state.error = null;
@@ -165,9 +253,7 @@ const adminSlice = createSlice({
       .addCase(updateUserRole.fulfilled, (state, action) => {
         const updatedUser = action.payload.user;
         const index = state.users.findIndex((user) => user._id === updatedUser._id);
-        if (index !== -1) {
-          state.users[index] = updatedUser;
-        }
+        if (index !== -1) state.users[index] = updatedUser;
         state.success = action.payload.message;
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
@@ -190,10 +276,8 @@ const adminSlice = createSlice({
       })
       .addCase(updateOrderStatus.fulfilled, (state, action) => {
         const updatedOrder = action.payload.order;
-        const index = state.orders.findIndex((order) => order._id === updatedOrder._id);
-        if (index !== -1) {
-          state.orders[index] = updatedOrder;
-        }
+        const index = state.orders.findIndex((o) => o._id === updatedOrder._id);
+        if (index !== -1) state.orders[index] = updatedOrder;
         state.success = action.payload.message;
       })
       // Coupons
@@ -216,17 +300,44 @@ const adminSlice = createSlice({
       })
       .addCase(updateCoupon.fulfilled, (state, action) => {
         const updatedCoupon = action.payload.coupon;
-        const index = state.coupons.findIndex((coupon) => coupon._id === updatedCoupon._id);
-        if (index !== -1) {
-          state.coupons[index] = updatedCoupon;
-        }
+        const index = state.coupons.findIndex((c) => c._id === updatedCoupon._id);
+        if (index !== -1) state.coupons[index] = updatedCoupon;
         state.success = action.payload.message;
       })
       .addCase(deleteCoupon.fulfilled, (state, action) => {
-        state.coupons = state.coupons.filter((coupon) => coupon._id !== action.payload);
+        state.coupons = state.coupons.filter((c) => c._id !== action.payload);
         state.success = "Coupon deleted successfully";
+      })
+      // Products
+      .addCase(fetchAllProducts.pending, (state) => {
+        state.productsLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllProducts.fulfilled, (state, action) => {
+        state.productsLoading = false;
+        state.products = action.payload.products;
+        state.productsPagination = action.payload.pagination;
+      })
+      .addCase(fetchAllProducts.rejected, (state, action) => {
+        state.productsLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(createProduct.fulfilled, (state, action) => {
+        state.products.unshift(action.payload.product);
+        state.success = action.payload.message;
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        const updatedProduct = action.payload.product;
+        const index = state.products.findIndex((p) => p._id === updatedProduct._id);
+        if (index !== -1) state.products[index] = updatedProduct;
+        state.success = action.payload.message;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.products = state.products.filter((p) => p._id !== action.payload);
+        state.success = "Product deleted successfully";
       });
   },
 });
+
 export const { clearError, clearSuccess, setLoading } = adminSlice.actions;
 export default adminSlice.reducer;
