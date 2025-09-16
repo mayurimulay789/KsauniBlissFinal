@@ -91,7 +91,7 @@ const KsauniTshirtStyle = () => {
                   <img
                     src={tshirt.image?.url || "/placeholder.svg"}
                     alt={tshirt.image?.alt || tshirt.name}
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-cover rounded-xl px-4"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleIndividualTshirtClick(tshirt);
