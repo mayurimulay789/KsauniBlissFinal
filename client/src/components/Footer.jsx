@@ -75,7 +75,7 @@ const Footer = () => {
               </li>
               <li className="flex justify-center sm:justify-start items-center space-x-2">
                 <Phone className="w-4 h-4 text-red-400" />
-                <span>+91 92118 91719</span>
+                <span>+9211891719</span>
               </li>
               <li className="flex justify-center sm:justify-start items-center space-x-2">
                 <Mail className="w-4 h-4 text-red-400" />
@@ -86,7 +86,7 @@ const Footer = () => {
         </div>
 
         {/* ===== Bottom Bar ===== */}
-        <div className="border-t border-gray-700 pt-6 text-center text-xs sm:text-sm text-gray-400">
+        <div className="border-t border-gray-700 pt-4 text-center text-xs sm:text-sm text-gray-400">
           © {new Date().getFullYear()} Ksauni Bliss. All rights reserved.
         </div>
       </div>
