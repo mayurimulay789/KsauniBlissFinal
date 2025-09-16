@@ -479,7 +479,7 @@ const ProductDetailPage = () => {
             {/* Product Info */}
             <div className="space-y-1">
               <div className="flex items-start justify-between">
-                <div className="hidden lg:block mb-2">
+                <div className="hidden lg:block mb-1">
                   <p className="text-lg font-semibold text-gray-900">
                     <span>{currentProduct.brand || "Ksauni Bliss"}</span>
                   </p>
@@ -502,7 +502,19 @@ const ProductDetailPage = () => {
                   )}
                 </div>
               </div>
-            
+              <div className="lg:hidden">
+                <span className="font-semibold">Product Description</span>
+                <p className={`text-sm text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
+                  {currentProduct?.description}
+                </p>
+
+                <button
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                  className="text-red-500 text-xs font-semibold mt-1"
+                >
+                  {showFullDescription ? "Show Less" : "Read More"}
+                </button>
+              </div>
               <div className="lg:hidden -mt-2">
                 <div className="grid grid-cols-3 gap-2">
                   {/* Tags */}
@@ -704,7 +716,7 @@ const ProductDetailPage = () => {
                 </div>
                 <div className="mt-4">
                 <span className="font-semibold">Product Description</span>
-                <p className={`text-sm text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
+                <p className={`text-md text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
                   {currentProduct?.description}
                 </p>
 
