@@ -86,13 +86,22 @@ export const fetchAllCoupons = createAsyncThunk(
   "admin/fetchAllCoupons",
   async (params, { rejectWithValue }) => {
     try {
-      const response = await adminAPI.getAllCoupons(params);
+      // ✅ Clean params before sending
+      const cleanedParams = { ...params };
+      Object.keys(cleanedParams).forEach((key) => {
+        if (cleanedParams[key] === "" || cleanedParams[key] == null) {
+          delete cleanedParams[key];
+        }
+      });
+
+      const response = await adminAPI.getAllCoupons(cleanedParams);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch coupons");
     }
   }
 );
+
 
 export const createCoupon = createAsyncThunk(
   "admin/createCoupon",

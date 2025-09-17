@@ -31,14 +31,23 @@ const MyOrdersPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { orders = [], pagination = {}, loading = {}, error } = useSelector((state) => state.orders || {});
+  const { isAuthenticated } = useSelector((state) => state.auth || {});
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showTrackingModal, setShowTrackingModal] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  
   useEffect(() => {
-    dispatch(fetchUserOrders({ page: currentPage, limit: 10 }));
-  }, [dispatch, currentPage]);
+    // Only fetch orders from server if user is authenticated
+    // This prevents showing old guest orders from local storage
+    if (isAuthenticated) {
+      dispatch(fetchUserOrders({ page: currentPage, limit: 10 }));
+    } else {
+      // Redirect non-authenticated users to login
+      navigate('/login');
+    }
+  }, [dispatch, currentPage, isAuthenticated, navigate]);
   useEffect(() => {
     if (error) {
       setTimeout(() => dispatch(clearError()), 5000);

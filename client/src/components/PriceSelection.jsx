@@ -80,10 +80,10 @@ const PriceSelection = ({ selectedPrice }) => {
                 </div>
                 {/* Content */}
                 <div className="z-20">
-                  <div className="mb-1 text-md sm:text-lg md:text-2xl font-semibold leading-tight uppercase">
+                  <div className="mb-1 text-sm sm:text-lg md:text-2xl font-semibold leading-tight uppercase">
                     {option.label}
                   </div>
-                  <div className="mb-2 text-[20px] sm:text-base md:text-lg font-medium">
+                  <div className="mb-1 text-[20px] sm:text-base md:text-lg font-small">
                     {option.sublabel}
                   </div>
                   <div className="flex items-center justify-center w-5 h-5 bg-white rounded-full sm:w-6 sm:h-6 mx-auto">

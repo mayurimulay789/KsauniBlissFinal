@@ -13,7 +13,7 @@ import {
   signInWithPhoneNumber,
   RecaptchaVerifier,
 } from "firebase/auth";
-import { auth, cleanupRecaptcha } from "../../config/firebase";
+import { auth, cleanupRecaptcha } from "../../config/firebase.js";
 import axios from "axios";
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 // Create axios instance
@@ -92,6 +92,7 @@ export const initializeAuth = createAsyncThunk("auth/initializeAuth", async (_, 
       localStorage.removeItem("user");
       localStorage.removeItem("authToken");
       localStorage.removeItem("tokenExpiry");
+      // Don't clear guestOrders here as this is normal for a guest user
       return {
         isAuthenticated: false,
         user: null,
@@ -180,7 +181,6 @@ export const checkAuth = createAsyncThunk("auth/checkAuth", async (_, { rejectWi
     // Update local storage
     localStorage.setItem("user", JSON.stringify(response.data.user));
     localStorage.setItem("authToken", response.data.jwtToken);
-    localStorage.setItem("fashionhub_token", response.data.jwtToken);
     return {
       firebaseUser: {
         uid: user.uid,
@@ -240,6 +240,10 @@ export const registerWithEmail = createAsyncThunk(
       // Store user data
       localStorage.setItem("user", JSON.stringify(response.data.user));
       localStorage.setItem("authToken", response.data.jwtToken);
+      
+      // Clear any guest orders to prevent them from showing on new account
+      localStorage.removeItem("guestOrders");
+      
       return {
         firebaseUser: {
           uid: firebaseUser.uid,
@@ -296,6 +300,10 @@ export const loginWithEmail = createAsyncThunk(
       localStorage.setItem("authToken", response.data.jwtToken);
       localStorage.setItem("tokenExpiry", expiryDate.toISOString());
       localStorage.setItem("fashionhub_token", response.data.jwtToken);
+      
+      // Clear any guest orders to prevent them from showing after login
+      localStorage.removeItem("guestOrders");
+      
       return {
         firebaseUser: {
           uid: firebaseUser.uid,
@@ -454,6 +462,7 @@ export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("tokenExpiry");
     localStorage.removeItem("fashionhub_token");
+    localStorage.removeItem("guestOrders"); // Clear guest orders on logout
     // Clean up reCAPTCHA
     cleanupRecaptcha();
     return { success: true };
@@ -466,6 +475,7 @@ export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
       localStorage.removeItem("authToken");
       localStorage.removeItem("tokenExpiry");
       localStorage.removeItem("fashionhub_token");
+      localStorage.removeItem("guestOrders"); // Clear guest orders on logout
       cleanupRecaptcha();
     } catch (signOutError) {
       console.error("Error signing out:", signOutError);
@@ -611,7 +621,6 @@ export const refreshUserData = createAsyncThunk("auth/refreshUserData", async (_
     const response = await api.post("/auth/verify-token", { idToken });
     localStorage.setItem("user", JSON.stringify(response.data.user));
     localStorage.setItem("authToken", response.data.jwtToken);
-    localStorage.setItem("fashionhub_token", response.data.jwtToken);
     return response.data;
   } catch (error) {
     console.error("Refresh user data error:", error);
@@ -691,7 +700,7 @@ const authSlice = createSlice({
         state.firebaseUser = action.payload.firebaseUser;
         state.error = null;
       })
-      .addCase(initializeAuth.rejected, (state, action) => {
+      .addCase(initializeAuth.rejected, (state) => {
         state.isLoading = false;
         state.initialized = true;
         state.isAuthenticated = false;
@@ -863,7 +872,7 @@ const authSlice = createSlice({
         state.confirmationResult = null;
         state.phoneNumber = null;
       })
-      .addCase(logoutUser.rejected, (state, action) => {
+      .addCase(logoutUser.rejected, (state) => {
         state.isLoading = false;
         // Still clear auth state even if logout fails
         state.user = null;

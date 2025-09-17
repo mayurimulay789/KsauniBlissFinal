@@ -191,7 +191,7 @@ const LoginPage = () => {
   // style={{ backgroundColor: "#b80b0c" }}
 >
   <img
-    src="/01.webp"
+    src="/03.jpeg"
     alt="Fashion Model"
     className="absolute inset-0 w-full h-full object-cover
     "

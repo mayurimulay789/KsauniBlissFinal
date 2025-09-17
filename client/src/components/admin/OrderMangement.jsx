@@ -91,14 +91,8 @@ const OrdersManagement = () => {
     return colors[status] || "bg-gray-100 text-gray-800";
   };
   const statusOptions = [
-    { value: "pending", label: "Pending" },
     { value: "confirmed", label: "Confirmed" },
-    { value: "processing", label: "Processing" },
-    { value: "shipped", label: "Shipped" },
-    { value: "out_for_delivery", label: "Out for Delivery" },
-    { value: "delivered", label: "Delivered" },
     { value: "cancelled", label: "Cancelled" },
-    { value: "refunded", label: "Refunded" },
   ];
   if (ordersLoading && orders.length === 0) {
     return (

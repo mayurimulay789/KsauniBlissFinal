@@ -13,7 +13,7 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="pb-3 overflow-hidden transition-all duration-300 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md"
+      className="pb-3 overflow-hidden transition-all duration-300 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md"
     >
       <div className="relative aspect-[4/4]">
         <Link to={`/product/${product._id}`}>
