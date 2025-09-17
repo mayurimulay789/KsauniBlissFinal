@@ -22,11 +22,7 @@ wishlistAPI.interceptors.request.use(
 wishlistAPI.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("fashionhub_token");
-      localStorage.removeItem("fashionhub_user");
-      window.location.href = "/login";
-    }
+    // Don't redirect to login for 401 errors, just pass them through
     return Promise.reject(error);
   },
 );

@@ -226,14 +226,18 @@ const ProductDetailPage = () => {
   const handleWishlistToggle = async () => {
     try {
       if (isInWishlist) {
+        // Optimistically remove from wishlist
         dispatch(optimisticRemoveFromWishlist(currentProduct._id))
         toast.success(`${currentProduct.name} removed from wishlist!`)
         await dispatch(removeFromWishlist(currentProduct._id)).unwrap()
       } else {
+        // Optimistically add to wishlist
         dispatch(optimisticAddToWishlist(currentProduct))
         toast.success(`${currentProduct.name} added to wishlist!`)
         await dispatch(addToWishlist(currentProduct)).unwrap()
       }
+
+      // Animate wishlist icon
       const wish = document.querySelector("#wish")
       if (wish) {
         wish.style.transform = "scale(1.2)"
@@ -241,6 +245,12 @@ const ProductDetailPage = () => {
       }
     } catch (err) {
       console.error(err)
+      
+      // Keep the local state update even if server sync fails for guest users
+      if (err?.response?.status === 401) {
+        return // Don't show error for unauthorized guest users
+      }
+      
       toast.error(err?.message || "Failed to update wishlist")
     }
   }
