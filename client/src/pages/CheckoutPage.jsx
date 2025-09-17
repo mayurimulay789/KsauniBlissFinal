@@ -386,8 +386,10 @@ const CheckoutPage = () => {
   console.log("Order Error:", orderError)
   console.log("Coupon Error:", couponError)
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container px-2 mx-auto xs:px-4">
+    <div className="min-h-screen bg-gray-50 pb-20">
+      {" "}
+      {/* Added bottom padding for fixed button */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 xs:py-6 lg:py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto">
           {/* Header - Responsive */}
           <div className="mb-6 text-center xs:mb-8 sm:text-left">
@@ -471,7 +473,7 @@ const CheckoutPage = () => {
                       <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.addressLine1}</p>
                     )}
                   </div>
-                  
+
                   <div className="sm:col-span-1">
                     <label className="block mb-1 text-sm font-medium text-gray-700">City *</label>
                     <input
@@ -527,64 +529,7 @@ const CheckoutPage = () => {
                   </div>
                 </div>
               </motion.div>
-              {/* Shipping Options - Responsive */}
-              {/* {shippingAddress.pinCode.length === 6 && (
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="p-4 bg-white rounded-xl shadow-md xs:p-6"
-                >
-                  <div className="flex flex-col justify-between mb-4 space-y-2 xs:flex-row xs:items-center xs:space-y-0">
-                    <div className="flex items-center">
-                      <Truck className="w-4 h-4 mr-2 text-red-600 xs:w-5 xs:h-5" />
-                      <h2 className="text-lg font-semibold xs:text-xl">
-                        Shipping Options
-                      </h2>
-                    </div>
-                    <button
-                      onClick={() =>
-                        setShowShippingCalculator(!showShippingCalculator)
-                      }
-                      className="flex items-center self-start px-3 py-1 text-xs text-red-600 border border-red-600 rounded-xl xs:text-sm hover:bg-red-50 xs:self-auto"
-                    >
-                      <Calculator className="w-3 h-3 mr-1 xs:w-4 xs:h-4" />
-                      {showShippingCalculator ? "Hide" : "Show"} Rates
-                    </button>
-                  </div>
-                  {showShippingCalculator && (
-                    <ShippingRateCalculator
-                      onRateSelect={handleShippingRateSelect}
-                      cartWeight={cartItems.reduce(
-                        (weight, item) => weight + item.quantity * 0.5,
-                        0.5
-                      )}
-                      cartValue={cartSummary.subtotal || 0}
-                    />
-                  )}
-                  {selectedShippingRate && (
-                    <div className="p-3 mt-4 border border-green-200 rounded-xl xs:p-4 bg-green-50">
-                      <div className="flex flex-col justify-between space-y-2 xs:flex-row xs:items-center xs:space-y-0">
-                        <div>
-                          <p className="text-sm font-medium text-green-800 xs:text-base">
-                            Selected: {selectedShippingRate.courier_name}
-                          </p>
-                          <p className="text-xs text-green-600 xs:text-sm">
-                            Delivery: {selectedShippingRate.etd} | ₹
-                            {selectedShippingRate.freight_charge}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => setSelectedShippingRate(null)}
-                          className="self-start p-1 text-red-500 hover:text-red-700 xs:self-auto"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              )} */}
+
               {/* Coupon Section - Responsive */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -754,7 +699,7 @@ const CheckoutPage = () => {
                   )}
                   {calculateFinalPricing.shippingCharges === 0 && !selectedShippingRate && (
                     <div className="flex items-center text-xs text-green-600">
-                      <Truck className="w-3 h-3 mr-1" />
+                      <Truck className="w-3 h-3 mr-1 xs:w-4 xs:h-4" />
                       <span>Free shipping on orders above ₹399</span>
                     </div>
                   )}
@@ -774,12 +719,12 @@ const CheckoutPage = () => {
                   <Shield className="w-3 h-3 mr-1 xs:w-4 xs:h-4" />
                   <span>Secure checkout powered by Razorpay</span>
                 </div>
-                {/* Place Order Button - Responsive */}
-                <div className="md:relative">
+
+                <div className="hidden md:block mt-6">
                   <button
                     onClick={() => setShowModal(true)}
                     disabled={orderLoading.creating || !cartItems.length}
-                    className="flex items-center justify-center w-full py-2.5 xs:py-3 mt-4 xs:mt-6 text-sm xs:text-base font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed border-xl md:relative fixed bottom-4 left-4 right-4 md:bottom-auto md:left-auto md:right-auto z-50 md:z-auto shadow-lg md:shadow-none"
+                    className="flex items-center justify-center w-full py-3 text-base font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                   >
                     {orderLoading.creating ? (
                       <>
@@ -788,22 +733,38 @@ const CheckoutPage = () => {
                       </>
                     ) : (
                       <>
-                        <CreditCard className="w-4 h-4 mr-2 xs:w-5 xs:h-5" />
+                        <CreditCard className="w-5 h-5 mr-2" />
                         Confirm Order ₹{calculateFinalPricing.total}
                       </>
                     )}
                   </button>
                 </div>
-                <p className="mt-2 text-xs text-center text-gray-500 md:block hidden">
-                  By placing your order, you agree to our Terms & Conditions
-                </p>
-                <p className="pb-20 mt-2 text-xs text-center text-gray-500 md:hidden">
-                  By placing your order, you agree to our Terms & Conditions
-                </p>
               </motion.div>
             </div>
           </div>
         </motion.div>
+
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-50 md:hidden">
+          <div className="max-w-7xl mx-auto">
+            <button
+              onClick={() => setShowModal(true)}
+              disabled={orderLoading.creating || !cartItems.length}
+              className="flex items-center justify-center w-full py-3 text-base font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            >
+              {orderLoading.creating ? (
+                <>
+                  <LoadingSpinner size="sm" className="mr-2" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-5 h-5 mr-2" />
+                  Confirm Order ₹{calculateFinalPricing.total}
+                </>
+              )}
+            </button>
+          </div>
+        </div>
         {showModal && (
           <PaymentModal
             isOpen={showModal}
@@ -888,117 +849,6 @@ const CheckoutPage = () => {
           </div>
         )}
       </div>
-      {/* Enhanced responsive styles */}
-      <style>{`
-        @media (min-width: 475px) {
-          .xs\\:py-6 {
-            padding-top: 1.5rem;
-            padding-bottom: 1.5rem;
-          }
-          .xs\\:px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
-          }
-          .xs\\:mb-8 {
-            margin-bottom: 2rem;
-          }
-          .xs\\:text-3xl {
-            font-size: 1.875rem;
-            line-height: 2.25rem;
-          }
-          .xs\\:text-base {
-            font-size: 1rem;
-            line-height: 1.5rem;
-          }
-          .xs\\:mb-6 {
-            margin-bottom: 1.5rem;
-          }
-          .xs\\:space-y-6 > :not([hidden]) ~ :not([hidden]) {
-            --tw-space-y-reverse: 0;
-            margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
-            margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
-          }
-          .xs\\:p-6 {
-            padding: 1.5rem;
-          }
-          .xs\\:w-5 {
-            width: 1.25rem;
-          }
-          .xs\\:h-5 {
-            height: 1.25rem;
-          }
-          .xs\\:text-xl {
-            font-size: 1.25rem;
-            line-height: 1.75rem;
-          }
-          .xs\\:gap-4 {
-            gap: 1rem;
-          }
-          .xs\\:text-sm {
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-          }
-          .xs\\:px-3 {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-          }
-          .xs\\:flex-row {
-            flex-direction: row;
-          }
-          .xs\\:items-center {
-            align-items: center;
-          }
-          .xs\\:space-y-0 > :not([hidden]) ~ :not([hidden]) {
-            --tw-space-y-reverse: 0;
-            margin-top: calc(0px * var(--tw-space-y-reverse)));
-            margin-bottom: calc(0px * var(--tw-space-y-reverse));
-          }
-          .xs\\:w-4 {
-            width: 1rem;
-          }
-          .xs\\:h-4 {
-            height: 1rem;
-          }
-          .xs\\:self-auto {
-            align-self: auto;
-          }
-          .xs\\:space-x-3 > :not([hidden]) ~ :not([hidden]) {
-            --tw-space-x-reverse: 0;
-            margin-right: calc(0.75rem * var(--tw-space-x-reverse)));
-            margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
-          }
-          .xs\\:w-16 {
-            width: 4rem;
-          }
-          .xs\\:h-16 {
-            height: 4rem;
-          }
-          .xs\\:text-lg {
-            font-size: 1.125rem;
-            line-height: 1.75rem;
-          }
-          .xs\\:py-3 {
-            padding-top: 0.75rem;
-            padding-bottom: 0.75rem;
-          }
-          .xs\\:mt-6 {
-            margin-top: 1.5rem;
-          }
-        }
-        /* Touch-friendly mobile optimizations */
-        @media (max-width: 640px) {
-          .sticky {
-            position: relative;
-          }
-          input,
-          button {
-            min-height: 44px;
-          }
-          .grid {
-            gap: 1rem;
-          }
-        }
-      `}</style>
     </div>
   )
 }

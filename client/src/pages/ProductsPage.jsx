@@ -196,7 +196,7 @@ const ProductsPage = () => {
           </aside>
 
           {/* Products Grid */}
-          <main className="flex-1">
+          <main className="flex-1 rounded-xl">
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
                 <Preloader />

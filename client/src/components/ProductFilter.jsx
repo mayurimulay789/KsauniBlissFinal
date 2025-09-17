@@ -131,7 +131,6 @@ const ProductFilters = memo(({ filters, categories, onFilterChange, onClearFilte
           className="flex items-center justify-between w-full py-2 text-left"
         >
           <h3 className="flex items-center text-lg font-semibold text-gray-800">
-            <DollarSign className="w-5 h-5 mr-2 text-ksauni-red" />
             Price Range
           </h3>
           <motion.div animate={{ rotate: expandedSections.price ? 180 : 0 }}>

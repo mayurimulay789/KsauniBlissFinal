@@ -114,7 +114,7 @@ const RelatedProducts = ({ currentProduct }) => {
   }
 
   return (
-    <div className="px-4 py-8 bg-gray-50 rounded-xl mx-auto">
+    <div className="px-2 py-8 rounded-xl mx-auto">
       {/* ===== Section Header ===== */}
       <div className="mb-6">
         <div className="flex items-center justify-between">

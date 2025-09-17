@@ -310,11 +310,11 @@ const ProductDetailPage = () => {
         </div>
       </div>
       {/* Main Content */}
-      <div className="mx-auto px-4 sm:px-4 py-2">
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="">
+        {/* <div className="bg-white rounded-xl shadow-md overflow-hidden"> */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-4 sm:p-4">
             {/* Images Section */}
-            <div className=" relative">
+            {/* <div className=" relative">
               {/* Wishlist Button - Top right corner of image */}
               <button
                 onClick={handleWishlistToggle}
@@ -339,7 +339,7 @@ const ProductDetailPage = () => {
                 >
                   {currentProduct.images.map((img, idx) => (
                     <SwiperSlide key={idx}>
-                      <div className="relative bg-black rounded-xl overflow-hidden mb-2">
+                      <div className="relative bg-black rounded-xl overflow-hidden">
                         <img
                           src={img.url || "/placeholder.svg"}
                           alt={currentProduct.name}
@@ -354,11 +354,11 @@ const ProductDetailPage = () => {
                         <div className="absolute bottom-6 left-2 right-2 flex items-center justify-between gap-2">
                           <button
                             onClick={handleViewSimilar}
-                            className="px-3 py-1 rounded-full bg-white/90 text-gray-900 text-xs font-semibold shadow"
+                            className="px-3 mx-2 py-1 rounded-full bg-white/90 text-gray-900 text-xs font-semibold shadow"
                           >
                             VIEW SIMILAR
                           </button>
-                          <div className="px-3 py-1 rounded-full bg-black/80 text-white text-xs font-semibold flex items-center gap-2">
+                          <div className="px-3 py-1  mx-4 rounded-full bg-black/80 text-white text-xs font-semibold flex items-center gap-2">
                             <span className="uppercase">
                               {currentProduct?.category?.name ? String(currentProduct.category.name) : "REGULAR"}
                             </span>
@@ -475,7 +475,7 @@ const ProductDetailPage = () => {
                 <Share2 className="w-4 h-4" />
                 <span className="text-sm font-medium">Share this product</span>
               </button> */}
-            </div>
+            {/* </div> */} 
             {/* Product Info */}
             <div className="space-y-1">
               <div className="flex items-start justify-between">
@@ -484,7 +484,7 @@ const ProductDetailPage = () => {
                     <span>{currentProduct.brand || "Ksauni Bliss"}</span>
                   </p>
                   {currentProduct.name && (
-                    <p className="text-base text-gray-600 mb-2">
+                    <p className="text-base text-gray-600 mb-5">
                       {typeof currentProduct.name === "string"
                         ? currentProduct.name
                         : JSON.stringify(currentProduct.name)}
@@ -503,14 +503,14 @@ const ProductDetailPage = () => {
                 </div>
               </div>
               <div className="lg:hidden">
-                <span className="font-semibold">Product Description</span>
+                <span className="font-semibold mt-5">Product Description</span>
                 <p className={`text-sm text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
                   {currentProduct?.description}
                 </p>
 
                 <button
                   onClick={() => setShowFullDescription(!showFullDescription)}
-                  className="text-red-500 text-xs font-semibold mt-1"
+                  className="text-red-500 text-xs font-semibold mt-5"
                 >
                   {showFullDescription ? "Show Less" : "Read More"}
                 </button>
@@ -688,7 +688,7 @@ const ProductDetailPage = () => {
                       (selectedSize && getSelectedSizeStock() === 0) ||
                       (currentProduct.sizes?.length > 0 && !selectedSize)
                     }
-                    className={`flex-1 flex items-center justify-center gap-2 px-8 py-2 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed ${
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-1 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed ${
                       currentProduct.sizes?.length > 0 && !selectedSize
                         ? "bg-gray-100 border-gray-300 text-gray-400"
                         : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50"
@@ -704,7 +704,7 @@ const ProductDetailPage = () => {
                       (selectedSize && getSelectedSizeStock() === 0) ||
                       (currentProduct.sizes?.length > 0 && !selectedSize)
                     }
-                    className={`flex-1 flex items-center justify-center gap-2 px-8 py-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed ${
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-1 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed ${
                       currentProduct.sizes?.length > 0 && !selectedSize
                         ? "bg-gray-400 text-gray-200"
                         : "bg-red-600 text-white hover:bg-red-700"
@@ -743,10 +743,9 @@ const ProductDetailPage = () => {
             </div>
           </div>
           {/* Related Products */}
-          <div className="border-t rounded-xl border-gray-200 px-4 sm:px-6 py-6 sm:py-8 bg-white">
+          <div className="border-t rounded-xl sm:px-6 py-6 sm:py-8 bg-white">
             <RelatedProducts currentProduct={currentProduct} />
           </div>
-        </div>
       </div>
       {/* Image Modal */}
       <AnimatePresence>
@@ -897,7 +896,7 @@ const ProductDetailPage = () => {
               (selectedSize && getSelectedSizeStock() === 0) ||
               (currentProduct.sizes?.length > 0 && !selectedSize)
             }
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed text-sm ${
+            className={`flex-1 flex items-center justify-center gap-2 px-1 py-2 border-1 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed text-sm ${
               currentProduct.sizes?.length > 0 && !selectedSize
                 ? "bg-gray-100 border-gray-300 text-gray-400"
                 : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50"
@@ -914,7 +913,7 @@ const ProductDetailPage = () => {
               (selectedSize && getSelectedSizeStock() === 0) ||
               (currentProduct.sizes?.length > 0 && !selectedSize)
             }
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed text-sm ${
+            className={`flex-1 flex items-center justify-center gap-2 px-2 py-1 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed text-sm ${
               currentProduct.sizes?.length > 0 && !selectedSize
                 ? "bg-gray-400 text-gray-200"
                 : "bg-red-600 text-white hover:bg-red-700"

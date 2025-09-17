@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useDispatch } from "react-redux"
 import { Plus, Search, Edit, Trash2, ArrowUp, ArrowDown, Star } from "lucide-react"
 import adminAPI from "../../store/api/adminApi"
+import { fetchCategories as fetchCategoriesAction } from "../../store/slices/categorySlice"
 
 const ProductsManagement = () => {
   const dispatch = useDispatch()
@@ -113,6 +114,8 @@ const ProductsManagement = () => {
       setShowModal(false)
       resetForm()
       fetchProducts()
+      fetchCategories()
+      dispatch(fetchCategoriesAction())
     } catch (error) {
       console.error("Error saving product:", error)
     } finally {
@@ -125,6 +128,8 @@ const ProductsManagement = () => {
       try {
         await adminAPI.deleteProduct(productId)
         fetchProducts()
+        fetchCategories()
+        dispatch(fetchCategoriesAction())
       } catch (error) {
         console.error("Error deleting product:", error)
       }

@@ -87,9 +87,9 @@ const PromoBanners = () => {
   // UI
   // ---------------------
   return (
-    <section className="relative w-full mt-4 px-2 sm:px-4">
+    <section className="relative w-full mt-4 px-2 sm:px-2">
       <div
-        className="relative overflow-hidden rounded-2xl shadow-lg w-full max-w-[1200px] mx-auto cursor-pointer"
+        className="relative overflow-hidden rounded-2xl shadow-lg w-full max-w-[1270px] mx-auto cursor-pointer"
         style={{ border: "3px solid #be7a21" }}
       >
         {/* Banner Image */}
@@ -100,7 +100,7 @@ const PromoBanners = () => {
           }
           alt={currentBanner?.title || "Promotional banner"}
           className="w-full h-auto object-cover rounded-2xl"
-          width={1200}  // ✅ Explicit width for optimization
+          width={1270}  // ✅ Explicit width for optimization
           height={400}  // ✅ Approximate height (browser adjusts if different)
         />
         {/* Countdown Timer (optional) */}

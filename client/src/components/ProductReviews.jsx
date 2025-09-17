@@ -209,10 +209,10 @@ const ProductReviews = ({ productId }) => {
       {user && (
         <button
           onClick={() => setShowReviewForm(!showReviewForm)}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all ${
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all ${
             showReviewForm
               ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              : "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
+              : "bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800"
           }`}
         >
           {showReviewForm ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
@@ -236,7 +236,7 @@ const ProductReviews = ({ productId }) => {
             </div>
 
             {/* Title */}
-            <div>
+            {/* <div>
               <label className="block text-sm font-semibold text-gray-900 mb-1">Review Title</label>
               <input
                 type="text"
@@ -246,7 +246,7 @@ const ProductReviews = ({ productId }) => {
                 placeholder="Summarize your experience..."
                 required
               />
-            </div>
+            </div> */}
 
             {/* Comment */}
             <div>
@@ -262,7 +262,7 @@ const ProductReviews = ({ productId }) => {
             </div>
 
             {/* Pros and Cons */}
-            <div className="grid grid-cols-1 gap-3">
+            {/* <div className="grid grid-cols-1 gap-3">
               <div>
                 <label className="flex items-center gap-1 text-sm font-semibold text-gray-900 mb-1">
                   <CheckCircle className="w-4 h-4 text-green-500" />
@@ -287,10 +287,10 @@ const ProductReviews = ({ productId }) => {
                   placeholder="What could be improved?"
                 />
               </div>
-            </div>
+            </div> */}
 
             {/* Image Upload */}
-            <div>
+            {/* <div>
               <label className="flex items-center gap-1 text-sm font-semibold text-gray-900 mb-1">
                 <Camera className="w-4 h-4 text-gray-500" />
                 Add Photos (up to 5)
@@ -322,7 +322,7 @@ const ProductReviews = ({ productId }) => {
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             <button
               type="submit"
@@ -375,7 +375,7 @@ const ProductReviews = ({ productId }) => {
 
                 {/* Review Content */}
                 <div className="p-3">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-1">{review.title}</h4>
+                  {/* <h4 className="text-sm font-semibold text-gray-900 mb-1">{review.title}</h4> */}
                   <div className="relative">
                     <p className={`text-xs text-gray-700 ${expandedReviews[review._id] ? "" : "line-clamp-2"}`}>
                       {review.comment}
@@ -398,7 +398,7 @@ const ProductReviews = ({ productId }) => {
                   </div>
 
                   {/* Pros and Cons */}
-                  {(review.pros || review.cons) && (
+                  {/* {(review.pros || review.cons) && (
                     <div className="grid grid-cols-1 gap-2 mt-2">
                       {review.pros && (
                         <div className="bg-green-50 border border-green-200 rounded p-2">
@@ -419,10 +419,10 @@ const ProductReviews = ({ productId }) => {
                         </div>
                       )}
                     </div>
-                  )}
+                  )} */}
 
                   {/* Review Images */}
-                  {review.images?.length > 0 && (
+                  {/* {review.images?.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {review.images.slice(0, 3).map((img, idx) => (
                         <img
@@ -438,7 +438,7 @@ const ProductReviews = ({ productId }) => {
                         </div>
                       )}
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             ))}
