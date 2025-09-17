@@ -10,7 +10,12 @@ import toast from "react-hot-toast"
 import { fetchProducts, setFilters, clearFilters } from "../store/slices/productSlice"
 import { fetchCategories } from "../store/slices/categorySlice"
 import { addToCart, optimisticAddToCart } from "../store/slices/cartSlice"
-import { optimisticAddToWishlist, optimisticRemoveFromWishlist } from "../store/slices/wishlistSlice"
+import { 
+  optimisticAddToWishlist, 
+  optimisticRemoveFromWishlist,
+  addToWishlist,
+  removeFromWishlist
+} from "../store/slices/wishlistSlice"
 
 // Components
 import ProductFilters from "../components/ProductFilter"
@@ -125,7 +130,7 @@ const ProductsPage = () => {
         toast.error("Failed to add item to cart. Please try again.")
       }
     },
-    [dispatch, navigate, user],
+    [dispatch],
   )
 
   // ✅ Wishlist handler
@@ -133,21 +138,21 @@ const ProductsPage = () => {
     async (product, e) => {
       e.preventDefault()
       e.stopPropagation()
-      if (!user) {
-        navigate("/login", { state: { from: window.location.pathname } })
-        toast.error("Please login to manage your wishlist")
-        return
-      }
+      
       const isInWishlist = wishlistItems.some((item) => item._id === product._id)
       if (isInWishlist) {
+        // Optimistically remove from wishlist
         dispatch(optimisticRemoveFromWishlist(product._id))
         toast.success(`${product.name} removed from wishlist!`)
+        await dispatch(removeFromWishlist(product._id)).unwrap()
       } else {
+        // Optimistically add to wishlist
         dispatch(optimisticAddToWishlist(product))
         toast.success(`${product.name} added to wishlist!`)
+        await dispatch(addToWishlist(product)).unwrap()
       }
     },
-    [dispatch, navigate, user, wishlistItems],
+    [dispatch, wishlistItems],
   )
 
   // ✅ Handle filter change → Update Redux + URL

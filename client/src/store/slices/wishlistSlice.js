@@ -1,35 +1,123 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import wishlistAPI from "../api/wishlistAPI";
 // Async thunks
-export const fetchWishlist = createAsyncThunk("wishlist/fetchWishlist", async (_, { rejectWithValue }) => {
+export const fetchWishlist = createAsyncThunk("wishlist/fetchWishlist", async (_, { rejectWithValue, getState }) => {
   try {
+    const isAuthenticated = getState().auth.isAuthenticated;
+    
+    // For guest users, return localStorage items
+    if (!isAuthenticated) {
+      const items = getFromLocalStorage();
+      return {
+        wishlist: items,
+        count: items.length
+      };
+    }
+
+    // For authenticated users, fetch from server
     const response = await wishlistAPI.getWishlist();
     return response.data;
   } catch (error) {
+    // If auth error, return localStorage items
+    if (error.response?.status === 401) {
+      const items = getFromLocalStorage();
+      return {
+        wishlist: items,
+        count: items.length
+      };
+    }
     return rejectWithValue(error.response?.data?.message || "Failed to fetch wishlist");
   }
 });
-export const addToWishlist = createAsyncThunk("wishlist/addToWishlist", async (product, { rejectWithValue }) => {
+export const addToWishlist = createAsyncThunk("wishlist/addToWishlist", async (product, { rejectWithValue, getState }) => {
   try {
-    // Accept full product object instead of just productId
+    const isAuthenticated = getState().auth.isAuthenticated;
+
+    // For guest users, handle locally
+    if (!isAuthenticated) {
+      const currentItems = getFromLocalStorage();
+      const productToAdd = typeof product === "string" 
+        ? getState().wishlist.items.find(item => item._id === product)
+        : product;
+
+      if (!productToAdd) {
+        return rejectWithValue("Product not found");
+      }
+
+      // Check if already exists
+      const existingIndex = currentItems.findIndex(item => item._id === productToAdd._id);
+      if (existingIndex === -1) {
+        const updatedItems = [...currentItems, productToAdd];
+        saveToLocalStorage(updatedItems);
+        return {
+          wishlist: updatedItems,
+          count: updatedItems.length,
+          productId: productToAdd._id,
+          product: productToAdd
+        };
+      }
+      return {
+        wishlist: currentItems,
+        count: currentItems.length,
+        productId: productToAdd._id,
+        product: productToAdd
+      };
+    }
+
+    // For authenticated users
     const productId = typeof product === "string" ? product : product._id;
     const response = await wishlistAPI.addToWishlist(productId);
     return {
       ...response.data,
       productId,
-      product: typeof product === "object" ? product : null, // Include product data if available
+      product: typeof product === "object" ? product : null,
     };
   } catch (error) {
+    // If auth error for guest, handle locally
+    if (error.response?.status === 401 && !getState().auth.isAuthenticated) {
+      const items = getFromLocalStorage();
+      return {
+        wishlist: items,
+        count: items.length,
+        product: product
+      };
+    }
     return rejectWithValue(error.response?.data?.message || "Failed to add to wishlist");
   }
 });
 export const removeFromWishlist = createAsyncThunk(
   "wishlist/removeFromWishlist",
-  async (productId, { rejectWithValue }) => {
+  async (productId, { rejectWithValue, getState }) => {
     try {
+      const isAuthenticated = getState().auth.isAuthenticated;
+
+      // For guest users, handle locally
+      if (!isAuthenticated) {
+        const currentItems = getFromLocalStorage();
+        const updatedItems = currentItems.filter(item => item._id !== productId);
+        saveToLocalStorage(updatedItems);
+        return {
+          wishlist: updatedItems,
+          count: updatedItems.length,
+          productId
+        };
+      }
+
+      // For authenticated users
       const response = await wishlistAPI.removeFromWishlist(productId);
       return { ...response.data, productId };
     } catch (error) {
+      // If auth error for guest, handle locally
+      if (error.response?.status === 401 && !getState().auth.isAuthenticated) {
+        const currentItems = getFromLocalStorage();
+        const updatedItems = currentItems.filter(item => item._id !== productId);
+        saveToLocalStorage(updatedItems);
+        return {
+          wishlist: updatedItems,
+          count: updatedItems.length,
+          productId
+        };
+      }
       return rejectWithValue(error.response?.data?.message || "Failed to remove from wishlist");
     }
   },
@@ -50,13 +138,32 @@ export const moveToCart = createAsyncThunk("wishlist/moveToCart", async ({ produ
     return rejectWithValue(error.response?.data?.message || "Failed to move to cart");
   }
 });
+// Helper function to save wishlist to localStorage
+const saveToLocalStorage = (items) => {
+  try {
+    localStorage.setItem('guest_wishlist', JSON.stringify(items));
+  } catch (err) {
+    console.error('Failed to save wishlist to localStorage:', err);
+  }
+};
+
+// Helper function to get wishlist from localStorage
+const getFromLocalStorage = () => {
+  try {
+    const items = localStorage.getItem('guest_wishlist');
+    return items ? JSON.parse(items) : [];
+  } catch (err) {
+    console.error('Failed to get wishlist from localStorage:', err);
+    return [];
+  }
+};
+
 const initialState = {
-  items: [],
-  count: 0,
+  items: getFromLocalStorage(),
+  count: getFromLocalStorage().length,
   isLoading: false,
   error: null,
   lastUpdated: null,
-  // ✅ Added for better UX
   isAddingToWishlist: false,
   isRemovingFromWishlist: false,
 };
@@ -80,6 +187,8 @@ const wishlistSlice = createSlice({
         state.items.push(product);
         state.count = state.items.length;
         state.lastUpdated = new Date().toISOString();
+        // Save to localStorage
+        saveToLocalStorage(state.items);
       }
     },
     // ✅ Optimistic remove from wishlist
@@ -90,6 +199,8 @@ const wishlistSlice = createSlice({
         state.items.splice(existingIndex, 1);
         state.count = state.items.length;
         state.lastUpdated = new Date().toISOString();
+        // Save to localStorage
+        saveToLocalStorage(state.items);
       }
     },
     // ✅ Toggle wishlist item (for immediate UI feedback)
