@@ -124,7 +124,7 @@ const trackLoading = order?.trackLoading || false;
           </p>
           <button
             onClick={() => navigate("/orders")}
-            className="inline-flex items-center justify-center rounded-lg bg-pink-600 px-8 py-3 font-semibold text-white shadow-md transition-colors hover:bg-pink-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
+            className="inline-flex items-center justify-center rounded-xl bg-red-600 px-8 py-3 font-semibold text-white shadow-md transition-colors hover:bg-red-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           >
             <ArrowLeft className="mr-3 h-5 w-5" />
             Back to All Orders
@@ -134,7 +134,7 @@ const trackLoading = order?.trackLoading || false;
     );
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-pink-50 py-12 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50 py-12 font-sans">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -145,13 +145,13 @@ const trackLoading = order?.trackLoading || false;
           <div className="mb-10 flex flex-col items-center justify-between gap-4 md:flex-row md:mb-12">
             <button
               onClick={() => navigate("/orders")}
-              className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-6 py-2.5 font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-100 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+              className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-6 py-2.5 font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-100 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
             >
               <ArrowLeft className="mr-2 h-5 w-5" />
               Back to Orders
             </button>
             <h1 className="text-4xl font-extrabold text-gray-900 drop-shadow-sm sm:text-5xl">
-              Order <span className="text-pink-600">#{order.orderNumber || "N/A"}</span>
+              Order <span className="text-red-600">#{order.orderNumber || "N/A"}</span>
             </h1>
             <div className="md:w-auto w-full"></div>
           </div>
@@ -194,7 +194,7 @@ const trackLoading = order?.trackLoading || false;
                   >
                     {getStatusText(order.status)}
                   </span>
-                  <span className="text-4xl font-extrabold text-pink-700">
+                  <span className="text-4xl font-extrabold text-red-700">
                     ₹{order.pricing?.total || 0}
                   </span>
                 </div>
@@ -232,9 +232,9 @@ const trackLoading = order?.trackLoading || false;
             <div className="mb-8 flex flex-wrap justify-center gap-4 border-b border-gray-100 pb-6">
               <button
                 onClick={() => setActiveSection("items")}
-                className={`flex-1 min-w-[150px] rounded-lg px-6 py-3 text-center text-base font-semibold transition-all duration-200 ${
+                className={`flex-1 min-w-[150px] rounded-xl px-6 py-3 text-center text-base font-semibold transition-all duration-200 ${
                   activeSection === "items"
-                    ? "bg-pink-600 text-white shadow-md"
+                    ? "bg-red-600 text-white shadow-md"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
@@ -242,9 +242,9 @@ const trackLoading = order?.trackLoading || false;
               </button>
               <button
                 onClick={() => setActiveSection("address")}
-                className={`flex-1 min-w-[150px] rounded-lg px-6 py-3 text-center text-base font-semibold transition-all duration-200 ${
+                className={`flex-1 min-w-[150px] rounded-xl px-6 py-3 text-center text-base font-semibold transition-all duration-200 ${
                   activeSection === "address"
-                    ? "bg-pink-600 text-white shadow-md"
+                    ? "bg-red-600 text-white shadow-md"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
@@ -252,9 +252,9 @@ const trackLoading = order?.trackLoading || false;
               </button>
               <button
                 onClick={() => setActiveSection("tracking")}
-                className={`flex-1 min-w-[150px] rounded-lg px-6 py-3 text-center text-base font-semibold transition-all duration-200 ${
+                className={`flex-1 min-w-[150px] rounded-xl px-6 py-3 text-center text-base font-semibold transition-all duration-200 ${
                   activeSection === "tracking"
-                    ? "bg-pink-600 text-white shadow-md"
+                    ? "bg-red-600 text-white shadow-md"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
@@ -286,7 +286,7 @@ const trackLoading = order?.trackLoading || false;
                               "https://placehold.co/80x80/E0E7FF/6366F1?text=No+Image"
                             }
                             alt={item?.product?.name || "Product"}
-                            className="h-20 w-20 flex-shrink-0 rounded-lg object-cover shadow-sm"
+                            className="h-20 w-20 flex-shrink-0 rounded-xl object-cover shadow-sm"
                             onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/80x80/E0E7FF/6366F1?text=No+Image"; }}
                           />
                           <div className="flex-1">
@@ -303,7 +303,7 @@ const trackLoading = order?.trackLoading || false;
                               Color: {item?.color || "N/A"}
                             </p>
                           </div>
-                          <span className="text-xl font-bold text-pink-600">
+                          <span className="text-xl font-bold text-red-600">
                             ₹{(item?.price || 0) * (item?.quantity || 1)}
                           </span>
                         </div>
@@ -487,7 +487,7 @@ const trackLoading = order?.trackLoading || false;
                       </p>
                       <button
                         onClick={() => window.open(order.trackingUrl, "_blank")}
-                        className="mt-6 inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-md transition-colors hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        className="mt-6 inline-flex items-center rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white shadow-md transition-colors hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                       >
                         <Package className="mr-3 h-5 w-5" /> View Live Tracking
                       </button>
@@ -500,7 +500,7 @@ const trackLoading = order?.trackLoading || false;
                       <button
                         onClick={handleFetchTracking}
                         disabled={loading.tracking}
-                        className={`inline-flex items-center rounded-lg px-6 py-3 font-semibold text-white transition-colors shadow-md ${
+                        className={`inline-flex items-center rounded-xl px-6 py-3 font-semibold text-white transition-colors shadow-md ${
                           loading.tracking ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
                         }`}
                       >
@@ -528,7 +528,7 @@ const trackLoading = order?.trackLoading || false;
         </p>
         <button
           onClick={() => window.open(tracking, "_blank")}
-          className="mt-6 inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-md hover:bg-blue-700"
+          className="mt-6 inline-flex items-center rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white shadow-md hover:bg-blue-700"
         >
           <Package className="mr-3 h-5 w-5" /> View Live Tracking
         </button>
@@ -544,7 +544,7 @@ const trackLoading = order?.trackLoading || false;
         <button
           onClick={handleFetchTracking}
           disabled={trackLoading}
-          className={`inline-flex items-center rounded-lg px-6 py-3 font-semibold text-white shadow-md ${
+          className={`inline-flex items-center rounded-xl px-6 py-3 font-semibold text-white shadow-md ${
             trackLoading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
@@ -567,7 +567,7 @@ const trackLoading = order?.trackLoading || false;
         <button
           onClick={handleFetchTracking}
           disabled={trackLoading}
-          className={`inline-flex items-center rounded-lg px-6 py-3 font-semibold text-white shadow-md ${
+          className={`inline-flex items-center rounded-xl px-6 py-3 font-semibold text-white shadow-md ${
             trackLoading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
