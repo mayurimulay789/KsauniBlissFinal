@@ -79,7 +79,7 @@ const Footer = () => {
               </li>
               <li className="flex justify-center sm:justify-start items-center space-x-2">
                 <Mail className="w-4 h-4 text-red-400" />
-                <span>ksaunibliss@gmail.com</span>
+                <span>support@ksaunibliss.com</span>
               </li>
             </ul>
           </div>

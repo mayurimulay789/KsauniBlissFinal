@@ -121,7 +121,7 @@ const OrderConfirmationPage = () => {
           </p>
           <button
             onClick={() => navigate("/")}
-            className="px-6 py-2 text-white transition-colors bg-pink-600 rounded-lg hover:bg-pink-700"
+            className="px-6 py-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
           >
             Go Home
           </button>
@@ -188,7 +188,7 @@ const OrderConfirmationPage = () => {
             {/* Order Items */}
             <div className="pt-6 border-t">
               <h3 className="flex items-center mb-4 font-semibold">
-                <Package className="w-5 h-5 mr-2 text-pink-600" />
+                <Package className="w-5 h-5 mr-2 text-red-600" />
                 Items Ordered ({currentOrder.items?.length || 0})
               </h3>
               <div className="space-y-4">
@@ -228,7 +228,7 @@ const OrderConfirmationPage = () => {
               className="p-6 bg-white rounded-lg shadow-md"
             >
               <h3 className="flex items-center mb-4 font-semibold">
-                <MapPin className="w-5 h-5 mr-2 text-pink-600" />
+                <MapPin className="w-5 h-5 mr-2 text-red-600" />
                 Shipping Address
               </h3>
               <div className="text-gray-700">
@@ -260,7 +260,7 @@ const OrderConfirmationPage = () => {
               className="p-6 bg-white rounded-lg shadow-md"
             >
               <h3 className="flex items-center mb-4 font-semibold">
-                <CreditCard className="w-5 h-5 mr-2 text-pink-600" />
+                <CreditCard className="w-5 h-5 mr-2 text-red-600" />
                 Payment Details
               </h3>
               <div className="mb-4 space-y-2">
@@ -313,7 +313,7 @@ const OrderConfirmationPage = () => {
             {user && (
                 <button
                   onClick={() => navigate("/orders")}
-                  className="flex items-center justify-center px-6 py-3 text-white transition-colors bg-pink-600 rounded-lg hover:bg-pink-700"
+                  className="flex items-center justify-center px-6 py-3 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
                 >
                   <Calendar className="w-5 h-5 mr-2" />
                   View All Orders
@@ -321,7 +321,7 @@ const OrderConfirmationPage = () => {
               )}
             <button
               onClick={() => navigate("/")}
-              className="flex items-center justify-center px-6 py-3 text-pink-600 transition-colors border border-pink-600 rounded-lg hover:bg-pink-50"
+              className="flex items-center justify-center px-6 py-3 text-red-600 transition-colors border border-red-600 rounded-xl hover:bg-red-50"
             >
               Continue Shopping
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -334,11 +334,11 @@ const OrderConfirmationPage = () => {
               If you have any questions about your order, feel free to contact us.
             </p>
             <div className="flex flex-col justify-center gap-4 text-sm sm:flex-row">
-              <a href="mailto:support@fashionhub.com" className="text-pink-600 hover:text-pink-700">
-                Email: support@fashionhub.com
+              <a href="mailto:support@ksaunibliss.com" className="text-red-600 hover:text-red-700">
+                Email: support@ksaunibliss.com
               </a>
-              <a href="tel:+911234567890" className="text-pink-600 hover:text-pink-700">
-                Phone: +91 12345 67890
+              <a href="tel:+9211891719" className="text-red-600 hover:text-red-700">
+                Phone: +91 9211891719
               </a>
             </div>
           </motion.div>
