@@ -145,8 +145,6 @@ const ProfilePage = () => {
   const tabs = [
     { id: "profile", label: "Profile", icon: User },
     { id: "orders", label: "Orders", icon: Package },
-    { id: "wishlist", label: "Wishlist", icon: Heart },
-    { id: "security", label: "Security", icon: Shield },
   ]
   if (isLoading) {
     return (
@@ -196,10 +194,10 @@ const ProfilePage = () => {
                   <div className="text-2xl font-bold text-red-600">{wishlistItems?.length || 0}</div>
                   <div className="text-sm text-gray-600">Wishlist</div>
                 </div>
-                <div className="text-center">
+                {/* <div className="text-center">
                   <div className="text-2xl font-bold text-red-600">{profileData.addresses?.length || 0}</div>
                   <div className="text-sm text-gray-600">Addresses</div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
