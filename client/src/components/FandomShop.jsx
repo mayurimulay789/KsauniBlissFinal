@@ -37,11 +37,10 @@ const ShopByFandom = () => {
               <div className="relative overflow-hidden transition-all duration-300 rounded-lg shadow-md hover:shadow-xl group-hover:scale-105">
                 <img
                   src={product.image || "/placeholder.svg"}
-                  alt={product.name}
+                  alt=""
                   className="object-cover w-full h-[200px] sm:h-[240px] md:h-[280px] lg:h-[300px]"
                 />
               </div>
-              <div className="mt-2 text-center text-sm font-medium text-gray-700">{product.name}</div>
             </div>
           ))}
         </div>
