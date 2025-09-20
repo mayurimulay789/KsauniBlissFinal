@@ -89,6 +89,10 @@ const ProductsManagement = () => {
 
       // Append text fields
       Object.keys(formData).forEach((key) => {
+        if (editingProduct && key === "category") {
+          return // Don't include category in updates
+        }
+
         if (key === "sizes" || key === "colors" || key === "tags") {
           formDataToSend.append(key, JSON.stringify(formData[key]))
         } else if (key === "dimensions") {
@@ -98,12 +102,29 @@ const ProductsManagement = () => {
         }
       })
 
-      // Append images in selected order
-      images.forEach((img) => {
+      const newImages = images.filter((img) => !img.isExisting && img.file)
+      const existingImageIds = images
+        .filter((img) => img.isExisting)
+        .map((img) => img.imageId)
+        .filter(Boolean)
+
+      // Append new images
+      newImages.forEach((img) => {
         formDataToSend.append("images", img.file)
       })
-      // Optional: tell backend the intended order by file name
-      formDataToSend.append("imageOrder", JSON.stringify(images.map((img) => img.name)))
+
+      // Send existing image IDs to preserve them
+      if (existingImageIds.length > 0) {
+        formDataToSend.append("existingImages", JSON.stringify(existingImageIds))
+      }
+
+      // Send complete image order (both existing and new)
+      const imageOrder = images.map((img, index) => ({
+        type: img.isExisting ? "existing" : "new",
+        id: img.isExisting ? img.imageId : img.name,
+        order: index,
+      }))
+      formDataToSend.append("imageOrder", JSON.stringify(imageOrder))
 
       if (editingProduct) {
         await adminAPI.updateProduct(editingProduct._id, formDataToSend)
@@ -179,6 +200,21 @@ const ProductsManagement = () => {
       weight: product.weight || "",
       dimensions: product.dimensions || { length: "", width: "", height: "" },
     })
+
+    if (product.images && product.images.length > 0) {
+      const existingImages = product.images.map((img, index) => ({
+        file: null, // No file object for existing images
+        name: `existing-image-${index}`,
+        preview: img.url, // Use the existing image URL as preview
+        sizeKB: 0, // Size unknown for existing images
+        isExisting: true, // Flag to identify existing images
+        imageId: img._id || img.id, // Store image ID for potential deletion
+      }))
+      setImages(existingImages)
+    } else {
+      setImages([])
+    }
+
     setShowModal(true)
   }
 
@@ -507,6 +543,7 @@ const ProductsManagement = () => {
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                       required
+                      disabled={editingProduct} // Disable category selection when editing
                     >
                       <option value="">Select Category</option>
                       {categories.map((category) => (
@@ -515,6 +552,9 @@ const ProductsManagement = () => {
                         </option>
                       ))}
                     </select>
+                    {editingProduct && (
+                      <p className="mt-1 text-sm text-gray-500">Category cannot be changed when updating a product</p>
+                    )}
                   </div>
                   <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700">Price (₹)</label>
@@ -649,8 +689,15 @@ const ProductsManagement = () => {
                                   <Star className="w-3 h-3" /> Cover
                                 </span>
                               )}
+                              {img.isExisting && (
+                                <span className="absolute top-1 right-1 inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded bg-green-600 text-white">
+                                  Current
+                                </span>
+                              )}
                             </div>
-                            <div className="mt-1 text-xs text-gray-600 font-medium">{img.sizeKB} KB</div>
+                            <div className="mt-1 text-xs text-gray-600 font-medium">
+                              {img.isExisting ? "Current" : `${img.sizeKB} KB`}
+                            </div>
                             <div className="flex items-center gap-1 mt-2">
                               <button
                                 type="button"

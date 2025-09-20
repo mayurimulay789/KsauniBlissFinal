@@ -78,7 +78,7 @@ const Footer = () => {
                 <span>9211891719</span>
               </li>
               <li className="flex justify-center sm:justify-start items-center space-x-2">
-                <Mail className="w-4 h-4 text-red-400" />
+                <Mail className="w-3 h-3 text-red-400" />
                 <span>support@ksaunibliss.com</span>
               </li>
             </ul>
