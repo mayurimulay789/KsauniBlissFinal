@@ -1,13 +1,13 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { MagnifyingGlassIcon, FunnelIcon, EyeIcon, PencilIcon } from "@heroicons/react/24/outline";
-import { fetchAllOrders, updateOrderStatus } from "../../store/slices/adminSlice";
-import LoadingSpinner from "../LoadingSpinner";
-import { CreditCard } from "lucide-react";
+"use client"
+import { useState, useEffect } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { MagnifyingGlassIcon, FunnelIcon, EyeIcon, PencilIcon } from "@heroicons/react/24/outline"
+import { fetchAllOrders, updateOrderStatus } from "../../store/slices/adminSlice"
+import LoadingSpinner from "../LoadingSpinner"
+import { CreditCard } from "lucide-react"
 const OrdersManagement = () => {
-  const dispatch = useDispatch();
-  const { orders, ordersPagination, ordersLoading } = useSelector((state) => state.admin);
+  const dispatch = useDispatch()
+  const { orders, ordersPagination, ordersLoading } = useSelector((state) => state.admin)
   const [filters, setFilters] = useState({
     page: 1,
     limit: 20,
@@ -15,62 +15,58 @@ const OrdersManagement = () => {
     status: "",
     startDate: "",
     endDate: "",
-  });
-  const {
-      currentOrder: order,
-      loading,
-      error,
-    } = useSelector((state) => state.orders || {});
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showOrderModal, setShowOrderModal] = useState(false);
-  const [showStatusModal, setShowStatusModal] = useState(false);
+  })
+  const { currentOrder: order, loading, error } = useSelector((state) => state.orders || {})
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [showOrderModal, setShowOrderModal] = useState(false)
+  const [showStatusModal, setShowStatusModal] = useState(false)
   const [statusUpdate, setStatusUpdate] = useState({
     status: "",
     trackingNumber: "",
     carrier: "",
     notes: "",
-  });
+  })
   useEffect(() => {
-    dispatch(fetchAllOrders(filters));
-  }, [dispatch, filters]);
+    dispatch(fetchAllOrders(filters))
+  }, [dispatch, filters])
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({
       ...prev,
       [key]: value,
       page: 1, // Reset to first page when filtering
-    }));
-  };
+    }))
+  }
   const handlePageChange = (newPage) => {
-    setFilters((prev) => ({ ...prev, page: newPage }));
-  };
+    setFilters((prev) => ({ ...prev, page: newPage }))
+  }
   const handleViewOrder = (order) => {
-    setSelectedOrder(order);
-    setShowOrderModal(true);
-  };
+    setSelectedOrder(order)
+    setShowOrderModal(true)
+  }
   const handleUpdateStatus = (order) => {
-    setSelectedOrder(order);
+    setSelectedOrder(order)
     setStatusUpdate({
       status: order.status,
       trackingNumber: order.trackingInfo?.trackingNumber || "",
       carrier: order.trackingInfo?.carrier || "",
       notes: order.notes || "",
-    });
-    setShowStatusModal(true);
-  };
+    })
+    setShowStatusModal(true)
+  }
   const handleStatusSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     if (selectedOrder) {
       await dispatch(
         updateOrderStatus({
           orderId: selectedOrder._id,
           ...statusUpdate,
         }),
-      );
-      setShowStatusModal(false);
-      setSelectedOrder(null);
-      setStatusUpdate({ status: "", trackingNumber: "", carrier: "", notes: "" });
+      )
+      setShowStatusModal(false)
+      setSelectedOrder(null)
+      setStatusUpdate({ status: "", trackingNumber: "", carrier: "", notes: "" })
     }
-  };
+  }
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-IN", {
       year: "numeric",
@@ -78,11 +74,11 @@ const OrdersManagement = () => {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    });
-  };
+    })
+  }
   const formatCurrency = (amount) => {
-    return `₹${amount.toLocaleString()}`;
-  };
+    return `₹${amount.toLocaleString()}`
+  }
   const getStatusColor = (status) => {
     const colors = {
       pending: "bg-yellow-100 text-yellow-800",
@@ -93,22 +89,21 @@ const OrdersManagement = () => {
       delivered: "bg-green-100 text-green-800",
       cancelled: "bg-red-100 text-red-800",
       refunded: "bg-gray-100 text-gray-800",
-      abandoned:"bg-indigo-100 text-indigo-800"
-    };
-    return colors[status] || "bg-gray-100 text-gray-800";
-  };
+      abandoned: "bg-indigo-100 text-indigo-800",
+    }
+    return colors[status] || "bg-gray-100 text-gray-800"
+  }
   const statusOptions = [
     { value: "confirmed", label: "Confirmed" },
     { value: "cancelled", label: "Cancelled" },
     { value: "abandoned", label: "Abandoned" },
-
-  ];
+  ]
   if (ordersLoading && orders.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <LoadingSpinner />
       </div>
-    );
+    )
   }
   return (
     <div className="space-y-6">
@@ -150,24 +145,8 @@ const OrdersManagement = () => {
               ))}
             </select>
           </div>
-          {/* Start Date */}
-          <div>
-            <input
-              type="date"
-              value={filters.startDate}
-              onChange={(e) => handleFilterChange("startDate", e.target.value)}
-              className="block w-full px-3 py-2 leading-5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
-            />
-          </div>
-          {/* End Date */}
-          <div>
-            <input
-              type="date"
-              value={filters.endDate}
-              onChange={(e) => handleFilterChange("endDate", e.target.value)}
-              className="block w-full px-3 py-2 leading-5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
-            />
-          </div>
+          
+          
           {/* Clear Filters */}
           <div>
             <button
@@ -386,13 +365,25 @@ const OrdersManagement = () => {
                     {selectedOrder.items.map((item, index) => (
                       <div key={index} className="flex items-center p-4 space-x-4 rounded-lg bg-gray-50">
                         <img
-                          src={item.image?.url || "/placeholder.svg?height=60&width=60"}
-                          alt={item.name}
-                          className="object-cover rounded h-15 w-15"
+                          src={
+                            item.product?.images?.[0]?.url ||
+                            item.image?.url ||
+                            `/placeholder.svg?height=48&width=48&text=${encodeURIComponent(item.name?.charAt(0) || "P")}`
+                          }
+                          alt={item.name || "Product"}
+                          className="object-cover rounded h-12 w-12 flex-shrink-0"
+                          onError={(e) => {
+                            e.target.src = `/placeholder.svg?height=48&width=48&text=${encodeURIComponent(item.name?.charAt(0) || "P")}`
+                          }}
                         />
                         <div className="flex-1">
                           <p className="font-medium text-gray-900">{item.name}</p>
-                          <p className="text-sm text-gray-500">
+                          {(item.product?.description || item.description) && (
+                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                              {item.product?.description || item.description}
+                            </p>
+                          )}
+                          <p className="text-sm text-gray-500 mt-1">
                             Size: {item.size} | Color: {item.color}
                           </p>
                           <p className="text-sm text-gray-500">
@@ -432,28 +423,43 @@ const OrdersManagement = () => {
                           <span>{formatCurrency(selectedOrder.pricing.total || 0)}</span>
                         </div>
                       </div>
-                       <div className="rounded-xl border border-gray-200 p-5 shadow-sm bg-white">
-                                          <h4 className="mb-4 flex items-center text-lg text-gray-800">
-                                            <CreditCard className="mr-3 h-6 w-6 text-gray-600" />
-                                            Payment Information
-                                          </h4>
-                                          <div className="space-y-4 text-base text-gray-700">
-                                            <p>
-                                              <span className="font-semibold text-gray-900">
-                                                Payment Method:
-                                              </span>{" "}
-                                              {order.paymentInfo?.method || "N/A"}
-                                            </p>
-                                            
-                                              
-                                                
-                                                 
-                                            
-                                             
-                                           
-                                          
-                                          </div>
-                                        </div>
+                      <div className="rounded-xl border border-gray-200 p-8 shadow-sm">
+                        <h2 className="mb-6 flex items-center text-2xl font-bold text-gray-800">
+                          <CreditCard className="mr-3 h-6 w-6 text-gray-600" />
+                          Payment Information
+                        </h2>
+                        <div className="space-y-4 text-base text-gray-700">
+                          <p>
+                            <span className="font-semibold text-gray-900">Payment Method:</span>{" "}
+                            {selectedOrder.paymentInfo?.method || "N/A"}
+                          </p>
+                          <p>
+                            <span className="font-semibold text-gray-900">Payment Status:</span>{" "}
+                            <span
+                              className={`font-extrabold ${
+                                selectedOrder.paymentInfo?.paymentStatus === "paid" ||
+                                selectedOrder.paymentInfo?.status === "PAID"
+                                  ? "text-green-700"
+                                  : "text-red-700"
+                              }`}
+                            >
+                              {selectedOrder.paymentInfo?.paymentStatus || selectedOrder.paymentInfo?.status || "N/A"}
+                            </span>
+                          </p>
+                          {selectedOrder.paymentInfo?.razorpayOrderId && (
+                            <p>
+                              <span className="font-semibold text-gray-900">Razorpay Order ID:</span>{" "}
+                              <span className="font-mono text-sm">{selectedOrder.paymentInfo?.razorpayOrderId}</span>
+                            </p>
+                          )}
+                          {selectedOrder.paymentInfo?.razorpayPaymentId && (
+                            <p>
+                              <span className="font-semibold text-gray-900">Razorpay Payment ID:</span>{" "}
+                              <span className="font-mono text-sm">{selectedOrder.paymentInfo?.razorpayPaymentId}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -569,6 +575,6 @@ const OrdersManagement = () => {
         </div>
       )}
     </div>
-  );
-};
-export default OrdersManagement;
+  )
+}
+export default OrdersManagement

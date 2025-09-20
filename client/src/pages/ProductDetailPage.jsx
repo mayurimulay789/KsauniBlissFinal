@@ -288,7 +288,6 @@ const ProductDetailPage = () => {
       <div className="text-center">
         <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
         
-       <Preloader/>
       </div>
     )
   return (
