@@ -287,14 +287,8 @@ const ProductDetailPage = () => {
     return (
       <div className="text-center">
         <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-        <h1 className="text-2xl font-bold mb-2">Product Not Found</h1>
-        <p className="mb-8 text-gray-600">It may have been removed.</p>
-        <Link
-          to="/products"
-          className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-        >
-          Browse Products
-        </Link>
+        
+       <Preloader/>
       </div>
     )
   return (

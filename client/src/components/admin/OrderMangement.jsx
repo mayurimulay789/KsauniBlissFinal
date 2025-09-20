@@ -123,7 +123,7 @@ const OrdersManagement = () => {
               placeholder="Search orders..."
               value={filters.search}
               onChange={(e) => handleFilterChange("search", e.target.value)}
-              className="block w-full py-2 pl-10 pr-3 leading-5 placeholder-gray-500 bg-white border border-gray-300 rounded-md focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+              className="block w-full py-2 pl-10 pr-3 leading-5 placeholder-gray-500 bg-white border border-gray-300 rounded-md focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-red-500 focus:border-red-500"
             />
           </div>
           {/* Status Filter */}
@@ -131,7 +131,7 @@ const OrdersManagement = () => {
             <select
               value={filters.status}
               onChange={(e) => handleFilterChange("status", e.target.value)}
-              className="block w-full px-3 py-2 leading-5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+              className="block w-full px-3 py-2 leading-5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
             >
               <option value="">All Statuses</option>
               {statusOptions.map((option) => (
@@ -147,7 +147,7 @@ const OrdersManagement = () => {
               type="date"
               value={filters.startDate}
               onChange={(e) => handleFilterChange("startDate", e.target.value)}
-              className="block w-full px-3 py-2 leading-5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+              className="block w-full px-3 py-2 leading-5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
             />
           </div>
           {/* End Date */}
@@ -156,7 +156,7 @@ const OrdersManagement = () => {
               type="date"
               value={filters.endDate}
               onChange={(e) => handleFilterChange("endDate", e.target.value)}
-              className="block w-full px-3 py-2 leading-5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+              className="block w-full px-3 py-2 leading-5 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
             />
           </div>
           {/* Clear Filters */}
@@ -172,7 +172,7 @@ const OrdersManagement = () => {
                   endDate: "",
                 })
               }
-              className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+              className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
             >
               <FunnelIcon className="w-4 h-4 mr-2" />
               Clear
@@ -232,7 +232,7 @@ const OrdersManagement = () => {
                   </td>
                   <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                     <div className="flex space-x-2">
-                      <button onClick={() => handleViewOrder(order)} className="text-pink-600 hover:text-pink-900">
+                      <button onClick={() => handleViewOrder(order)} className="text-red-600 hover:text-red-900">
                         <EyeIcon className="w-4 h-4" />
                       </button>
                       <button onClick={() => handleUpdateStatus(order)} className="text-blue-600 hover:text-blue-900">
@@ -467,7 +467,7 @@ const OrdersManagement = () => {
                       value={statusUpdate.status}
                       onChange={(e) => setStatusUpdate((prev) => ({ ...prev, status: e.target.value }))}
                       required
-                      className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
                     >
                       {statusOptions.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -484,7 +484,7 @@ const OrdersManagement = () => {
                           type="text"
                           value={statusUpdate.trackingNumber}
                           onChange={(e) => setStatusUpdate((prev) => ({ ...prev, trackingNumber: e.target.value }))}
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
                           placeholder="Enter tracking number"
                         />
                       </div>
@@ -493,7 +493,7 @@ const OrdersManagement = () => {
                         <select
                           value={statusUpdate.carrier}
                           onChange={(e) => setStatusUpdate((prev) => ({ ...prev, carrier: e.target.value }))}
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
                         >
                           <option value="">Select Carrier</option>
                           <option value="shiprocket">Shiprocket</option>
@@ -512,7 +512,7 @@ const OrdersManagement = () => {
                       value={statusUpdate.notes}
                       onChange={(e) => setStatusUpdate((prev) => ({ ...prev, notes: e.target.value }))}
                       rows={3}
-                      className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
                       placeholder="Add any notes about this status update..."
                     />
                   </div>
@@ -521,13 +521,13 @@ const OrdersManagement = () => {
                   <button
                     type="button"
                     onClick={() => setShowStatusModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 text-sm font-medium text-white bg-pink-600 border border-transparent rounded-md shadow-sm hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   >
                     Update Status
                   </button>

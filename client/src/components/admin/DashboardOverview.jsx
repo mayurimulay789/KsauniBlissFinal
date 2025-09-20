@@ -90,7 +90,7 @@ const DashboardOverview = () => {
             className="relative px-4 py-5 overflow-hidden bg-white rounded-lg shadow sm:px-6 sm:py-6"
           >
             <dt>
-              <div className="absolute p-3 bg-pink-500 rounded-md">
+              <div className="absolute p-3 bg-red-500 rounded-md">
                 <item.icon className="w-6 h-6 text-white" aria-hidden="true" />
               </div>
               <p className="ml-16 text-sm font-medium text-gray-500 truncate">{item.name}</p>
@@ -157,8 +157,8 @@ const DashboardOverview = () => {
                   <li key={item._id} className="py-4">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
-                        <div className="flex items-center justify-center w-10 h-10 bg-pink-100 rounded-lg">
-                          <span className="text-sm font-medium text-pink-600">#{index + 1}</span>
+                        <div className="flex items-center justify-center w-10 h-10 bg-red-100 rounded-lg">
+                          <span className="text-sm font-medium text-red-600">#{index + 1}</span>
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -186,7 +186,7 @@ const DashboardOverview = () => {
                     {new Date(day._id).toLocaleDateString("en-IN", { weekday: "short" })}
                   </div>
                   <div
-                    className="bg-pink-500 rounded-t"
+                    className="bg-red-500 rounded-t"
                     style={{
                       height: `${Math.max((day.sales / Math.max(...dashboardStats.salesChart.map((d) => d.sales))) * 100, 5)}px`,
                       minHeight: "5px",

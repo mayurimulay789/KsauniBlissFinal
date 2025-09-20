@@ -190,10 +190,10 @@ const ProfilePage = () => {
                   <div className="text-2xl font-bold text-red-600">{orders?.length || 0}</div>
                   <div className="text-sm text-gray-600">Orders</div>
                 </div>
-                <div className="text-center">
+                {/* <div className="text-center">
                   <div className="text-2xl font-bold text-red-600">{wishlistItems?.length || 0}</div>
                   <div className="text-sm text-gray-600">Wishlist</div>
-                </div>
+                </div> */}
                 {/* <div className="text-center">
                   <div className="text-2xl font-bold text-red-600">{profileData.addresses?.length || 0}</div>
                   <div className="text-sm text-gray-600">Addresses</div>
@@ -240,13 +240,13 @@ const ProfilePage = () => {
                     >
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold text-gray-800">Personal Information</h2>
-                        <button
+                        {/* <button
                           onClick={() => setIsEditing(!isEditing)}
                           className="flex items-center space-x-2 text-red-600 hover:text-red-700"
                         >
                           {isEditing ? <X className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
                           <span>{isEditing ? "Cancel" : "Edit"}</span>
-                        </button>
+                        </button> */}
                       </div>
                       <form onSubmit={handleProfileUpdate} className="space-y-6">
                         <div className="grid gap-6 md:grid-cols-2">
@@ -269,7 +269,7 @@ const ProfilePage = () => {
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
                             />
                           </div>
-                          <div>
+                          {/* <div>
                             <label className="block mb-2 text-sm font-medium text-gray-700">Phone</label>
                             <input
                               type="tel"
@@ -278,8 +278,8 @@ const ProfilePage = () => {
                               disabled={!isEditing}
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 disabled:bg-gray-50"
                             />
-                          </div>
-                          <div>
+                          </div> */}
+                          {/* <div>
                             <label className="block mb-2 text-sm font-medium text-gray-700">Date of Birth</label>
                             <input
                               type="date"
@@ -288,8 +288,8 @@ const ProfilePage = () => {
                               disabled={!isEditing}
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 disabled:bg-gray-50"
                             />
-                          </div>
-                          <div>
+                          </div> */}
+                          {/* <div>
                             <label className="block mb-2 text-sm font-medium text-gray-700">Gender</label>
                             <select
                               value={profileData.gender}
@@ -302,9 +302,9 @@ const ProfilePage = () => {
                               <option value="female">Female</option>
                               <option value="other">Other</option>
                             </select>
-                          </div>
+                          </div> */}
                         </div>
-                        {isEditing && (
+                        {/* {isEditing && (
                           <div className="flex justify-end">
                             <button
                               type="submit"
@@ -314,7 +314,7 @@ const ProfilePage = () => {
                               <span>Save Changes</span>
                             </button>
                           </div>
-                        )}
+                        )} */}
                       </form>
                     </motion.div>
                   )}

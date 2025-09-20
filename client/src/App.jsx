@@ -12,7 +12,7 @@ import { validateEnvironment, debugEnvironment } from "./utils/envValidation"
 
 // Preloader
 import Preloader from "./components/Preloader"
-
+import GTMTracker from "./components/GTMTracker"
 // Pages (lazy-loaded)
 const HomePage = lazy(() => import("./pages/HomePage"))
 const LoginPage = lazy(() => import("./pages/LoginPage"))
@@ -211,6 +211,7 @@ function AppContent() {
 function App() {
   return (
     <Router>
+      <GTMTracker/>
       <ScrollToTop/>
       <AppContent />
     </Router>

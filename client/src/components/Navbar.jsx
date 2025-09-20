@@ -31,6 +31,20 @@ const Navbar = () => {
   const cartTotalQuantity = useSelector(selectCartTotalQuantity)
   const wishlistCount = useSelector(selectWishlistCount)
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300)
+   const placeholders = [
+    "Search for Oversize T-shirt",
+    "Search for Hoodie",
+    "Search for Plain",
+    "Search for Acid Wash",
+    "Search for Regular",
+  ]
+    const [index, setIndex] = useState(0)
+useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prevIndex) => (prevIndex + 1) % placeholders.length)
+    }, 2000) // switch every 2 seconds
+    return () => clearInterval(interval)
+  }, [])
   useEffect(() => {
     if (token && user != null) {
       dispatch(fetchCart())
@@ -162,7 +176,7 @@ const Navbar = () => {
                   <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-4 top-1/2" />
                   <motion.input
                     type="text"
-                    placeholder="What are you looking for?"
+                    placeholder="Search from Oversized T-shirt"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={handleSearchFocus}
@@ -374,7 +388,7 @@ const Navbar = () => {
                 <Search className="absolute w-3 h-3 text-gray-400 transform -translate-y-1/2 left-4 top-1/2" />
                 <motion.input
                   type="text"
-                  placeholder="Search From Oversized T-Shirt"
+          placeholder={placeholders[index]}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={handleSearchFocus}
