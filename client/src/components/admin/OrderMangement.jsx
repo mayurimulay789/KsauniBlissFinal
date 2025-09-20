@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { MagnifyingGlassIcon, FunnelIcon, EyeIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { fetchAllOrders, updateOrderStatus } from "../../store/slices/adminSlice";
 import LoadingSpinner from "../LoadingSpinner";
+import { CreditCard } from "lucide-react";
 const OrdersManagement = () => {
   const dispatch = useDispatch();
   const { orders, ordersPagination, ordersLoading } = useSelector((state) => state.admin);
@@ -15,6 +16,11 @@ const OrdersManagement = () => {
     startDate: "",
     endDate: "",
   });
+  const {
+      currentOrder: order,
+      loading,
+      error,
+    } = useSelector((state) => state.orders || {});
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -87,12 +93,15 @@ const OrdersManagement = () => {
       delivered: "bg-green-100 text-green-800",
       cancelled: "bg-red-100 text-red-800",
       refunded: "bg-gray-100 text-gray-800",
+      abandoned:"bg-indigo-100 text-indigo-800"
     };
     return colors[status] || "bg-gray-100 text-gray-800";
   };
   const statusOptions = [
     { value: "confirmed", label: "Confirmed" },
     { value: "cancelled", label: "Cancelled" },
+    { value: "abandoned", label: "Abandoned" },
+
   ];
   if (ordersLoading && orders.length === 0) {
     return (
@@ -423,6 +432,28 @@ const OrdersManagement = () => {
                           <span>{formatCurrency(selectedOrder.pricing.total || 0)}</span>
                         </div>
                       </div>
+                       <div className="rounded-xl border border-gray-200 p-5 shadow-sm bg-white">
+                                          <h4 className="mb-4 flex items-center text-lg text-gray-800">
+                                            <CreditCard className="mr-3 h-6 w-6 text-gray-600" />
+                                            Payment Information
+                                          </h4>
+                                          <div className="space-y-4 text-base text-gray-700">
+                                            <p>
+                                              <span className="font-semibold text-gray-900">
+                                                Payment Method:
+                                              </span>{" "}
+                                              {order.paymentInfo?.method || "N/A"}
+                                            </p>
+                                            
+                                              
+                                                
+                                                 
+                                            
+                                             
+                                           
+                                          
+                                          </div>
+                                        </div>
                     </div>
                   )}
                 </div>
