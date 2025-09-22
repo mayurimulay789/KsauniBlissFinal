@@ -4,14 +4,24 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import productAPI from "../api/ProductAPI"
 
 // Async thunks
-export const fetchProducts = createAsyncThunk("products/fetchProducts", async (params, { rejectWithValue }) => {
-  try {
-    const response = await productAPI.getProducts(params)
-    return response.data
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || "Failed to fetch products")
+export const fetchProducts = createAsyncThunk(
+  "products/fetchProducts",
+  async (params, { rejectWithValue }) => {
+    try {
+      if (params.category) {
+        // use category-specific endpoint
+        const response = await productAPI.getProductsByCategory(params.category, params);
+        return response.data;
+      } else {
+        const response = await productAPI.getProducts(params);
+        return response.data;
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+    }
   }
-})
+);
+
 
 export const fetchTrendingProducts = createAsyncThunk(
   "products/fetchTrendingProducts",

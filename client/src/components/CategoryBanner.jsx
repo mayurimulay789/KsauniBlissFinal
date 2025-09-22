@@ -2,16 +2,19 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategoryBanners } from "../store/slices/bannerSlice"; // ✅ Adjust this path as needed
+
 const CategoryBanner = () => {
   const dispatch = useDispatch();
   // Redux state
   const { categoryBanners, loadingCategory, error } = useSelector((state) => state.banners);
   // State for rotating banners
   const [currentBanner, setCurrentBanner] = useState(0);
+  
   // 🔁 Fetch banners on component mount
   useEffect(() => {
     dispatch(fetchCategoryBanners());
   }, [dispatch]);
+  
   // 🔁 Auto-rotate banner every 5 seconds
   useEffect(() => {
     if (categoryBanners.length > 1) {
@@ -21,6 +24,17 @@ const CategoryBanner = () => {
       return () => clearInterval(timer);
     }
   }, [categoryBanners.length]);
+  
+  // Handle banner click to redirect
+  const handleBannerClick = () => {
+    const current = categoryBanners[currentBanner];
+    if (current?.bannerLink) {
+      window.open(current.bannerLink, "_blank"); // Opens in new tab
+      // Alternatively, use this to open in same tab:
+      // window.location.href = current.bannerLink;
+    }
+  };
+  
   // ⛔ Show nothing or fallback if loading fails
   if (loadingCategory || error) {
     return (
@@ -35,6 +49,7 @@ const CategoryBanner = () => {
       </section>
     );
   }
+  
   // ❓ Fallback if no banners are available
   if (!categoryBanners.length) {
     return (
@@ -52,12 +67,15 @@ const CategoryBanner = () => {
       </section>
     );
   }
+  
   const current = categoryBanners[currentBanner];
+  
   return (
     <section className="relative w-full px-0 mx-auto mt-0 mb-4 sm:px-6">
       <div
         className="relative w-full mx-auto overflow-hidden shadow-lg cursor-pointer rounded-2xl group"
         style={{ border: "3px solid #be7a21ff" }}
+        onClick={handleBannerClick}
       >
         <img
           src={
@@ -82,7 +100,10 @@ const CategoryBanner = () => {
             {categoryBanners.map((_, index) => (
               <button
                 key={index}
-                onClick={() => setCurrentBanner(index)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering the banner click
+                  setCurrentBanner(index);
+                }}
                 className={`transition-all duration-300 ${
                   index === currentBanner
                     ? "w-6 h-2 bg-red-600 rounded-full shadow-lg"
@@ -97,4 +118,5 @@ const CategoryBanner = () => {
     </section>
   );
 };
+
 export default CategoryBanner;

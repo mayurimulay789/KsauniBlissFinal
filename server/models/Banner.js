@@ -17,6 +17,7 @@ const bannerSchema = new mongoose.Schema(
     },
     buttonText: String,
     buttonLink: String,
+    bannerLink: String,
     type: {
       type: String,
       enum: ["hero", "promo", "category"],

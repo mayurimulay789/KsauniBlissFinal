@@ -32,7 +32,7 @@ const FeaturedCategories = () => {
           </p>
         </div>
 
-        {/* MOBILE: Horizontal scroll, 2×2 cards per group */}
+        {/* MOBILE: Horizontal scroll */}
         <div className="sm:hidden overflow-x-auto scrollbar-hide">
           <div className="flex gap-4 snap-x snap-mandatory" style={{ minWidth: "100%" }}>
             {Array.from({ length: Math.ceil(featuredCategories.length / 4) }).map((_, groupIndex) => {
@@ -52,7 +52,8 @@ const FeaturedCategories = () => {
                         key={category._id}
                         className="relative overflow-hidden border border-gray-400 rounded group transition-transform duration-300 transform hover:scale-105"
                       >
-                        <Link to={`/products/${category.slug}`}>
+                        {/* ✅ Pass category as query param */}
+                        <Link to={`/products?category=${category._id}`}>
                           <div className="relative w-full aspect-[20/15] overflow-hidden">
                             <img
                               src={
@@ -94,7 +95,8 @@ const FeaturedCategories = () => {
               key={category._id}
               className="relative overflow-hidden border border-gray-200 rounded group transition-transform duration-300 transform hover:scale-105"
             >
-              <Link to={`/products/${category.slug}`}>
+              {/* ✅ Pass category as query param */}
+              <Link to={`/products?category=${category._id}`}>
                 <div className="relative w-full aspect-[10/10] overflow-hidden">
                   <img
                     src={

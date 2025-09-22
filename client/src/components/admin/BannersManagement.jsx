@@ -18,6 +18,7 @@ const BannersManagement = () => {
     description: "",
     buttonText: "",
     buttonLink: "",
+    bannerLink: "",
     type: "hero",
     sortOrder: 0,
     startDate: "",
@@ -100,6 +101,7 @@ const BannersManagement = () => {
       description: banner.description || "",
       buttonText: banner.buttonText || "",
       buttonLink: banner.buttonLink || "",
+      bannerLink: banner.bannerLink || "",
       type: banner.type || "hero",
       sortOrder: banner.sortOrder || 0,
       startDate: banner.startDate ? new Date(banner.startDate).toISOString().split("T")[0] : "",
@@ -331,12 +333,22 @@ const BannersManagement = () => {
                         className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
                       />
                     </div>
+                    
                     <div>
                       <label className="block mb-1 text-xs font-medium text-gray-700">Button Link</label>
                       <input
                         type="url"
                         value={formData.buttonLink}
                         onChange={(e) => setFormData({ ...formData, buttonLink: e.target.value })}
+                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-1 text-xs font-medium text-gray-700">Banner Link</label>
+                      <input
+                        type="url"
+                        value={formData.bannerLink}
+                        onChange={(e) => setFormData({ ...formData, bannerLink: e.target.value })}
                         className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
                       />
                     </div>

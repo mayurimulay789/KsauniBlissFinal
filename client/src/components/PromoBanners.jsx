@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPromoBanners } from "../store/slices/bannerSlice";
 import LoadingSpinner from "./LoadingSpinner";
+
 // ---------------------
 // Utility: Countdown Timer
 // ---------------------
@@ -19,17 +20,21 @@ const calculateTimeLeft = (targetDate) => {
   }
   return timeLeft;
 };
+
 const PromoBanners = () => {
   const dispatch = useDispatch();
   const { promoBanners, isLoading } = useSelector((state) => state.banners);
+
   // Fetch promo banners on mount
   useEffect(() => {
     dispatch(fetchPromoBanners());
   }, [dispatch]);
+
   // Countdown logic
   const targetDate = "2024-12-13T00:00:00";
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(targetDate));
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+
   // Update countdown every second
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -37,6 +42,7 @@ const PromoBanners = () => {
     }, 1000);
     return () => clearTimeout(timer);
   });
+
   // Auto-rotate banners every 5s
   useEffect(() => {
     if (promoBanners && promoBanners.length > 1) {
@@ -46,6 +52,7 @@ const PromoBanners = () => {
       return () => clearInterval(interval);
     }
   }, [promoBanners]);
+
   // Countdown UI
   const timerComponents = [];
   Object.keys(timeLeft).forEach((interval) => {
@@ -66,9 +73,11 @@ const PromoBanners = () => {
       </div>
     );
   });
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
+
   // Active banners or fallback
   const activeBanners = promoBanners?.filter((banner) => banner.isActive) || [];
   const defaultBanner = {
@@ -83,6 +92,7 @@ const PromoBanners = () => {
   };
   const bannersToShow = activeBanners.length > 0 ? activeBanners : [defaultBanner];
   const currentBanner = bannersToShow[currentBannerIndex];
+
   // ---------------------
   // UI
   // ---------------------
@@ -92,7 +102,7 @@ const PromoBanners = () => {
         className="relative overflow-hidden rounded-2xl shadow-lg w-full max-w-[1270px] mx-auto cursor-pointer"
         style={{ border: "3px solid #be7a21" }}
       >
-        {/* Banner Image */}
+        {/* Banner Image with Redirect */}
         <img
           src={
             currentBanner?.image?.url ||
@@ -100,9 +110,18 @@ const PromoBanners = () => {
           }
           alt={currentBanner?.title || "Promotional banner"}
           className="w-full h-auto object-cover rounded-2xl"
-          width={1270}  // ✅ Explicit width for optimization
-          height={400}  // ✅ Approximate height (browser adjusts if different)
+          width={1270} // ✅ Explicit width for optimization
+          height={400} // ✅ Approximate height (browser adjusts if different)
+          onClick={() => {
+            if (currentBanner?.bannerLink) {
+              window.location.href = currentBanner.bannerLink; // 🔗 Redirect
+            }
+          }}
+          style={{
+            cursor: currentBanner?.bannerLink ? "pointer" : "default",
+          }}
         />
+
         {/* Countdown Timer (optional) */}
         {timerComponents.length > 0 && (
           <div className="absolute bottom-2 right-2 flex gap-1 sm:gap-2">
@@ -113,4 +132,5 @@ const PromoBanners = () => {
     </section>
   );
 };
+
 export default PromoBanners;
