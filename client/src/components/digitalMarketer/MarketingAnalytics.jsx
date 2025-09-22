@@ -205,7 +205,8 @@ const MarketingAnalytics = () => {
         </div>
       </div>
       {/* Charts Row 2 */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+      {/* <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="p-6 bg-white rounded-lg shadow">
           <h3 className="mb-4 text-lg font-medium text-gray-900">User Age Groups</h3>
           <div className="h-64">
@@ -218,7 +219,9 @@ const MarketingAnalytics = () => {
             <Doughnut data={devicesData} options={doughnutOptions} />
           </div>
         </div>
-      </div>
+      </div> */}
+
+
       {/* Top Products and Categories */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="p-6 bg-white rounded-lg shadow">
@@ -265,7 +268,7 @@ const MarketingAnalytics = () => {
         </div>
       </div>
       {/* User Locations */}
-      <div className="p-6 bg-white rounded-lg shadow">
+      {/* <div className="p-6 bg-white rounded-lg shadow">
         <h3 className="mb-4 text-lg font-medium text-gray-900">User Locations</h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {userDemographics.locations.map((location, index) => (
@@ -276,7 +279,7 @@ const MarketingAnalytics = () => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
