@@ -16,6 +16,8 @@ exports.getHeroBanners = async (req, res) => {
       .sort({ sortOrder: 1, createdAt: -1 })
       .populate("createdBy", "name")
 
+      console.log("Fetched hero banners:", banners);
+
     res.status(200).json({ banners })
   } catch (error) {
     console.error("Get hero banners error:", error)
@@ -38,6 +40,8 @@ exports.getPromoBanners = async (req, res) => {
       .sort({ sortOrder: 1, createdAt: -1 })
       .populate("createdBy", "name")
 
+      
+
     res.status(200).json({ banners })
   } catch (error) {
     console.error("Get promo banners error:", error)
@@ -54,6 +58,7 @@ exports.createBanner = async (req, res) => {
       description,
       buttonText,
       buttonLink,
+      bannerLink,
       type,
       sortOrder,
       startDate,
@@ -78,6 +83,7 @@ exports.createBanner = async (req, res) => {
       },
       buttonText,
       buttonLink,
+      bannerLink,
       type,
       sortOrder: sortOrder || 0,
       startDate: startDate ? new Date(startDate) : undefined,
@@ -103,6 +109,7 @@ exports.updateBanner = async (req, res) => {
   try {
     const { id } = req.params
     const updateData = req.body
+    console.log("Update data:", updateData);
 
     const banner = await Banner.findById(id)
     if (!banner) {

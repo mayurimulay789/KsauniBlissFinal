@@ -22,14 +22,22 @@ const LoginPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
-  const { isLoading, error, message, isAuthenticated, phoneNumber, confirmationResult, otpSent } = useSelector(
-    (state) => state.auth,
-  )
+  const {
+    isLoading,
+    error,
+    message,
+    isAuthenticated,
+    phoneNumber,
+    confirmationResult,
+    otpSent,
+  } = useSelector((state) => state.auth)
+
   // UI State
   const [activeTab, setActiveTab] = useState("email") // 'email' or 'phone'
   const [mode, setMode] = useState("login") // 'login' or 'register'
   const [showPassword, setShowPassword] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
+
   // Email Form State
   const [emailForm, setEmailForm] = useState({
     email: "",
@@ -37,15 +45,26 @@ const LoginPage = () => {
     name: "",
     confirmPassword: "",
   })
+
   // Phone Form State
   const [phoneForm, setPhoneForm] = useState({
     phoneNumber: "",
     otp: "",
   })
+
   // OTP Timer
   const [otpTimer, setOtpTimer] = useState(0)
+
   // Forgot Password State
   const [forgotEmail, setForgotEmail] = useState("")
+
+  // Track last auth attempt so we only show "invalid credentials" after email login attempts
+  const [lastAuthAttempt, setLastAuthAttempt] = useState({ method: null, mode: null }) // e.g. { method: 'email', mode: 'login' }
+
+  // Local inline invalid credentials state (to show message under password input)
+  const [invalidCredentials, setInvalidCredentials] = useState(false)
+  const [invalidCredentialsMessage, setInvalidCredentialsMessage] = useState("")
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
@@ -56,18 +75,56 @@ const LoginPage = () => {
     return () => {
       cleanupRecaptcha()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, navigate, location])
-  // Handle success/error messages
+
+  // Helpers: robust detection of 'invalid credentials' type errors from various forms of messages
+  const isInvalidCredentialsError = (err) => {
+    if (!err) return false
+    const e = String(err).toLowerCase()
+    const patterns = [
+      "auth/wrong-password",
+      "wrong password",
+      "auth/user-not-found",
+      "user not found",
+      "no user record",
+      "invalid email or password",
+      "invalid credentials",
+      "invalid password",
+      "account not found",
+      "firebase: error (auth/wrong-password",
+      "firebase: error (auth/user-not-found",
+      "there is no user record", // firebase verbose
+    ]
+    return patterns.some((p) => e.includes(p))
+  }
+
+  // Handle success/error messages and map invalid-credential errors to a friendly message
   useEffect(() => {
     if (message) {
       toast.success(message)
       dispatch(clearSuccess())
     }
+
     if (error) {
-      toast.error(error)
+      // Only treat it as 'invalid credentials' if the last attempt was an email login attempt.
+      if (isInvalidCredentialsError(error) && lastAuthAttempt.method === "email" && lastAuthAttempt.mode === "login") {
+        const msg = "Invalid credentials. Please check your email and password."
+        // Show toast
+        toast.error(msg)
+        // Show inline message
+        setInvalidCredentials(true)
+        setInvalidCredentialsMessage(msg)
+      } else {
+        // Generic error toast for other errors
+        toast.error(error)
+      }
+      // Clear error in Redux (keeps your existing behavior)
       dispatch(clearError())
     }
-  }, [message, error, dispatch])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [message, error, dispatch, lastAuthAttempt])
+
   // OTP Timer Effect
   useEffect(() => {
     let interval = null
@@ -80,9 +137,13 @@ const LoginPage = () => {
     }
     return () => clearInterval(interval)
   }, [otpTimer])
+
   // Handle Email Form Submit
   const handleEmailSubmit = async (e) => {
     e.preventDefault()
+    // track attempt type so the error useEffect knows how to interpret errors
+    setLastAuthAttempt({ method: "email", mode })
+
     if (mode === "register") {
       // Validation
       if (!emailForm.name.trim()) {
@@ -105,6 +166,9 @@ const LoginPage = () => {
         }),
       )
     } else {
+      // Clear any previous inline invalid-credentials state before attempting
+      setInvalidCredentials(false)
+      setInvalidCredentialsMessage("")
       dispatch(
         loginWithEmail({
           email: emailForm.email,
@@ -113,9 +177,11 @@ const LoginPage = () => {
       )
     }
   }
+
   // Handle Phone Form Submit
   const handlePhoneSubmit = async (e) => {
     e.preventDefault()
+    setLastAuthAttempt({ method: "phone", mode })
     if (!confirmationResult) {
       // Send OTP
       if (!phoneForm.phoneNumber.trim()) {
@@ -150,6 +216,7 @@ const LoginPage = () => {
       )
     }
   }
+
   // Handle Forgot Password
   const handleForgotPassword = async (e) => {
     e.preventDefault()
@@ -161,12 +228,14 @@ const LoginPage = () => {
     setShowForgotPassword(false)
     setForgotEmail("")
   }
+
   // Resend OTP
   const handleResendOTP = () => {
     if (otpTimer > 0) return
     dispatch(sendPhoneOTP(phoneForm.phoneNumber))
     setOtpTimer(60)
   }
+
   // Reset forms when switching tabs or modes
   const handleTabChange = (tab) => {
     setActiveTab(tab)
@@ -174,6 +243,9 @@ const LoginPage = () => {
     setEmailForm({ email: "", password: "", name: "", confirmPassword: "" })
     setPhoneForm({ phoneNumber: "", otp: "" })
     setOtpTimer(0)
+    // Clear inline invalid credentials state when switching tabs
+    setInvalidCredentials(false)
+    setInvalidCredentialsMessage("")
     cleanupRecaptcha() // Clear reCAPTCHA when switching tabs
   }
   const handleModeChange = (newMode) => {
@@ -182,21 +254,36 @@ const LoginPage = () => {
     setEmailForm({ email: "", password: "", name: "", confirmPassword: "" })
     setPhoneForm({ phoneNumber: "", otp: "" })
     setOtpTimer(0)
+    // Clear inline invalid credentials state when switching mode
+    setInvalidCredentials(false)
+    setInvalidCredentialsMessage("")
   }
+
+  // Clear inline invalid-credentials when user edits fields
+  const onEmailChange = (value) => {
+    setEmailForm((s) => ({ ...s, email: value }))
+    if (invalidCredentials) {
+      setInvalidCredentials(false)
+      setInvalidCredentialsMessage("")
+    }
+  }
+  const onPasswordChange = (value) => {
+    setEmailForm((s) => ({ ...s, password: value }))
+    if (invalidCredentials) {
+      setInvalidCredentials(false)
+      setInvalidCredentialsMessage("")
+    }
+  }
+
   return (
     <div className="flex  bg-white">
       {/* Left Section: Branding with Image */}
       <div
-  className="relative hidden w-1/2 lg:flex"
-  // style={{ backgroundColor: "#b80b0c" }}
->
-  <img
-    src="/03.jpeg"
-    alt="Fashion Model"
-    className="absolute inset-0 w-full h-full object-cover
-    "
-  />
-</div>
+        className="relative hidden w-1/2 lg:flex"
+        // style={{ backgroundColor: "#b80b0c" }}
+      >
+        <img src="/03.jpeg" alt="Fashion Model" className="absolute inset-0 w-full h-full object-cover" />
+      </div>
       {/* Right Section: Login/Register Form */}
       <div className="flex items-center justify-center w-full lg:w-1/2">
         <div className="w-full max-w-md p-10 bg-white shadow-xl rounded-2xl m-2 ">
@@ -275,7 +362,7 @@ const LoginPage = () => {
                       <input
                         type="email"
                         value={emailForm.email}
-                        onChange={(e) => setEmailForm({ ...emailForm, email: e.target.value })}
+                        onChange={(e) => onEmailChange(e.target.value)}
                         className="w-full py-3 pl-10 pr-4 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-ksauni-red focus:border-ksauni-red"
                         placeholder="Enter your email"
                         required
@@ -289,7 +376,7 @@ const LoginPage = () => {
                       <input
                         type={showPassword ? "text" : "password"}
                         value={emailForm.password}
-                        onChange={(e) => setEmailForm({ ...emailForm, password: e.target.value })}
+                        onChange={(e) => onPasswordChange(e.target.value)}
                         className="w-full py-3 pl-10 pr-12 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-ksauni-red focus:border-ksauni-red"
                         placeholder="Enter your password"
                         required
@@ -302,6 +389,11 @@ const LoginPage = () => {
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
+
+                    {/* Inline invalid credentials message for email sign-in */}
+                    {invalidCredentials && mode === "login" && (
+                      <p className="mt-2 text-sm text-red-600">{invalidCredentialsMessage}</p>
+                    )}
                   </div>
                   {mode === "register" && (
                     <div>
@@ -443,6 +535,7 @@ const LoginPage = () => {
               </motion.div>
             )}
           </AnimatePresence>
+
           {/* Footer */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
@@ -456,6 +549,7 @@ const LoginPage = () => {
               </Link>
             </p>
           </div>
+
           {/* Forgot Password Modal */}
           <AnimatePresence>
             {showForgotPassword && (
@@ -518,6 +612,7 @@ const LoginPage = () => {
               </motion.div>
             )}
           </AnimatePresence>
+
           {/* reCAPTCHA container for phone auth */}
           <div id="recaptcha-container"></div>
         </div>
