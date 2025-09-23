@@ -214,7 +214,8 @@ export default function TopPicksShowcase() {
                   {/* Inner content */}
                   <div className="pt-[1px] pl-1 pr-5 flex flex-col h-auto border-t">
                     <div className="relative aspect-[3/4] overflow-hidden rounded-md bg-gray-100">
-                      <Link to={`/product/${product._id}`}>
+                      {/* <Link to={`/product/${product._id}`}> */}
+                      <Link to={`/product/slug/${product.slug}`}>
                         <img
                           src={product.images?.[0]?.url || "/placeholder.svg"}
                           alt={product.name}
@@ -232,7 +233,7 @@ export default function TopPicksShowcase() {
                         </div>
                       )}
                     </div>
-                    <Link to={`/product/${product._id}`} className="flex-grow">
+                   <Link to={`/product/slug/${product.slug}`} className="flex-grow">
                       <h3 className="text-[11px] font-medium text-black mt-1 mr-1 ml-1 line-clamp-2">
                         {product.name}
                       </h3>

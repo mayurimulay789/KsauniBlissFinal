@@ -11,6 +11,8 @@ const {
   getNewArrivals,
   getSearchedProducts,
   getProductsByCategory,
+  getProductsByCategorySlug,
+  getProductBySlug,
 } = require("../controllers/productController");
 
 // ===============================
@@ -34,6 +36,9 @@ router.get("/category/:categoryId", getProductsByCategory);
 
 // GET single product by ID
 router.get("/:id", getProduct);
+
+// GET single product by slug
+router.get("/slug/:slug", getProductBySlug);
 
 // POST create product (Admin only)
 // TODO: add auth and admin middleware when integrating

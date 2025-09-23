@@ -11,7 +11,7 @@ import "swiper/css/navigation"
 import "swiper/css/thumbs"
 import "swiper/css/pagination"
 import { Heart, Minus, Plus, X, AlertCircle, Ruler, ShoppingCart } from "lucide-react"
-import { fetchProductById } from "../store/slices/productSlice"
+import { fetchProductById,fetchProductBySlug} from "../store/slices/productSlice"
 import { addToCart, optimisticAddToCart, selectIsAddingToCart } from "../store/slices/cartSlice"
 import {
   addToWishlist,
@@ -26,7 +26,9 @@ import RelatedProducts from "../components/RelatedProducts"
 import Preloader from "../components/Preloader"
 import toast from "react-hot-toast"
 const ProductDetailPage = () => {
-  const { id } = useParams()
+  // const { id } = useParams()
+const { id, slug } = useParams()
+
   const [showFullDescription, setShowFullDescription] = useState(false)
 
   const dispatch = useDispatch()
@@ -44,9 +46,22 @@ const ProductDetailPage = () => {
   const [showSizeGuide, setShowSizeGuide] = useState(false)
   const [thumbsSwiper, setThumbsSwiper] = useState(null)
   const isInWishlist = wishlistItems.some((item) => item._id === currentProduct?._id)
+  // useEffect(() => {
+  //   if (id) dispatch(fetchProductById(id))
+  // }, [dispatch, id])
+
   useEffect(() => {
-    if (id) dispatch(fetchProductById(id))
-  }, [dispatch, id])
+    console.log("ProductDetailPage useEffect triggered with id:", id, "and slug:", slug)
+  if (slug) {
+    dispatch(fetchProductBySlug(slug))
+  
+  } else if (id) {
+    dispatch(fetchProductById(id))
+  }
+}, [dispatch, id, slug])
+
+
+
   useEffect(() => {
     if (currentProduct) {
       if (currentProduct.sizes?.length > 0) setSelectedSize(currentProduct.sizes[0].size)

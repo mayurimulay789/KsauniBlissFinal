@@ -364,6 +364,9 @@ const ProductListingPage = () => {
                   viewMode === "grid" ? "grid-cols-2" : "grid-cols-1"
                 }`}
               >
+              <div>
+                hellooodsgjdhglhash
+              </div>
                 <AnimatePresence>
                   {products.map((product, index) => (
                     <motion.div
