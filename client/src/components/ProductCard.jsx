@@ -16,7 +16,8 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
       className="pb-3 overflow-hidden transition-all duration-300 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md"
     >
       <div className="relative aspect-[4/4]">
-        <Link to={`/product/${product._id}`}>
+        {/* <Link to={`/product/${product._id}`}> */}
+        <Link to={`/product/slug/${product.slug}`}>
           <img
             src={product.images?.[0]?.url || "/placeholder.svg"}
             alt={product.name}
@@ -42,9 +43,11 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
         </motion.button>
       </div>
       <div className="px-3 pt-2">
-        <Link to={`/product/${product._id}`}>
+        {/* <Link to={`/product/${product._id}`}> */}
+        <Link to={`/product/slug/${product.slug}`}>
           <h3 className="text-sm font-medium text-gray-800 line-clamp-2">
-            {product.brand}
+            {product.slug}
+            {/* {product.brand} */}
           </h3>
           <p className="text-xs text-gray-600 line-clamp-1">
             {product.name}

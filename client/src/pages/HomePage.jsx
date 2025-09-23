@@ -122,7 +122,7 @@ const HomePage = () => {
           {/* <TopPicksShowcase/> */}
           <FandomShop />
              <NewArrivals />
-          <Oversized899 />
+          {/* <Oversized899 /> */}
           <InnovationList />
         {/* </div> */}
         {/* Brand of India Banner - moved to last position before footer */}

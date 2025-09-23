@@ -1,4 +1,5 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
+const slugify = require("slugify");
 
 const productSchema = new mongoose.Schema(
   {
@@ -6,6 +7,12 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+    slug: {
+      type: String,
+      unique: true,
+      lowercase: true,
+      index: true,
     },
     description: {
       type: String,
@@ -139,15 +146,117 @@ const productSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
-)
-
-// Generate SKU before saving
-productSchema.pre("save", function (next) {
-  if (!this.sku) {
-    this.sku = "FH" + Date.now() + Math.floor(Math.random() * 1000)
   }
-  next()
-})
+);
 
-module.exports = mongoose.model("Product", productSchema)
+// 🔹 Enhanced slug generation with robust name change detection
+productSchema.pre("save", async function (next) {
+  try {
+    // Trim the name first to handle whitespace issues
+    if (this.name && typeof this.name === "string") {
+      const trimmedName = this.name.trim();
+      // Only update if trimming actually changed something
+      if (trimmedName !== this.name) {
+        this.name = trimmedName;
+      }
+    }
+
+    // Check if name is modified according to Mongoose
+    const isNameModified = this.isModified("name");
+    
+    // For existing documents, check if the trimmed name actually changed
+    let actualNameChange = false;
+    if (!this.isNew && isNameModified) {
+      const currentDoc = await this.constructor.findById(this._id).select("name");
+      if (currentDoc) {
+        const currentName = currentDoc.name ? currentDoc.name.trim() : "";
+        const newName = this.name ? this.name.trim() : "";
+        actualNameChange = currentName !== newName;
+        
+        console.log(`Name change detection - Current: "${currentName}", New: "${newName}", Actual Change: ${actualNameChange}`);
+      }
+    }
+
+    // Generate slug for new documents or if name has been actually modified
+    if (this.isNew || isNameModified || actualNameChange) {
+      // Generate base slug from name
+      const baseSlug = slugify(this.name, {
+        lower: true,
+        strict: true,
+        trim: true,
+      });
+
+      // If base slug is empty, use fallback
+      if (!baseSlug) {
+        this.slug = "product-" + Date.now().toString().slice(-6);
+        console.log(`Generated fallback slug: ${this.slug} for product: "${this.name}"`);
+        return next();
+      }
+
+      let newSlug = baseSlug;
+      let isUnique = false;
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      // Keep trying until we find a unique slug
+      while (!isUnique && attempts < maxAttempts) {
+        // Generate random 3-digit number (100-999)
+        const randomSuffix = Math.floor(100 + Math.random() * 900);
+        
+        // For updates where name changed, always generate new slug with random suffix
+        if ((isNameModified || actualNameChange) && !this.isNew) {
+          newSlug = `${baseSlug}-${randomSuffix}`;
+          console.log(`Attempt ${attempts + 1}: Generated slug with suffix for update: ${newSlug}`);
+        } else {
+          // For new products, try without suffix first, then with suffix if needed
+          newSlug = attempts === 0 ? baseSlug : `${baseSlug}-${randomSuffix}`;
+        }
+
+        // Check if slug already exists
+        const existingProduct = await mongoose.model("Product").findOne({
+          slug: newSlug,
+          _id: { $ne: this._id },
+        });
+
+        if (!existingProduct) {
+          isUnique = true;
+          console.log(`Slug is unique: ${newSlug}`);
+        } else {
+          console.log(`Slug conflict: ${newSlug}, trying again...`);
+        }
+        
+        attempts++;
+      }
+
+      // If still not unique after max attempts, use timestamp as fallback
+      if (!isUnique) {
+        const timestampSuffix = Date.now().toString().slice(-6);
+        newSlug = `${baseSlug}-${timestampSuffix}`;
+        console.log(`Used timestamp fallback slug: ${newSlug}`);
+      }
+
+      this.slug = newSlug;
+      console.log(`✅ Final slug: ${newSlug} for product: "${this.name}" (${this.isNew ? 'new' : 'updated'})`);
+    } else {
+      console.log(`ℹ️ Slug unchanged: ${this.slug} for product: "${this.name}"`);
+    }
+    next();
+  } catch (error) {
+    console.error("❌ Slug generation error:", error);
+    next(error);
+  }
+});
+
+// 🔹 SKU generate before saving (only for new products)
+productSchema.pre("save", function (next) {
+  if (this.isNew && !this.sku) {
+    this.sku = "FH" + Date.now() + Math.floor(Math.random() * 1000);
+    console.log(`Generated SKU: ${this.sku}`);
+  }
+  next();
+});
+
+// 🔹 Compound index to ensure name and slug uniqueness together
+productSchema.index({ name: 1, slug: 1 }, { unique: true });
+
+module.exports = mongoose.model("Product", productSchema);

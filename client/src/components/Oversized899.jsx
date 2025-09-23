@@ -6,6 +6,7 @@ export default function Oversized899() {
   const { products } = useSelector((state) => state.products) || { products: [] };
   const [productsToShow, setProductsToShow] = useState([]);
   useEffect(() => {
+    console.log("All products jfkfjhjhgg:", products);
     const filteredProducts = products.filter((product) => {
       if (!product) return false;
       let isOversized = false;
@@ -87,7 +88,8 @@ export default function Oversized899() {
                   "
                 >
                   {/* Product Image */}
-                  <Link to={`/product/${product._id}`}>
+                  {/* <Link to={`/product/${product._id}`}> */}
+                  <Link to={`/product/slug/${product.slug}`}>
                     <div className="w-full aspect-[3.5/3.8] bg-gray-100">
                       <img
                         src={
@@ -102,7 +104,8 @@ export default function Oversized899() {
                   {/* Product Info */}
                   <div className="p-1.5">
                     <p className="text-[9px] font-semibold text-black uppercase">{product.brand || "EXAMPLE BRAND"}</p>
-                    <Link to={`/product/${product._id}`}>
+                    {/* <Link to={`/product/${product._id}`}> */}
+                    <Link to={`/product/slug/${product.slug}`}>
                       <p className="text-[10px] text-black uppercase leading-tight mb-0.5 line-clamp-2">
                         {product.name}
                       </p>

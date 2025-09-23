@@ -57,7 +57,8 @@ export default function NewArrivals() {
                 "
               >
                 {/* Product Image */}
-                <Link to={`/product/${product._id}`}>
+                {/* <Link to={`/product/${product._id}`}> */}
+                <Link to={`/product/slug/${product.slug}`}>
                   <div className="w-full aspect-[3.5/3.8] bg-gray-100">
                     <img
                       src={product.images?.[0]?.url || "/placeholder.svg"}
@@ -71,7 +72,8 @@ export default function NewArrivals() {
                   <p className="text-[9px] font-semibold text-black uppercase">
                     {product.brand || "EXAMPLE BRAND"}
                   </p>
-                  <Link to={`/product/${product._id}`}>
+                  {/* <Link to={`/product/${product._id}`}> */}
+                  <Link to={`/product/slug/${product.slug}`}>
                     <p className="text-[10px] text-black leading-tight mb-0.5 line-clamp-2 uppercase">
                       {product.name}
                     </p>

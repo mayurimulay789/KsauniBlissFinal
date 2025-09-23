@@ -11,6 +11,8 @@ getNewArrivals: () => axios.get(`${API_URL}/products/new`),
 
   getProductById: (id) => axios.get(`${API_URL}/products/${id}`),
 
+  getProductBySlug: (slug) => axios.get(`${API_URL}/products/slug/${slug}`),
+
   createProduct: (productData) =>
     axios.post(`${API_URL}/products`, productData, {
       headers: {

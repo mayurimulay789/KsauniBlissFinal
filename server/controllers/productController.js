@@ -6,13 +6,98 @@ const mongoose = require("mongoose");
 // Helper to parse JSON fields safely
 const parseJson = (data, fallback) => {
   try {
-    return JSON.parse(data);
+    if (typeof data === 'string') {
+      return JSON.parse(data);
+    }
+    return data || fallback;
   } catch {
     return fallback;
   }
 };
 
-// Get all products with filters
+// Helper function to clean and prepare update data
+const prepareUpdateData = (updateData, existingProduct) => {
+  const cleanedData = { ...updateData };
+
+  // Trim all string fields
+  if (cleanedData.name && typeof cleanedData.name === "string") {
+    cleanedData.name = cleanedData.name.trim();
+  }
+  if (cleanedData.brand && typeof cleanedData.brand === "string") {
+    cleanedData.brand = cleanedData.brand.trim();
+  }
+  if (cleanedData.productDetails && typeof cleanedData.productDetails === "string") {
+    cleanedData.productDetails = cleanedData.productDetails.trim();
+  }
+  if (cleanedData.material && typeof cleanedData.material === "string") {
+    cleanedData.material = cleanedData.material.trim();
+  }
+  if (cleanedData.description && typeof cleanedData.description === "string") {
+    cleanedData.description = cleanedData.description.trim();
+  }
+  if (cleanedData.subcategory && typeof cleanedData.subcategory === "string") {
+    cleanedData.subcategory = cleanedData.subcategory.trim();
+  }
+
+  // String conversions with defaults
+  if (cleanedData.brand !== undefined) {
+    cleanedData.brand = String(cleanedData.brand || "");
+  }
+  if (cleanedData.productDetails !== undefined) {
+    cleanedData.productDetails = String(cleanedData.productDetails || "");
+  }
+  if (cleanedData.material !== undefined) {
+    cleanedData.material = String(cleanedData.material || "");
+  }
+  if (cleanedData.fits !== undefined) {
+    cleanedData.fits = String(cleanedData.fits || "regular");
+  }
+
+  // Number conversions
+  if (cleanedData.price !== undefined) {
+    cleanedData.price = Number(cleanedData.price);
+  }
+  if (cleanedData.originalPrice !== undefined) {
+    cleanedData.originalPrice = cleanedData.originalPrice ? Number(cleanedData.originalPrice) : undefined;
+  }
+  if (cleanedData.stock !== undefined) {
+    cleanedData.stock = Number(cleanedData.stock) || 0;
+  }
+  if (cleanedData.weight !== undefined) {
+    cleanedData.weight = cleanedData.weight ? Number(cleanedData.weight) : undefined;
+  }
+
+  // Parse JSON data
+  if (cleanedData.sizes !== undefined) {
+    cleanedData.sizes = parseJson(cleanedData.sizes, existingProduct.sizes);
+  }
+  if (cleanedData.colors !== undefined) {
+    cleanedData.colors = parseJson(cleanedData.colors, existingProduct.colors);
+  }
+  if (cleanedData.tags !== undefined) {
+    cleanedData.tags = parseJson(cleanedData.tags, existingProduct.tags);
+  }
+  if (cleanedData.dimensions !== undefined) {
+    cleanedData.dimensions = parseJson(cleanedData.dimensions, existingProduct.dimensions);
+  }
+  if (cleanedData.modelSizeFit !== undefined) {
+    cleanedData.modelSizeFit = parseJson(cleanedData.modelSizeFit, existingProduct.modelSizeFit);
+  }
+  if (cleanedData.materialCare !== undefined) {
+    cleanedData.materialCare = parseJson(cleanedData.materialCare, existingProduct.materialCare);
+  }
+
+  // Handle existingImages and imageOrder
+  if (cleanedData.existingImages !== undefined) {
+    cleanedData.existingImages = parseJson(cleanedData.existingImages, []);
+  }
+  if (cleanedData.imageOrder !== undefined) {
+    cleanedData.imageOrder = parseJson(cleanedData.imageOrder, []);
+  }
+
+  return cleanedData;
+};
+
 // Get all products with filters
 const getProducts = async (req, res) => {
   try {
@@ -104,11 +189,21 @@ const getProducts = async (req, res) => {
 };
 
 const getProductsByCategorySlug = async (req, res) => {
-  const cat = await Category.findOne({ slug: req.params.slug, isActive: true }).select("_id");
-  if (!cat) return res.status(404).json({ success: false, message: "Category not found" });
-  // then run your usual product query with { category: cat._id }
+  try {
+    const cat = await Category.findOne({ slug: req.params.slug, isActive: true }).select("_id");
+    if (!cat) return res.status(404).json({ success: false, message: "Category not found" });
+    
+    const products = await Product.find({ 
+      category: cat._id, 
+      isActive: true 
+    }).populate("category", "name slug");
+    
+    res.status(200).json({ success: true, products });
+  } catch (error) {
+    console.error("Get products by category slug error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch category products" });
+  }
 };
-
 
 // Get trending products
 const getTrendingProducts = async (req, res) => {
@@ -146,7 +241,7 @@ const getNewArrivals = async (req, res) => {
   }
 };
 
-// Get single product
+// Get single product by ID
 const getProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
@@ -160,6 +255,24 @@ const getProduct = async (req, res) => {
     res.status(200).json({ success: true, product });
   } catch (error) {
     console.error("Get product error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch product" });
+  }
+};
+
+// Get single product by slug
+const getProductBySlug = async (req, res) => {
+  try {
+    const product = await Product.findOne({ slug: req.params.slug })
+      .populate("category", "name slug")
+      .populate("reviews.user", "name");
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    res.status(200).json({ success: true, product });
+  } catch (error) {
+    console.error("Get product by slug error:", error);
     res.status(500).json({ success: false, message: "Failed to fetch product" });
   }
 };
@@ -184,116 +297,251 @@ const createProduct = async (req, res) => {
       productDetails,
       material,
       fits,
-    } = req.body
+    } = req.body;
 
-    const images = []
+    const images = [];
     if (req.files && req.files.length) {
       for (const file of req.files) {
-        const result = await uploadToCloudinary(file.buffer, "products")
-        images.push({ url: result.secure_url, alt: name })
+        const result = await uploadToCloudinary(file.buffer, "products");
+        images.push({ url: result.secure_url, alt: name });
       }
     }
 
     const product = new Product({
-      name,
-      description,
+      name: name.trim(),
+      description: description.trim(),
       price: Number(price),
       originalPrice: originalPrice ? Number(originalPrice) : undefined,
       images,
       category,
-      subcategory,
+      subcategory: subcategory ? subcategory.trim() : "",
       sizes: parseJson(sizes, []),
       colors: parseJson(colors, []),
       tags: parseJson(tags, []),
       stock: Number(stock) || 0,
       weight: weight ? Number(weight) : undefined,
       dimensions: parseJson(dimensions, undefined),
-      brand: brand || "",
-      productDetails: productDetails || "",
-      material: material || "",
+      brand: brand ? brand.trim() : "",
+      productDetails: productDetails ? productDetails.trim() : "",
+      material: material ? material.trim() : "",
       fits: fits || "regular",
-    })
+    });
 
-    await product.save()
-    await Category.findByIdAndUpdate(category, { $inc: { productCount: 1 } })
+    await product.save();
+    await Category.findByIdAndUpdate(category, { $inc: { productCount: 1 } });
 
-    res.status(201).json({ success: true, message: "Product created successfully", product })
+    res.status(201).json({ success: true, message: "Product created successfully", product });
   } catch (error) {
-    console.error("Create product error:", error)
-    res.status(500).json({ success: false, message: "Failed to create product" })
+    console.error("Create product error:", error);
+    
+    if (error.code === 11000) {
+      if (error.keyPattern && error.keyPattern.slug) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Slug conflict. Please try again." 
+        });
+      }
+      if (error.keyPattern && error.keyPattern.name) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Product name already exists" 
+        });
+      }
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to create product",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined
+    });
   }
-}
-;
+};
 
 // Update product (Admin only)
 const updateProduct = async (req, res) => {
   try {
-    const { id } = req.params
-    const updateData = req.body
+    const { id } = req.params;
+    let updateData = req.body;
 
-    const product = await Product.findById(id)
-    if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" })
+    console.log("=== PRODUCT UPDATE STARTED ===");
+    console.log("Product ID:", id);
+    console.log("Update data received:", JSON.stringify(updateData, null, 2));
+
+    // Find the existing product
+    const existingProduct = await Product.findById(id);
+    if (!existingProduct) {
+      console.log("❌ Product not found");
+      return res.status(404).json({ 
+        success: false, 
+        message: "Product not found" 
+      });
     }
 
-    if (req.files && req.files.length) {
-      const newImages = []
+    console.log("📋 Before update - Name:", `"${existingProduct.name}"`, "Slug:", existingProduct.slug);
+    console.log("🔄 Update data name:", `"${updateData.name}"`);
+
+    // Prepare and clean update data
+    updateData = prepareUpdateData(updateData, existingProduct);
+
+    // Check if name is actually being changed
+    const currentName = existingProduct.name ? existingProduct.name.trim() : "";
+    const newName = updateData.name ? updateData.name.trim() : "";
+    const isNameActuallyChanged = newName && currentName !== newName;
+
+    console.log("🔍 Name change analysis:");
+    console.log("  - Current name:", `"${currentName}"`);
+    console.log("  - New name:", `"${newName}"`);
+    console.log("  - Name actually changed:", isNameActuallyChanged);
+
+    // Handle file uploads
+    if (req.files && req.files.length > 0) {
+      console.log(`📸 Processing ${req.files.length} new image(s)`);
+      const newImages = [];
+      
       for (const file of req.files) {
-        const result = await uploadToCloudinary(file.buffer, "products")
-        newImages.push({ url: result.secure_url, alt: updateData.name || product.name })
+        try {
+          const result = await uploadToCloudinary(file.buffer, "products");
+          newImages.push({ 
+            url: result.secure_url, 
+            alt: updateData.name || existingProduct.name 
+          });
+          console.log("✅ Image uploaded:", result.secure_url);
+        } catch (uploadError) {
+          console.error("❌ Image upload failed:", uploadError);
+        }
       }
-      updateData.images = [...product.images, ...newImages]
+      
+      if (newImages.length > 0) {
+        updateData.images = [...existingProduct.images, ...newImages];
+        console.log(`🖼️ Total images now: ${updateData.images.length}`);
+      }
     }
 
-    if (updateData.sizes) {
-      updateData.sizes = parseJson(updateData.sizes, product.sizes)
-    }
-    if (updateData.colors) {
-      updateData.colors = parseJson(updateData.colors, product.colors)
-    }
-    if (updateData.tags) {
-      updateData.tags = parseJson(updateData.tags, product.tags)
-    }
-    if (updateData.dimensions) {
-      updateData.dimensions = parseJson(updateData.dimensions, product.dimensions)
-    }
-
-    if (updateData.brand !== undefined) {
-      updateData.brand = String(updateData.brand || "")
-    }
-    if (updateData.productDetails !== undefined) {
-      updateData.productDetails = String(updateData.productDetails || "")
-    }
-    if (updateData.material !== undefined) {
-      updateData.material = String(updateData.material || "")
-    }
-    if (updateData.fits !== undefined) {
-      updateData.fits = String(updateData.fits || "regular")
-    }
-
-    if (updateData.price !== undefined) {
-      updateData.price = Number(updateData.price)
-    }
-    if (updateData.originalPrice !== undefined) {
-      updateData.originalPrice = updateData.originalPrice ? Number(updateData.originalPrice) : undefined
-    }
-    if (updateData.stock !== undefined) {
-      updateData.stock = Number(updateData.stock) || 0
-    }
-    if (updateData.weight !== undefined) {
-      updateData.weight = updateData.weight ? Number(updateData.weight) : undefined
+    // Handle existing images reordering
+    if (updateData.imageOrder && updateData.imageOrder.length > 0) {
+      console.log("🔄 Processing image reordering");
+      const orderedImages = [];
+      
+      for (const item of updateData.imageOrder) {
+        if (item.type === 'existing') {
+          const existingImage = existingProduct.images.find(img => 
+            img._id.toString() === item.id
+          );
+          if (existingImage) {
+            orderedImages.push(existingImage);
+          }
+        }
+      }
+      
+      // Add any new images that weren't in the order list
+      if (updateData.images) {
+        for (const newImage of updateData.images) {
+          if (!orderedImages.find(img => img.url === newImage.url)) {
+            orderedImages.push(newImage);
+          }
+        }
+      }
+      
+      updateData.images = orderedImages;
     }
 
-    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-      strict: true,
-    }).populate("category", "name slug")
+    let updatedProduct;
 
-    res.status(200).json({ success: true, message: "Product updated successfully", product: updatedProduct })
+    if (isNameActuallyChanged) {
+      console.log("🔄 Name change detected - Using save() method to trigger slug regeneration");
+      
+      // Use the document save method to ensure pre-save hooks are triggered
+      const productToUpdate = await Product.findById(id);
+      if (!productToUpdate) {
+        return res.status(404).json({ 
+          success: false, 
+          message: "Product not found during update" 
+        });
+      }
+
+      // Update all fields except slug (let the hook handle it)
+      Object.keys(updateData).forEach(key => {
+        if (key !== "slug" && updateData[key] !== undefined) {
+          productToUpdate[key] = updateData[key];
+        }
+      });
+
+      // Mark name as modified to ensure slug regeneration
+      productToUpdate.markModified("name");
+
+      console.log("💾 Saving product with updated name...");
+      updatedProduct = await productToUpdate.save();
+      console.log("✅ Product saved with new slug");
+
+    } else {
+      console.log("⚡ No name change - Using findByIdAndUpdate for performance");
+      
+      // Use findByIdAndUpdate for better performance when name doesn't change
+      updatedProduct = await Product.findByIdAndUpdate(
+        id, 
+        updateData, 
+        {
+          new: true,
+          runValidators: true,
+          context: "query",
+        }
+      );
+    }
+
+    // Populate category data
+    await updatedProduct.populate("category", "name slug");
+
+    console.log("📊 After update - Name:", `"${updatedProduct.name}"`, "Slug:", updatedProduct.slug);
+    console.log("✅ Product update completed successfully");
+    console.log("=== PRODUCT UPDATE FINISHED ===");
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Product updated successfully", 
+      product: updatedProduct 
+    });
+
   } catch (error) {
-    console.error("Update product error:", error)
-    res.status(500).json({ success: false, message: "Failed to update product" })
+    console.error("❌ Update product error:", error);
+    console.log("=== PRODUCT UPDATE FAILED ===");
+    
+    // Handle specific errors
+    if (error.code === 11000) {
+      if (error.keyPattern && error.keyPattern.slug) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Slug already exists. Please try again." 
+        });
+      }
+      if (error.keyPattern && error.keyPattern.name) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Product name already exists" 
+        });
+      }
+      if (error.keyPattern && error.keyPattern.sku) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "SKU already exists" 
+        });
+      }
+    }
+    
+    // Mongoose validation error
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ 
+        success: false, 
+        message: "Validation failed", 
+        errors 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to update product",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined
+    });
   }
 };
 
@@ -361,6 +609,8 @@ const addReview = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to add review" });
   }
 };
+
+// Search products
 const getSearchedProducts = async (req, res) => {
   try {
     const { q } = req.query;
@@ -380,6 +630,8 @@ const getSearchedProducts = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to search products" });
   }
 };
+
+// Get products by category ID
 const getProductsByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;
@@ -456,4 +708,6 @@ module.exports = {
   getNewArrivals,
   getSearchedProducts,
   getProductsByCategory,
+  getProductsByCategorySlug,
+  getProductBySlug,
 };
