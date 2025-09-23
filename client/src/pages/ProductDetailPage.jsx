@@ -286,6 +286,7 @@ const ProductDetailPage = () => {
   if (error || !currentProduct)
     return (
       <div className="text-center">
+        <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
         
        <Preloader/>
       </div>
@@ -639,16 +640,20 @@ const ProductDetailPage = () => {
                   </div>
                 </div>
               </div>
-              {currentProduct.productDetails && (
-                <div className="pt-1">
-                  <h2 className="text-md font-bold text-gray-700 mb-1">Product Details</h2>
-                  <p className="text-gray-600 whitespace-pre-line">
-                    {typeof currentProduct.productDetails === "string"
-                      ? currentProduct.productDetails
-                      : JSON.stringify(currentProduct.productDetails)}
-                  </p>
-                </div>
-              )}
+<div className="mt-4">
+                <span className="font-semibold">Product Description</span>
+                <p className={`text-md text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
+                  {currentProduct?.description}
+                </p>
+
+                <button
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                  className="text-red-500 text-xs font-semibold mt-1"
+                >
+                  {showFullDescription ? "Show Less" : "Read More"}
+                </button>
+              </div>
+              
               {/* Product Details Section */}
               <div className=" pt-1">
                 {currentProduct.material && (
@@ -717,19 +722,18 @@ const ProductDetailPage = () => {
                     {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE FIRST" : "BUY NOW"}
                   </button>
                 </div>
-                <div className="mt-4">
-                <span className="font-semibold">Product Description</span>
-                <p className={`text-md text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
-                  {currentProduct?.description}
-                </p>
-
-                <button
-                  onClick={() => setShowFullDescription(!showFullDescription)}
-                  className="text-red-500 text-xs font-semibold mt-1"
-                >
-                  {showFullDescription ? "Show Less" : "Read More"}
-                </button>
-              </div>
+                 <div className="mt-4">
+                {currentProduct.productDetails && (
+                <div className="pt-1">
+                  <h2 className="text-md font-bold text-gray-700 mb-1">Product Details</h2>
+                  <p className="text-gray-600 whitespace-pre-line">
+                    {typeof currentProduct.productDetails === "string"
+                      ? currentProduct.productDetails
+                      : JSON.stringify(currentProduct.productDetails)}
+                  </p>
+                </div>
+              )}
+              </div> 
               </div>
             </div>
           </div>
