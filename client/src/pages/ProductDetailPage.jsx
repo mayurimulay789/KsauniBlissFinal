@@ -282,8 +282,14 @@ const ProductDetailPage = () => {
       navigate("/products")
     }
   }
-  
-    
+  if (isLoading) return <Preloader message="Loading product…" />
+  if (error || !currentProduct)
+    return (
+      <div className="text-center">
+        
+       <Preloader/>
+      </div>
+    )
   return (
     <div className=" bg-gray-50 sm:pb-0 pb-10">
       {/* Desktop Breadcrumb - Hidden on mobile */}

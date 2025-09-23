@@ -7,7 +7,7 @@ import MarketerSidebar from "../../components/digitalMarketer/MarketerSidebar";
 import MarketerHeader from "../../components/digitalMarketer/MarketerHeader";
 import MarketingAnalytics from "../../components/digitalMarketer/MarketingAnalytics";
 import PromoBannersManagement from "../../components/digitalMarketer/PromoBannersManagement";
-import SEOManagement from "../../components/digitalMarketer/SEOManagement";
+// import SEOManagement from "../../components/digitalMarketer/SEOManagement";
 import CampaignManagement from "../../components/digitalMarketer/CampaignManagement";
 import { clearError, clearSuccess } from "../../store/slices/digitalMarketerSlice";
 const DigitalMarketerDashboard = () => {
@@ -39,8 +39,8 @@ const DigitalMarketerDashboard = () => {
         return "Marketing Analytics";
       case "banners":
         return "Promo Banners";
-      case "seo":
-        return "SEO Management";
+      // case "seo":
+      //   return "SEO Management";
       case "campaigns":
         return "Campaign Management";
       default:
@@ -62,7 +62,7 @@ const DigitalMarketerDashboard = () => {
               <Route index element={<MarketingAnalytics />} />
               <Route path="analytics" element={<MarketingAnalytics />} />
               <Route path="banners" element={<PromoBannersManagement />} />
-              <Route path="seo" element={<SEOManagement />} />
+              {/* <Route path="seo" element={<SEOManagement />} /> */}
               <Route path="campaigns" element={<CampaignManagement />} />
               <Route path="*" element={<Navigate to="/marketer/analytics" replace />} />
             </Routes>
