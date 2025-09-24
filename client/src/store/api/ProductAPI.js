@@ -9,6 +9,8 @@ const productAPI = {
 
 getNewArrivals: () => axios.get(`${API_URL}/products/new`),
 
+  getOversizedProducts: () => axios.get(`${API_URL}/products/oversized`),
+
   getProductById: (id) => axios.get(`${API_URL}/products/${id}`),
 
   getProductBySlug: (slug) => axios.get(`${API_URL}/products/slug/${slug}`),

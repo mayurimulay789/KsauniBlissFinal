@@ -8,8 +8,10 @@ export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
   async (params, { rejectWithValue }) => {
     try {
+      console.log("what is exact params:",params);
       if (params.category) {
         // use category-specific endpoint
+        console.log("params exit");
         const response = await productAPI.getProductsByCategory(params.category, params);
         return response.data;
       } else {
@@ -44,6 +46,15 @@ export const fetchNewArrivals = createAsyncThunk("products/fetchNewArrivals", as
   }
 })
 
+export const fetchOversizedProducts = createAsyncThunk("products/fetchOversizedProducts", async (_, { rejectWithValue }) => {
+  try {
+    const response = await productAPI.getOversizedProducts()
+    return response.data
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to fetch oversized products")
+  }
+})
+
 export const fetchProductById = createAsyncThunk("products/fetchProductById", async (id, { rejectWithValue }) => {
   try {
     const response = await productAPI.getProductById(id)
@@ -69,6 +80,7 @@ const initialState = {
   products: [],
   trendingProducts: [],
   newArrivals: [],
+  oversizedProducts: [],
   currentProduct: null,
   pagination: {
     total: 0,
@@ -155,6 +167,23 @@ const productSlice = createSlice({
         state.isLoadingNewArrivals = false
         state.error = action.payload
       })
+
+      // Fetch Oversized Products
+      .addCase(fetchOversizedProducts.pending, (state) => {
+        state.isLoadingOversized = true
+        state.error = null
+      })
+      .addCase(fetchOversizedProducts.fulfilled, (state, action) => {
+        state.isLoadingOversized = false
+        state.oversizedProducts = action.payload.products || []
+      })
+      .addCase(fetchOversizedProducts.rejected, (state, action) => {
+        state.isLoadingOversized = false
+        state.error = action.payload
+      })
+
+
+
       // Fetch Product By ID
       .addCase(fetchProductById.pending, (state) => {
         state.isLoadingProductById = true

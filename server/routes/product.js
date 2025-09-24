@@ -9,6 +9,7 @@ const {
   addReview,
   getTrendingProducts,
   getNewArrivals,
+  getOversizedProducts,
   getSearchedProducts,
   getProductsByCategory,
   getProductsByCategorySlug,
@@ -31,6 +32,8 @@ router.get("/trending", getTrendingProducts);
 // GET new arrivals
 router.get("/new", getNewArrivals);
 
+//get only orisized products
+router.get("/oversized", getOversizedProducts);
 // GET products by category
 router.get("/category/:categoryId", getProductsByCategory);
 

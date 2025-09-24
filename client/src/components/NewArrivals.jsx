@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchNewArrivals } from "../store/slices/productSlice"; // ✅ import thunk
+import {fetchOversizedProducts} from "../store/slices/productSlice";
 export default function NewArrivals() {
   const dispatch = useDispatch();
   const { newArrivals, loading } = useSelector((state) => state.products) || {

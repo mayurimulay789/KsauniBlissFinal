@@ -241,6 +241,24 @@ const getNewArrivals = async (req, res) => {
   }
 };
 
+//get only oversized products
+const getOversizedProducts = async (req, res) => {
+  console.log("getOversizedProducts called");
+  try {
+    const products = await Product.find({
+      isActive: true,
+      fits: "oversized"
+    })
+      .populate("category", "name slug")  
+      .sort({ createdAt: -1 });
+    
+    res.status(200).json({ success: true, products });
+  } catch (error) {
+    console.error("Get oversized products error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch oversized products" });
+  }
+};
+
 // Get single product by ID
 const getProduct = async (req, res) => {
   try {
@@ -706,6 +724,7 @@ module.exports = {
   addReview,
   getTrendingProducts,
   getNewArrivals,
+  getOversizedProducts,
   getSearchedProducts,
   getProductsByCategory,
   getProductsByCategorySlug,

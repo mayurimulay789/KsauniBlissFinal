@@ -46,8 +46,7 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
         {/* <Link to={`/product/${product._id}`}> */}
         <Link to={`/product/${product.slug}`}>
           <h3 className="text-sm font-medium text-gray-800 line-clamp-2">
-            {product.slug}
-            {/* {product.brand} */}
+            {product.brand}
           </h3>
           <p className="text-xs text-gray-600 line-clamp-1">
             {product.name}
