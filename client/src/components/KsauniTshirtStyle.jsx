@@ -5,12 +5,14 @@ import { useSelector, useDispatch } from "react-redux"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { fetchKsauniTshirts } from "../store/slices/ksauniTshirtSlice"
 import LoadingSpinner from "./LoadingSpinner"
+import { useNavigate } from "react-router-dom"
 
 const KsauniTshirtStyle = () => {
   const dispatch = useDispatch()
   const { tshirts, loading, error } = useSelector((state) => state.ksauniTshirt)
   const carouselRef = useRef(null)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const navigate = useNavigate()
 
   // Fetch T-shirts from Redux
   useEffect(() => {
@@ -40,10 +42,9 @@ const KsauniTshirtStyle = () => {
     }
   }
 
-  const handleIndividualTshirtClick = (tshirt) => {
-    console.log("[v1] Individual t-shirt clicked:", tshirt)
-    // For demo purposes, just log the click
-    alert(`Clicked on ${tshirt.name} - $${tshirt.price}`)
+  // ✅ Unified click handler (just redirect, no product details)
+  const handleRedirect = () => {
+    navigate("/products?category=ksauni-style")
   }
 
   if (loading) return <LoadingSpinner />
@@ -86,7 +87,7 @@ const KsauniTshirtStyle = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 whileHover={{ scale: 1.03 }}
-                onClick={() => handleIndividualTshirtClick(tshirt)}
+                onClick={handleRedirect} // ✅ same for all
                 className="
                   flex-shrink-0
                   border border-gray-300 hover:border-gray-600
@@ -104,10 +105,6 @@ const KsauniTshirtStyle = () => {
                     src={tshirt.image?.url || "/placeholder.svg"}
                     alt={tshirt.image?.alt || tshirt.name}
                     className="w-full h-full object-cover"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleIndividualTshirtClick(tshirt)
-                    }}
                   />
                 </div>
 

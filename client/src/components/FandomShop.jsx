@@ -13,7 +13,7 @@ const ShopByFandom = () => {
     { id: 9, name: "Demon Slayer", image: "/demonslayer.webp" },
   ];
   const handleProductClick = () => {
-    navigate("/products/anime-tshirt");
+    navigate("/products?category=anime-t-shirt");
   };
   return (
     <section className="bg-white">

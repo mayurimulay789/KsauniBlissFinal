@@ -5,10 +5,10 @@ import productAPI from "../api/ProductAPI"
 
 // Async thunks
 export const fetchProducts = createAsyncThunk("products/fetchProducts", async (params, { rejectWithValue }) => {
-  try {
+    try {
     const response = await productAPI.getProducts(params)
     return response.data
-  } catch (error) {
+    } catch (error) {
     return rejectWithValue(error.response?.data?.message || "Failed to fetch products")
   }
 })
