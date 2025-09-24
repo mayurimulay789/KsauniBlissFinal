@@ -140,7 +140,7 @@ function AppContent() {
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:category" element={<ProductsPage />} />
             {/* <Route path="/product/:id" element={<ProductDetailPage />} /> */}
-            <Route path="/product/slug/:slug" element={<ProductDetailPage />} />
+            <Route path="/product/:slug" element={<ProductDetailPage />} />
             <Route path="/search" element={<SearchResultsPage />} />
             <Route path="/about" element={<AboutUsPage />} />
             <Route path="/contact" element={<ContactUsPage />} />
