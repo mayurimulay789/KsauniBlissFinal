@@ -4,32 +4,24 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import productAPI from "../api/ProductAPI"
 
 // Async thunks
-// export const fetchProducts = createAsyncThunk(
-//   "products/fetchProducts",
-//   async (params, { rejectWithValue }) => {
-//     try {
-//       if (params.category) {
-//         // use category-specific endpoint
-//         const response = await productAPI.getProductsByCategory(params.category, params);
-//         return response.data;
-//       } else {
-//         const response = await productAPI.getProducts(params);
-//         return response.data;
-//       }
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
-//     }
-//   }
-// );
-export const fetchProducts = createAsyncThunk("products/fetchProducts", async (params, { rejectWithValue }) => {
-  try {
-    const response = await productAPI.getProducts(params)
-    return response.data
-  } catch (error) {
-    return rejectWithValue(error.response?.data?.message || "Failed to fetch products")
+export const fetchProducts = createAsyncThunk(
+  "products/fetchProducts",
+  async (params, { rejectWithValue }) => {
+    try {
+      if (params.category) {
+        // use category-specific endpoint
+        const response = await productAPI.getProductsByCategory(params.category, params);
+        return response.data;
+      } else {
+        const response = await productAPI.getProducts(params);
+        return response.data;
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+    }
   }
-}
-)
+);
+
 
 export const fetchTrendingProducts = createAsyncThunk(
   "products/fetchTrendingProducts",
@@ -49,6 +41,15 @@ export const fetchNewArrivals = createAsyncThunk("products/fetchNewArrivals", as
     return response.data
   } catch (error) {
     return rejectWithValue(error.response?.data?.message || "Failed to fetch new arrivals")
+  }
+})
+
+export const fetchOversizedProducts = createAsyncThunk("products/fetchOversizedProducts", async (_, { rejectWithValue }) => {
+  try {
+    const response = await productAPI.getOversizedProducts()
+    return response.data
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to fetch oversized products")
   }
 })
 
@@ -77,6 +78,7 @@ const initialState = {
   products: [],
   trendingProducts: [],
   newArrivals: [],
+  oversizedProducts: [],
   currentProduct: null,
   pagination: {
     total: 0,
@@ -163,6 +165,23 @@ const productSlice = createSlice({
         state.isLoadingNewArrivals = false
         state.error = action.payload
       })
+
+      // Fetch Oversized Products
+      .addCase(fetchOversizedProducts.pending, (state) => {
+        state.isLoadingOversized = true
+        state.error = null
+      })
+      .addCase(fetchOversizedProducts.fulfilled, (state, action) => {
+        state.isLoadingOversized = false
+        state.oversizedProducts = action.payload.products || []
+      })
+      .addCase(fetchOversizedProducts.rejected, (state, action) => {
+        state.isLoadingOversized = false
+        state.error = action.payload
+      })
+
+
+
       // Fetch Product By ID
       .addCase(fetchProductById.pending, (state) => {
         state.isLoadingProductById = true

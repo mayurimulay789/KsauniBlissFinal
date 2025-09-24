@@ -52,7 +52,7 @@ useEffect(() => {
     }
   }, [user, dispatch, token])
   useEffect(() => {
-    dispatch(fetchCategories({ showOnHomepage: true }))
+    dispatch(fetchCategories({ showOnHomepage: false }))
   }, [dispatch])
   useEffect(() => {
     if (debouncedSearchQuery.trim() && searchFocused) {
@@ -149,9 +149,9 @@ useEffect(() => {
         transition={{ duration: 0.5 }}
         className="sticky top-0 z-50 bg-white shadow-md"
       >
-        <div className="container px-4 mx-auto uppercase">
+        <div className="container px-4 mx-auto uppercase  ">
           {/* Top Header Row */}
-          <div className="flex items-center justify-between py-4">
+          <div className="flex items-center justify-between py-4 ">
             {/* Mobile Menu Toggle & Logo */}
             <div className="flex items-center gap-4">
               <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="pt-2 pb-2 pl-2 md:hidden">

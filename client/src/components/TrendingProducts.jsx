@@ -141,7 +141,7 @@ export default function TopPicksShowcase() {
                   <div className="pt-1 px-1 flex flex-col h-auto border-t">
                     <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-100">
                       {/* <Link to={`/product/${product._id}`}> */}
-                      <Link to={`/product/slug/${product.slug}`}>
+                      <Link to={`/product/${product.slug}`}>
                         <img
                           // ✅ Bust cache using updatedAt timestamp
                           src={`${product.images?.[0]?.url || "/placeholder.svg"}?t=${new Date(
@@ -163,7 +163,7 @@ export default function TopPicksShowcase() {
                       )}
                     </div>
                     {/* <Link to={`/product/${product._id}`} className="flex-grow"> */}
-                    <Link to={`/product/slug/${product.slug}`} className="flex-grow">
+                    <Link to={`/product/${product.slug}`} className="flex-grow">
                       <h3 className="text-[11px] text-black mt-1 mx-1 line-clamp-2 uppercase">
                         {product.name}
                       </h3>
