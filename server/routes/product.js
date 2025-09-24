@@ -57,7 +57,7 @@ router.delete("/:id", deleteProduct);
 router.post("/:id/review", addReview);
 
 // routes/product.js
-// router.get("/category/slug/:slug", getProductsByCategorySlug);
+router.get("/category/slug/:slug", getProductsByCategorySlug);
 
 
 module.exports = router;

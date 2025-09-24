@@ -69,11 +69,16 @@ useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
-  const navigateToCategory = (categoryId = "") => {
-    const base = "/products?"
-    console.log("[v0] Navigating to category:", categoryId)
-    navigate(categoryId ? `${base}category=${categoryId}` : base)
-  }
+  // const navigateToCategory = (categoryId = "") => {
+  //   const base = "/products?"
+  //   console.log("[v0] Navigating to category:", categoryId)
+  //   navigate(categoryId ? `${base}category=${categoryId}` : base)
+  // }
+  const navigateToCategory = (categorySlug = "") => {
+  const base = "/products?"
+  console.log("[v0] Navigating to category:", categorySlug)
+  navigate(categorySlug ? `${base}category=${categorySlug}` : base)
+}
   const navigateToUnder999 = () => {
     navigate("/products?maxPrice=999")
   }
@@ -477,7 +482,7 @@ useEffect(() => {
               {categories.map((cat) => (
                 <div
                   key={cat._id}
-                  onClick={() => navigateToCategory(cat._id)}
+                  onClick={() => navigateToCategory(cat.slug)}
                   className="flex-shrink-0 font-medium text-gray-700 transition-colors duration-200 cursor-pointer hover:text-red-600 whitespace-nowrap"
                 >
                   {cat.name}
@@ -526,7 +531,7 @@ useEffect(() => {
                     <div
                       key={cat._id}
                       onClick={() => {
-                        navigateToCategory(cat._id)
+                        navigateToCategory(cat.slug)
                         setIsMenuOpen(false)
                       }}
                       className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"

@@ -53,7 +53,7 @@ const FeaturedCategories = () => {
                         className="relative overflow-hidden border border-gray-400 rounded group transition-transform duration-300 transform hover:scale-105"
                       >
                         {/* ✅ Pass category as query param */}
-                        <Link to={`/products?category=${category._id}`}>
+                        <Link to={`/products?category=${category.slug}`}>
                           <div className="relative w-full aspect-[20/15] overflow-hidden">
                             <img
                               src={
@@ -96,7 +96,7 @@ const FeaturedCategories = () => {
               className="relative overflow-hidden border border-gray-200 rounded group transition-transform duration-300 transform hover:scale-105"
             >
               {/* ✅ Pass category as query param */}
-              <Link to={`/products?category=${category._id}`}>
+              <Link to={`/products?category=${category.slug}`}>
                 <div className="relative w-full aspect-[10/10] overflow-hidden">
                   <img
                     src={

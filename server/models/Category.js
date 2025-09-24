@@ -4,7 +4,7 @@ const slugify = require("slugify");
 const categorySchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, unique: true },
+    slug: { type: String, required: true, unique: true, lowercase: true },
     description: String,
     image: {
       url: String,
@@ -31,24 +31,35 @@ const categorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-categorySchema.index({ slug: 1 });
+// 🔹 Indexes
+categorySchema.index({ slug: 1 }, { unique: true, collation: { locale: "en", strength: 2 } });
 categorySchema.index({ showOnHomepage: 1 });
 
-// Generate unique slug before saving
+// 🔹 Generate unique slug before saving
 categorySchema.pre("save", async function (next) {
   if (this.isModified("name")) {
-    let newSlug = slugify(this.name, { lower: true, strict: true });
-    let slugExists = await mongoose.models.Category.findOne({ slug: newSlug, _id: { $ne: this._id } });
+    this.name = this.name.trim().replace(/\s+/g, " ");
+    let baseSlug = slugify(this.name, { lower: true, strict: true });
+    if (!baseSlug) baseSlug = "category-" + Date.now().toString().slice(-6);
 
+    let newSlug = baseSlug;
     let suffix = 1;
+
+    // Ensure unique slug
+    let slugExists = await mongoose.models.Category.findOne({ slug: newSlug, _id: { $ne: this._id } });
     while (slugExists) {
-      newSlug = `${slugify(this.name, { lower: true, strict: true })}-${suffix}`;
+      newSlug = `${baseSlug}-${suffix}`;
       slugExists = await mongoose.models.Category.findOne({ slug: newSlug, _id: { $ne: this._id } });
       suffix++;
     }
 
     this.slug = newSlug;
   }
+
+  // Default SEO fields
+  if (!this.seoTitle) this.seoTitle = this.name;
+  if (!this.seoDescription) this.seoDescription = `Shop ${this.name} products online.`;
+
   next();
 });
 
