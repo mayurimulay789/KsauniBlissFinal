@@ -655,7 +655,19 @@ const { id, slug } = useParams()
                   </div>
                 </div>
               </div>
-<div className="mt-4">
+              <div className="mt-4 md:hidden">
+                {currentProduct.productDetails && (
+                <div className="pt-1">
+                  <h2 className="text-md font-bold text-gray-700 mb-1">Product Details</h2>
+                  <p className="text-gray-600 whitespace-pre-line">
+                    {typeof currentProduct.productDetails === "string"
+                      ? currentProduct.productDetails
+                      : JSON.stringify(currentProduct.productDetails)}
+                  </p>
+                </div>
+              )}
+              </div>
+<div className="mt-4 hidden md:block">
                 <span className="font-semibold">Product Description</span>
                 <p className={`text-md text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
                   {currentProduct?.description}
