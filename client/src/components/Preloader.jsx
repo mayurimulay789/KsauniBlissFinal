@@ -2,16 +2,15 @@
 
 import { useState, useEffect } from "react"
 
-export default function Preloader({ onComplete, duration = 4000 }) {
+export default function Preloader({ onComplete, duration = 2000 }) {
   const [isVisible, setIsVisible] = useState(true)
   const [animationPhase, setAnimationPhase] = useState(0)
-
   useEffect(() => {
     const phaseTimers = [
       setTimeout(() => setAnimationPhase(1), 500), // Solid text appears
-      setTimeout(() => setAnimationPhase(2), 1500), // Outlined text
-      setTimeout(() => setAnimationPhase(3), 2500), // Mixed effect
-      setTimeout(() => setAnimationPhase(4), 3500), // Final solid
+      setTimeout(() => setAnimationPhase(2), 1000), // Outlined text
+      setTimeout(() => setAnimationPhase(3), 2000), // Mixed effect
+      setTimeout(() => setAnimationPhase(4), 3000), // Final solid
     ]
 
     // Complete preloader
