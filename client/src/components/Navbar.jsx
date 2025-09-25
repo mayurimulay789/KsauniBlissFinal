@@ -31,15 +31,15 @@ const Navbar = () => {
   const cartTotalQuantity = useSelector(selectCartTotalQuantity)
   const wishlistCount = useSelector(selectWishlistCount)
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300)
-   const placeholders = [
+  const placeholders = [
     "Search for Oversize T-shirt",
     "Search for Hoodie",
     "Search for Plain",
     "Search for Acid Wash",
     "Search for Regular",
   ]
-    const [index, setIndex] = useState(0)
-useEffect(() => {
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prevIndex) => (prevIndex + 1) % placeholders.length)
     }, 2000) // switch every 2 seconds
@@ -75,10 +75,10 @@ useEffect(() => {
   //   navigate(categoryId ? `${base}category=${categoryId}` : base)
   // }
   const navigateToCategory = (categorySlug = "") => {
-  const base = "/products?"
-  console.log("[v0] Navigating to category:", categorySlug)
-  navigate(categorySlug ? `${base}category=${categorySlug}` : base)
-}
+    const base = "/products?"
+    console.log("[v0] Navigating to category:", categorySlug)
+    navigate(categorySlug ? `${base}category=${categorySlug}` : base)
+  }
   const navigateToUnder999 = () => {
     navigate("/products?maxPrice=999")
   }
@@ -393,7 +393,7 @@ useEffect(() => {
                 <Search className="absolute w-3 h-3 text-gray-400 transform -translate-y-1/2 left-4 top-1/2" />
                 <motion.input
                   type="text"
-          placeholder={placeholders[index]}
+                  placeholder={placeholders[index]}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={handleSearchFocus}
@@ -479,15 +479,20 @@ useEffect(() => {
           {/* Desktop Category Navigation */}
           {!isCartPage && (
             <div className="items-center justify-center hidden px-4 py-3 space-x-6 overflow-x-auto border-t border-gray-200 md:flex scrollbar-hide">
-              {categories.map((cat) => (
-                <div
-                  key={cat._id}
-                  onClick={() => navigateToCategory(cat.slug)}
-                  className="flex-shrink-0 font-medium text-gray-700 transition-colors duration-200 cursor-pointer hover:text-red-600 whitespace-nowrap"
-                >
-                  {cat.name}
-                </div>
-              ))}
+              {categories
+                .filter(cat => {
+                  const excludedSlugs = ["anime-t-shirt", "ksauni-tshirts-styles","ksauni-tshirts-styles"];
+                  return !excludedSlugs.includes(cat.slug);
+                })
+                .map((cat) => (
+                  <div
+                    key={cat._id}
+                    onClick={() => navigateToCategory(cat.slug)}
+                    className="flex-shrink-0 font-medium text-gray-700 transition-colors duration-200 cursor-pointer hover:text-red-600 whitespace-nowrap"
+                  >
+                    {cat.name}
+                  </div>
+                ))}
             </div>
           )}
           {/* Mobile Horizontal Category Navigation */}
@@ -501,7 +506,7 @@ useEffect(() => {
                     if (cat._id === "cyd-promo") {
                       navigateToUnder999()
                     } else {
-                      navigateToCategory(cat._id)
+                      navigateToCategory(cat.slug)
                     }
                   }}
                 >
@@ -527,18 +532,26 @@ useEffect(() => {
                 className="bg-white border-t border-gray-200 shadow-md md:hidden"
               >
                 <div className="flex flex-col px-4 py-3 space-y-3">
-                  {categories.map((cat) => (
-                    <div
-                      key={cat._id}
-                      onClick={() => {
-                        navigateToCategory(cat.slug)
-                        setIsMenuOpen(false)
-                      }}
-                      className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"
-                    >
-                      {cat.name}
-                    </div>
-                  ))}
+                  {/* Filtered Categories */}
+                  {categories
+                    .filter(cat => {
+                      const excludedSlugs = ["anime-t-shirt", "ksauni-tshirts-styles"];
+                      return !excludedSlugs.includes(cat.slug);
+                    })
+                    .map((cat) => (
+                      <div
+                        key={cat._id}
+                        onClick={() => {
+                          navigateToCategory(cat.slug)
+                          setIsMenuOpen(false)
+                        }}
+                        className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"
+                      >
+                        {cat.name}
+                      </div>
+                    ))}
+
+                  {/* Other Menu Items (unchanged) */}
                   <div
                     onClick={() => {
                       navigate("/wishlist")

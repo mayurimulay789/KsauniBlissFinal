@@ -102,23 +102,28 @@ const ProductFilters = memo(({ filters, categories, onFilterChange, onClearFilte
                   />
                   <span className="ml-2">All Categories</span>
                 </motion.label>
-                {categories.map((category) => (
-                  <motion.label
-                    key={category._id}
-                    whileHover={{ scale: 1.01 }}
-                    className="flex items-center text-gray-700 transition-colors cursor-pointer hover:text-ksauni-red"
-                  >
-                    <input
-                      type="radio"
-                      name="category"
-                      checked={filters.category === category.slug}
-                      onChange={() => onFilterChange({ category: category.slug })}
-                      className="w-4 h-4 border-gray-300 rounded text-ksauni-red focus:ring-ksauni-red"
-                    />
-                    <span className="ml-2">{category.name}</span>
-                    <span className="ml-auto text-sm text-gray-500">({category.productCount || 0})</span>
-                  </motion.label>
-                ))}
+                {categories
+                  .filter(cat => {
+                    const excludedSlugs = ["anime-t-shirt", "ksauni-tshirts-styles"];
+                    return !excludedSlugs.includes(cat.slug);
+                  })
+                  .map((category) => (
+                    <motion.label
+                      key={category._id}
+                      whileHover={{ scale: 1.01 }}
+                      className="flex items-center text-gray-700 transition-colors cursor-pointer hover:text-ksauni-red"
+                    >
+                      <input
+                        type="radio"
+                        name="category"
+                        checked={filters.category === category.slug}
+                        onChange={() => onFilterChange({ category: category.slug })}
+                        className="w-4 h-4 border-gray-300 rounded text-ksauni-red focus:ring-ksauni-red"
+                      />
+                      <span className="ml-2">{category.name}</span>
+                      <span className="ml-auto text-sm text-gray-500">({category.productCount || 0})</span>
+                    </motion.label>
+                  ))}
               </div>
             </motion.div>
           )}
