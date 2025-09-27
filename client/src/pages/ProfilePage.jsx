@@ -8,6 +8,7 @@ import { fetchUserOrders } from "../store/slices/orderSlice"
 import { fetchWishlist } from "../store/slices/wishlistSlice"
 import toast from "react-hot-toast"
 import { format } from "date-fns"
+import Preloader from "../components/Preloader"
 const ProfilePage = () => {
   const dispatch = useDispatch()
   const { user, isLoading } = useSelector((state) => state.auth)
@@ -148,6 +149,7 @@ const ProfilePage = () => {
   if (isLoading) {
     return (
       <div>
+        <Preloader message="Loading profile..." />
       </div>
     )
   }

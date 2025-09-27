@@ -21,7 +21,7 @@ import {
 import ProductFilters from "../components/ProductFilter"
 import CategoryBanner from "../components/CategoryBanner"
 import ProductCard from "../components/ProductCard"
-import Preloader from "../components/Preloader"
+// import Preloader from "../components/Preloader"
 
 // Selectors
 const selectProducts = (state) => state.products
@@ -204,7 +204,7 @@ const ProductsPage = () => {
           <main className="flex-1 rounded-xl">
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
-                <Preloader />
+                {/* <Preloader /> */}
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">

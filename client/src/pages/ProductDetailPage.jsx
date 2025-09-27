@@ -23,7 +23,7 @@ import {
 } from "../store/slices/wishlistSlice"
 import ProductReviews from "../components/ProductReviews"
 import RelatedProducts from "../components/RelatedProducts"
-import Preloader from "../components/Preloader"
+// import Preloader from "../components/Preloader"
 import toast from "react-hot-toast"
 
 const ProductDetailPage = () => {
@@ -312,13 +312,13 @@ const { id, slug } = useParams()
       navigate("/products")
     }
   }
-  if (isLoading) return <Preloader message="Loading product…" />
+  // if (isLoading) return <Preloader message="Loading product…" />
   if (error || !currentProduct)
     return (
       <div className="text-center">
         <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
         
-       <Preloader/>
+       {/* <Preloader/> */}
       </div>
     )
   return (
