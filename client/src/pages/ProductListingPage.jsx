@@ -19,7 +19,7 @@ import ProductCard from "../components/ProductCard";
 import toast from "react-hot-toast";
 import FreeShippingNotice from "../components/FreeShippingNotice";
 import CategoryBanner from "../components/CategoryBanner";
-import Preloader from "../components/Preloader";
+// import Preloader from "../components/Preloader";
 const ProductListingPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -176,7 +176,7 @@ const ProductListingPage = () => {
   if (isLoading && products.length === 0) {
     return (
       <div>
-        <Preloader message="Loading products..." />
+        {/* <Preloader message="Loading products..." /> */}
       </div>
     );
   }

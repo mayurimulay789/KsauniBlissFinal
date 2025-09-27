@@ -14,7 +14,7 @@ import {
 } from "../store/slices/cartSlice"
 import { addToWishlist, optimisticAddToWishlist } from "../store/slices/wishlistSlice"
 import toast from "react-hot-toast"
-import Preloader from "../components/Preloader"
+// import Preloader from "../components/Preloader"
 const CartPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -106,7 +106,7 @@ const CartPage = () => {
   if (isLoading && items.length === 0) {
     return (
       <div className="pt-28 md:pt-32">
-        <Preloader message="Loading your cart..." />
+        {/* <Preloader message="Loading your cart..." /> */}
       </div>
     )
   }
