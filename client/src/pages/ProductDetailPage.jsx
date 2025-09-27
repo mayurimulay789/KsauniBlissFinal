@@ -25,6 +25,7 @@ import ProductReviews from "../components/ProductReviews"
 import RelatedProducts from "../components/RelatedProducts"
 import Preloader from "../components/Preloader"
 import toast from "react-hot-toast"
+
 const ProductDetailPage = () => {
   // const { id } = useParams()
 const { id, slug } = useParams()
@@ -46,6 +47,20 @@ const { id, slug } = useParams()
   const [showSizeGuide, setShowSizeGuide] = useState(false)
   const [thumbsSwiper, setThumbsSwiper] = useState(null)
   const isInWishlist = wishlistItems.some((item) => item._id === currentProduct?._id)
+
+  // Format description to display bullet points on new lines
+  const formatDescription = (description) => {
+    if (!description) return "";
+    
+    // Replace bullet points with line breaks
+    return description
+      .replace(/(•\s*)/g, '\n• ') // Add new line before each bullet
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join('\n');
+  };
+
   // useEffect(() => {
   //   if (id) dispatch(fetchProductById(id))
   // }, [dispatch, id])
@@ -523,9 +538,11 @@ const { id, slug } = useParams()
               </div>
               <div className="lg:hidden">
                 <span className="font-semibold mt-5">Product Description</span>
-                <p className={`text-sm text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
-                  {currentProduct?.description}
-                </p>
+                <div className={`text-sm text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-6"}`}>
+                  <pre className="font-sans whitespace-pre-wrap">
+                    {formatDescription(currentProduct?.description)}
+                  </pre>
+                </div>
 
                 <button
                   onClick={() => setShowFullDescription(!showFullDescription)}
@@ -669,9 +686,11 @@ const { id, slug } = useParams()
               </div>
 <div className="mt-4 hidden md:block">
                 <span className="font-semibold">Product Description</span>
-                <p className={`text-md text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-4"}`}>
-                  {currentProduct?.description}
-                </p>
+                <div className={`text-md text-gray-700 leading-relaxed ${showFullDescription ? "" : "line-clamp-6"}`}>
+                  <pre className="font-sans whitespace-pre-wrap">
+                    {formatDescription(currentProduct?.description)}
+                  </pre>
+                </div>
 
                 <button
                   onClick={() => setShowFullDescription(!showFullDescription)}

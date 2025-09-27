@@ -42,7 +42,7 @@ const KsauniTshirtStyle = () => {
     }
   }
 
-  // ✅ Unified click handler (just redirect, no product details)
+  // ✅ Redirect handler
   const handleRedirect = () => {
     navigate("/products?category=ksauni-tshirts-styles")
   }
@@ -61,14 +61,21 @@ const KsauniTshirtStyle = () => {
   if (!tshirts.length) return null
 
   return (
-    <section className="py-2 bg-white">
-      <div className="px-1 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <section className="relative w-full mt-4 px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-24">
+      {/* Main Container */}
+      <div
+        className="relative overflow-hidden rounded-2xl shadow-lg w-full mx-auto bg-white"
+        style={{
+          border: "2px solid #e5e7eb", // subtle border like PromoBanners
+          maxWidth: "1800px", // keeps alignment on ultra-wide screens
+        }}
+      >
         {/* Carousel Wrapper */}
         <div className="relative">
           {/* Left Button */}
           <button
             onClick={() => scrollBy("left")}
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white shadow rounded-full hover:bg-gray-100"
+            className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-white shadow rounded-full hover:bg-gray-100"
             aria-label="Scroll Left"
           >
             <ChevronLeft className="w-6 h-6 text-gray-600" />
@@ -78,7 +85,7 @@ const KsauniTshirtStyle = () => {
           <div
             ref={carouselRef}
             onScroll={handleScroll}
-            className="flex overflow-x-auto gap-2 pb-4 scrollbar-hide -mx-3 px-3 scroll-smooth"
+            className="flex overflow-x-auto gap-3 pb-6 scrollbar-hide -mx-3 px-3 scroll-smooth"
           >
             {tshirts.map((tshirt, index) => (
               <motion.div
@@ -87,16 +94,19 @@ const KsauniTshirtStyle = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 whileHover={{ scale: 1.03 }}
-                onClick={handleRedirect} // ✅ same for all
+                onClick={handleRedirect}
                 className="
                   flex-shrink-0
                   border border-gray-300 hover:border-gray-600
                   rounded-xl bg-white overflow-hidden shadow-md
                   transition-all duration-200 cursor-pointer
-                  w-[45%]    /* Mobile: 2 items per screen with gap */
-                  sm:w-[42%] /* Small tablets: ~2 items with gap */
-                  md:w-[29%] /* Tablets: 3 items with gap */
-                  lg:w-[20%] /* Desktop: 4 items with gap */
+                  w-1/2    /* Mobile: 2 items */
+                  sm:w-1/2 /* Small tablets: 2 items */
+                  md:w-1/3 /* Tablets: 3 items */
+                  lg:w-1/4 /* Desktop: 4 items */
+                  xl:w-1/5 /* Large desktop: 5 items */
+                  2xl:w-1/6 /* Extra large: 6 items */
+                  3xl:w-1/7 /* Ultra-wide: 7 items */
                 "
               >
                 {/* Image container */}
@@ -107,9 +117,6 @@ const KsauniTshirtStyle = () => {
                     className="w-full h-full object-cover"
                   />
                 </div>
-
-                {/* Product info */}
-               
               </motion.div>
             ))}
           </div>
@@ -117,7 +124,7 @@ const KsauniTshirtStyle = () => {
           {/* Right Button */}
           <button
             onClick={() => scrollBy("right")}
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white shadow rounded-full hover:bg-gray-100"
+            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-white shadow rounded-full hover:bg-gray-100"
             aria-label="Scroll Right"
           >
             <ChevronRight className="w-6 h-6 text-gray-600" />
