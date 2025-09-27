@@ -61,13 +61,13 @@ const KsauniTshirtStyle = () => {
   if (!tshirts.length) return null
 
   return (
-    <section className="relative w-full mt-4 px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16 3xl:px-24">
+    <div>
+   {/* <div className="relative w-full mt-4 px-2 sm:px-4 md:px-4 lg:px-6 xl:px-8 2xl:px-10 3xl:px-12"> */}
       {/* Main Container */}
       <div
-        className="relative overflow-hidden rounded-2xl shadow-lg w-full mx-auto bg-white"
+        className="rounded-2xl w-full mx-auto mt-2"
         style={{
-          border: "2px solid #e5e7eb", // subtle border like PromoBanners
-          maxWidth: "1800px", // keeps alignment on ultra-wide screens
+          maxWidth: "1400px", // keeps alignment on ultra-wide screens
         }}
       >
         {/* Carousel Wrapper */}
@@ -85,7 +85,7 @@ const KsauniTshirtStyle = () => {
           <div
             ref={carouselRef}
             onScroll={handleScroll}
-            className="flex overflow-x-auto gap-3 pb-6 scrollbar-hide -mx-3 px-3 scroll-smooth"
+            className="flex overflow-x-auto gap-1 pb-1 scrollbar-hide -mx-2 px-2 scroll-smooth"
           >
             {tshirts.map((tshirt, index) => (
               <motion.div
@@ -97,8 +97,7 @@ const KsauniTshirtStyle = () => {
                 onClick={handleRedirect}
                 className="
                   flex-shrink-0
-                  border border-gray-300 hover:border-gray-600
-                  rounded-xl bg-white overflow-hidden shadow-md
+                  rounded-xl overflow-hidden
                   transition-all duration-200 cursor-pointer
                   w-1/2    /* Mobile: 2 items */
                   sm:w-1/2 /* Small tablets: 2 items */
@@ -110,7 +109,7 @@ const KsauniTshirtStyle = () => {
                 "
               >
                 {/* Image container */}
-                <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden">
+                <div className="w-full aspect-[3/4] rounded-xl overflow-hidden">
                   <img
                     src={tshirt.image?.url || "/placeholder.svg"}
                     alt={tshirt.image?.alt || tshirt.name}
@@ -124,14 +123,14 @@ const KsauniTshirtStyle = () => {
           {/* Right Button */}
           <button
             onClick={() => scrollBy("right")}
-            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-white shadow rounded-full hover:bg-gray-100"
+            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-white shadow rounded-full"
             aria-label="Scroll Right"
           >
             <ChevronRight className="w-6 h-6 text-gray-600" />
           </button>
         </div>
       </div>
-    </section>
+    </div>
   )
 }
 

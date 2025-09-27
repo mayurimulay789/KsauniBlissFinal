@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { ChevronLeft, ChevronRight, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+
 const HeroBanner = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -11,16 +12,19 @@ const HeroBanner = () => {
   const carouselRef = useRef(null);
   const { heroBanners } = useSelector((state) => state.banners);
   const combinedBanners = heroBanners;
+
   // Mouse tracking for parallax effects
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const springConfig = { damping: 25, stiffness: 700 };
   const mouseXSpring = useSpring(mouseX, springConfig);
   const mouseYSpring = useSpring(mouseY, springConfig);
+
   // Scroll-based animations (disabled for spacing issues)
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 0]);
   const opacity = useTransform(scrollY, [0, 300], [1, 1]);
+
   useEffect(() => {
     if (heroBanners.length > 0 && isAutoPlaying) {
       const timer = setInterval(() => {
@@ -31,16 +35,19 @@ const HeroBanner = () => {
       return () => clearInterval(timer);
     }
   }, [heroBanners.length, isAutoPlaying, currentSlide]);
+
   const nextSlide = () => {
     const nextIndex = (currentSlide + 1) % heroBanners.length;
     setCurrentSlide(nextIndex);
     scrollToSlide(nextIndex);
   };
+
   const prevSlide = () => {
     const prevIndex = (currentSlide - 1 + heroBanners.length) % heroBanners.length;
     setCurrentSlide(prevIndex);
     scrollToSlide(prevIndex);
   };
+
   // Scroll carousel to the slide at index
   const scrollToSlide = (index) => {
     if (carouselRef.current) {
@@ -56,9 +63,18 @@ const HeroBanner = () => {
       });
     }
   };
+
+  // Handle banner click navigation
+  const handleBannerClick = (banner) => {
+    if (banner.bannerLink) {
+      window.open(banner.bannerLink, "_self");
+    }
+  };
+
   const toggleAutoPlay = () => {
     setIsAutoPlaying(!isAutoPlaying);
   };
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -70,6 +86,7 @@ const HeroBanner = () => {
       },
     },
   };
+
   const textVariants = {
     hidden: { y: 50, opacity: 0 },
     visible: (delay) => ({
@@ -82,6 +99,7 @@ const HeroBanner = () => {
       },
     }),
   };
+
   const buttonVariants = {
     hidden: { scale: 0.8, opacity: 0 },
     visible: {
@@ -96,6 +114,7 @@ const HeroBanner = () => {
     hover: { scale: 1.05, transition: { duration: 0.3 } },
     tap: { scale: 0.95 },
   };
+
   // Fallback UI if no banners are available
   if (!heroBanners.length) {
     return (
@@ -150,6 +169,7 @@ const HeroBanner = () => {
       </motion.div>
     );
   }
+
   return (
     <div
       ref={containerRef}
@@ -208,6 +228,7 @@ const HeroBanner = () => {
                   onClick={() => {
                     setCurrentSlide(index);
                     scrollToSlide(index);
+                    handleBannerClick(banner);
                   }}
                   style={{ scrollSnapAlign: "center" }}
                 >

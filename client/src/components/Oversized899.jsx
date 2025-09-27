@@ -18,7 +18,11 @@ export default function Oversized899() {
 
   useEffect(() => {
     if (oversizedProducts && oversizedProducts.length > 0) {
-      setProductsToShow(oversizedProducts);
+      // Filter out duplicate products based on name
+      const uniqueProducts = oversizedProducts.filter((product, index, self) =>
+        index === self.findIndex((p) => p.name === product.name)
+      );
+      setProductsToShow(uniqueProducts);
     }
   }, [oversizedProducts]);
 
