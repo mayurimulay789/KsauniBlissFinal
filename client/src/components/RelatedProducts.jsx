@@ -169,7 +169,7 @@ const RelatedProducts = ({ currentProduct }) => {
 
                   {/* Rating Badge */}
                   {product.rating && product.rating.average > 0 && (
-                    <div className="absolute bottom-2 right-2 flex items-center bg-white/90 px-2 py-1 rounded-full shadow-xs border border-gray-200">
+                    <div className="absolute bottom-2 right-2 flex items-center bg-red-100 px-2 py-1 rounded-full shadow-xs border border-gray-200">
                       <Star className="w-3 h-3 text-yellow-400 fill-current mr-1" />
                       <span className="text-xs font-medium text-gray-800">
                         {product.rating.average.toFixed(1)}

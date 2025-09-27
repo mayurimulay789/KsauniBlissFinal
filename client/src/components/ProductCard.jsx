@@ -32,7 +32,7 @@ const ProductCard = ({ product, wishlistItems, user, onAddToCart, onWishlist }) 
         
         {/* Rating Badge */}
         {(product.rating?.average ?? 0) > 0 && (
-          <div className="absolute flex items-center px-2 py-1 border border-gray-200 rounded-full shadow-xs bottom-2 right-2 bg-white/90">
+          <div className="absolute flex items-center px-2 py-1 border border-gray-200 rounded-full shadow-xs bottom-2 right-2 bg-red-100">
             <Star className="w-3 h-3 mr-1 text-yellow-400 fill-current" />
             <span className="text-xs font-medium text-gray-800">
               {product.rating.average.toFixed(1)}
