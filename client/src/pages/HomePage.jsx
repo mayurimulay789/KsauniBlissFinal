@@ -34,23 +34,23 @@ import { fetchPopupSetting } from "../store/slices/popupSlice";
 
 const HomePage = () => {
   const dispatch = useDispatch();
-  
+
   // Get necessary slices of state with safe defaults
   const {
     trendingProducts = [],
     newArrivals = [],
     oversizedProducts = [], // Add default value
   } = useSelector((state) => state.products) || {};
-  
+
   const { categories = [] } = useSelector((state) => state.categories) || {};
-  const { 
-    heroBanners = [], 
-    promoBanners = [], 
-    categoryBanners = [] 
+  const {
+    heroBanners = [],
+    promoBanners = [],
+    categoryBanners = []
   } = useSelector((state) => state.banners) || {};
-  
+
   const { showSalePopup, popupBanners = [] } = useSelector((state) => state.popup) || {};
-  
+
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupBanner, setPopupBanner] = useState(null);
 
@@ -128,25 +128,30 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <PromoBanners />
-      <FlatDiscount/>
+      <FlatDiscount />
       <HeroBanner />
       <KsauniTshirtStyle />
-      <PriceSelection/>
+      <PriceSelection />
       <FeaturedCategories />
       <TrendingProducts />
+
       {/* <TopPicksShowcase/> */}
+
       <FandomShop />
       <NewArrivals />
       <Oversized899 />
       <InnovationList />
-      
+
       {/* Brand of India Banner - moved to last position before footer */}
-      <div className="mx-auto max-w-7xl w-full">
+      <div className="mx-auto w-full max-w-md sm:max-w-lg md:max-w-3xl lg:max-w-5xl xl:max-w-7xl 2xl:max-w-screen-2xl">
         <div className="my-8 bg-red-600">
-          <BrandIndia/>
+          <BrandIndia />
         </div>
       </div>
-      
+
+
+
+
       {popupVisible && popupBanner && (
         <Popup
           banner={popupBanner}

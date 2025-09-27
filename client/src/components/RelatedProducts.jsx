@@ -157,7 +157,9 @@ const RelatedProducts = ({ currentProduct }) => {
               >
                 {/* Product Image */}
                 <div className="relative aspect-[4/4] overflow-hidden">
-                  <Link to={`/product/${product._id}`}>
+                  {/* <Link to={`/product/${product._id}`}> */}
+                  <Link to={`/product/${product.slug}`}>
+
                     <img
                       src={product.images?.[0]?.url || "/placeholder.svg"}
                       alt={product.name}
@@ -196,7 +198,8 @@ const RelatedProducts = ({ currentProduct }) => {
 
                 {/* Product Details */}
                 <div className="px-3 pt-2">
-                  <Link to={`/product/${product._id}`}>
+                  {/* <Link to={`/product/${product._id}`}> */}
+                  <Link to={`/product/${product.slug}`}>
                     <h3 className="mb-1 text-sm font-medium text-gray-800 line-clamp-2 sm:text-base">
                       {product.brand}
                     </h3>
