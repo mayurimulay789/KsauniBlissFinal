@@ -897,8 +897,8 @@ const { id, slug } = useParams()
                     </table>
                   </div>
                   <div className="mt-6 bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-blue-800 mb-2">How to measure</h4>
-                    <ul className="space-y-2 text-sm text-blue-700">
+                    <h4 className="font-medium text-red-800 mb-2">How to measure</h4>
+                    <ul className="space-y-2 text-sm text-red-700">
                       <li className="flex items-start">
                         <span className="mr-2">•</span>
                         <span>Chest: Measure around the fullest part of your chest</span>

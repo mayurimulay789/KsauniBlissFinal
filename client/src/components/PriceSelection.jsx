@@ -11,7 +11,7 @@ const PriceSelection = ({ selectedPrice }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const priceOptions = [
-    { id: "under549", label: "UNDER", sublabel: "₹549", value: 549 },
+    { id: "under649", label: "UNDER", sublabel: "₹649", value: 649 },
     { id: "under799", label: "UNDER", sublabel: "₹799", value: 799 },
     { id: "under999", label: "UNDER", sublabel: "₹999", value: 999 },
     { id: "under1499", label: "UNDER", sublabel: "₹1499", value: 1499 },

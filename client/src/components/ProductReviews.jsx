@@ -119,9 +119,9 @@ const ProductReviews = ({ productId }) => {
           <Star
             className={`${size} transition-colors ${
               star <= rating
-                ? "text-amber-400 fill-amber-400"
+                ? "text-red-400 fill-red-400"
                 : interactive
-                ? "text-gray-300 hover:text-amber-200"
+                ? "text-gray-300 hover:text-red-200"
                 : "text-gray-300"
             }`}
           />
@@ -141,11 +141,11 @@ const ProductReviews = ({ productId }) => {
             <div key={rating} className="flex items-center gap-2">
               <div className="flex items-center gap-1 min-w-[40px]">
                 <span className="text-sm font-medium text-gray-700">{rating}</span>
-                <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                <Star className="w-3 h-3 text-red-400 fill-red-400" />
               </div>
               <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full"
+                  className="h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full"
                   style={{ width: `${percentage}%` }}
                 />
               </div>
@@ -173,7 +173,7 @@ const ProductReviews = ({ productId }) => {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
           <span className="text-sm text-gray-600">Loading reviews...</span>
         </div>
       </div>
@@ -187,7 +187,7 @@ const ProductReviews = ({ productId }) => {
         <div className="flex flex-col sm:flex-row items-center gap-4">
           {/* Overall Rating */}
           <div className="flex items-center gap-3">
-            <div className="text-4xl font-bold bg-gradient-to-r from-amber-500 to-amber-600 bg-clip-text text-transparent">
+            <div className="text-4xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
               {reviewStats.averageRating.toFixed(1)}
             </div>
             <div className="space-y-1">
@@ -242,7 +242,7 @@ const ProductReviews = ({ productId }) => {
                 type="text"
                 value={reviewForm.title}
                 onChange={(e) => setReviewForm({ ...reviewForm, title: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 placeholder="Summarize your experience..."
                 required
               />
@@ -255,7 +255,7 @@ const ProductReviews = ({ productId }) => {
                 value={reviewForm.comment}
                 onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
                 placeholder="Share your detailed experience..."
                 required
               />
@@ -326,7 +326,7 @@ const ProductReviews = ({ productId }) => {
 
             <button
               type="submit"
-              className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all text-sm font-semibold shadow-sm"
+              className="w-full py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all text-sm font-semibold shadow-sm"
             >
               Submit Review
             </button>
@@ -351,7 +351,7 @@ const ProductReviews = ({ productId }) => {
                 {/* Review Header */}
                 <div className="flex items-start justify-between p-3 border-b border-gray-200">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                    <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
                       {review.user?.name?.charAt(0) || "U"}
                     </div>
                     <div>
@@ -366,7 +366,7 @@ const ProductReviews = ({ productId }) => {
                   </div>
                   {/* <button
                     onClick={() => handleLikeReview(review._id)}
-                    className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                   >
                     <ThumbsUp className="w-3 h-3" />
                     {review.likes?.length || 0}
@@ -383,7 +383,7 @@ const ProductReviews = ({ productId }) => {
                     {review.comment.length > 100 && (
                       <button
                         onClick={() => toggleReviewExpansion(review._id)}
-                        className="text-xs text-blue-600 hover:text-blue-800 mt-1 flex items-center"
+                        className="text-xs text-red-600 hover:text-red-800 mt-1 flex items-center"
                       >
                         {expandedReviews[review._id] ? (
                           "Show less"
@@ -447,7 +447,7 @@ const ProductReviews = ({ productId }) => {
               <div className="flex justify-center pt-4">
                 <button
                   onClick={() => setShowAllReviews(!showAllReviews)}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-sm"
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-medium shadow-sm"
                 >
                   {showAllReviews ? (
                     <>
