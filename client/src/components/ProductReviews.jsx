@@ -119,7 +119,7 @@ const ProductReviews = ({ productId }) => {
           <Star
             className={`${size} transition-colors ${
               star <= rating
-                ? "text-red-400 fill-red-400"
+                ? "text-yellow-400 fill-yellow-400"
                 : interactive
                 ? "text-gray-300 hover:text-red-200"
                 : "text-gray-300"
@@ -141,7 +141,7 @@ const ProductReviews = ({ productId }) => {
             <div key={rating} className="flex items-center gap-2">
               <div className="flex items-center gap-1 min-w-[40px]">
                 <span className="text-sm font-medium text-gray-700">{rating}</span>
-                <Star className="w-3 h-3 text-red-400 fill-red-400" />
+                <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
               </div>
               <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
@@ -339,7 +339,7 @@ const ProductReviews = ({ productId }) => {
         {currentProductReviews.length === 0 ? (
           <div className="text-center py-6 bg-gray-50 rounded-lg">
             <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Star className="w-5 h-5 text-gray-400" />
+              <Star className="w-5 h-5 text-gray-400 bg-yellow-400" />
             </div>
             <p className="text-gray-500 text-sm">No reviews yet</p>
             <p className="text-gray-400 text-xs mt-1">Be the first to share your experience!</p>
