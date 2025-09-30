@@ -85,7 +85,7 @@ const KsauniTshirtStyle = () => {
           <div
             ref={carouselRef}
             onScroll={handleScroll}
-            className="flex overflow-x-auto gap-3 pb-6 scrollbar-hide -mx-3 px-3 scroll-smooth"
+            className="flex overflow-x-auto gap-3  scrollbar-hide -mx-3 px-3 scroll-smooth"
           >
             {tshirts.map((tshirt, index) => (
               <motion.div

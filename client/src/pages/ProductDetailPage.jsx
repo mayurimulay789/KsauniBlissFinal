@@ -83,17 +83,22 @@ const { id, slug } = useParams()
       if (currentProduct.colors?.length > 0) setSelectedColor(currentProduct.colors[0].name)
     }
   }, [currentProduct])
+
+
   const getDiscountPercentage = () => {
     if (currentProduct?.originalPrice && currentProduct.originalPrice > currentProduct.price) {
       return Math.round(((currentProduct.originalPrice - currentProduct.price) / currentProduct.originalPrice) * 100)
     }
     return 0
   }
+
   const getSelectedSizeStock = () => {
     if (!selectedSize || !currentProduct?.sizes) return currentProduct?.stock || 0
     const sizeData = currentProduct.sizes.find((s) => s.size === selectedSize)
     return sizeData?.stock || 0
   }
+
+
   const tagText =
     (Array.isArray(currentProduct?.tags) && currentProduct.tags[0]) ||
     (currentProduct?.isTrending && "TRENDING") ||
@@ -316,7 +321,7 @@ const { id, slug } = useParams()
   if (error || !currentProduct)
     return (
       <div className="text-center">
-        <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+        {/* <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" /> */}
         
        {/* <Preloader/> */}
       </div>

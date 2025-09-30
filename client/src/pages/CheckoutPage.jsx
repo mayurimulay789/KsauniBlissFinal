@@ -73,6 +73,37 @@ const CheckoutPage = () => {
     savingsAmount: 0,
   })
 
+  // Fix for mobile zoom issue - prevent initial zoom
+  useEffect(() => {
+    // Reset viewport scale
+    const viewport = document.querySelector('meta[name="viewport"]')
+    if (viewport) {
+      viewport.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes')
+    }
+
+    // Force minimum font size for inputs to prevent zoom
+    const checkFontSize = () => {
+      const inputs = document.querySelectorAll('input, select, textarea')
+      inputs.forEach(input => {
+        const computedStyle = window.getComputedStyle(input)
+        const fontSize = parseFloat(computedStyle.fontSize)
+        if (fontSize < 16) {
+          input.style.fontSize = '16px'
+        }
+      })
+    }
+
+    // Check after a small delay to ensure styles are applied
+    setTimeout(checkFontSize, 100)
+
+    return () => {
+      // Restore original viewport if needed
+      if (viewport) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1')
+      }
+    }
+  }, [])
+
   useEffect(() => {
     // Close existing instance if any
     // Clear any existing order state when checkout page loads
@@ -167,13 +198,7 @@ const CheckoutPage = () => {
   }, [cartSummary.subtotal, selectedShippingRate, appliedCoupon])
 
   const handlePlaceOrder = useCallback(() => {
-    // console.log("user",user)
-    // if (Object.keys(user).length === 0) {
-    //   navigate("/login", { state: { from: window.location.pathname } })
-    //   toast.error("Please login to place order")
-    //   return
-    // }
-    console.log("calling on;ine order ")
+    console.log("calling online order ")
     if (rzpInstanceRef.current) {
       rzpInstanceRef.current.close()
       rzpInstanceRef.current = null
@@ -207,12 +232,6 @@ const CheckoutPage = () => {
 
   const handlePlaceCodOrder = useCallback(() => {
     console.log("calling cod order ")
-    // console.log("user",user)
-    // if (Object.keys(user).length === 0) {
-    //       navigate("/login", { state: { from: window.location.pathname } })
-    //       toast.error("Please login to place order")
-    //       return
-    //     }
     if (rzpInstanceRef.current) {
       rzpInstanceRef.current.close()
       rzpInstanceRef.current = null
@@ -285,11 +304,6 @@ const CheckoutPage = () => {
       },
       modal: {
         ondismiss: () => {
-          // if (rzpInstanceRef.current) {
-          //   rzpInstanceRef.current.close();
-          //   rzpInstanceRef.current = null;
-          // }
-          // dispatch(clearSuccess());
           console.log("closing razorpay")
           rzpInstanceRef.current = null
           window.location.reload()
@@ -303,7 +317,7 @@ const CheckoutPage = () => {
       console.error("Razorpay SDK not loaded")
       alert("Payment gateway not available. Please try again.")
     }
-  }, [razorpayOrder, shippingAddress, user, dispatch, navigate, clearSuccess])
+  }, [razorpayOrder, shippingAddress, user, dispatch, navigate])
 
   const handleShippingRateSelect = useCallback((rate) => {
     setSelectedShippingRate(rate)
@@ -347,26 +361,9 @@ const CheckoutPage = () => {
     }
   }, [couponError, dispatch])
 
-  // Auto-calculate shipping rates when pincode is entered
-  // useEffect(() => {
-  //   if (shippingAddress.pinCode.length === 6 && cartItems.length > 0) {
-  //     const totalWeight = cartItems.reduce(
-  //       (weight, item) => weight + item.quantity * 0.5,
-  //       0.5
-  //     );
-  //     dispatch(
-  //       getShippingRates({
-  //         deliveryPincode: shippingAddress.pinCode,
-  //         weight: totalWeight,
-  //         cod: 0,
-  //       })
-  //     );
-  //   }
-  // }, [shippingAddress.pinCode, cartItems, dispatch]);
-
   if (!cartItems.length && !orderLoading.creating) {
     return (
-      <div className="flex items-center justify-center min-h-screen px-4">
+      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4 safe-area-bottom">
         <div className="max-w-md mx-auto text-center">
           <ShoppingBag className="w-12 h-12 mx-auto mb-4 text-gray-400 xs:w-16 xs:h-16" />
           <h2 className="mb-2 text-xl font-bold text-gray-800 xs:text-2xl">Your cart is empty</h2>
@@ -383,63 +380,87 @@ const CheckoutPage = () => {
       </div>
     )
   }
+
   console.log("Order Error:", orderError)
   console.log("Coupon Error:", couponError)
+  
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {" "}
-      {/* Added bottom padding for fixed button */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 xs:py-6 lg:py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-50 pb-24 md:pb-20 safe-area-bottom prevent-zoom">
+      {/* Added prevent-zoom class */}
+      <style jsx>{`
+        .prevent-zoom {
+          font-size: 16px; /* Base font size to prevent zoom */
+        }
+        .prevent-zoom input, 
+        .prevent-zoom select, 
+        .prevent-zoom textarea {
+          font-size: 16px !important; /* Force 16px to prevent zoom on focus */
+          min-height: 44px; /* Minimum touch target size */
+        }
+        @media (max-width: 640px) {
+          .prevent-zoom {
+            touch-action: pan-y pinch-zoom; /* Better touch handling */
+          }
+        }
+      `}</style>
+
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 xs:py-6 lg:py-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          className="max-w-6xl mx-auto"
+        >
           {/* Header - Responsive */}
-          <div className="mb-6 text-center xs:mb-8 sm:text-left">
-            <h1 className="mb-2 text-2xl font-bold text-gray-800 xs:text-3xl">Checkout</h1>
-            <p className="text-sm text-gray-600 xs:text-base">Review your order and complete your purchase</p>
+          <div className="mb-4 xs:mb-6 sm:mb-8 text-center sm:text-left">
+            <h1 className="mb-1 xs:mb-2 text-xl xs:text-2xl font-bold text-gray-800">Checkout</h1>
+            <p className="text-xs xs:text-sm text-gray-600">Review your order and complete your purchase</p>
           </div>
+          
           {/* Error Display - Responsive */}
           {(orderError || couponError) && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="px-3 py-3 mb-4 text-sm text-red-700 border border-red-200 rounded-lg xs:px-4 xs:mb-6 xs:text-base bg-red-50"
+              className="px-3 py-2 xs:py-3 mb-3 xs:mb-4 text-xs xs:text-sm border border-red-200 rounded-lg bg-red-50 text-red-700"
             >
               {orderError || couponError}
             </motion.div>
           )}
-          <div className="grid gap-4 xs:gap-6 lg:gap-8 lg:grid-cols-3">
+          
+          <div className="grid gap-3 xs:gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-3">
             {/* Left Column - Forms - Responsive */}
-            <div className="space-y-4 xs:space-y-6 lg:col-span-2">
+            <div className="space-y-3 xs:space-y-4 sm:space-y-6 lg:col-span-2">
               {/* Shipping Address - Responsive */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
-                className="p-4 bg-white rounded-xl shadow-md xs:p-6"
+                className="p-3 xs:p-4 sm:p-6 bg-white rounded-xl shadow-sm xs:shadow-md"
               >
-                <div className="flex items-center mb-4">
+                <div className="flex items-center mb-3 xs:mb-4">
                   <MapPin className="w-4 h-4 mr-2 text-red-600 xs:w-5 xs:h-5" />
-                  <h2 className="text-lg font-semibold xs:text-xl">Shipping Address</h2>
+                  <h2 className="text-base xs:text-lg font-semibold">Shipping Address</h2>
                 </div>
-                <div className="grid gap-3 xs:gap-4 sm:grid-cols-2">
+                <div className="grid gap-2 xs:gap-3 sm:gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">Full Name *</label>
+                    <label className="block mb-1 text-xs xs:text-sm font-medium text-gray-700">Full Name *</label>
                     <input
                       type="text"
                       value={shippingAddress.fullName}
                       onChange={(e) => handleAddressChange("fullName", e.target.value)}
-                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full px-3 py-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.fullName ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="Enter your full name"
                     />
                     {addressErrors.fullName && (
-                      <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.fullName}</p>
+                      <p className="mt-1 text-xs text-red-500">{addressErrors.fullName}</p>
                     )}
                   </div>
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">Phone Number *</label>
+                    <label className="block mb-1 text-xs xs:text-sm font-medium text-gray-700">Phone Number *</label>
                     <div className="flex">
-                      <span className="inline-flex items-center px-2 text-xs text-gray-500 border border-r-0 border-gray-300 rounded-l-xl xs:px-3 xs:text-sm bg-gray-50">
+                      <span className="inline-flex items-center px-3 py-3 text-base border border-r-0 border-gray-300 rounded-l-lg bg-gray-50 text-gray-500">
                         +91
                       </span>
                       <input
@@ -448,82 +469,78 @@ const CheckoutPage = () => {
                         onChange={(e) =>
                           handleAddressChange("phoneNumber", e.target.value.replace(/\D/g, "").slice(0, 10))
                         }
-                        className={`w-full px-3 py-2 text-sm xs:text-base border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
-                          addressErrors.phoneNumber ? "border-red-500" : "border-gray-300"
+                        className={`w-full px-3 py-3 text-base border rounded-r-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                          addressErrors.phoneNumber ? "border-red-500 border-l-0" : "border-gray-300 border-l-0"
                         }`}
-                        placeholder="Enter 10-digit mobile number"
+                        placeholder="10-digit mobile number"
                       />
                     </div>
                     {addressErrors.phoneNumber && (
-                      <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.phoneNumber}</p>
+                      <p className="mt-1 text-xs text-red-500">{addressErrors.phoneNumber}</p>
                     )}
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">Address Line 1 *</label>
+                    <label className="block mb-1 text-xs xs:text-sm font-medium text-gray-700">Address Line 1 *</label>
                     <input
                       type="text"
                       value={shippingAddress.addressLine1}
                       onChange={(e) => handleAddressChange("addressLine1", e.target.value)}
-                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full px-3 py-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.addressLine1 ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="House/Flat No., Building Name, Street"
                     />
                     {addressErrors.addressLine1 && (
-                      <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.addressLine1}</p>
+                      <p className="mt-1 text-xs text-red-500">{addressErrors.addressLine1}</p>
                     )}
                   </div>
 
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">City *</label>
+                    <label className="block mb-1 text-xs xs:text-sm font-medium text-gray-700">City *</label>
                     <input
                       type="text"
                       value={shippingAddress.city}
                       onChange={(e) => handleAddressChange("city", e.target.value)}
-                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full px-3 py-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.city ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="Enter your city"
                     />
-                    {addressErrors.city && <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.city}</p>}
+                    {addressErrors.city && <p className="mt-1 text-xs text-red-500">{addressErrors.city}</p>}
                   </div>
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">State *</label>
+                    <label className="block mb-1 text-xs xs:text-sm font-medium text-gray-700">State *</label>
                     <input
                       type="text"
                       value={shippingAddress.state}
                       onChange={(e) => handleAddressChange("state", e.target.value)}
-                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full px-3 py-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.state ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="Enter your state"
                     />
-                    {addressErrors.state && (
-                      <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.state}</p>
-                    )}
+                    {addressErrors.state && <p className="mt-1 text-xs text-red-500">{addressErrors.state}</p>}
                   </div>
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">PIN Code *</label>
+                    <label className="block mb-1 text-xs xs:text-sm font-medium text-gray-700">PIN Code *</label>
                     <input
                       type="text"
                       value={shippingAddress.pinCode}
                       onChange={(e) => handleAddressChange("pinCode", e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      className={`w-full px-3 py-2 text-sm xs:text-base border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full px-3 py-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.pinCode ? "border-red-500" : "border-gray-300"
                       }`}
-                      placeholder="Enter 6-digit PIN code"
+                      placeholder="6-digit PIN code"
                     />
-                    {addressErrors.pinCode && (
-                      <p className="mt-1 text-xs text-red-500 xs:text-sm">{addressErrors.pinCode}</p>
-                    )}
+                    {addressErrors.pinCode && <p className="mt-1 text-xs text-red-500">{addressErrors.pinCode}</p>}
                   </div>
                   <div className="sm:col-span-1">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">Landmark</label>
+                    <label className="block mb-1 text-xs xs:text-sm font-medium text-gray-700">Landmark</label>
                     <input
                       type="text"
                       value={shippingAddress.landmark}
                       onChange={(e) => handleAddressChange("landmark", e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl xs:text-base focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className="w-full px-3 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                       placeholder="Nearby landmark (Optional)"
                     />
                   </div>
@@ -535,17 +552,17 @@ const CheckoutPage = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
-                className="p-4 bg-white rounded-xl shadow-md xs:p-6"
+                className="p-3 xs:p-4 sm:p-6 bg-white rounded-xl shadow-sm xs:shadow-md"
               >
-                <div className="flex items-center mb-4">
+                <div className="flex items-center mb-3 xs:mb-4">
                   <Tag className="w-4 h-4 mr-2 text-red-600 xs:w-5 xs:h-5" />
-                  <h2 className="text-lg font-semibold xs:text-xl">Promo Code</h2>
+                  <h2 className="text-base xs:text-lg font-semibold">Promo Code</h2>
                 </div>
                 {appliedCoupon ? (
-                  <div className="flex flex-col justify-between p-3 space-y-2 border border-green-200 rounded-xl xs:flex-row xs:items-center xs:p-4 bg-green-50 xs:space-y-0">
+                  <div className="flex flex-col justify-between p-3 space-y-2 border border-green-200 rounded-lg xs:flex-row xs:items-center bg-green-50 xs:space-y-0">
                     <div>
-                      <p className="text-sm font-medium text-green-800 xs:text-base">{appliedCoupon.code}</p>
-                      <p className="text-xs text-green-600 xs:text-sm">You saved ₹{appliedCoupon.discountAmount}!</p>
+                      <p className="text-sm font-medium text-green-800">{appliedCoupon.code}</p>
+                      <p className="text-xs text-green-600">You saved ₹{appliedCoupon.discountAmount}!</p>
                     </div>
                     <button
                       onClick={handleRemoveCoupon}
@@ -555,12 +572,12 @@ const CheckoutPage = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="p-4 bg-white border rounded-xl">
+                  <div className="p-3 xs:p-4 bg-white border rounded-lg">
                     {/* Header / Toggle */}
                     {!showCouponInput ? (
                       <button
                         onClick={() => setShowCouponInput(true)}
-                        className="text-sm font-medium text-red-600 xs:text-base hover:text-red-700"
+                        className="text-sm font-medium text-red-600 hover:text-red-700"
                       >
                         Have a promo code? Click here to apply
                       </button>
@@ -571,20 +588,20 @@ const CheckoutPage = () => {
                           value={couponCode}
                           onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                           placeholder="Enter promo code"
-                          className="flex-1 px-3 py-2 text-sm border border-xl rounded-xl outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                          className="flex-1 px-3 py-3 text-base border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={handleApplyCoupon}
                             disabled={!couponCode.trim() || couponLoading?.validating}
-                            className="px-4 py-2 text-sm font-semibold text-white rounded-xl bg-red-600 disabled:opacity-50 border-xl"
+                            className="px-3 xs:px-4 py-3 text-sm font-semibold text-white bg-red-600 rounded-lg disabled:opacity-50 hover:bg-red-700"
                           >
                             {couponLoading?.validating ? "Applying..." : "Apply"}
                           </button>
                           {appliedCoupon && (
                             <button
                               onClick={handleRemoveCoupon}
-                              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 border-xl"
+                              className="px-3 xs:px-4 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
                             >
                               Remove
                             </button>
@@ -596,17 +613,20 @@ const CheckoutPage = () => {
                     <div className="mt-3 space-y-2">
                       <div className="text-sm font-semibold text-gray-700">Available Coupons</div>
                       {availableCoupons.length === 0 ? (
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>No active coupons right now. (To View Coupons please login)</span>
+                        <div className="flex flex-col xs:flex-row xs:items-center justify-between text-xs text-gray-500">
+                          <span className="mb-2 xs:mb-0">No active coupons right now. (To View Coupons please login)</span>
                           <button
-                            onClick={() => navigate("/login")}
-                            className="ml-3 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700"
+                            // onClick={() => navigate("/login")}
+                             onClick={() => navigate("/login", {
+                              state: { from: "/checkout" }
+                            })}
+                            className="px-3 py-2 text-xs font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700"
                           >
                             Login
                           </button>
                         </div>
                       ) : (
-                        <div className="space-y-2">
+                        <div className="space-y-2 max-h-40 overflow-y-auto">
                           {availableCoupons.map((c) => {
                             const subtotal = cartSummary?.subtotal || 0
                             const min = c.minOrderValue || 0
@@ -615,7 +635,7 @@ const CheckoutPage = () => {
                             return (
                               <div
                                 key={c.code}
-                                className="flex items-center justify-between p-2 border border-xl rounded-xl"
+                                className="flex items-center justify-between p-2 border border-gray-200 rounded-lg"
                               >
                                 <div className="flex flex-col">
                                   <span className="text-sm font-mono font-semibold">{c.code}</span>
@@ -623,7 +643,7 @@ const CheckoutPage = () => {
                                   {min > 0 && <span className="text-xs text-gray-500">Min order: ₹{min}</span>}
                                 </div>
                                 <button
-                                  className="px-3 py-1 text-xs font-semibold text-white rounded-xl bg-red-600 disabled:opacity-50 border-xl"
+                                  className="px-2 xs:px-3 py-2 text-xs font-semibold text-white bg-red-600 rounded-lg disabled:opacity-50 hover:bg-red-700"
                                   disabled={!eligible}
                                   onClick={() => {
                                     setShowCouponInput(true)
@@ -649,16 +669,17 @@ const CheckoutPage = () => {
                 )}
               </motion.div>
             </div>
+            
             {/* Right Column - Order Summary - Responsive */}
             <div className="lg:col-span-1">
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="sticky p-4 bg-white rounded-xl shadow-md xs:p-6 top-4"
+                className="sticky p-3 xs:p-4 sm:p-6 bg-white rounded-xl shadow-sm xs:shadow-md top-4"
               >
-                <h2 className="mb-4 text-lg font-semibold xs:text-xl">Order Summary</h2>
+                <h2 className="mb-3 xs:mb-4 text-base xs:text-lg font-semibold">Order Summary</h2>
                 {/* Cart Items - Responsive */}
-                <div className="mb-1 space-y-3 xs:mb-4 xs:space-y-4">
+                <div className="mb-3 xs:mb-4 space-y-2 xs:space-y-3">
                   {cartItems.map((item, index) => (
                     <div key={index} className="flex items-center space-x-2 xs:space-x-3">
                       <img
@@ -666,27 +687,27 @@ const CheckoutPage = () => {
                           item.product?.images?.[0]?.url || "/placeholder.svg?height=64&width=64" || "/placeholder.svg"
                         }
                         alt={item.product?.name || "Product"}
-                        className="object-cover w-12 h-12 rounded-xl xs:w-16 xs:h-16"
+                        className="object-cover w-10 h-10 xs:w-12 xs:h-12 sm:w-16 sm:h-16 rounded-lg"
                       />
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-xs font-medium truncate xs:text-sm">
+                        <h3 className="text-xs xs:text-sm font-medium truncate">
                           {item.product?.name || "Product Name"}
                         </h3>
                         <p className="text-xs text-gray-600">
                           Size: {item.size || "M"} | Qty: {item.quantity || 1}
                         </p>
-                        <p className="text-xs font-semibold xs:text-sm">₹{item.product?.price || 0}</p>
+                        <p className="text-xs xs:text-sm font-semibold">₹{item.product?.price || 0}</p>
                       </div>
                     </div>
                   ))}
                 </div>
                 {/* Pricing Breakdown - Responsive */}
-                <div className="pt-4 space-y-2 border-t">
-                  <div className="flex justify-between text-sm">
+                <div className="pt-3 xs:pt-4 space-y-2 border-t border-gray-200">
+                  <div className="flex justify-between text-xs xs:text-sm">
                     <span>Subtotal ({cartSummary.totalItems || 0} items)</span>
                     <span>₹{calculateFinalPricing.subtotal}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs xs:text-sm">
                     <span>Shipping</span>
                     <span className={calculateFinalPricing.shippingCharges === 0 ? "text-green-600" : ""}>
                       {calculateFinalPricing.shippingCharges === 0
@@ -699,24 +720,24 @@ const CheckoutPage = () => {
                   )}
                   {calculateFinalPricing.shippingCharges === 0 && !selectedShippingRate && (
                     <div className="flex items-center text-xs text-green-600">
-                      <Truck className="w-3 h-3 mr-1 xs:w-4 xs:h-4" />
+                      <Truck className="w-3 h-3 mr-1" />
                       <span>Free shipping on orders above ₹399</span>
                     </div>
                   )}
                   {calculateFinalPricing.discount > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
+                    <div className="flex justify-between text-xs xs:text-sm text-green-600">
                       <span>Discount ({appliedCoupon?.code})</span>
                       <span>-₹{calculateFinalPricing.discount}</span>
                     </div>
                   )}
-                  <div className="flex justify-between pt-2 text-base font-semibold border-t xs:text-lg">
+                  <div className="flex justify-between pt-2 text-sm xs:text-base font-semibold border-t border-gray-200">
                     <span>Total</span>
                     <span>₹{calculateFinalPricing.total}</span>
                   </div>
                 </div>
                 {/* Security Badge - Responsive */}
-                <div className="flex items-center justify-center mt-4 text-xs text-gray-600">
-                  <Shield className="w-3 h-3 mr-1 xs:w-4 xs:h-4" />
+                <div className="flex items-center justify-center mt-3 xs:mt-4 text-xs text-gray-600">
+                  <Shield className="w-3 h-3 mr-1" />
                   <span>Secure checkout powered by Razorpay</span>
                 </div>
 
@@ -724,7 +745,7 @@ const CheckoutPage = () => {
                   <button
                     onClick={() => setShowModal(true)}
                     disabled={orderLoading.creating || !cartItems.length}
-                    className="flex items-center justify-center w-full py-3 text-base font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    className="flex items-center justify-center w-full py-3 text-base font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-colors"
                   >
                     {orderLoading.creating ? (
                       <>
@@ -744,12 +765,13 @@ const CheckoutPage = () => {
           </div>
         </motion.div>
 
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-50 md:hidden">
+        {/* Fixed Bottom Button for Mobile */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 xs:p-4 z-40 safe-area-bottom md:hidden">
           <div className="max-w-7xl mx-auto">
             <button
               onClick={() => setShowModal(true)}
               disabled={orderLoading.creating || !cartItems.length}
-              className="flex items-center justify-center w-full py-3 text-base font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="flex items-center justify-center w-full py-3 text-sm xs:text-base font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-colors"
             >
               {orderLoading.creating ? (
                 <>
@@ -758,13 +780,15 @@ const CheckoutPage = () => {
                 </>
               ) : (
                 <>
-                  <CreditCard className="w-5 h-5 mr-2" />
+                  <CreditCard className="w-4 h-4 xs:w-5 xs:h-5 mr-2" />
                   Confirm Order ₹{calculateFinalPricing.total}
                 </>
               )}
             </button>
           </div>
         </div>
+        
+        {/* Payment Modal */}
         {showModal && (
           <PaymentModal
             isOpen={showModal}
@@ -777,41 +801,43 @@ const CheckoutPage = () => {
             amount={calculateFinalPricing.total}
           />
         )}
+        
+        {/* Congratulations Popup */}
         {showCongratulationsPopup && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm safe-area-top safe-area-bottom">
             <motion.div
               initial={{ opacity: 0, scale: 0.8, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="relative w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl overflow-hidden"
+              className="relative w-full max-w-md p-4 xs:p-6 bg-white rounded-xl shadow-2xl overflow-hidden"
             >
               {/* Close button */}
               <button
                 onClick={() => setShowCongratulationsPopup(false)}
-                className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 transition-colors z-10 border-xl rounded-xl"
+                className="absolute top-2 right-2 xs:top-4 xs:right-4 p-1 text-gray-400 hover:text-gray-600 transition-colors z-10"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 xs:w-5 xs:h-5" />
               </button>
 
               {/* Celebration content */}
               <div className="text-center relative z-10">
                 {/* Celebration emoji/icon */}
-                <div className="mb-4">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full">
-                    <span className="text-3xl animate-bounce">🎉</span>
+                <div className="mb-3 xs:mb-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 xs:w-16 xs:h-16 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full">
+                    <span className="text-2xl xs:text-3xl animate-bounce">🎉</span>
                   </div>
                 </div>
 
                 {/* Main message */}
-                <h2 className="mb-2 text-2xl font-bold text-gray-900">Congratulations!</h2>
-                <p className="mb-4 text-gray-600">Your promo code has been applied successfully!</p>
+                <h2 className="mb-1 xs:mb-2 text-xl xs:text-2xl font-bold text-gray-900">Congratulations!</h2>
+                <p className="mb-3 xs:mb-4 text-sm xs:text-base text-gray-600">Your promo code has been applied successfully!</p>
 
                 {/* Savings details */}
-                <div className="p-4 mb-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-xl border-green-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-green-800">Code: {congratulationsData.couponCode}</span>
-                    <span className="text-lg font-bold text-green-600">₹{congratulationsData.savingsAmount} OFF</span>
+                <div className="p-3 xs:p-4 mb-4 xs:mb-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                  <div className="flex items-center justify-between mb-1 xs:mb-2">
+                    <span className="text-xs xs:text-sm font-medium text-green-800">Code: {congratulationsData.couponCode}</span>
+                    <span className="text-base xs:text-lg font-bold text-green-600">₹{congratulationsData.savingsAmount} OFF</span>
                   </div>
                   <p className="text-xs text-green-600">
                     You saved ₹{congratulationsData.savingsAmount} on your order!
@@ -821,29 +847,25 @@ const CheckoutPage = () => {
                 {/* Action button */}
                 <button
                   onClick={() => setShowCongratulationsPopup(false)}
-                  className="w-full px-6 py-3 text-white bg-gradient-to-r from-red-600 to-red-700 rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 font-semibold shadow-lg border-xl"
+                  className="w-full px-4 xs:px-6 py-2 xs:py-3 text-sm xs:text-base text-white bg-gradient-to-r from-red-600 to-red-700 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 font-semibold shadow-lg"
                 >
                   Continue Shopping
                 </button>
               </div>
 
               {/* Enhanced decorative elements with better positioning */}
-              <div className="absolute top-2 left-2 w-4 h-4 bg-yellow-400 rounded-full animate-bounce opacity-80"></div>
+              <div className="absolute top-1 left-1 xs:top-2 xs:left-2 w-3 h-3 xs:w-4 xs:h-4 bg-yellow-400 rounded-full animate-bounce opacity-80"></div>
               <div
-                className="absolute top-3 right-8 w-3 h-3 bg-red-400 rounded-full animate-bounce opacity-80"
+                className="absolute top-2 right-4 xs:top-3 xs:right-8 w-2 h-2 xs:w-3 xs:h-3 bg-red-400 rounded-full animate-bounce opacity-80"
                 style={{ animationDelay: "0.2s" }}
               ></div>
               <div
-                className="absolute bottom-8 left-4 w-3 h-3 bg-blue-400 rounded-full animate-bounce opacity-80"
+                className="absolute bottom-6 left-2 xs:bottom-8 xs:left-4 w-2 h-2 xs:w-3 xs:h-3 bg-blue-400 rounded-full animate-bounce opacity-80"
                 style={{ animationDelay: "0.4s" }}
               ></div>
               <div
-                className="absolute bottom-4 right-6 w-2 h-2 bg-purple-400 rounded-full animate-bounce opacity-80"
+                className="absolute bottom-3 right-4 xs:bottom-4 xs:right-6 w-1 h-1 xs:w-2 xs:h-2 bg-purple-400 rounded-full animate-bounce opacity-80"
                 style={{ animationDelay: "0.6s" }}
-              ></div>
-              <div
-                className="absolute top-1/2 left-1 w-2 h-2 bg-green-400 rounded-full animate-bounce opacity-80"
-                style={{ animationDelay: "0.8s" }}
               ></div>
             </motion.div>
           </div>

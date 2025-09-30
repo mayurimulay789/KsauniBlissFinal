@@ -2,9 +2,11 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategoryBanners } from "../store/slices/bannerSlice"; // ✅ Adjust this path as needed
+import { useNavigate } from "react-router-dom";
 
 const CategoryBanner = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   // Redux state
   const { categoryBanners, loadingCategory, error } = useSelector((state) => state.banners);
   // State for rotating banners
@@ -29,9 +31,13 @@ const CategoryBanner = () => {
   const handleBannerClick = () => {
     const current = categoryBanners[currentBanner];
     if (current?.bannerLink) {
-      window.open(current.bannerLink, "_blank"); // Opens in new tab
-      // Alternatively, use this to open in same tab:
-      // window.location.href = current.bannerLink;
+      // Check if it's an external URL or internal route
+      if (current?.bannerLink.startsWith('http') || current?.bannerLink.startsWith('www')) {
+        window.open(current?.bannerLink, "_self");
+      } else {
+        // Internal routes use React Router navigation
+        navigate(current?.bannerLink);
+      }
     }
   };
   
