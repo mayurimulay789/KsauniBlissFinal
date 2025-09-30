@@ -119,6 +119,10 @@ const Navbar = () => {
   desiredMobileCategoryNames.forEach((name) => {
     const foundCat = categories.find((cat) => cat.name === name)
     if (foundCat) {
+      //dont push ANIME T-SHIRT this naed category
+      if (foundCat.slug === "anime-t-shirt") return
+      // dont push Ksauni T-shirts Styles category
+      if (foundCat.slug === "ksauni-tshirts-styles") return
       categoriesForMobileScroll.push(foundCat)
     }
   })
@@ -126,6 +130,9 @@ const Navbar = () => {
     const existingNames = new Set(categoriesForMobileScroll.map((cat) => cat.name))
     categories.forEach((cat) => {
       if (!existingNames.has(cat.name) && categoriesForMobileScroll.length < 5) {
+          // dont push ANIME T-SHIRT and Ksauni T-shirts Styles this named category
+          if (cat.slug === "anime-t-shirt") return
+          if (cat.slug === "ksauni-tshirts-styles") return
         categoriesForMobileScroll.push(cat)
         existingNames.add(cat.name)
       }
@@ -139,6 +146,14 @@ const Navbar = () => {
   if (!categoriesForMobileScroll.some((cat) => cat.name === cydCategory.name)) {
     categoriesForMobileScroll.unshift(cydCategory)
   }
+
+// also unshift ANIME T-SHIRT and Ksauni T-shirts Styles if exists
+  // const excludedSlugs = ["anime-t-shirt", "ksauni-tshirts-styles"];
+  //   const filteredCategories = categoriesForMobileScroll.filter(cat => !excludedSlugs.includes(cat.slug));
+  //   filteredCategories.unshift(cydCategory)
+  //   categoriesForMobileScroll.length = 0
+  //   categoriesForMobileScroll.push(...filteredCategories)
+
   const isProductDetailPage = window.location.pathname.startsWith("/product/")
   const isCartPage = location.pathname === "/cart"
   return (
@@ -535,7 +550,7 @@ const Navbar = () => {
                   {/* Filtered Categories */}
                   {categories
                     .filter(cat => {
-                      const excludedSlugs = ["anime-t-shirt", "ksauni-tshirts-styles"];
+                      const excludedSlugs = ["anime-t-shirt", "ksauni-tshirts-styles","ksauni-tshirts-styles"];
                       return !excludedSlugs.includes(cat.slug);
                     })
                     .map((cat) => (
