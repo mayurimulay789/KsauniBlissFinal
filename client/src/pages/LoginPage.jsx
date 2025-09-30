@@ -65,18 +65,18 @@ const LoginPage = () => {
   const [invalidCredentials, setInvalidCredentials] = useState(false)
   const [invalidCredentialsMessage, setInvalidCredentialsMessage] = useState("")
 
+   const from = location.state?.from?.pathname || "/"
   // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      const from = location.state?.from?.pathname || "/"
-      navigate(from, { replace: true })
-    }
+   useEffect(() => {
+     if (isAuthenticated) {
+    const redirectTo = location.state?.from || "/";
+    navigate(redirectTo, { replace: true });
+  }
     // Cleanup reCAPTCHA when component unmounts
     return () => {
       cleanupRecaptcha()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, navigate, location])
+  }, [isAuthenticated, navigate, from,location,location.state?.from]) // Added 'from' to dependencies
 
   // Helpers: robust detection of 'invalid credentials' type errors from various forms of messages
   const isInvalidCredentialsError = (err) => {

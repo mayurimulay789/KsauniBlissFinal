@@ -3,9 +3,10 @@ import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { ChevronLeft, ChevronRight, Sparkles, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const HeroBanner = () => {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const containerRef = useRef(null);
@@ -67,8 +68,14 @@ const HeroBanner = () => {
   // Handle banner click navigation
   const handleBannerClick = (banner) => {
     if (banner.bannerLink) {
-      window.open(banner.bannerLink, "_self");
-    }
+// Check if it's an external URL or internal route
+if (banner.bannerLink.startsWith('http') || banner.bannerLink.startsWith('www')) {
+  window.open(banner.bannerLink, "_self");
+} else {
+  // Internal routes use React Router navigation
+  navigate(banner.bannerLink);
+}
+  }
   };
 
   const toggleAutoPlay = () => {
