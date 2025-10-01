@@ -13,7 +13,7 @@ RUN npm ci --production=false --no-audit --no-fund --legacy-peer-deps
 COPY . .
 
 # Set Node.js memory options and build the app with optimized config
-ENV NODE_OPTIONS="--max-old-space-size=1536"
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build:docker
 
 # Production stage with nginx
