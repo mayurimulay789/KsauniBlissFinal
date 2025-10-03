@@ -94,11 +94,9 @@ const CategoryBanner = () => {
           alt={current?.title || "Category promotional banner"}
           className="object-cover w-screen h-24 max-w-full transition-transform duration-500 sm:h-48 md:h-56 lg:h-64 group-hover:scale-105 rounded-2xl"
           onError={(e) => {
-            console.log("[v0] Image failed to load:", e.target.src);
             e.target.src = "/fallback-banner.png";
           }}
           onLoad={() => {
-            console.log("[v0] Image loaded successfully");
           }}
         />
         {categoryBanners.length > 1 && (

@@ -243,7 +243,6 @@ const getNewArrivals = async (req, res) => {
 
 //get only oversized products
 const getOversizedProducts = async (req, res) => {
-  console.log("getOversizedProducts called");
   try {
     const products = await Product.find({
       isActive: true,
@@ -381,22 +380,15 @@ const updateProduct = async (req, res) => {
     const { id } = req.params;
     let updateData = req.body;
 
-    console.log("=== PRODUCT UPDATE STARTED ===");
-    console.log("Product ID:", id);
-    console.log("Update data received:", JSON.stringify(updateData, null, 2));
-
     // Find the existing product
     const existingProduct = await Product.findById(id);
     if (!existingProduct) {
-      console.log("❌ Product not found");
       return res.status(404).json({ 
         success: false, 
         message: "Product not found" 
       });
     }
 
-    console.log("📋 Before update - Name:", `"${existingProduct.name}"`, "Slug:", existingProduct.slug);
-    console.log("🔄 Update data name:", `"${updateData.name}"`);
 
     // Prepare and clean update data
     updateData = prepareUpdateData(updateData, existingProduct);
@@ -406,14 +398,9 @@ const updateProduct = async (req, res) => {
     const newName = updateData.name ? updateData.name.trim() : "";
     const isNameActuallyChanged = newName && currentName !== newName;
 
-    console.log("🔍 Name change analysis:");
-    console.log("  - Current name:", `"${currentName}"`);
-    console.log("  - New name:", `"${newName}"`);
-    console.log("  - Name actually changed:", isNameActuallyChanged);
 
     // Handle file uploads
     if (req.files && req.files.length > 0) {
-      console.log(`📸 Processing ${req.files.length} new image(s)`);
       const newImages = [];
       
       for (const file of req.files) {
@@ -423,7 +410,6 @@ const updateProduct = async (req, res) => {
             url: result.secure_url, 
             alt: updateData.name || existingProduct.name 
           });
-          console.log("✅ Image uploaded:", result.secure_url);
         } catch (uploadError) {
           console.error("❌ Image upload failed:", uploadError);
         }
@@ -431,13 +417,11 @@ const updateProduct = async (req, res) => {
       
       if (newImages.length > 0) {
         updateData.images = [...existingProduct.images, ...newImages];
-        console.log(`🖼️ Total images now: ${updateData.images.length}`);
       }
     }
 
     // Handle existing images reordering
     if (updateData.imageOrder && updateData.imageOrder.length > 0) {
-      console.log("🔄 Processing image reordering");
       const orderedImages = [];
       
       for (const item of updateData.imageOrder) {
@@ -466,7 +450,6 @@ const updateProduct = async (req, res) => {
     let updatedProduct;
 
     if (isNameActuallyChanged) {
-      console.log("🔄 Name change detected - Using save() method to trigger slug regeneration");
       
       // Use the document save method to ensure pre-save hooks are triggered
       const productToUpdate = await Product.findById(id);
@@ -487,12 +470,9 @@ const updateProduct = async (req, res) => {
       // Mark name as modified to ensure slug regeneration
       productToUpdate.markModified("name");
 
-      console.log("💾 Saving product with updated name...");
       updatedProduct = await productToUpdate.save();
-      console.log("✅ Product saved with new slug");
 
     } else {
-      console.log("⚡ No name change - Using findByIdAndUpdate for performance");
       
       // Use findByIdAndUpdate for better performance when name doesn't change
       updatedProduct = await Product.findByIdAndUpdate(
@@ -509,10 +489,6 @@ const updateProduct = async (req, res) => {
     // Populate category data
     await updatedProduct.populate("category", "name slug");
 
-    console.log("📊 After update - Name:", `"${updatedProduct.name}"`, "Slug:", updatedProduct.slug);
-    console.log("✅ Product update completed successfully");
-    console.log("=== PRODUCT UPDATE FINISHED ===");
-
     res.status(200).json({ 
       success: true, 
       message: "Product updated successfully", 
@@ -521,7 +497,6 @@ const updateProduct = async (req, res) => {
 
   } catch (error) {
     console.error("❌ Update product error:", error);
-    console.log("=== PRODUCT UPDATE FAILED ===");
     
     // Handle specific errors
     if (error.code === 11000) {

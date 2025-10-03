@@ -126,11 +126,6 @@ const createReview = async (req, res) => {
     const { productId, rating, title, comment } = req.body
     const userId = req.user.userId
 
-    console.log("Creating review for product:", productId);
-    console.log("user",userId);      //userId:new ObjectId("687257dd257a06bee2955dd7")
-    
-  
-
     // Check if product exists
     const product = await Product.findById(productId)
     if (!product) {
@@ -140,20 +135,6 @@ const createReview = async (req, res) => {
       })
     }
 
-    console.log("Product found:", product.name);
-
-    // Check if user already reviewed this product
-    // const existingReview = await Review.findOne({
-    //   user: userId,
-    //   // product: productId,
-    // })
-
-    // if (existingReview) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "You have already reviewed this product",
-    //   })
-    // }
 
     // Check if user has purchased this product (optional verification)
     const hasPurchased = await Order.findOne({
@@ -210,7 +191,6 @@ const createReview = async (req, res) => {
       review,
     })
   } catch (error) {
-    console.log("error",error);
     console.error("Create review error:", error)
     res.status(500).json({
       success: false,

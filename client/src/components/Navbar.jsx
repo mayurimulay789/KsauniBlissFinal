@@ -69,14 +69,9 @@ const Navbar = () => {
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
-  // const navigateToCategory = (categoryId = "") => {
-  //   const base = "/products?"
-  //   console.log("[v0] Navigating to category:", categoryId)
-  //   navigate(categoryId ? `${base}category=${categoryId}` : base)
-  // }
+ 
   const navigateToCategory = (categorySlug = "") => {
     const base = "/products?"
-    console.log("[v0] Navigating to category:", categorySlug)
     navigate(categorySlug ? `${base}category=${categorySlug}` : base)
   }
   const navigateToUnder999 = () => {
@@ -146,13 +141,6 @@ const Navbar = () => {
   if (!categoriesForMobileScroll.some((cat) => cat.name === cydCategory.name)) {
     categoriesForMobileScroll.unshift(cydCategory)
   }
-
-// also unshift ANIME T-SHIRT and Ksauni T-shirts Styles if exists
-  // const excludedSlugs = ["anime-t-shirt", "ksauni-tshirts-styles"];
-  //   const filteredCategories = categoriesForMobileScroll.filter(cat => !excludedSlugs.includes(cat.slug));
-  //   filteredCategories.unshift(cydCategory)
-  //   categoriesForMobileScroll.length = 0
-  //   categoriesForMobileScroll.push(...filteredCategories)
 
   const isProductDetailPage = window.location.pathname.startsWith("/product/")
   const isCartPage = location.pathname === "/cart"

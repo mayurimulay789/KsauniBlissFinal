@@ -180,7 +180,7 @@ const CartPage = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-2">
                           <Link
-                            to={`/product/${item.product._id}`}
+                            to={`/product/${item.product.slug}`}
                             className="text-sm md:text-base font-semibold text-gray-800 transition-colors hover:text-red-600 line-clamp-2 pr-2"
                           >
                             {item.product.name}

@@ -41,7 +41,6 @@ const OrderDetailsPage = () => {
     }
   }, [error, dispatch]);
   const handleFetchTracking = () => {
-    console.log("order", order);
     if (order && order._id) {
       dispatch(trackOrderInfo(order));
     }

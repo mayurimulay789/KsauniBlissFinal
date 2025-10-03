@@ -401,7 +401,6 @@ class ShiprocketService {
 
       this.token = response.data.token;
       this.tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // valid for 24 hrs
-      console.log("✅ Shiprocket authentication successful");
       return this.token;
     } catch (error) {
       console.error("❌ Auth error:", error.response?.data || error.message);
@@ -468,7 +467,6 @@ class ShiprocketService {
       );
 
       if (response.data.status_code === 1) {
-        console.log("✅ Order created:", response.data);
         return response.data;
       }
       throw new Error(response.data.message || "Failed to create order");
@@ -497,7 +495,6 @@ class ShiprocketService {
           },
         }
       );
-      console.log("response.data.data.available_courier_companies", response.data)
       return response.data.data.available_courier_companies;
     } catch (error) {
       console.error("❌ Get couriers error:", error.response?.data || error.message);
@@ -535,7 +532,6 @@ class ShiprocketService {
 
       if (response.data.awb_assign_status === 1) {
         const data = response.data.response.data;
-        console.log(`✅ AWB assigned: ${data.awb_code} via ${data.courier_name}`);
         return data;
       }
       throw new Error(response.data.message || "Failed to assign AWB");
@@ -556,7 +552,6 @@ class ShiprocketService {
 
       const order = response.data.data;
       if (order.awb_code) {
-        console.log(`✅ AWB ticketed: ${order.awb_code}`);
         return { assigned: true, awb_code: order.awb_code, courier_id: order.courier_company_id };
       }
       return { assigned: false };
@@ -608,7 +603,6 @@ async trackShiprocketShipment(shipmentId) {
         { headers }
       );
 
-      console.log("🚫 Shipment cancelled:", awbArray);
       return response.data;
     } catch (error) {
       console.error("❌ Cancel error:", error.response?.data || error.message);
@@ -621,7 +615,6 @@ async trackShiprocketShipment(shipmentId) {
   async  handleShiprocketOrderCancel(order) {
     const headers = await this.getHeaders();
     if (!order.shiprocketOrderId) {
-      console.log("No Shiprocket order ID found.");
       return;
     }
 
@@ -638,7 +631,6 @@ async trackShiprocketShipment(shipmentId) {
 
       const data = orderResponse.data?.data;
       if (!data) {
-        console.log("No data returned from Shiprocket.");
         return;
       }
 
@@ -647,7 +639,6 @@ async trackShiprocketShipment(shipmentId) {
       // 2️⃣ Determine which cancel endpoint to call
       if (shipment.awb) {
         // If AWB exists → cancel by AWB
-        console.log("Cancelling by AWB:", shipment.awb);
         const cancelAwbResponse = await axios.post(
           "https://apiv2.shiprocket.in/v1/external/orders/cancel/shipment/awbs",
           {
@@ -657,10 +648,8 @@ async trackShiprocketShipment(shipmentId) {
             headers
           }
         );
-        console.log("Cancel by AWB response:", cancelAwbResponse.data);
       } else {
         // If AWB is null → cancel by order ID
-        console.log("Cancelling by order ID:", orderId);
         const cancelOrderResponse = await axios.post(
           "https://apiv2.shiprocket.in/v1/external/orders/cancel",
           {
@@ -670,7 +659,6 @@ async trackShiprocketShipment(shipmentId) {
             headers
           }
         );
-        console.log("Cancel by order ID response:", cancelOrderResponse.data);
       }
     } catch (error) {
       console.error("Error handling Shiprocket order:", error.response?.data || error.message);
@@ -679,7 +667,6 @@ async trackShiprocketShipment(shipmentId) {
 
   async  cancelShipment(shipmentId) {
   try {
-    console.log("shipmentId",shipmentId)
     const headers = await this.getHeaders();
     const response = await axios.delete(
       `https://apiv2.shiprocket.in/v1/external/courier/cancel/shipment/${shipmentId}`,
@@ -690,7 +677,6 @@ async trackShiprocketShipment(shipmentId) {
     );
 
     if (response.data.status_code === 1) {
-      console.log("✅ Shipment cancelled successfully:", response.data);
       return response.data;
     } else {
       throw new Error(response.data.message || "Failed to cancel shipment");

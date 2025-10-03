@@ -32,7 +32,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount }) => {
             <>
               <p className="mb-4">Amount: ₹{amount}</p>
               <button
-                className="flex items-center justify-center w-full py-2 text-white bg-red-600 rounded"
+                className="flex items-center justify-center w-full py-2 text-white bg-red-600 rounded-[10px] hover:bg-red-700"
                 onClick={() => {
                   onOnline();
                   onClose();
@@ -45,7 +45,7 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount }) => {
             <>
               <p className="mb-4">You’ll pay ₹{amount} on delivery.</p>
               <button
-                className="w-full py-2 text-white bg-green-600 rounded"
+                className="w-full py-2 text-white bg-green-600 rounded-[10px] hover:bg-green-700"
                 onClick={() => {
                   onCOD();
                   onClose();

@@ -63,7 +63,6 @@ const ProductsManagement = () => {
       }
       const response = await adminAPI.getAllProducts(params)
       setProducts(response.data.products)
-      console.log(response.data)
       setPagination(response.data.pagination)
     } catch (error) {
       console.error("Error fetching products:", error)

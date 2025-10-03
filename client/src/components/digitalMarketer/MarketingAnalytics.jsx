@@ -21,22 +21,7 @@ const MarketingAnalytics = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("7d");
   const dispatch = useDispatch();
   const { marketingAnalytics, analyticsLoading } = useSelector((state) => state.digitalMarketer);
-  // 🐞 Debugging output
-  useEffect(() => {
-    console.log("RAW marketingAnalytics from Redux:", marketingAnalytics);
-    console.log("Is loading:", analyticsLoading);
-    if (marketingAnalytics?.analytics) {
-      console.log("✔️ Extracted analytics object:", marketingAnalytics.analytics);
-      console.log("✔️ Summary:", marketingAnalytics.analytics.summary);
-      console.log("✔️ Traffic Data:", marketingAnalytics.analytics.trafficData);
-      console.log("✔️ Sales Analytics:", marketingAnalytics.analytics.salesAnalytics);
-      console.log("✔️ Top Products:", marketingAnalytics.analytics.topProducts);
-      console.log("✔️ Top Categories:", marketingAnalytics.analytics.topCategories);
-      console.log("✔️ User Demographics:", marketingAnalytics.analytics.userDemographics);
-    } else {
-      console.log("❌ marketingAnalytics.analytics is undefined or null.");
-    }
-  }, [marketingAnalytics, analyticsLoading]);
+
   useEffect(() => {
     dispatch(fetchMarketingAnalytics(selectedPeriod));
   }, [dispatch, selectedPeriod]);
@@ -65,10 +50,7 @@ const MarketingAnalytics = () => {
     topCategories = [],
     userDemographics = { ageGroups: [], devices: [], locations: [] },
   } = marketingAnalytics.analytics || {};
-  // 🐞 More debug logs
-  console.log("Parsed Summary Values:", summary);
-  console.log("Parsed Traffic Data Length:", trafficData.length);
-  console.log("Parsed Sales Data Length:", salesAnalytics.length);
+
   const trafficChartData = {
     labels: trafficData.map((item) => new Date(item.date).toLocaleDateString()),
     datasets: [

@@ -156,6 +156,7 @@ app.use("/api/digital-marketer", require("../routes/digitalMarketer"))
 app.use("/api/shiprocket", require("../routes/shiprocket"))
 app.use("/api/popup-setting", require("../routes/popupSetting"))
 app.use("/api/ksauni-tshirts",require("../routes/ksaunitshirtstyle"))
+
 // app.use("/api/topten", require("../routes/topten"))
 app.use((err, req, res, next) => {
   console.error("❌ Server Error:", err)
@@ -171,7 +172,6 @@ app.use((err, req, res, next) => {
 
 // 404 handler
 app.use("*", (req, res) => {
-  console.log(`❌ 404 - Route not found: ${req.method} ${req.originalUrl}`)
   res.status(404).json({
     success: false,
     message: `Route not found: ${req.method} ${req.originalUrl}`,

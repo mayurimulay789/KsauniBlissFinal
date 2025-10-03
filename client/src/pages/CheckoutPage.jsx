@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { useSelector, useDispatch } from "react-redux"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
 import { ShoppingBag, MapPin, CreditCard, Tag, Truck, Shield, X } from "lucide-react"
 import {
@@ -36,7 +36,13 @@ import { PaymentModal } from "./PaymentModal"
 const CheckoutPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const rzpInstanceRef = useRef(null)
+  
+  // Check if this is a Buy Now flow
+  const isBuyNow = location.state?.buyNow || false
+  const buyNowProduct = location.state?.buyNowProduct || null
+  
   // Use memoized selectors
   const razorpayOrder = useSelector(selectRazorpayOrder)
   const orderSummary = useSelector(selectOrderSummary)
@@ -51,6 +57,7 @@ const CheckoutPage = () => {
   const couponLoading = useSelector(selectCouponLoading)
   const couponError = useSelector(selectCouponError)
   const user = useSelector(selectUser)
+  
   const [shippingAddress, setShippingAddress] = useState({
     fullName: user?.name || "",
     phoneNumber: user?.phoneNumber?.replace("+91", "") || "",
@@ -110,7 +117,6 @@ const CheckoutPage = () => {
     dispatch(removeCoupon())
     setCouponCode("")
     setShowCouponInput(false)
-    console.log("rzpInstanceRef.current", rzpInstanceRef.current)
     if (rzpInstanceRef.current) {
       rzpInstanceRef.current.close()
       rzpInstanceRef.current = null
@@ -127,7 +133,6 @@ const CheckoutPage = () => {
   // Load available coupons for the logged-in user
   useEffect(() => {
     if (Object.keys(user).length != 0) {
-      console.log("user", user)
       dispatch(fetchAvailableCoupons())
     }
   }, [dispatch, user])
@@ -172,9 +177,9 @@ const CheckoutPage = () => {
 
   const handleApplyCoupon = useCallback(() => {
     if (!couponCode.trim()) return
-    const orderValue = cartSummary.subtotal || 0
+    const orderValue = isBuyNow ? buyNowProduct.product.price * buyNowProduct.quantity : cartSummary.subtotal || 0
     dispatch(validateCoupon({ code: couponCode, cartTotal: orderValue }))
-  }, [couponCode, cartSummary.subtotal, dispatch])
+  }, [couponCode, cartSummary.subtotal, dispatch, isBuyNow, buyNowProduct])
 
   const handleRemoveCoupon = useCallback(() => {
     dispatch(removeCoupon())
@@ -182,23 +187,49 @@ const CheckoutPage = () => {
     setShowCouponInput(false)
   }, [dispatch])
 
+  // Calculate pricing based on Buy Now or Cart flow
   const calculateFinalPricing = useMemo(() => {
-    const subtotal = cartSummary.subtotal || 0
+    let subtotal = 0
+    
+    if (isBuyNow && buyNowProduct) {
+      // Calculate for Buy Now product
+      subtotal = buyNowProduct.product.price * buyNowProduct.quantity
+    } else {
+      // Calculate for cart items
+      subtotal = cartSummary.subtotal || 0
+    }
+    
     // Updated free shipping threshold from 999 to 399
     const shippingCharges = selectedShippingRate ? selectedShippingRate.freight_charge : subtotal >= 399 ? 0 : 99
     const discount = appliedCoupon?.discountAmount || 0
     // Removed GST (Tax) calculation as per requirement
     const total = Math.round(subtotal + shippingCharges - discount)
+    
     return {
       subtotal,
       shippingCharges,
       discount,
       total,
     }
-  }, [cartSummary.subtotal, selectedShippingRate, appliedCoupon])
+  }, [cartSummary.subtotal, selectedShippingRate, appliedCoupon, isBuyNow, buyNowProduct])
+
+  // Get display items for Buy Now or Cart
+  const getDisplayItems = useCallback(() => {
+    if (isBuyNow && buyNowProduct) {
+      // Return Buy Now product as single item
+      return [{
+        product: buyNowProduct.product,
+        quantity: buyNowProduct.quantity,
+        size: buyNowProduct.size,
+        color: buyNowProduct.color
+      }]
+    } else {
+      // Return cart items
+      return cartItems
+    }
+  }, [isBuyNow, buyNowProduct, cartItems])
 
   const handlePlaceOrder = useCallback(() => {
-    console.log("calling online order ")
     if (rzpInstanceRef.current) {
       rzpInstanceRef.current.close()
       rzpInstanceRef.current = null
@@ -207,13 +238,16 @@ const CheckoutPage = () => {
       alert("Please fill all required address fields")
       return
     }
-    if (!cartItems.length) {
-      alert("Your cart is empty")
+    
+    const displayItems = getDisplayItems()
+    if (!displayItems.length) {
+      alert("No items to order")
       return
     }
+
     const orderData = {
-      amount: cartSummary.total,
-      items: cartItems.map((item) => ({
+      amount: calculateFinalPricing.total,
+      items: displayItems.map((item) => ({
         productId: item.product?._id,
         quantity: item.quantity,
         size: item.size,
@@ -225,13 +259,12 @@ const CheckoutPage = () => {
       },
       couponCode: appliedCoupon?.code || "",
       selectedShippingRate: selectedShippingRate,
+      isBuyNow: isBuyNow, // Add flag for Buy Now orders
     }
-    console.log("orderData", orderData)
     dispatch(createRazorpayOrder(orderData))
-  }, [validateAddress, cartItems, shippingAddress, appliedCoupon, selectedShippingRate, dispatch])
+  }, [validateAddress, getDisplayItems, shippingAddress, appliedCoupon, selectedShippingRate, dispatch, calculateFinalPricing.total, isBuyNow])
 
   const handlePlaceCodOrder = useCallback(() => {
-    console.log("calling cod order ")
     if (rzpInstanceRef.current) {
       rzpInstanceRef.current.close()
       rzpInstanceRef.current = null
@@ -240,12 +273,15 @@ const CheckoutPage = () => {
       alert("Please fill all required address fields")
       return
     }
-    if (!cartItems.length) {
-      alert("Your cart is empty")
+    
+    const displayItems = getDisplayItems()
+    if (!displayItems.length) {
+      alert("No items to order")
       return
     }
+
     const orderData = {
-      items: cartItems.map((item) => ({
+      items: displayItems.map((item) => ({
         productId: item.product?._id,
         quantity: item.quantity || 1,
         size: item.size,
@@ -257,6 +293,7 @@ const CheckoutPage = () => {
       },
       couponCode: appliedCoupon?.code || "",
       selectedShippingRate: selectedShippingRate,
+      isBuyNow: isBuyNow, // Add flag for Buy Now orders
     }
     dispatch(placeCodOrder(orderData)).then((result) => {
       if (result.type === "order/placeCodOrder/fulfilled") {
@@ -266,7 +303,7 @@ const CheckoutPage = () => {
         alert("Failed to place COD order. Please try again.")
       }
     })
-  }, [validateAddress, cartItems, shippingAddress, appliedCoupon, selectedShippingRate, dispatch, navigate])
+  }, [validateAddress, getDisplayItems, shippingAddress, appliedCoupon, selectedShippingRate, dispatch, navigate, isBuyNow])
 
   const handleRazorpayPayment = useCallback(() => {
     if (!razorpayOrder) return
@@ -304,7 +341,6 @@ const CheckoutPage = () => {
       },
       modal: {
         ondismiss: () => {
-          console.log("closing razorpay")
           rzpInstanceRef.current = null
           window.location.reload()
         },
@@ -336,10 +372,11 @@ const CheckoutPage = () => {
   }, [user, shippingAddress.fullName])
 
   useEffect(() => {
-    if (!cartItems.length) {
+    // Only fetch cart if this is not a Buy Now flow
+    if (!isBuyNow && !cartItems.length) {
       dispatch(fetchCart())
     }
-  }, [dispatch, cartItems.length])
+  }, [dispatch, cartItems.length, isBuyNow])
 
   useEffect(() => {
     if (orderSuccess.orderCreated && razorpayOrder) {
@@ -361,14 +398,18 @@ const CheckoutPage = () => {
     }
   }, [couponError, dispatch])
 
-  if (!cartItems.length && !orderLoading.creating) {
+  // Check if there are items to display
+  const displayItems = getDisplayItems()
+  const hasItems = displayItems.length > 0
+
+  if (!hasItems && !orderLoading.creating) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4 safe-area-bottom">
         <div className="max-w-md mx-auto text-center">
           <ShoppingBag className="w-12 h-12 mx-auto mb-4 text-gray-400 xs:w-16 xs:h-16" />
-          <h2 className="mb-2 text-xl font-bold text-gray-800 xs:text-2xl">Your cart is empty</h2>
+          <h2 className="mb-2 text-xl font-bold text-gray-800 xs:text-2xl">No items to checkout</h2>
           <p className="mb-4 text-sm text-gray-600 xs:text-base">
-            Add some items to your cart to proceed with checkout
+            {isBuyNow ? "Buy Now product not found" : "Add some items to your cart to proceed with checkout"}
           </p>
           <button
             onClick={() => navigate("/")}
@@ -380,9 +421,6 @@ const CheckoutPage = () => {
       </div>
     )
   }
-
-  console.log("Order Error:", orderError)
-  console.log("Coupon Error:", couponError)
   
   return (
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-20 safe-area-bottom prevent-zoom">
@@ -412,8 +450,12 @@ const CheckoutPage = () => {
         >
           {/* Header - Responsive */}
           <div className="mb-4 xs:mb-6 sm:mb-8 text-center sm:text-left">
-            <h1 className="mb-1 xs:mb-2 text-xl xs:text-2xl font-bold text-gray-800">Checkout</h1>
-            <p className="text-xs xs:text-sm text-gray-600">Review your order and complete your purchase</p>
+            <h1 className="mb-1 xs:mb-2 text-xl xs:text-2xl font-bold text-gray-800">
+              Checkout {isBuyNow && "(Buy Now)"}
+            </h1>
+            <p className="text-xs xs:text-sm text-gray-600">
+              {isBuyNow ? "Complete your purchase" : "Review your order and complete your purchase"}
+            </p>
           </div>
           
           {/* Error Display - Responsive */}
@@ -628,7 +670,7 @@ const CheckoutPage = () => {
                       ) : (
                         <div className="space-y-2 max-h-40 overflow-y-auto">
                           {availableCoupons.map((c) => {
-                            const subtotal = cartSummary?.subtotal || 0
+                            const subtotal = calculateFinalPricing.subtotal || 0
                             const min = c.minOrderValue || 0
                             const eligible = subtotal >= min
                             const shortBy = Math.max(0, min - subtotal)
@@ -648,7 +690,7 @@ const CheckoutPage = () => {
                                   onClick={() => {
                                     setShowCouponInput(true)
                                     setCouponCode(c.code)
-                                    const orderValue = cartSummary?.subtotal || 0
+                                    const orderValue = calculateFinalPricing.subtotal || 0
                                     dispatch(
                                       validateCoupon({
                                         code: c.code,
@@ -677,10 +719,22 @@ const CheckoutPage = () => {
                 animate={{ opacity: 1, x: 0 }}
                 className="sticky p-3 xs:p-4 sm:p-6 bg-white rounded-xl shadow-sm xs:shadow-md top-4"
               >
-                <h2 className="mb-3 xs:mb-4 text-base xs:text-lg font-semibold">Order Summary</h2>
+                <h2 className="mb-3 xs:mb-4 text-base xs:text-lg font-semibold">
+                  Order Summary {isBuyNow && "(Buy Now)"}
+                </h2>
+                
+                {/* Buy Now Notice */}
+                {isBuyNow && (
+                  <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-xs text-blue-700 font-medium">
+                      🚀 Quick Purchase: You're buying this item directly
+                    </p>
+                  </div>
+                )}
+                
                 {/* Cart Items - Responsive */}
                 <div className="mb-3 xs:mb-4 space-y-2 xs:space-y-3">
-                  {cartItems.map((item, index) => (
+                  {displayItems.map((item, index) => (
                     <div key={index} className="flex items-center space-x-2 xs:space-x-3">
                       <img
                         src={
@@ -695,8 +749,11 @@ const CheckoutPage = () => {
                         </h3>
                         <p className="text-xs text-gray-600">
                           Size: {item.size || "M"} | Qty: {item.quantity || 1}
+                          {item.color && ` | Color: ${item.color}`}
                         </p>
-                        <p className="text-xs xs:text-sm font-semibold">₹{item.product?.price || 0}</p>
+                        <p className="text-xs xs:text-sm font-semibold">
+                          ₹{(item.product?.price || 0) * (item.quantity || 1)}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -704,7 +761,7 @@ const CheckoutPage = () => {
                 {/* Pricing Breakdown - Responsive */}
                 <div className="pt-3 xs:pt-4 space-y-2 border-t border-gray-200">
                   <div className="flex justify-between text-xs xs:text-sm">
-                    <span>Subtotal ({cartSummary.totalItems || 0} items)</span>
+                    <span>Subtotal ({displayItems.length} {displayItems.length === 1 ? 'item' : 'items'})</span>
                     <span>₹{calculateFinalPricing.subtotal}</span>
                   </div>
                   <div className="flex justify-between text-xs xs:text-sm">
@@ -744,8 +801,8 @@ const CheckoutPage = () => {
                 <div className="hidden md:block mt-6">
                   <button
                     onClick={() => setShowModal(true)}
-                    disabled={orderLoading.creating || !cartItems.length}
-                    className="flex items-center justify-center w-full py-3 text-base font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-colors"
+                    disabled={orderLoading.creating || !displayItems.length}
+                    className="flex items-center justify-center w-full py-3 text-base font-semibold text-white bg-red-600 rounded-[10px] hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-colors"
                   >
                     {orderLoading.creating ? (
                       <>
@@ -770,8 +827,8 @@ const CheckoutPage = () => {
           <div className="max-w-7xl mx-auto">
             <button
               onClick={() => setShowModal(true)}
-              disabled={orderLoading.creating || !cartItems.length}
-              className="flex items-center justify-center w-full py-3 text-sm xs:text-base font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-colors"
+              disabled={orderLoading.creating || !displayItems.length}
+              className="flex items-center justify-center w-full py-3 text-sm xs:text-base font-semibold text-white bg-red-600 rounded-[10px] hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-colors"
             >
               {orderLoading.creating ? (
                 <>

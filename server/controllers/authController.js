@@ -39,7 +39,6 @@ const registerWithEmail = async (req, res) => {
       })
     }
 
-    console.log("Incoming registration request:", { email, name })
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -78,9 +77,7 @@ const registerWithEmail = async (req, res) => {
 
         // If user exists in Firebase but not in our database, clean up Firebase first
         if (existingFirebaseUser) {
-          console.log("Found existing Firebase user, cleaning up...")
           await admin.auth().deleteUser(existingFirebaseUser.uid)
-          console.log("Cleaned up existing Firebase user")
         }
       } catch (firebaseError) {
         if (firebaseError.code !== "auth/user-not-found") {
@@ -94,14 +91,12 @@ const registerWithEmail = async (req, res) => {
       }
 
       // Create user in Firebase
-      console.log("Creating Firebase user...")
       const firebaseUser = await admin.auth().createUser({
         email: email.toLowerCase(),
         password,
         displayName: name.trim(),
         emailVerified: true,
       })
-      console.log("Firebase user created:", firebaseUser.uid)
 
       // Create user in database
       const user = new User({
@@ -115,7 +110,6 @@ const registerWithEmail = async (req, res) => {
       })
 
       await user.save()
-      console.log("Database user created:", user._id)
 
       // Create custom token for immediate login
       const customToken = await admin.auth().createCustomToken(firebaseUser.uid)

@@ -50,10 +50,7 @@ const transporter = nodemailer.createTransport({
 // Enhanced Shiprocket integration function (kept your original style)
 const createShiprocketOrder = async (order) => {
   try {
-    console.log(
-      "🚀 Starting Shiprocket order creation for:",
-      order.orderNumber
-    );
+   
 
     // Check if Shiprocket service is properly configured
     if (
@@ -61,69 +58,11 @@ const createShiprocketOrder = async (order) => {
       !process.env.SHIPROCKET_EMAIL ||
       !process.env.SHIPROCKET_PASSWORD
     ) {
-      console.log("⚠️ Shiprocket service not configured, skipping integration");
       return { success: false, error: "Shiprocket service not configured" };
     }
 
     // Create order on Shiprocket
     const shiprocketOrderResponse = await shiprocketService.createOrder(order);
-
-   
-
-    
-
-
-
-    // if (shiprocketOrderResponse.status_code === 1) {
-    //   const shipmentId = shiprocketOrderResponse.shipment_id;
-
-    //   let cod_order = order?.paymentInfo?.method == "COD" ? 0 : 1
-
-    //   console.log("cod_order",cod_order)
-
-    //   // const couriers = await shiprocketService.getAvailableCouriers("400066",order?.shippingAddress?.pinCode,"1",cod_order)
-
-
-      
-
-    //   const couriers = await shiprocketService.getAvailableCouriers("110059","400001","1",cod_order)
-
-    //   console.log("couriers",couriers)
-
-    //   if (couriers.length > 0) {
-    //   const courierId = couriers[0].courier_company_id;
-  
-    //   console.log("courierId",courierId)
-    //   // Assign AWB to shipment
-    //   const AWBResponse = await shiprocketService.assignAwb(
-    //     shipmentId,
-    //     courierId
-    //   );
-
-    //   if (AWBResponse.status_code === 200) {
-    //     // Update order with Shiprocket details
-    //     order.trackingInfo = {
-    //       trackingNumber: AWBResponse.awb_code,
-    //       carrier: AWBResponse.courier_name || "Shiprocket",
-    //       shiprocketOrderId: shiprocketOrderResponse.order_id,
-    //       shipmentId: AWBResponse.shipment_id,
-    //       trackingUrl: `https://shiprocket.co/tracking/${AWBResponse.awb_code}`,
-    //       estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    //       currentStatus: "Order Confirmed",
-    //       lastUpdate: new Date(),
-    //     };
-    //     console.log("order.trackingInfo",order.trackingInfo)
-    //     await order.save();
-    //     console.log("✅ Shiprocket integration completed successfully");
-    //     return {
-    //       success: true,
-    //       trackingNumber: AWBResponse.awb_code,
-    //       shiprocketOrderId: shiprocketOrderResponse.order_id,
-    //     };
-    //   }
-    //   console.log("✅ AWB Assigned:", awb);
-    // }
-    // }
 
     if (shiprocketOrderResponse.status_code === 1) {
       const shipmentId = shiprocketOrderResponse.shipment_id;
@@ -134,9 +73,6 @@ const createShiprocketOrder = async (order) => {
 
       // order["shiprocketShipmentId"] = 935898884;
       await order.save();
-
-      console.log("✅ Shiprocket shipment ID saved:", shipmentId,order);
-
       return {
         success: true,
         shiprocketOrderId: shiprocketOrderResponse.order_id,
@@ -161,12 +97,9 @@ const createShiprocketOrder = async (order) => {
 };
 
 
-
-
 // Create Razorpay order (unchanged)
 const createRazorpayOrder = async (req, res) => {
   try {
-    console.log("create razorpay order", req.user);
 
     // Allow guest checkout → userId will be null if not logged in
     const userId = req.user?.userId || null;
@@ -485,10 +418,7 @@ const verifyPaymentAndCreateOrder = async (req, res) => {
           }
         }
 
-        console.log(
-          "Shiprocket status:",
-          shiprocketResult.success ? "Success" : "Pending"
-        );
+        
       } catch (bgErr) {
         console.error("Background SR/email error:", bgErr);
       }
@@ -664,7 +594,6 @@ const placeCodOrder = async (req, res) => {
           }
         }
 
-        console.log("Shiprocket status:", sr?.success ? "Success" : "Pending/Failed");
       } catch (bgErr) {
         console.error("Background COD flow error:", bgErr?.message || bgErr);
       }
@@ -679,8 +608,6 @@ const placeCodOrder = async (req, res) => {
 // Get shipping rates for checkout (unchanged)
 const getShippingRates = async (req, res) => {
   try {
-    console.log("📝 Get shipping rates called");
-    console.log("Request body:", req.body);
 
     const { deliveryPincode, weight = 0.5, cod = 0 } = req.body;
 
@@ -706,7 +633,6 @@ const getShippingRates = async (req, res) => {
     ) {
       try {
         const pickupPincode = process.env.PICKUP_PINCODE || "110001";
-        console.log("🚚 Attempting to get Shiprocket rates...");
 
         const rates = await shiprocketService.getShippingRates(
           pickupPincode,
@@ -716,7 +642,6 @@ const getShippingRates = async (req, res) => {
         );
 
         if (rates && rates.data && rates.data.available_courier_companies) {
-          console.log("✅ Shiprocket rates fetched successfully");
           return res.status(200).json({
             success: true,
             rates: rates.data.available_courier_companies,
@@ -727,7 +652,6 @@ const getShippingRates = async (req, res) => {
         // Continue to fallback rates instead of failing
       }
     } else {
-      console.log("⚠️ Shiprocket service not configured, using fallback rates");
     }
 
     // Fallback mock rates (unchanged)
@@ -903,24 +827,11 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    // 3) Try cancelling shipment in Shiprocket (if already created)
-    // if (order.trackingInfo?.trackingNumber && shiprocketService?.cancelShipment) {
-    //   try {
-    //     await shiprocketService.cancelShipment(order.trackingInfo.trackingNumber);
-    //     console.log("✅ Shiprocket shipment cancelled successfully");
-    //   } catch (e) {
-    //     console.error("❌ Shiprocket cancellation error:", e?.message || e);
-    //     // continue; order cancellation should still proceed
-    //   }
-    // }
-
-    //3) Try cancelling shipment in Shiprocket (if already created)
 
     if(order?.shiprocketOrderId){
 
       try {
         await shiprocketService.handleShiprocketOrderCancel(order);
-        console.log("✅ Shiprocket shipment cancelled successfully");
       } catch (e) {
         console.error("❌ Shiprocket cancellation error:", e?.message || e);
         // continue; order cancellation should still proceed
@@ -1074,7 +985,6 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
       html: emailHtml,
     });
 
-    console.log(`✅ Order confirmation email sent to ${toEmail}`);
   } catch (error) {
     console.error("❌ Failed to send order confirmation email:", error);
   }
@@ -1131,7 +1041,6 @@ const getOrderDetails = async (req, res) => {
       "name images price"
     );
 
-    console.log("getOrderDetails", order);
 
     if (!order) {
       return res
@@ -1148,110 +1057,23 @@ const getOrderDetails = async (req, res) => {
   }
 };
 
-
-
-// Moved getTrackingInfo into a utility function to be called on demand
-// const fetchAndSetTrackingInfo = async (req, res) => {
-//   try {
-//     console.log("fetchAndSetTrackingInfo", req.body)
-//     const userId = req.user.userId;
-//     var order = req.body
-//     console.log("order",order)
-//     // var order = await shiprocketService.getOrderById(orderId); // Assume a service to get the single order
-//     console.log("🚀 Fetching Shiprocket tracking for:", order.shiprocketShipmentId);
-
-
-//     if (
-//       !order.shiprocketShipmentId ||
-//       !shiprocketService ||
-//       !process.env.SHIPROCKET_EMAIL ||
-//       !process.env.SHIPROCKET_PASSWORD
-//     ) {
-//       console.log("⚠️ Shiprocket service not configured or no shipment id yet");
-//       // Optionally dispatch an action to update the store with a message
-//       return;
-//     }
-
-//     const shiprocketTrackingResponse = await shiprocketService.trackShiprocketShipment(
-//       order.shiprocketShipmentId
-//     );
-
-//     const trackUrl = shiprocketTrackingResponse?.tracking_data?.track_url || null;
-
-//     if (trackUrl) {
-//       // Dispatch an action to update the order in the Redux store
-//       // dispatch({
-//       //   type: "orders/updateOrderTracking",
-//       //   payload: {
-//       //     orderId,
-//       //     trackingInfo: {
-//       //       trackingUrl: trackUrl,
-//       //       ...shiprocketTrackingResponse.tracking_data,
-//       //     },
-//       //   },
-//       // });
-//       var tempOrderData = req.body;
-
-
-      
-      
-//       // Now you can safely assign the trackingUrl property
-      
-//       try {
-//       const update_order = await Order.findOne({ shiprocketShipmentId: req.body.shiprocketShipmentId });
-//       if (!update_order) {
-//         return res.status(404).json({ success: false, message: "Order not found" });
-//       }
-
-//       update_order.trackingUrl = trackUrl; // set your tracking URL
-//       console.log("update_order",update_order)
-//       await update_order.save(); // now this works!
-//     } catch (error) {
-//       console.error("Order update failed, but continuing with user update:", error.message);
-//       // The code will continue from here
-//     }
-
-//   // This part will now execute even if the above block fails
-//   var tempOrderData = req.body;
-//   tempOrderData["trackingUrl"]= trackUrl;
-
-//   const updatedUser = await User.findByIdAndUpdate(
-//     userId,
-//     { tempOrderData },
-//     { new: true }
-//   );
-
-//   console.log("✅ User tempOrderData updated:", updatedUser);
-
-//       res.status(200).json({ success: true, order: shapeOrder(order),"trackingUrl":trackUrl });
-//     }
-//   } catch (error) {
-//     console.error("❌ Shiprocket tracking failed:", error.message);
-//     // Dispatch an error action or update state with an error message
-//   }
-// };
-
 const fetchAndSetTrackingInfo = async (req, res) => {
   try {
-    console.log("fetchAndSetTrackingInfo", req.body);
 
     const userId = req.user.userId;
     const { shiprocketShipmentId , _id} = req.body;
 
-    console.log("req.body",req.body)
 
     if (!shiprocketShipmentId) {
       return res.status(400).json({ success: false, message: "Shipment ID is required" });
     }
 
     if (!shiprocketService || !process.env.SHIPROCKET_EMAIL || !process.env.SHIPROCKET_PASSWORD) {
-      console.log("⚠️ Shiprocket service not configured");
       return res.status(500).json({ success: false, message: "Shiprocket not configured" });
     }
 
     // Fetch tracking info from Shiprocket
     const shiprocketTrackingResponse = await shiprocketService.trackShiprocketShipment(shiprocketShipmentId);
-    console.log("shiprocketTrackingResponse",shiprocketTrackingResponse)
 
     const trackUrl = shiprocketTrackingResponse?.tracking_data?.track_url || null;
 
@@ -1261,7 +1083,6 @@ const fetchAndSetTrackingInfo = async (req, res) => {
     }
 
     if (!trackUrl) {
-      console.log("no track url")
       update_order.trackingInfo = {
       // ...update_order.trackingInfo,
       // ...shiprocketTrackingResponse.tracking_data,
@@ -1269,22 +1090,7 @@ const fetchAndSetTrackingInfo = async (req, res) => {
       message:"No tracking info yet"
       };
       
-      await update_order.save();
-      console.log("✅ Order updated:", update_order._id);
-
-      // const updatedUser = await User.findByIdAndUpdate(
-      //   userId,
-      //   {
-      //     "tempOrderData.trackingUrl": trackUrl,
-      //     "tempOrderData.trackingInfo": {
-      //       trackingUrl: trackUrl,
-      //       message: "No tracking info yet"
-      //     }
-      //   },
-      //   { new: true }
-      // );
-
-      
+      await update_order.save();      
       return res.status(200).json({ success: false, message: "No tracking info yet" });
     }
 
@@ -1300,15 +1106,6 @@ const fetchAndSetTrackingInfo = async (req, res) => {
     };
 
     await update_order.save();
-    console.log("✅ Order updated:", update_order._id);
-
-    // Update user's tempOrderData
-    // const updatedUser = await User.findByIdAndUpdate(
-    //   userId,
-    //   { "tempOrderData.trackingUrl": trackUrl },
-    //   { new: true }
-    // );
-    // console.log("✅ User tempOrderData updated:", updatedUser.tempOrderData);
 
     res.status(200).json({ success: true, order: shapeOrder(update_order), trackingUrl: trackUrl });
 

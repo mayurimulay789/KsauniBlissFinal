@@ -2,8 +2,6 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-console.log("Cart API initialized with URL:", `${API_URL}/cart`);
-
 // ✅ Create axios instance with interceptors
 const cartAPI = axios.create({
   baseURL: `${API_URL}/cart`,
@@ -28,7 +26,6 @@ cartAPI.interceptors.request.use(
 // ⛔ Response interceptor to handle unauthorized errors globally
 cartAPI.interceptors.response.use(
   (response) => {
-    console.log("Cart API response:", response.status, response.data);
     return response;
   },
   (error) => {
@@ -36,7 +33,6 @@ cartAPI.interceptors.response.use(
     
     // Don't automatically redirect on cart API errors - guest users should still work
     if (error.response?.status === 401) {
-      console.log("Cart 401 error - user might be guest, continuing without auth");
       // Don't remove tokens or redirect for cart operations
     }
     
@@ -48,14 +44,10 @@ const cartAPIService = {
   getCart: () => cartAPI.get("/"),
   // ➕ Add item to cart
   addToCart: (cartData) => {
-    console.log("Sending add to cart request:", cartData);
-    console.log("API URL:", `${API_URL}/cart`);
     const token = localStorage.getItem("fashionhub_token");
-    console.log("Auth token present:", !!token);
     
     return cartAPI.post("/", cartData)
       .then(response => {
-        console.log("Add to cart success:", response.data);
         return response;
       })
       .catch(error => {

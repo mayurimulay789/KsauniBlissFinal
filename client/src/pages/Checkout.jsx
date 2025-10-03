@@ -77,7 +77,6 @@ const CheckoutPage = () => {
     setCouponCode("")
     setShowCouponInput(false)
 
-    console.log("rzpInstanceRef.current", rzpInstanceRef.current)
     if (rzpInstanceRef.current) {
       rzpInstanceRef.current.close()
       rzpInstanceRef.current = null
@@ -95,7 +94,6 @@ const CheckoutPage = () => {
   // Load available coupons for the logged-in user
   useEffect(() => {
     if (Object.keys(user).length != 0) {
-      console.log("user", user)
       dispatch(fetchAvailableCoupons())
     }
   }, [dispatch, user])
@@ -152,14 +150,7 @@ const CheckoutPage = () => {
   }, [cartSummary.subtotal, selectedShippingRate, appliedCoupon])
 
   const handlePlaceOrder = useCallback(() => {
-    // console.log("user",user)
-    // if (Object.keys(user).length === 0) {
-    //   navigate("/login", { state: { from: window.location.pathname } })
-    //   toast.error("Please login to place order")
-    //   return
-    // }
-
-    console.log("calling on;ine order ")
+   
 
     if (rzpInstanceRef.current) {
       rzpInstanceRef.current.close()
@@ -192,21 +183,12 @@ const CheckoutPage = () => {
       selectedShippingRate: selectedShippingRate,
     }
 
-    console.log("orderData", orderData)
 
     dispatch(createRazorpayOrder(orderData))
   }, [validateAddress, cartItems, shippingAddress, appliedCoupon, selectedShippingRate, dispatch])
 
   const handlePlaceCodOrder = useCallback(() => {
-    console.log("calling cod order ")
-
-    // console.log("user",user)
-
-    // if (Object.keys(user).length === 0) {
-    //       navigate("/login", { state: { from: window.location.pathname } })
-    //       toast.error("Please login to place order")
-    //       return
-    //     }
+   
 
     if (rzpInstanceRef.current) {
       rzpInstanceRef.current.close()
@@ -286,12 +268,7 @@ const CheckoutPage = () => {
       },
       modal: {
         ondismiss: () => {
-          // if (rzpInstanceRef.current) {
-          //   rzpInstanceRef.current.close();
-          //   rzpInstanceRef.current = null;
-          // }
-          // dispatch(clearSuccess());
-          console.log("closing razorpay")
+
           rzpInstanceRef.current = null
           window.location.reload()
         },
@@ -349,23 +326,6 @@ const CheckoutPage = () => {
     }
   }, [couponError, dispatch])
 
-  // Auto-calculate shipping rates when pincode is entered
-  // useEffect(() => {
-  //   if (shippingAddress.pinCode.length === 6 && cartItems.length > 0) {
-  //     const totalWeight = cartItems.reduce(
-  //       (weight, item) => weight + item.quantity * 0.5,
-  //       0.5
-  //     );
-  //     dispatch(
-  //       getShippingRates({
-  //         deliveryPincode: shippingAddress.pinCode,
-  //         weight: totalWeight,
-  //         cod: 0,
-  //       })
-  //     );
-  //   }
-  // }, [shippingAddress.pinCode, cartItems, dispatch]);
-
   if (!cartItems.length && !orderLoading.creating) {
     return (
       <div className="flex items-center justify-center min-h-screen px-4">
@@ -385,9 +345,6 @@ const CheckoutPage = () => {
       </div>
     )
   }
-
-  console.log("Order Error:", orderError)
-  console.log("Coupon Error:", couponError)
 
   return (
     <div className="min-h-screen py-4 xs:py-6 sm:py-8 bg-gray-50">

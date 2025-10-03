@@ -13,7 +13,6 @@ const seedInnovations = async () => {
     // Find an admin user
     const adminUser = await User.findOne({ role: "admin" });
     if (!adminUser) {
-      console.log("No admin user found. Please create an admin user first.");
       process.exit(1);
     }
 
@@ -79,11 +78,9 @@ const seedInnovations = async () => {
 
     // Clear existing innovations
     await Innovation.deleteMany({});
-    console.log("Cleared existing innovations");
 
     // Insert sample data
     await Innovation.insertMany(sampleInnovations);
-    console.log("Sample innovations seeded successfully");
 
     process.exit(0);
   } catch (error) {

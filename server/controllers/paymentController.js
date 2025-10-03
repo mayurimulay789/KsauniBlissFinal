@@ -13,9 +13,6 @@ const razorpay = new Razorpay({
 // Create Razorpay order
 const createRazorpayOrder = async (req, res) => {
   try {
-
-    console.log("createRazorpayOrder")
-
     const { amount, currency = "INR", receipt, notes } = req.body
 
     if (!amount || amount <= 0) {
@@ -35,9 +32,6 @@ const createRazorpayOrder = async (req, res) => {
 
 
     const razorpayOrder = await razorpay.orders.create(options)
-
-    console.log("razorpayOrder",razorpayOrder)
-
     res.status(200).json({
       success: true,
       order: razorpayOrder,
@@ -133,7 +127,6 @@ const handleRazorpayWebhook = async (req, res) => {
         await handleRefundCreated(payload.refund.entity)
         break
       default:
-        console.log(`Unhandled webhook event: ${event}`)
     }
 
     res.status(200).json({ success: true })
@@ -149,7 +142,6 @@ const handleRazorpayWebhook = async (req, res) => {
 // Handle payment captured
 const handlePaymentCaptured = async (payment) => {
   try {
-    console.log("Payment captured:", payment.id)
 
     // Find order by Razorpay order ID
     const order = await Order.findOne({
@@ -163,7 +155,6 @@ const handlePaymentCaptured = async (payment) => {
       order.status = "confirmed"
       await order.save()
 
-      console.log(`Order ${order.orderNumber} payment confirmed`)
     }
   } catch (error) {
     console.error("Handle payment captured error:", error)
@@ -173,7 +164,6 @@ const handlePaymentCaptured = async (payment) => {
 // Handle payment failed
 const handlePaymentFailed = async (payment) => {
   try {
-    console.log("Payment failed:", payment.id)
 
     const order = await Order.findOne({
       "paymentInfo.razorpayOrderId": payment.order_id,
@@ -191,7 +181,6 @@ const handlePaymentFailed = async (payment) => {
         })
       }
 
-      console.log(`Order ${order.orderNumber} payment failed, stock restored`)
     }
   } catch (error) {
     console.error("Handle payment failed error:", error)
@@ -201,7 +190,6 @@ const handlePaymentFailed = async (payment) => {
 // Handle order paid
 const handleOrderPaid = async (order) => {
   try {
-    console.log("Order paid:", order.id)
     // Additional logic for order paid event
   } catch (error) {
     console.error("Handle order paid error:", error)
@@ -211,7 +199,6 @@ const handleOrderPaid = async (order) => {
 // Handle refund created
 const handleRefundCreated = async (refund) => {
   try {
-    console.log("Refund created:", refund.id)
 
     const order = await Order.findOne({
       "paymentInfo.razorpayPaymentId": refund.payment_id,
@@ -222,7 +209,6 @@ const handleRefundCreated = async (refund) => {
       order.status = "refunded"
       await order.save()
 
-      console.log(`Order ${order.orderNumber} refunded`)
     }
   } catch (error) {
     console.error("Handle refund created error:", error)

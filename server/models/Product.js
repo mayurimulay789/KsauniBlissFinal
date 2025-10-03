@@ -173,7 +173,6 @@ productSchema.pre("save", async function (next) {
         const newName = this.name ? this.name.trim() : "";
         actualNameChange = currentName !== newName;
         
-        console.log(`Name change detection - Current: "${currentName}", New: "${newName}", Actual Change: ${actualNameChange}`);
       }
     }
 
@@ -189,7 +188,6 @@ productSchema.pre("save", async function (next) {
       // If base slug is empty, use fallback
       if (!baseSlug) {
         this.slug = "product-" + Date.now().toString().slice(-6);
-        console.log(`Generated fallback slug: ${this.slug} for product: "${this.name}"`);
         return next();
       }
 
@@ -206,7 +204,6 @@ productSchema.pre("save", async function (next) {
         // For updates where name changed, always generate new slug with random suffix
         if ((isNameModified || actualNameChange) && !this.isNew) {
           newSlug = `${baseSlug}-${randomSuffix}`;
-          console.log(`Attempt ${attempts + 1}: Generated slug with suffix for update: ${newSlug}`);
         } else {
           // For new products, try without suffix first, then with suffix if needed
           newSlug = attempts === 0 ? baseSlug : `${baseSlug}-${randomSuffix}`;
@@ -220,9 +217,7 @@ productSchema.pre("save", async function (next) {
 
         if (!existingProduct) {
           isUnique = true;
-          console.log(`Slug is unique: ${newSlug}`);
         } else {
-          console.log(`Slug conflict: ${newSlug}, trying again...`);
         }
         
         attempts++;
@@ -232,13 +227,10 @@ productSchema.pre("save", async function (next) {
       if (!isUnique) {
         const timestampSuffix = Date.now().toString().slice(-6);
         newSlug = `${baseSlug}-${timestampSuffix}`;
-        console.log(`Used timestamp fallback slug: ${newSlug}`);
       }
 
       this.slug = newSlug;
-      console.log(`✅ Final slug: ${newSlug} for product: "${this.name}" (${this.isNew ? 'new' : 'updated'})`);
     } else {
-      console.log(`ℹ️ Slug unchanged: ${this.slug} for product: "${this.name}"`);
     }
     next();
   } catch (error) {
@@ -251,7 +243,6 @@ productSchema.pre("save", async function (next) {
 productSchema.pre("save", function (next) {
   if (this.isNew && !this.sku) {
     this.sku = "FH" + Date.now() + Math.floor(Math.random() * 1000);
-    console.log(`Generated SKU: ${this.sku}`);
   }
   next();
 });

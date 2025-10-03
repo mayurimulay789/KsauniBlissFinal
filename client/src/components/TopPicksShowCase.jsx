@@ -83,7 +83,6 @@ export default function TopPicksShowcase() {
       const now = Date.now()
       const lastClick = window.lastTopPicksAddToCartClick || 0
       if (now - lastClick < 1000) {
-        console.log("Rapid click detected in TopPicks, ignoring")
         return
       }
       window.lastTopPicksAddToCartClick = now

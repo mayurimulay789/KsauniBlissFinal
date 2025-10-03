@@ -18,14 +18,9 @@ exports.createKsauniTshirt = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ success: false, message: "T-shirt image is required" })
     }
-
-    console.log("[v0] Creating T-shirt with file:", req.file ? "File present" : "No file")
-    console.log("[v0] File buffer size:", req.file?.buffer?.length || "No buffer")
-
     let result
     try {
       result = await uploadToCloudinary(req.file.buffer, "ksauni-tshirts")
-      console.log("[v0] Cloudinary upload successful:", result.secure_url)
     } catch (uploadError) {
       console.error("Cloudinary upload error:", uploadError)
       return res.status(500).json({
