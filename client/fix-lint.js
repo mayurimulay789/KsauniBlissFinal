@@ -15,7 +15,6 @@ const fixes = [
   'npx eslint --fix "src/**/*.{js,jsx}" --rule "no-unused-vars: 1" --rule "semi: [2, \"always\"]" --rule "quotes: [2, \"double\"]"'
 ];
 
-console.log('🔨 Running automatic lint fixes...');
 
 for (const command of fixes) {
   try {
@@ -26,4 +25,3 @@ for (const command of fixes) {
   }
 }
 
-console.log('✅ Automatic fixes complete');

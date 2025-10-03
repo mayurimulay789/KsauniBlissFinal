@@ -16,7 +16,6 @@ exports.getHeroBanners = async (req, res) => {
       .sort({ sortOrder: 1, createdAt: -1 })
       .populate("createdBy", "name")
 
-      console.log("Fetched hero banners:", banners);
 
     res.status(200).json({ banners })
   } catch (error) {
@@ -109,7 +108,6 @@ exports.updateBanner = async (req, res) => {
   try {
     const { id } = req.params
     const updateData = req.body
-    console.log("Update data:", updateData);
 
     const banner = await Banner.findById(id)
     if (!banner) {

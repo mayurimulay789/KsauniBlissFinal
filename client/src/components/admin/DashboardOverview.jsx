@@ -80,8 +80,6 @@ const DashboardOverview = () => {
     }
     return colors[status] || "bg-gray-100 text-gray-800"
   }
-  console.log("[v0] Dashboard stats:", dashboardStats)
-  console.log("[v0] Weekly sales data:", dashboardStats?.stats?.weeklySales)
 
   return (
     <div className="space-y-6">

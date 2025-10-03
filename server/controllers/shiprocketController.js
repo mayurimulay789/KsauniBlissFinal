@@ -58,7 +58,6 @@ const sendStatusUpdateEmail = async (order, newStatus) => {
       html: emailHtml,
     })
 
-    console.log(`✅ Status update email sent to ${user.email}`)
   } catch (error) {
     console.error("❌ Failed to send status update email:", error)
   }
@@ -67,7 +66,6 @@ const sendStatusUpdateEmail = async (order, newStatus) => {
 // Enhanced webhook handler
 const handleWebhook = async (req, res) => {
   try {
-    console.log("📨 Received Shiprocket webhook:", req.body)
 
     // Verify webhook signature if provided
     const signature = req.headers["x-shiprocket-signature"]
@@ -98,7 +96,6 @@ const handleWebhook = async (req, res) => {
     }
 
     if (!order) {
-      console.log(`❌ Order not found for AWB: ${awb} or Order ID: ${order_id}`)
       return res.status(404).json({ message: "Order not found" })
     }
 
@@ -175,7 +172,6 @@ const handleWebhook = async (req, res) => {
 
     await order.save()
 
-    console.log(`✅ Order ${order.orderNumber} status updated: ${previousStatus} → ${orderStatus}`)
 
     // Send email notification if status changed significantly
     if (

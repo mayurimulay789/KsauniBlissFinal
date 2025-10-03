@@ -231,7 +231,7 @@ const WishlistPage = () => {
                 >
                   {/* Product Image */}
                   <div className="relative aspect-[3/4] overflow-hidden group">
-                    <Link to={`/product/${product._id}`}>
+                    <Link to={`/product/${product.slug}`}>
                       <img
                         src={product.images?.[0]?.url || "/placeholder.svg?height=300&width=225"}
                         alt={product.name}
@@ -331,7 +331,7 @@ const WishlistPage = () => {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handleMoveToCart(product)}
                         disabled={product.stock === 0 || movingToCart.has(product._id)}
-                        className="flex items-center justify-center w-full py-2 space-x-2 font-medium text-white transition-colors rounded-lg bg-ksauni-red hover:bg-ksauni-dark-red disabled:bg-gray-300 disabled:cursor-not-allowed"
+                        className="flex items-center justify-center w-full py-2 space-x-2 font-medium text-white transition-colors rounded-[8px] bg-ksauni-red hover:bg-ksauni-dark-red disabled:bg-gray-300 disabled:cursor-not-allowed"
                       >
                         {movingToCart.has(product._id) ? (
                           <div className="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin" />
@@ -347,7 +347,7 @@ const WishlistPage = () => {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handleAddToCart(product)}
                         disabled={product.stock === 0 || isAddingToCart}
-                        className="flex items-center justify-center w-full py-2 space-x-2 font-medium transition-colors border rounded-lg text-ksauni-red border-ksauni-red hover:bg-ksauni-red/10 disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
+                        className="flex items-center justify-center w-full py-2 space-x-2 font-medium transition-colors border rounded-[8px] text-ksauni-red border-ksauni-red hover:bg-ksauni-red/10 disabled:border-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
                       >
                         {isAddingToCart ? (
                           <div className="w-4 h-4 border-2 rounded-full border-ksauni-red border-t-transparent animate-spin" />

@@ -4,16 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 const BewkoofStylePreloader = ({ onComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
   useEffect(() => {
-        console.log("Preloader mounted1")
 
     // 4 seconds minimum duration
     const timer = setTimeout(() => {
       setIsVisible(false);
-      console.log("Preloader mounted2")
 
       setTimeout(() => onComplete?.(), 500);
     }, 4000);
-    console.log("Preloader mounted3")
     return () => clearTimeout(timer);
   }, [onComplete]);
   return (

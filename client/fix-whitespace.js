@@ -23,10 +23,8 @@ async function fixWhitespace() {
 
       // Write back cleaned content
       await writeFile(file, fixedContent);
-      console.log(`✓ Fixed whitespace in ${file}`);
     }
 
-    console.log('\n✅ All files processed');
   } catch (error) {
     console.error('Error:', error);
   }

@@ -28,7 +28,6 @@ async function createIndexes() {
     console.log('✅ Connected to MongoDB');
     
     // Create indexes for Product model
-    console.log('Creating indexes for Product collection...');
     await Product.collection.createIndex({ name: 'text', description: 'text' }); // Text search index
     await Product.collection.createIndex({ category: 1 }); // For category filtering
     await Product.collection.createIndex({ isActive: 1 }); // For active product filtering
@@ -40,26 +39,22 @@ async function createIndexes() {
     await Product.collection.createIndex({ 'sizes.size': 1 }); // For size filtering
     
     // Create indexes for Category model
-    console.log('Creating indexes for Category collection...');
     await Category.collection.createIndex({ slug: 1 }, { unique: true }); // For slug lookups
     await Category.collection.createIndex({ parentId: 1 }); // For hierarchical category queries
     await Category.collection.createIndex({ isActive: 1 }); // For active category filtering
     
     // Create indexes for User model
-    console.log('Creating indexes for User collection...');
     await User.collection.createIndex({ email: 1 }, { unique: true }); // For email lookups
     await User.collection.createIndex({ phoneNumber: 1 }); // For phone lookups
     await User.collection.createIndex({ role: 1 }); // For role-based queries
     await User.collection.createIndex({ firebaseUid: 1 }, { unique: true, sparse: true }); // For Firebase Auth
     
     // Create indexes for Order model
-    console.log('Creating indexes for Order collection...');
     await Order.collection.createIndex({ user: 1 }); // For user's orders
     await Order.collection.createIndex({ status: 1 }); // For order status filtering
     await Order.collection.createIndex({ createdAt: -1 }); // For date sorting
     await Order.collection.createIndex({ 'items.product': 1 }); // For product-based order queries
     
-    console.log('✅ All indexes created successfully');
     
     // Close MongoDB connection
     await mongoose.connection.close();

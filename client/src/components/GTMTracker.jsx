@@ -21,7 +21,6 @@ export default function GTMTracker() {
 
     window.dataLayer.push(pageData);
 
-    console.log("✅ GTM event pushed:", pageData);
   }, [location]);
 
   return null;

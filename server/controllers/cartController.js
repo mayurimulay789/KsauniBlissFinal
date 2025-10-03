@@ -5,11 +5,8 @@ const Product = require("../models/Product")
 exports.getCart = async (req, res) => {
   try {
     const userId = req.user?.userId
-    console.log("Get cart request received for user:", userId || "Guest");
-
     // If no userId, return empty cart for guest
     if (!userId) {
-      console.log("Returning empty cart for guest user");
       return res.status(200).json({
         success: true,
         cart: {
@@ -26,11 +23,10 @@ exports.getCart = async (req, res) => {
 
     const user = await User.findById(userId).populate({
       path: "cart.product",
-      select: "name price originalPrice images stock sizes colors isActive",
+      select: "name price slug originalPrice images stock sizes colors isActive",
     })
 
     if (!user) {
-      console.log("User not found:", userId);
       return res.status(404).json({
         success: false,
         message: "User not found",
@@ -57,6 +53,7 @@ exports.getCart = async (req, res) => {
           price: item.product.price,
           originalPrice: item.product.originalPrice,
           images: item.product.images,
+          slug: item.product.slug,
           stock: item.product.stock,
           sizes: item.product.sizes,
           colors: item.product.colors,
@@ -68,6 +65,8 @@ exports.getCart = async (req, res) => {
         itemTotal,
       }
     })
+
+
 
     // Update user's cart if we removed inactive items
     if (activeCartItems.length !== user.cart.length) {
@@ -99,11 +98,8 @@ exports.getCart = async (req, res) => {
 // Add item to cart
 exports.addToCart = async (req, res) => {
   try {
-    console.log("Add to cart request received");
     const userId = req.user ? req.user.userId : null
-    console.log("User ID:", userId || "Guest user");
     const { productId, quantity = 1, size, color } = req.body
-    console.log("Cart request data:", { productId, quantity, size, color });
 
     // Validate input
     if (!productId) {

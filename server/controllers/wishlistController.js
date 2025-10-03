@@ -8,7 +8,7 @@ exports.getWishlist = async (req, res) => {
 
     const user = await User.findById(userId).populate({
       path: "wishlist",
-      select: "name price originalPrice images rating stock isActive category",
+      select: "name slug price originalPrice images rating stock isActive category",
       populate: {
         path: "category",
         select: "name slug",

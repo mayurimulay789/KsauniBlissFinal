@@ -353,10 +353,8 @@ export const sendPhoneOTP = createAsyncThunk("auth/sendPhoneOTP", async (phoneNu
       window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
         size: "invisible",
         callback: (response) => {
-          console.log("reCAPTCHA solved:", response);
         },
         "expired-callback": () => {
-          console.log("reCAPTCHA expired");
           cleanupRecaptcha(); // Add this line
         },
       });

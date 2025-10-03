@@ -123,12 +123,6 @@ export const enablePerformanceMonitoring = () => {
       const perfEntries = performance.getEntriesByType("navigation");
       if (perfEntries.length > 0) {
         const timing = perfEntries[0];
-        console.log("⚡ Performance metrics:", {
-          "Total Load Time": `${Math.round(timing.duration)}ms`,
-          "DOM Content Loaded": `${Math.round(timing.domContentLoadedEventEnd - timing.domContentLoadedEventStart)}ms`,
-          "First Paint": `${Math.round(performance.getEntriesByName("first-paint")[0]?.startTime || 0)}ms`,
-          "First Contentful Paint": `${Math.round(performance.getEntriesByName("first-contentful-paint")[0]?.startTime || 0)}ms`,
-        });
       }
     }
   });

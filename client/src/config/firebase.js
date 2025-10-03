@@ -21,7 +21,7 @@ export const storage = getStorage(app);
 
 // Auth persistence
 setPersistence(auth, browserLocalPersistence)
-  .then(() => console.log("✅ Auth persistence set to local"))
+  .then(() => console.log("✅"))
   .catch((err) => console.error("❌ Failed to set auth persistence:", err));
 
 // Emulators in development
@@ -29,7 +29,6 @@ if (import.meta.env.MODE === "development" && import.meta.env.VITE_USE_FIREBASE_
   connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
   connectFirestoreEmulator(db, "localhost", 8080);
   connectStorageEmulator(storage, "localhost", 9199);
-  console.log("🔥 Connected to Firebase emulators");
 }
 
 export const cleanupRecaptcha = () => {

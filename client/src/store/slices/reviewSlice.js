@@ -4,13 +4,9 @@ export const fetchProductReviews = createAsyncThunk(
   "review/fetchProductReviews",
   async (productId, { rejectWithValue }) => {
     try {
-      console.log("STEP 1: Fetching reviews for product ID:", productId);
       const response = await reviewAPI.getProductReviews(productId);
-      console.log("STEP 2: Raw response received:", response);
-      console.log("STEP 3: Response data:", response.data);
       return response.data; // Should be: { reviews: [...], stats: {...} }
     } catch (error) {
-      console.log("STEP 4: Entered catch block");
       console.error("Error fetching product reviews:", error);
       return rejectWithValue(error?.response?.data?.message || "Failed to fetch reviews");
     }

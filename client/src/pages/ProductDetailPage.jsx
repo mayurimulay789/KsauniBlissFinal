@@ -46,6 +46,8 @@ const { id, slug } = useParams()
   const [showImageModal, setShowImageModal] = useState(false)
   const [showSizeGuide, setShowSizeGuide] = useState(false)
   const [thumbsSwiper, setThumbsSwiper] = useState(null)
+  const [showBuyNowSizeModal, setShowBuyNowSizeModal] = useState(false)
+  const [showAddToCartSizeModal, setShowAddToCartSizeModal] = useState(false)
   const isInWishlist = wishlistItems.some((item) => item._id === currentProduct?._id)
 
   // Format description to display bullet points on new lines
@@ -79,7 +81,7 @@ const { id, slug } = useParams()
 
   useEffect(() => {
     if (currentProduct) {
-      if (currentProduct.sizes?.length > 0) setSelectedSize(currentProduct.sizes[0].size)
+      // Only set default color, not size
       if (currentProduct.colors?.length > 0) setSelectedColor(currentProduct.colors[0].name)
     }
   }, [currentProduct])
@@ -117,36 +119,22 @@ const { id, slug } = useParams()
       : currentProduct?.material
         ? String(currentProduct.material)
         : "COTTON"
-  const handleAddToCart = async () => {
+
+  const handleAddToCartClick = () => {
     console.log("=== ADD TO CART CLICKED ===")
-    console.log("handleAddToCart called")
+    console.log("handleAddToCartClick called")
     console.log("currentProduct:", currentProduct)
     console.log("selectedSize:", selectedSize)
     console.log("selectedColor:", selectedColor)
     console.log("quantity:", quantity)
 
-    if (currentProduct.sizes?.length && !selectedSize) {
-      console.log("No size selected, showing error")
-      toast.error("Please select a size first before adding to cart", {
-        duration: 3000,
-        style: {
-          background: "#fee2e2",
-          color: "#dc2626",
-          fontWeight: "bold",
-        },
-      })
-      // Scroll to size selection area
-      const sizeSection = document.querySelector("[data-size-section]")
-      if (sizeSection) {
-        sizeSection.scrollIntoView({ behavior: "smooth", block: "center" })
-        // Add visual highlight to size section
-        sizeSection.classList.add("ring-2", "ring-red-500", "ring-opacity-50")
-        setTimeout(() => {
-          sizeSection.classList.remove("ring-2", "ring-red-500", "ring-opacity-50")
-        }, 2000)
-      }
+    // Check if size selection is needed
+    if (currentProduct.sizes?.length > 0 && !selectedSize) {
+      console.log("No size selected, showing size selection modal for Add to Cart")
+      setShowAddToCartSizeModal(true)
       return false
     }
+
     if (currentProduct.colors?.length && !selectedColor) {
       console.log("No color selected, showing error")
       toast.error("Please select a color")
@@ -159,6 +147,12 @@ const { id, slug } = useParams()
       return toast.error(`Only ${sizeStock} items available in stock`)
     }
 
+    // If size is already selected, proceed with adding to cart
+    handleAddToCart()
+  }
+
+  const handleAddToCart = async () => {
+    console.log("handleAddToCart called")
     const payload = { productId: currentProduct._id, quantity, size: selectedSize, color: selectedColor }
     console.log("Cart payload:", payload)
 
@@ -191,35 +185,21 @@ const { id, slug } = useParams()
       return false // Return failure for Buy Now flow
     }
   }
-  const handleBuyNow = async () => {
+
+  const handleBuyNowClick = () => {
     console.log("=== BUY NOW CLICKED ===")
-    console.log("handleBuyNow called")
+    console.log("handleBuyNowClick called")
     console.log("currentProduct:", currentProduct?._id)
     console.log("selectedSize:", selectedSize)
     console.log("selectedColor:", selectedColor)
 
-    if (currentProduct.sizes?.length && !selectedSize) {
-      console.log("No size selected, showing error")
-      toast.error("Please select a size first before proceeding to buy", {
-        duration: 3000,
-        style: {
-          background: "#fee2e2",
-          color: "#dc2626",
-          fontWeight: "bold",
-        },
-      })
-      // Scroll to size selection area
-      const sizeSection = document.querySelector("[data-size-section]")
-      if (sizeSection) {
-        sizeSection.scrollIntoView({ behavior: "smooth", block: "center" })
-        // Add visual highlight to size section
-        sizeSection.classList.add("ring-2", "ring-red-500", "ring-opacity-50")
-        setTimeout(() => {
-          sizeSection.classList.remove("ring-2", "ring-red-500", "ring-opacity-50")
-        }, 2000)
-      }
+    // Check if size selection is needed
+    if (currentProduct.sizes?.length > 0 && !selectedSize) {
+      console.log("No size selected, showing size selection modal")
+      setShowBuyNowSizeModal(true)
       return false
     }
+
     if (currentProduct.colors?.length && !selectedColor) {
       console.log("No color selected, showing error")
       toast.error("Please select a color")
@@ -233,31 +213,43 @@ const { id, slug } = useParams()
       return toast.error(`Only ${sizeStock} items available in stock`)
     }
 
-    // First add to cart, then navigate to checkout if successful
-    console.log("Calling handleAddToCart from Buy Now...")
-    try {
-      const success = await handleAddToCart()
-      console.log("handleAddToCart returned:", success)
-
-      if (success) {
-        console.log("Success! Navigating to checkout...")
-        navigate("/checkout", {
-          state: {
-            product: currentProduct,
-            quantity,
-            size: selectedSize,
-            color: selectedColor,
-            buyNow: true, // Mark this as a buy now transaction
-          },
-        })
-        console.log("Navigation triggered")
-      } else {
-        console.log("handleAddToCart returned false, not navigating")
-      }
-    } catch (error) {
-      console.error("Error in handleBuyNow:", error)
-    }
+    // If size is already selected, proceed directly to checkout
+    handleProceedToCheckout()
   }
+
+  const handleProceedToCheckout = () => {
+    console.log("Proceeding to checkout...")
+    navigate("/checkout", {
+      state: {
+        product: currentProduct,
+        quantity,
+        size: selectedSize,
+        color: selectedColor,
+        buyNow: true, // Mark this as a buy now transaction
+        // Include all necessary product data for direct checkout
+        buyNowProduct: {
+          product: currentProduct,
+          quantity,
+          size: selectedSize,
+          color: selectedColor,
+          price: currentProduct.price,
+          originalPrice: currentProduct.originalPrice,
+          images: currentProduct.images,
+          name: currentProduct.name,
+          brand: currentProduct.brand
+        }
+      },
+    })
+    console.log("Buy Now navigation triggered")
+    setShowBuyNowSizeModal(false)
+  }
+
+  const handleProceedToAddToCart = () => {
+    console.log("Proceeding to add to cart...")
+    handleAddToCart()
+    setShowAddToCartSizeModal(false)
+  }
+
   const handleWishlistToggle = async () => {
     try {
       if (isInWishlist) {
@@ -741,36 +733,34 @@ const { id, slug } = useParams()
               <div className="hidden lg:block pt-4 border-t border-gray-200">
                 <div className="flex gap-3 max-w-md">
                   <button
-                    onClick={handleAddToCart}
+                    onClick={handleAddToCartClick}
                     disabled={
                       isAddingToCart ||
-                      (selectedSize && getSelectedSizeStock() === 0) ||
-                      (currentProduct.sizes?.length > 0 && !selectedSize)
+                      (selectedSize && getSelectedSizeStock() === 0)
                     }
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-1 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed ${
-                      currentProduct.sizes?.length > 0 && !selectedSize
+                      selectedSize && getSelectedSizeStock() === 0
                         ? "bg-gray-100 border-gray-300 text-gray-400"
                         : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50"
                     } ${isAddingToCart ? "opacity-50" : ""}`}
                   >
                     <ShoppingCart className="w-5 h-5" />
-                    {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE FIRST" : "ADD TO CART"}
+                    {selectedSize && getSelectedSizeStock() === 0 ? "OUT OF STOCK" : "ADD TO CART"}
                   </button>
                   <button
-                    onClick={handleBuyNow}
+                    onClick={handleBuyNowClick}
                     disabled={
                       isAddingToCart ||
-                      (selectedSize && getSelectedSizeStock() === 0) ||
-                      (currentProduct.sizes?.length > 0 && !selectedSize)
+                      (selectedSize && getSelectedSizeStock() === 0)
                     }
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-1 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed ${
-                      currentProduct.sizes?.length > 0 && !selectedSize
+                      selectedSize && getSelectedSizeStock() === 0
                         ? "bg-gray-400 text-gray-200"
                         : "bg-red-600 text-white hover:bg-red-700"
                     } ${isAddingToCart ? "opacity-50" : ""}`}
                   >
                     <img src="/buynow1.svg" className="w-8 h-8" />
-                    {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE FIRST" : "BUY NOW"}
+                    {selectedSize && getSelectedSizeStock() === 0 ? "OUT OF STOCK" : "BUY NOW"}
                   </button>
                 </div>
                  <div className="mt-4">
@@ -805,6 +795,291 @@ const { id, slug } = useParams()
             <RelatedProducts currentProduct={currentProduct} />
           </div>
       </div>
+      
+      {/* Buy Now Size Selection Modal */}
+      <AnimatePresence>
+        {showBuyNowSizeModal && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowBuyNowSizeModal(false)}
+          >
+            <motion.div
+              className="relative bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">Choose your perfect fit!</h3>
+                  <button 
+                    onClick={() => setShowBuyNowSizeModal(false)}
+                    className="p-1 rounded-full hover:bg-gray-100"
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+                
+                {/* Product Info */}
+                <div className="flex items-center space-x-4 mb-6">
+                  <img
+                    src={currentProduct.images[0]?.url || "/placeholder.svg"}
+                    alt={currentProduct.name}
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{currentProduct.name}</h4>
+                    <p className="text-lg font-bold text-gray-900">₹{currentProduct.price.toLocaleString()}</p>
+                    {currentProduct.originalPrice && currentProduct.originalPrice > currentProduct.price && (
+                      <p className="text-sm text-gray-500 line-through">
+                        ₹{currentProduct.originalPrice.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Size Selection */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-gray-800">Select Size</h4>
+                    <button
+                      onClick={() => {
+                        setShowBuyNowSizeModal(false)
+                        setShowSizeGuide(true)
+                      }}
+                      className="text-sm font-medium text-primary hover:text-primary-dark flex items-center"
+                    >
+                      <Ruler className="w-4 h-4 mr-1" />
+                      Size Guide
+                    </button>
+                  </div>
+                  
+                  {/* Size Grid - Desktop (7 columns) */}
+                  <div className="hidden sm:grid grid-cols-7 gap-2 mb-4">
+                    {currentProduct.sizes.map((s) => (
+                      <motion.button
+                        key={s.size}
+                        onClick={() => setSelectedSize(s.size)}
+                        disabled={s.stock === 0}
+                        className={`px-3 py-3 border-2 rounded-lg font-medium text-sm transition-all ${
+                          selectedSize === s.size
+                            ? "border-red-500 bg-red-50 text-red-600"
+                            : s.stock === 0
+                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "border-gray-300 hover:border-red-400 hover:text-red-500"
+                        }`}
+                        whileHover={{ scale: s.stock === 0 ? 1 : 1.05 }}
+                        whileTap={{ scale: s.stock === 0 ? 1 : 0.95 }}
+                      >
+                        {s.size}
+                      </motion.button>
+                    ))}
+                  </div>
+                  
+                  {/* Size Grid - Mobile (4 columns) */}
+                  <div className="sm:hidden grid grid-cols-4 gap-2 mb-4">
+                    {currentProduct.sizes.map((s) => (
+                      <motion.button
+                        key={s.size}
+                        onClick={() => setSelectedSize(s.size)}
+                        disabled={s.stock === 0}
+                        className={`px-3 py-3 border-2 rounded-lg font-medium text-sm transition-all ${
+                          selectedSize === s.size
+                            ? "border-red-500 bg-red-50 text-red-600"
+                            : s.stock === 0
+                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "border-gray-300 hover:border-red-400 hover:text-red-500"
+                        }`}
+                        whileHover={{ scale: s.stock === 0 ? 1 : 1.05 }}
+                        whileTap={{ scale: s.stock === 0 ? 1 : 0.95 }}
+                      >
+                        {s.size}
+                      </motion.button>
+                    ))}
+                  </div>
+                  
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      {selectedSize 
+                        ? `Selected: ${selectedSize} - ${getSelectedSizeStock()} available`
+                        : "Please select a size to continue"
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowBuyNowSizeModal(false)}
+                    className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleProceedToCheckout}
+                    disabled={!selectedSize}
+                    className={`flex-1 px-4 py-3 font-semibold rounded-lg transition-colors ${
+                      !selectedSize
+                        ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                        : "bg-red-600 text-white hover:bg-red-700"
+                    }`}
+                  >
+                    Buy Now
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Add to Cart Size Selection Modal */}
+      <AnimatePresence>
+        {showAddToCartSizeModal && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowAddToCartSizeModal(false)}
+          >
+            <motion.div
+              className="relative bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">Choose your perfect fit!</h3>
+                  <button 
+                    onClick={() => setShowAddToCartSizeModal(false)}
+                    className="p-1 rounded-full hover:bg-gray-100"
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+                
+                {/* Product Info */}
+                <div className="flex items-center space-x-4 mb-6">
+                  <img
+                    src={currentProduct.images[0]?.url || "/placeholder.svg"}
+                    alt={currentProduct.name}
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{currentProduct.name}</h4>
+                    <p className="text-lg font-bold text-gray-900">₹{currentProduct.price.toLocaleString()}</p>
+                    {currentProduct.originalPrice && currentProduct.originalPrice > currentProduct.price && (
+                      <p className="text-sm text-gray-500 line-through">
+                        ₹{currentProduct.originalPrice.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Size Selection */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-gray-800">Select Size</h4>
+                    <button
+                      onClick={() => {
+                        setShowAddToCartSizeModal(false)
+                        setShowSizeGuide(true)
+                      }}
+                      className="text-sm font-medium text-primary hover:text-primary-dark flex items-center"
+                    >
+                      <Ruler className="w-4 h-4 mr-1" />
+                      Size Guide
+                    </button>
+                  </div>
+                  
+                  {/* Size Grid - Desktop (7 columns) */}
+                  <div className="hidden sm:grid grid-cols-7 gap-2 mb-4">
+                    {currentProduct.sizes.map((s) => (
+                      <motion.button
+                        key={s.size}
+                        onClick={() => setSelectedSize(s.size)}
+                        disabled={s.stock === 0}
+                        className={`px-3 py-3 border-2 rounded-lg font-medium text-sm transition-all ${
+                          selectedSize === s.size
+                            ? "border-red-500 bg-red-50 text-red-600"
+                            : s.stock === 0
+                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "border-gray-300 hover:border-red-400 hover:text-red-500"
+                        }`}
+                        whileHover={{ scale: s.stock === 0 ? 1 : 1.05 }}
+                        whileTap={{ scale: s.stock === 0 ? 1 : 0.95 }}
+                      >
+                        {s.size}
+                      </motion.button>
+                    ))}
+                  </div>
+                  
+                  {/* Size Grid - Mobile (4 columns) */}
+                  <div className="sm:hidden grid grid-cols-4 gap-2 mb-4">
+                    {currentProduct.sizes.map((s) => (
+                      <motion.button
+                        key={s.size}
+                        onClick={() => setSelectedSize(s.size)}
+                        disabled={s.stock === 0}
+                        className={`px-3 py-3 border-2 rounded-lg font-medium text-sm transition-all ${
+                          selectedSize === s.size
+                            ? "border-red-500 bg-red-50 text-red-600"
+                            : s.stock === 0
+                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "border-gray-300 hover:border-red-400 hover:text-red-500"
+                        }`}
+                        whileHover={{ scale: s.stock === 0 ? 1 : 1.05 }}
+                        whileTap={{ scale: s.stock === 0 ? 1 : 0.95 }}
+                      >
+                        {s.size}
+                      </motion.button>
+                    ))}
+                  </div>
+                  
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      {selectedSize 
+                        ? `Selected: ${selectedSize} - ${getSelectedSizeStock()} available`
+                        : "Please select a size to continue"
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowAddToCartSizeModal(false)}
+                    className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleProceedToAddToCart}
+                    disabled={!selectedSize}
+                    className={`flex-1 px-4 py-3 font-semibold rounded-lg transition-colors ${
+                      !selectedSize
+                        ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                        : "bg-red-600 text-white hover:bg-red-700"
+                    }`}
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Image Modal */}
       <AnimatePresence>
         {showImageModal && (
@@ -948,37 +1223,35 @@ const { id, slug } = useParams()
         <div className="flex gap-3 max-w-md mx-auto">
           {/* Add to Cart */}
           <button
-            onClick={handleAddToCart}
+            onClick={handleAddToCartClick}
             disabled={
               isAddingToCart ||
-              (selectedSize && getSelectedSizeStock() === 0) ||
-              (currentProduct.sizes?.length > 0 && !selectedSize)
+              (selectedSize && getSelectedSizeStock() === 0)
             }
             className={`flex-1 flex items-center justify-center gap-2 px-1 py-2 border-1 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed text-sm ${
-              currentProduct.sizes?.length > 0 && !selectedSize
+              selectedSize && getSelectedSizeStock() === 0
                 ? "bg-gray-100 border-gray-300 text-gray-400"
                 : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50"
             } ${isAddingToCart ? "opacity-50" : ""}`}
           >
             <ShoppingCart className="w-4 h-4" />
-            {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE" : "ADD TO CART"}
+            {selectedSize && getSelectedSizeStock() === 0 ? "OUT OF STOCK" : "ADD TO CART"}
           </button>
           {/* Buy Now */}
           <button
-            onClick={handleBuyNow}
+            onClick={handleBuyNowClick}
             disabled={
               isAddingToCart ||
-              (selectedSize && getSelectedSizeStock() === 0) ||
-              (currentProduct.sizes?.length > 0 && !selectedSize)
+              (selectedSize && getSelectedSizeStock() === 0)
             }
             className={`flex-1 flex items-center justify-center gap-2 px-2 py-1 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed text-sm ${
-              currentProduct.sizes?.length > 0 && !selectedSize
+              selectedSize && getSelectedSizeStock() === 0
                 ? "bg-gray-400 text-gray-200"
                 : "bg-red-600 text-white hover:bg-red-700"
             } ${isAddingToCart ? "opacity-50" : ""}`}
           >
             <img src="/buynow1.svg" className="w-8 h-8 rounded-lg" />
-            {currentProduct.sizes?.length > 0 && !selectedSize ? "SELECT SIZE" : "BUY NOW"}
+            {selectedSize && getSelectedSizeStock() === 0 ? "OUT OF STOCK" : "BUY NOW"}
           </button>
         </div>
       </div>
