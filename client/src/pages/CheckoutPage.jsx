@@ -39,10 +39,10 @@ const CheckoutPage = () => {
   const location = useLocation()
   const rzpInstanceRef = useRef(null)
   
-  // Check if this is a Buy Now flow
-  const isBuyNow = location.state?.buyNow || false
-  const buyNowProduct = location.state?.buyNowProduct || null
-  
+  // Check if this is a Buy Now flow - with localStorage fallback
+  const [isBuyNow, setIsBuyNow] = useState(false)
+  const [buyNowProduct, setBuyNowProduct] = useState(null)
+
   // Use memoized selectors
   const razorpayOrder = useSelector(selectRazorpayOrder)
   const orderSummary = useSelector(selectOrderSummary)
@@ -111,6 +111,32 @@ const CheckoutPage = () => {
     }
   }, [])
 
+  // Load Buy Now data from localStorage if location.state is lost (after redirect)
+  useEffect(() => {
+    const savedBuyNowData = localStorage.getItem('buyNowProduct')
+    
+    if (location.state?.buyNow) {
+      // If we have fresh Buy Now data from location.state, save it to localStorage
+      setIsBuyNow(true)
+      setBuyNowProduct(location.state.buyNowProduct)
+      localStorage.setItem('buyNowProduct', JSON.stringify({
+        product: location.state.buyNowProduct.product,
+        quantity: location.state.buyNowProduct.quantity,
+        size: location.state.buyNowProduct.size,
+        color: location.state.buyNowProduct.color
+      }))
+      localStorage.setItem('isBuyNow', 'true')
+    } else if (savedBuyNowData) {
+      // If location.state is lost but we have saved data, restore it
+      setIsBuyNow(true)
+      setBuyNowProduct(JSON.parse(savedBuyNowData))
+    } else {
+      // Regular cart flow
+      setIsBuyNow(false)
+      setBuyNowProduct(null)
+    }
+  }, [location.state])
+
   useEffect(() => {
     // Close existing instance if any
     // Clear any existing order state when checkout page loads
@@ -127,6 +153,7 @@ const CheckoutPage = () => {
         rzpInstanceRef.current.close()
         rzpInstanceRef.current = null
       }
+      // Don't clear localStorage here as we need it for redirect scenarios
     }
   }, [])
 
@@ -177,7 +204,7 @@ const CheckoutPage = () => {
 
   const handleApplyCoupon = useCallback(() => {
     if (!couponCode.trim()) return
-    const orderValue = isBuyNow ? buyNowProduct.product.price * buyNowProduct.quantity : cartSummary.subtotal || 0
+    const orderValue = isBuyNow && buyNowProduct ? buyNowProduct.product.price * buyNowProduct.quantity : cartSummary.subtotal || 0
     dispatch(validateCoupon({ code: couponCode, cartTotal: orderValue }))
   }, [couponCode, cartSummary.subtotal, dispatch, isBuyNow, buyNowProduct])
 
@@ -297,6 +324,9 @@ const CheckoutPage = () => {
     }
     dispatch(placeCodOrder(orderData)).then((result) => {
       if (result.type === "order/placeCodOrder/fulfilled") {
+        // Clear localStorage after successful order
+        localStorage.removeItem('buyNowProduct')
+        localStorage.removeItem('isBuyNow')
         navigate(`/order-confirmation/${result.payload.order.id}`)
       } else {
         console.error("COD Order failed:", result.error)
@@ -327,6 +357,9 @@ const CheckoutPage = () => {
           }),
         ).then((result) => {
           if (result.type === "order/verifyPayment/fulfilled") {
+            // Clear localStorage after successful payment
+            localStorage.removeItem('buyNowProduct')
+            localStorage.removeItem('isBuyNow')
             navigate(`/order-confirmation/${result.payload.order.id}`)
           }
         })
@@ -412,7 +445,12 @@ const CheckoutPage = () => {
             {isBuyNow ? "Buy Now product not found" : "Add some items to your cart to proceed with checkout"}
           </p>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => {
+              // Clear any stale localStorage data
+              localStorage.removeItem('buyNowProduct')
+              localStorage.removeItem('isBuyNow')
+              navigate("/")
+            }}
             className="px-4 py-2 text-sm text-white transition-colors bg-red-600 rounded-lg xs:px-6 xs:text-base hover:bg-red-700"
           >
             Continue Shopping
@@ -658,8 +696,7 @@ const CheckoutPage = () => {
                         <div className="flex flex-col xs:flex-row xs:items-center justify-between text-xs text-gray-500">
                           <span className="mb-2 xs:mb-0">No active coupons right now. (To View Coupons please login)</span>
                           <button
-                            // onClick={() => navigate("/login")}
-                             onClick={() => navigate("/login", {
+                            onClick={() => navigate("/login", {
                               state: { from: "/checkout" }
                             })}
                             className="px-3 py-2 text-xs font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700"

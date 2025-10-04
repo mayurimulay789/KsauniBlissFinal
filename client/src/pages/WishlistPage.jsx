@@ -58,10 +58,10 @@ const WishlistPage = () => {
   const handleAddToCart = async (product) => {
     const size = selectedSizes[product._id];
     // Check if size is required but not selected
-    if (product.sizes && product.sizes.length > 0 && !size) {
-      toast.error("Please select a size");
-      return;
-    }
+    // if (product.sizes && product.sizes.length > 0 && !size) {
+    //   toast.success("Please select a size");
+    //   return;
+    // }
     // ✅ Optimistic update - add to cart immediately
     dispatch(
       optimisticAddToCart({
@@ -98,10 +98,10 @@ const WishlistPage = () => {
   const handleMoveToCart = async (product) => {
     const size = selectedSizes[product._id];
     // Check if size is required but not selected
-    if (product.sizes && product.sizes.length > 0 && !size) {
-      toast.error("Please select a size");
-      return;
-    }
+    // if (product.sizes && product.sizes.length > 0 && !size) {
+    //   toast.success("Please select a size");
+    //   return;
+    // }
     // ✅ Optimistic updates - add to cart and remove from wishlist
     dispatch(
       optimisticAddToCart({
@@ -262,7 +262,7 @@ const WishlistPage = () => {
                   </div>
                   {/* Product Details */}
                   <div className="p-4">
-                    <Link to={`/product/${product._id}`}>
+                    <Link to={`/product/${product.slug}`}>
                       <h3 className="mb-2 font-semibold text-gray-800 transition-colors line-clamp-2 hover:text-ksauni-red">
                         {product.name}
                       </h3>
@@ -295,7 +295,7 @@ const WishlistPage = () => {
                       )}
                     </div>
                     {/* Size Selection */}
-                    {product.sizes && product.sizes.length > 0 && (
+                    {/* {product.sizes && product.sizes.length > 0 && (
                       <div className="mb-3">
                         <p className="mb-2 text-sm text-gray-600">Size:</p>
                         <div className="flex flex-wrap gap-2">
@@ -317,7 +317,7 @@ const WishlistPage = () => {
                           ))}
                         </div>
                       </div>
-                    )}
+                    )} */}
                     {/* Stock Status */}
                     {product.stock === 0 ? (
                       <div className="mb-3 text-sm font-medium text-red-600">Out of Stock</div>
