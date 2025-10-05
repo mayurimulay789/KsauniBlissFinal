@@ -71,8 +71,8 @@ const trackingInfoSchema = new mongoose.Schema(
 const orderSchema = new mongoose.Schema(
   {
     orderNumber: { type: String, unique: true, index: true }, // e.g. FH-<timestamp>
-    shiprocketShipmentId : {type: Number, unique: true,},
-    shiprocketOrderId: {type: Number, unique: true,},
+    shiprocketShipmentId : { type: Number }, // REMOVED unique constraint
+    shiprocketOrderId: { type: Number }, // REMOVED unique constraint
     trackingUrl:{type:String, default: null },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
 

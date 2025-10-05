@@ -451,7 +451,7 @@ const CheckoutPage = () => {
               localStorage.removeItem('isBuyNow')
               navigate("/")
             }}
-            className="px-4 py-2 text-sm text-white transition-colors bg-red-600 rounded-lg xs:px-6 xs:text-base hover:bg-red-700"
+            className="px-4 py-2 text-sm text-white transition-colors bg-red-600 rounded-xl xs:px-6 xs:text-base hover:bg-red-700"
           >
             Continue Shopping
           </button>
@@ -501,7 +501,7 @@ const CheckoutPage = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="px-3 py-2 xs:py-3 mb-3 xs:mb-4 text-xs xs:text-sm border border-red-200 rounded-lg bg-red-50 text-red-700"
+              className="px-3 py-2 xs:py-3 mb-3 xs:mb-4 text-xs xs:text-sm border border-red-200 rounded-xl bg-red-50 text-red-700"
             >
               {orderError || couponError}
             </motion.div>
@@ -528,7 +528,7 @@ const CheckoutPage = () => {
                       type="text"
                       value={shippingAddress.fullName}
                       onChange={(e) => handleAddressChange("fullName", e.target.value)}
-                      className={`w-full px-3 py-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full px-3 py-3 text-base border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.fullName ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="Enter your full name"
@@ -565,7 +565,7 @@ const CheckoutPage = () => {
                       type="text"
                       value={shippingAddress.addressLine1}
                       onChange={(e) => handleAddressChange("addressLine1", e.target.value)}
-                      className={`w-full px-3 py-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full px-3 py-3 text-base border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.addressLine1 ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="House/Flat No., Building Name, Street"
@@ -581,7 +581,7 @@ const CheckoutPage = () => {
                       type="text"
                       value={shippingAddress.city}
                       onChange={(e) => handleAddressChange("city", e.target.value)}
-                      className={`w-full px-3 py-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full px-3 py-3 text-base border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.city ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="Enter your city"
@@ -594,7 +594,7 @@ const CheckoutPage = () => {
                       type="text"
                       value={shippingAddress.state}
                       onChange={(e) => handleAddressChange("state", e.target.value)}
-                      className={`w-full px-3 py-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full px-3 py-3 text-base border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.state ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="Enter your state"
@@ -607,7 +607,7 @@ const CheckoutPage = () => {
                       type="text"
                       value={shippingAddress.pinCode}
                       onChange={(e) => handleAddressChange("pinCode", e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      className={`w-full px-3 py-3 text-base border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full px-3 py-3 text-base border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
                         addressErrors.pinCode ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="6-digit PIN code"
@@ -620,7 +620,7 @@ const CheckoutPage = () => {
                       type="text"
                       value={shippingAddress.landmark}
                       onChange={(e) => handleAddressChange("landmark", e.target.value)}
-                      className="w-full px-3 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className="w-full px-3 py-3 text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"
                       placeholder="Nearby landmark (Optional)"
                     />
                   </div>
@@ -639,7 +639,7 @@ const CheckoutPage = () => {
                   <h2 className="text-base xs:text-lg font-semibold">Promo Code</h2>
                 </div>
                 {appliedCoupon ? (
-                  <div className="flex flex-col justify-between p-3 space-y-2 border border-green-200 rounded-lg xs:flex-row xs:items-center bg-green-50 xs:space-y-0">
+                  <div className="flex flex-col justify-between p-3 space-y-2 border border-green-200 rounded-xl xs:flex-row xs:items-center bg-green-50 xs:space-y-0">
                     <div>
                       <p className="text-sm font-medium text-green-800">{appliedCoupon.code}</p>
                       <p className="text-xs text-green-600">You saved ₹{appliedCoupon.discountAmount}!</p>
@@ -652,7 +652,7 @@ const CheckoutPage = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="p-3 xs:p-4 bg-white border rounded-lg">
+                  <div className="p-3 xs:p-4 bg-white border rounded-xl">
                     {/* Header / Toggle */}
                     {!showCouponInput ? (
                       <button
@@ -668,20 +668,20 @@ const CheckoutPage = () => {
                           value={couponCode}
                           onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                           placeholder="Enter promo code"
-                          className="flex-1 px-3 py-3 text-base border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                          className="flex-1 px-3 py-3 text-base border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={handleApplyCoupon}
                             disabled={!couponCode.trim() || couponLoading?.validating}
-                            className="px-3 xs:px-4 py-3 text-sm font-semibold text-white bg-red-600 rounded-lg disabled:opacity-50 hover:bg-red-700"
+                            className="px-3 xs:px-4 py-3 text-sm font-semibold text-white bg-red-600 rounded-xl disabled:opacity-50 hover:bg-red-700"
                           >
                             {couponLoading?.validating ? "Applying..." : "Apply"}
                           </button>
                           {appliedCoupon && (
                             <button
                               onClick={handleRemoveCoupon}
-                              className="px-3 xs:px-4 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                              className="px-3 xs:px-4 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200"
                             >
                               Remove
                             </button>
@@ -699,7 +699,7 @@ const CheckoutPage = () => {
                             onClick={() => navigate("/login", {
                               state: { from: "/checkout" }
                             })}
-                            className="px-3 py-2 text-xs font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700"
+                            className="px-3 py-2 text-xs font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700"
                           >
                             Login
                           </button>
@@ -714,7 +714,7 @@ const CheckoutPage = () => {
                             return (
                               <div
                                 key={c.code}
-                                className="flex items-center justify-between p-2 border border-gray-200 rounded-lg"
+                                className="flex items-center justify-between p-2 border border-gray-200 rounded-xl"
                               >
                                 <div className="flex flex-col">
                                   <span className="text-sm font-mono font-semibold">{c.code}</span>
@@ -722,7 +722,7 @@ const CheckoutPage = () => {
                                   {min > 0 && <span className="text-xs text-gray-500">Min order: ₹{min}</span>}
                                 </div>
                                 <button
-                                  className="px-2 xs:px-3 py-2 text-xs font-semibold text-white bg-red-600 rounded-lg disabled:opacity-50 hover:bg-red-700"
+                                  className="px-2 xs:px-3 py-2 text-xs font-semibold text-white bg-red-600 rounded-xl disabled:opacity-50 hover:bg-red-700"
                                   disabled={!eligible}
                                   onClick={() => {
                                     setShowCouponInput(true)
@@ -762,7 +762,7 @@ const CheckoutPage = () => {
                 
                 {/* Buy Now Notice */}
                 {isBuyNow && (
-                  <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-xl">
                     <p className="text-xs text-blue-700 font-medium">
                       🚀 Quick Purchase: You're buying this item directly
                     </p>
@@ -778,7 +778,7 @@ const CheckoutPage = () => {
                           item.product?.images?.[0]?.url || "/placeholder.svg?height=64&width=64" || "/placeholder.svg"
                         }
                         alt={item.product?.name || "Product"}
-                        className="object-cover w-10 h-10 xs:w-12 xs:h-12 sm:w-16 sm:h-16 rounded-lg"
+                        className="object-cover w-10 h-10 xs:w-12 xs:h-12 sm:w-16 sm:h-16 rounded-xl"
                       />
                       <div className="flex-1 min-w-0">
                         <h3 className="text-xs xs:text-sm font-medium truncate">
@@ -911,7 +911,7 @@ const CheckoutPage = () => {
                 onClick={() => setShowCongratulationsPopup(false)}
                 className="absolute top-2 right-2 xs:top-4 xs:right-4 p-1 text-gray-400 hover:text-gray-600 transition-colors z-10"
               >
-                <X className="w-4 h-4 xs:w-5 xs:h-5" />
+                <X className="w-6 h-6 xs:w-5 xs:h-5" />
               </button>
 
               {/* Celebration content */}
@@ -928,7 +928,7 @@ const CheckoutPage = () => {
                 <p className="mb-3 xs:mb-4 text-sm xs:text-base text-gray-600">Your promo code has been applied successfully!</p>
 
                 {/* Savings details */}
-                <div className="p-3 xs:p-4 mb-4 xs:mb-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                <div className="p-3 xs:p-4 mb-4 xs:mb-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
                   <div className="flex items-center justify-between mb-1 xs:mb-2">
                     <span className="text-xs xs:text-sm font-medium text-green-800">Code: {congratulationsData.couponCode}</span>
                     <span className="text-base xs:text-lg font-bold text-green-600">₹{congratulationsData.savingsAmount} OFF</span>
@@ -941,7 +941,7 @@ const CheckoutPage = () => {
                 {/* Action button */}
                 <button
                   onClick={() => setShowCongratulationsPopup(false)}
-                  className="w-full px-4 xs:px-6 py-2 xs:py-3 text-sm xs:text-base text-white bg-gradient-to-r from-red-600 to-red-700 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 font-semibold shadow-lg"
+                  className="w-full px-4 xs:px-6 py-2 xs:py-3 text-sm xs:text-base text-white bg-gradient-to-r from-red-600 to-red-700 rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 font-semibold shadow-lg"
                 >
                   Continue Shopping
                 </button>

@@ -583,6 +583,21 @@ const Navbar = () => {
                   >
                     {token ? user?.name || "Profile" : "Login"}
                   </div>
+                  {/* logout button if logged in */}
+                  {token && (<div
+                    onClick={() => {
+                      handleLogout();
+                      if (isMenuOpen) {
+                        setIsMenuOpen(false)  
+                        logout()
+                        
+                      }
+                    }}
+                    className="py-2 text-gray-700 border-b border-gray-200 cursor-pointer hover:text-red-600"
+                  >
+                    Logout
+                  </div>
+                  )}
                 </div>
               </motion.div>
             )}
