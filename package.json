@@ -24,6 +24,7 @@
     "@fortawesome/react-fontawesome": "^3.1.0",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
+    "pre-commit": "^1.2.2",
     "redux-persist": "^6.0.0",
     "rimraf": "^5.0.10"
   }

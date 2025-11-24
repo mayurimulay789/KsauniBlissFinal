@@ -387,6 +387,7 @@ const OrdersManagement = () => {
                         {selectedOrder.shippingAddress.pinCode}
                       </p>
                       <p>Phone: {selectedOrder.shippingAddress.phoneNumber}</p>
+                       <p>Email: {selectedOrder.shippingAddress.email}</p>
                     </div>
                   </div>
                 </div>
@@ -429,88 +430,70 @@ const OrdersManagement = () => {
                     ))}
                   </div>
                   {/* Pricing Breakdown */}
-                  {selectedOrder && (
-                    (() => {
-                      const sp = computeSafePricing(selectedOrder)
-                      const isCOD = String(
-                        selectedOrder?.paymentInfo?.method || selectedOrder?.paymentInfo?.paymentMethod || ""
-                      ).toUpperCase() === "COD"
-                      return (
-                        <div>
-                          <div className="rounded-xl border border-gray-200 p-8 shadow-sm mt-4">
-                            <h2 className="mb-6 flex items-center text-2xl font-bold text-gray-800">
-                              <CreditCard className="mr-3 h-6 w-6 text-gray-600" />
-                              Payment Details
-                            </h2>
-                            <div className="mb-4 space-y-2">
-                              <div className="flex justify-between text-sm">
-                                <span>Subtotal</span>
-                                <span>{formatCurrency(sp.subtotal)}</span>
-                              </div>
-                              <div className="flex justify-between text-sm">
-                                <span>Shipping</span>
-                                <span className={Number(sp.shippingCharges) === 0 ? "text-green-600" : ""}>
-                                  {Number(sp.shippingCharges) === 0 ? "FREE" : formatCurrency(sp.shippingCharges)}
-                                </span>
-                              </div>
-                              {Number(sp.deliveryCharge) > 0 && (
-                                <div className="flex justify-between text-sm">
-                                  <span>Cash on Delivery charge</span>
-                                  <span>{formatCurrency(sp.deliveryCharge)}</span>
-                                </div>
-                              )}
-                {sp.freediscount > 0 && (
-                  <div className="flex justify-between text-sm text-blue-600">
-                    <span>Free Discount</span>
-                    <span>-₹{Math.round(sp.freediscount)}</span>
-                  </div>)}
-                              <div className="flex justify-between text-sm">
-                                <span>Tax (GST)</span>
-                                <span>{formatCurrency(sp.tax)}</span>
-                              </div>
-                              <div className="flex justify-between pt-2 font-semibold border-t">
-                                <span>{isCOD ? "Final amount to be collected" : "Total Paid"}</span>
-                                <span>{formatCurrency(sp.total || 0)}</span>
-                              </div>
-                            </div>
-                            <div className="p-3 rounded-lg bg-green-50">
-                              {isCOD ? (
-                                <p className="text-sm font-medium text-green-800">Payment Method: COD</p>
-                              ) : (
-                                <p className="text-sm font-medium text-green-800">Payment Successful</p>
-                              )}
-                            </div>
-                            <div className="space-y-4 text-base text-gray-700 mt-4">
-                              <p>
-                                <span className="font-semibold text-gray-900">Payment Status:</span>{" "}
-                                <span
-                                  className={`font-extrabold ${
-                                    selectedOrder.paymentInfo?.paymentStatus === "paid" ||
-                                    selectedOrder.paymentInfo?.status === "PAID"
-                                      ? "text-green-700"
-                                      : "text-red-700"
-                                  }`}
-                                >
-                                  {selectedOrder.paymentInfo?.paymentStatus || selectedOrder.paymentInfo?.status || "N/A"}
-                                </span>
-                              </p>
-                              {selectedOrder.paymentInfo?.razorpayOrderId && (
-                                <p>
-                                  <span className="font-semibold text-gray-900">Razorpay Order ID:</span>{" "}
-                                  <span className="font-mono text-sm">{selectedOrder.paymentInfo?.razorpayOrderId}</span>
-                                </p>
-                              )}
-                              {selectedOrder.paymentInfo?.razorpayPaymentId && (
-                                <p>
-                                  <span className="font-semibold text-gray-900">Razorpay Payment ID:</span>{" "}
-                                  <span className="font-mono text-sm">{selectedOrder.paymentInfo?.razorpayPaymentId}</span>
-                                </p>
-                              )}
-                            </div>
-                          </div>
+                  {selectedOrder.pricing && (
+                    <div className="p-4 mt-4 rounded-lg bg-gray-50">
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span>Subtotal:</span>
+                          <span>{formatCurrency(selectedOrder.pricing.subtotal || 0)}</span>
                         </div>
-                      )
-                    })()
+                        <div className="flex justify-between">
+                          <span>Shipping:</span>
+                          <span>{formatCurrency(selectedOrder.pricing.shippingCharges || 0)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Tax:</span>
+                          <span>{formatCurrency(selectedOrder.pricing.tax || 0)}</span>
+                        </div>
+                        {(selectedOrder.pricing.discount || 0) > 0 && (
+                          <div className="flex justify-between text-green-600">
+                            <span>Discount:</span>
+                            <span>-{formatCurrency(selectedOrder.pricing.discount)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between pt-2 text-lg font-medium border-t">
+                          <span>Total:</span>
+                          <span>{formatCurrency(selectedOrder.pricing.total || 0)}</span>
+                        </div>
+                      </div>
+                      <div className="rounded-xl border border-gray-200 p-8 shadow-sm">
+                        <h2 className="mb-6 flex items-center text-2xl font-bold text-gray-800">
+                          <CreditCard className="mr-3 h-6 w-6 text-gray-600" />
+                          Payment Information
+                        </h2>
+                        <div className="space-y-4 text-base text-gray-700">
+                          <p>
+                            <span className="font-semibold text-gray-900">Payment Method:</span>{" "}
+                            {selectedOrder.paymentInfo?.method || "N/A"}
+                          </p>
+                          <p>
+                            <span className="font-semibold text-gray-900">Payment Status:</span>{" "}
+                            <span
+                              className={`font-extrabold ${
+                                selectedOrder.paymentInfo?.paymentStatus === "paid" ||
+                                selectedOrder.paymentInfo?.status === "PAID"
+                                  ? "text-green-700"
+                                  : "text-red-700"
+                              }`}
+                            >
+                              {selectedOrder.paymentInfo?.paymentStatus || selectedOrder.paymentInfo?.status || "N/A"}
+                            </span>
+                          </p>
+                          {selectedOrder.paymentInfo?.razorpayOrderId && (
+                            <p>
+                              <span className="font-semibold text-gray-900">Razorpay Order ID:</span>{" "}
+                              <span className="font-mono text-sm">{selectedOrder.paymentInfo?.razorpayOrderId}</span>
+                            </p>
+                          )}
+                          {selectedOrder.paymentInfo?.razorpayPaymentId && (
+                            <p>
+                              <span className="font-semibold text-gray-900">Razorpay Payment ID:</span>{" "}
+                              <span className="font-mono text-sm">{selectedOrder.paymentInfo?.razorpayPaymentId}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
