@@ -48,16 +48,6 @@ export const PaymentModal = ({ isOpen, onClose, onOnline, onCOD, amount }) => {
         ) : (
           <>
             <div className="mb-4 space-y-3">
-              {/* Pay Online Option */}
-              <div className="flex justify-between items-start pb-3 border-b">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Pay Online</h3>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-gray-900">₹{amount}</p>
-                </div>
-              </div>
-
               {/* Cash On Delivery Header */}
               <div className="flex justify-between items-start pb-3 border-b">
                 <div>
