@@ -211,6 +211,7 @@ const createRazorpayOrder = async (req, res) => {
       shippingAddress,
       subtotal,
       shippingCharge: shippingCharges,
+      freediscount: freediscount,
       discount,
       total:total,
       pricing: { subtotal, shippingCharges, tax, discount, total, freediscount, selectedShippingRate },
@@ -239,6 +240,7 @@ const createRazorpayOrder = async (req, res) => {
         shippingAddress,
         pricing: { subtotal, shippingCharges, tax, discount, total, freediscount, selectedShippingRate },
         coupon: couponDetails,
+        freediscount: freediscount,
         paymentInfo: {
           razorpayOrderId: razorpayOrder.id,
           method: "RAZORPAY",
@@ -523,6 +525,7 @@ const placeCodOrder = async (req, res) => {
       shippingAddress,
       subtotal,
       shippingCharge: shippingCharges,
+      freediscount: freediscount,
       discount,
       deliveryCharge: Number(deliveryCharge || 0),
       total: total,
@@ -594,10 +597,10 @@ const placeCodOrder = async (req, res) => {
           }
         } else {
           // ✅ guest → send email only if provided
-          if (shippingAddress?.email) {
+          if (order.shippingAddress?.email) {
             try {
               await sendOrderConfirmationEmail(
-                { email: shippingAddress.email, name: shippingAddress.fullName },
+                { email: order.shippingAddress.email, name: shippingAddress.fullName },
                 populatedOrder
               );
             } catch (emailErr) {
@@ -976,6 +979,7 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
           ${addressLine2}
           <p>${addr.city || ""}, ${addr.state || ""} - ${addr.pinCode || ""}</p>
           ${addr.phoneNumber ? `<p>Phone: ${addr.phoneNumber}</p>` : ""}
+          ${addr.email} <p>Email: ${addr.email}</p>
         </div>
 
         <p>We'll send you another email when your order ships.</p>

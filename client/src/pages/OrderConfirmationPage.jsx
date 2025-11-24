@@ -65,7 +65,7 @@ const OrderConfirmationPage = () => {
       return sum + (isNaN(itemTotal) ? 0 : itemTotal);
     }, 0);
     const subtotal = p.subtotal ?? o.subtotal ?? calcItemsSubtotal;
-    const freediscount = filterYCoupon[0]?.discountType == "flat" ? filterYCoupon[0]?.discountValue : subtotal * (filterYCoupon[0]?.discountValue / 100)
+    const freediscount = p.freediscount;
     const shippingCharges = p.shippingCharges ?? o.shippingCharge ?? 0;
     const deliveryCharge = p.deliveryCharge ?? o.deliveryCharge ?? 0;
     const discount = p.discount ?? 0;
@@ -267,6 +267,7 @@ const OrderConfirmationPage = () => {
                   {currentOrder?.shippingAddress?.pinCode}
                 </p>
                 <p className="mt-2">Phone: {currentOrder?.shippingAddress?.phoneNumber}</p>
+                <p>Email: {currentOrder?.shippingAddress?.email}</p>
               </div>
               <div className="p-3 mt-4 rounded-lg bg-blue-50">
                 <div className="flex items-center text-blue-700">
