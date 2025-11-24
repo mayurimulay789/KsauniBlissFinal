@@ -355,6 +355,7 @@ const OrdersManagement = () => {
                         {selectedOrder.shippingAddress.pinCode}
                       </p>
                       <p>Phone: {selectedOrder.shippingAddress.phoneNumber}</p>
+                       <p>Email: {selectedOrder.shippingAddress.email}</p>
                     </div>
                   </div>
                 </div>
@@ -412,10 +413,22 @@ const OrdersManagement = () => {
                           <span>Tax:</span>
                           <span>{formatCurrency(selectedOrder.pricing.tax || 0)}</span>
                         </div>
+                        {(selectedOrder.freediscount || 0) > 0 && (
+                          <div className="flex justify-between text-blue-600">
+                            <span>Free Discount:</span>
+                            <span>-{formatCurrency(selectedOrder?.freediscount)}</span>
+                          </div>
+                        )}
                         {(selectedOrder.pricing.discount || 0) > 0 && (
                           <div className="flex justify-between text-green-600">
                             <span>Discount:</span>
                             <span>-{formatCurrency(selectedOrder.pricing.discount)}</span>
+                          </div>
+                        )}
+                        {(selectedOrder.paymentInfo.method == "COD" || 0) > 0 && (
+                          <div className="flex justify-between text-BLACK">
+                            <span>Delivery Charge Applicable:</span>
+                            <span>{formatCurrency(selectedOrder?.deliveryCharge)}</span>
                           </div>
                         )}
                         <div className="flex justify-between pt-2 text-lg font-medium border-t">

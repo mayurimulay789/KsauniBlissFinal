@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import { useNavigate, useLocation } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { ShoppingBag, MapPin, CreditCard, Tag, Truck, Shield, X, Plus, Edit, Trash2, Check, Delete } from "lucide-react"
+import { ShoppingBag, MapPin, CreditCard, Tag, Truck, Shield, X, Plus, Edit, Trash2, Check, Delete, Mail } from "lucide-react"
 import axios from "axios";
 import {
   createRazorpayOrder,
@@ -165,10 +165,6 @@ const useAddressManagement = (user) => {
     cancelEditing()
   }, [editingAddress, updateAddress, addAddress, cancelEditing])
 
-  const onDeleteAddress = () => {
-    localStorage.removeItem("")
-  }
-
   return {
     addresses,
     selectedAddress,
@@ -190,6 +186,7 @@ const useAddressManagement = (user) => {
 const AddressPopup = ({ isOpen, onClose, onSave, editingAddress, user }) => {
   const [formData, setFormData] = useState({
     fullName: "",
+    email: "", // Added email field
     phoneNumber: "",
     addressLine1: "",
     addressLine2: "",
@@ -206,6 +203,7 @@ const AddressPopup = ({ isOpen, onClose, onSave, editingAddress, user }) => {
     if (editingAddress) {
       setFormData({
         fullName: editingAddress.fullName || "",
+        email: editingAddress.email || "", // Prefill email
         phoneNumber: editingAddress.phoneNumber || "",
         addressLine1: editingAddress.addressLine1 || "",
         addressLine2: editingAddress.addressLine2 || "",
@@ -220,6 +218,7 @@ const AddressPopup = ({ isOpen, onClose, onSave, editingAddress, user }) => {
       setFormData(prev => ({
         ...prev,
         fullName: user?.name || "",
+        email: user?.email || "", // Prefill user email
         phoneNumber: user?.phoneNumber?.replace("+91", "") || "",
       }))
     }
@@ -228,6 +227,10 @@ const AddressPopup = ({ isOpen, onClose, onSave, editingAddress, user }) => {
   const validateForm = () => {
     const newErrors = {}
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required"
+    if (!formData.email.trim()) newErrors.email = "Email is required" // Email validation
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address"
+    }
     if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Phone number is required"
     else if (!/^[6789]\d{9}$/.test(formData.phoneNumber)) {
       newErrors.phoneNumber = "Please enter a valid 10-digit mobile number"
@@ -295,7 +298,7 @@ const AddressPopup = ({ isOpen, onClose, onSave, editingAddress, user }) => {
         {/* Compact Form Content */}
         <div className="flex-1 overflow-y-auto p-4">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Personal Details */}
+            {/* Personal Details - Added Email Field */}
             <div className="grid gap-3">
               <div>
                 <label className="block mb-1.5 text-sm font-medium text-gray-700">Full Name *</label>
@@ -308,6 +311,25 @@ const AddressPopup = ({ isOpen, onClose, onSave, editingAddress, user }) => {
                   placeholder="Enter full name"
                 />
                 {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
+              </div>
+
+              {/* Added Email Field */}
+              <div>
+                <label className="block mb-1.5 text-sm font-medium text-gray-700">Email Address *</label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 py-2 text-sm border border-r-0 border-gray-300 rounded-l-lg bg-gray-50 text-gray-600">
+                    <Mail className="w-4 h-4" />
+                  </span>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    className={`w-full px-3 py-2 text-sm border rounded-r-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-colors ${errors.email ? "border-red-500 bg-red-50" : "border-gray-300 hover:border-gray-400"
+                      }`}
+                    placeholder="Enter your email"
+                  />
+                </div>
+                {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
               </div>
 
               <div>
@@ -546,6 +568,7 @@ const AddressList = ({
               </div>
               <div className="space-y-1 text-sm text-gray-600">
                 <p className="font-medium">{address.fullName}</p>
+                <p>{address.email}</p> {/* Added email display */}
                 <p>+91 {address.phoneNumber}</p>
                 <p>{address.addressLine1}</p>
                 {address.addressLine2 && <p>{address.addressLine2}</p>}
@@ -739,8 +762,6 @@ const CheckoutPage = () => {
     }
   }, [appliedCoupon])
 
-
-
   const handleApplyCoupon = useCallback(() => {
     if (!couponCode.trim()) return
     const orderValue = isBuyNow && buyNowProduct ? buyNowProduct.product.price * buyNowProduct.quantity : cartSummary.subtotal || 0
@@ -817,7 +838,7 @@ const CheckoutPage = () => {
       phoneNumber: `+91${selectedAddress.phoneNumber}`,
     },
     couponCode: appliedCoupon?.code || "",
-    isBuyNow: isBuyNow,
+    isBuyNow: isBuyNow
   }), [getDisplayItems, selectedAddress, appliedCoupon, isBuyNow])
 
   const handlePlaceOrder = useCallback(() => {
@@ -827,37 +848,37 @@ const CheckoutPage = () => {
     }
     if (!validateOrder()) return
     const orderData = {
-      freediscount: calculateFinalPricing.freediscount,
       amount: calculateFinalPricing.total,
+      freediscount: calculateFinalPricing.freediscount,
       ...createOrderData()
     }
     dispatch(createRazorpayOrder(orderData))
     setShowPaymentModal(false)
-  }, [validateOrder, calculateFinalPricing.total, createOrderData, dispatch])
+  }, [validateOrder, calculateFinalPricing.total, createOrderData, dispatch ,calculateFinalPricing.freediscount])
 
   const handlePlaceCodOrder = useCallback((opts = {}) => {
-    if (rzpInstanceRef.current) {
-      rzpInstanceRef.current.close()
-      rzpInstanceRef.current = null
+  if (rzpInstanceRef.current) {
+    rzpInstanceRef.current.close()
+    rzpInstanceRef.current = null
+  }
+  const deliveryCharge = Number(opts.deliveryCharge || 0)
+  const orderData = {
+    amount: Math.round((calculateFinalPricing.total || 0) + deliveryCharge),
+    deliveryCharge,
+    freediscount: calculateFinalPricing.freediscount,
+    ...createOrderData(),
+  }
+  if (!validateOrder()) return
+  dispatch(placeCodOrder(orderData)).then((result) => {
+    if (result.type === "order/placeCodOrder/fulfilled") {
+      clearBuyNowData()
+      navigate(`/order-confirmation/${result.payload.order.id}`)
+    } else {
+      console.error("COD Order failed:", result.error)
+      alert("Failed to place COD order. Please try again.")
     }
-    const deliveryCharge = Number(opts.deliveryCharge || 0)
-    const orderData = {
-      freediscount: calculateFinalPricing.freediscount,
-      amount: Math.round((calculateFinalPricing.total || 0) + deliveryCharge),
-      deliveryCharge,
-      ...createOrderData(),
-    }
-    if (!validateOrder()) return
-    dispatch(placeCodOrder(orderData)).then((result) => {
-      if (result.type === "order/placeCodOrder/fulfilled") {
-        clearBuyNowData()
-        navigate(`/order-confirmation/${result.payload.order.id}`)
-      } else {
-        console.error("COD Order failed:", result.error)
-        alert("Failed to place COD order. Please try again.")
-      }
-    })
-  }, [validateOrder, createOrderData, dispatch, navigate, clearBuyNowData])
+  })
+}, [validateOrder, createOrderData, dispatch, navigate, clearBuyNowData, calculateFinalPricing.total, calculateFinalPricing.freediscount])
 
   const handleRazorpayPayment = useCallback(() => {
     if (!razorpayOrder || !selectedAddress) return
@@ -888,7 +909,7 @@ const CheckoutPage = () => {
       },
       prefill: {
         name: selectedAddress.fullName,
-        email: user?.email || "",
+        email: selectedAddress.email || user?.email || "", // Use address email first
         contact: `+91${selectedAddress.phoneNumber}`,
       },
       theme: {
@@ -977,7 +998,6 @@ const CheckoutPage = () => {
     e.preventDefault();
     setshowExitWarningS(false);
     navigate('/cart');
-    // Build final reasons list
     let finalReasons = [...selectedReasons];
     if (isOthersSelected) {
       finalReasons = finalReasons.filter(r => r !== "Others");
@@ -992,7 +1012,6 @@ const CheckoutPage = () => {
         payload
       );
       console.log("Saved successfully:", response.data);
-
     } catch (error) {
       console.error("Failed to save reasons:", error);
     }
@@ -1002,7 +1021,6 @@ const CheckoutPage = () => {
     setshowExitWarning(false)
     setShowPaymentModal(true)
   }
-
 
   useEffect(() => {
     setCongratulationsData({
@@ -1028,6 +1046,7 @@ const CheckoutPage = () => {
     ];
     return messages[Math.floor(Math.random() * messages.length)];
   };
+
   if (!hasItems && !orderLoading.creating) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4 safe-area-bottom">
@@ -1550,7 +1569,6 @@ const CheckoutPage = () => {
               </button>
             )}
           </div>
-
         </div>
 
         <AnimatePresence>
@@ -1763,237 +1781,236 @@ const CheckoutPage = () => {
             </motion.div>
           </div>
         )}
-      </div>
 
-      {showExitWarning && (
-        <div className="fixed inset-0 bg-gradient-to-br from-black/70 via-purple-900/50 to-red-900/40 flex items-end justify-center z-50 md:items-center md:justify-center backdrop-blur-sm">
-          {/* Backdrop with enhanced animation */}
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-black/80 to-purple-900/30 transition-all duration-500 animate-fadeIn"
-            onClick={handleContinueCheckout}
-          />
+        {showExitWarning && (
+          <div className="fixed inset-0 bg-gradient-to-br from-black/70 via-purple-900/50 to-red-900/40 flex items-end justify-center z-50 md:items-center md:justify-center backdrop-blur-sm">
+            {/* Backdrop with enhanced animation */}
+            <div
+              className="absolute inset-0 bg-gradient-to-br from-black/80 to-purple-900/30 transition-all duration-500 animate-fadeIn"
+              onClick={handleContinueCheckout}
+            />
 
-          {/* Modal container with enhanced slide-up animation */}
-          <div className="bg-gradient-to-br from-white via-gray-50 to-blue-50 rounded-t-3xl rounded-b-none md:rounded-3xl max-w-md w-full p-6 md:p-8 mx-auto transform transition-all duration-500 ease-out animate-slideUpFromBottom shadow-2xl border border-white/60">
-            {/* Decorative elements - Mobile handle */}
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-12 h-1.5 bg-gray-400/60 rounded-full md:hidden"></div>
+            {/* Modal container with enhanced slide-up animation */}
+            <div className="bg-gradient-to-br from-white via-gray-50 to-blue-50 rounded-t-3xl rounded-b-none md:rounded-3xl max-w-md w-full p-6 md:p-8 mx-auto transform transition-all duration-500 ease-out animate-slideUpFromBottom shadow-2xl border border-white/60">
+              {/* Decorative elements - Mobile handle */}
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-12 h-1.5 bg-gray-400/60 rounded-full md:hidden"></div>
 
-            {/* Desktop decorative line */}
-            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gray-300/80 rounded-full hidden md:block"></div>
+              {/* Desktop decorative line */}
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gray-300/80 rounded-full hidden md:block"></div>
 
-            <div className="text-center relative">
-              {/* Animated Warning Icon */}
-              <div className="mx-auto w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-lg animate-pulse-slow">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                  <svg
-                    className="w-6 h-6 md:w-7 md:h-7 text-white drop-shadow-sm"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-                    />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Title with gradient text */}
-              <h3 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-3">
-                Wait! Don't Go Yet!
-              </h3>
-
-              {/* Enhanced Message */}
-              <div className="mb-6">
-                <p className="text-gray-600 text-base md:text-lg mb-3">
-                  You're about to leave behind an exclusive
-                </p>
-                <div className="inline-flex items-center bg-gradient-to-r from-amber-400 to-orange-500 text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg animate-bounce-gentle mb-4">
-                  🎁 FREE GIFT 🎁
-                </div>
-
-                {/* Hourglass High Demand Section */}
-                <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-3 mb-3 animate-pulse-slow">
-                  <div className="flex items-center justify-center w-6 h-6">
-                    <svg className="w-5 h-5 text-red-500 animate-hourglass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div className="text-center relative">
+                {/* Animated Warning Icon */}
+                <div className="mx-auto w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-lg animate-pulse-slow">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                    <svg
+                      className="w-6 h-6 md:w-7 md:h-7 text-white drop-shadow-sm"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+                      />
                     </svg>
                   </div>
-                  <span className="text-red-700 text-sm font-semibold">
-                    Products in huge demand might run Out of Stock
-                  </span>
                 </div>
 
-                <p className="text-gray-500 text-sm">
-                  Complete your purchase to claim this special offer
-                </p>
-              </div>
+                {/* Title with gradient text */}
+                <h3 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-3">
+                  Wait! Don't Go Yet!
+                </h3>
 
-              {/* Enhanced Buttons */}
-              <div className="space-y-3 md:space-y-4">
-                <button
-                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 md:py-4 px-6 rounded-xl font-semibold hover:from-gray-800 hover:to-gray-600 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-gray-400/30 focus:ring-offset-2 border border-gray-700/20"
-                  onClick={handleExitButton}
-                >
-                  <span className="flex items-center justify-center gap-2 text-sm md:text-base">
-                    Exit Anyway
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </span>
-                </button>
+                {/* Enhanced Message */}
+                <div className="mb-6">
+                  <p className="text-gray-600 text-base md:text-lg mb-3">
+                    You're about to leave behind an exclusive
+                  </p>
+                  <div className="inline-flex items-center bg-gradient-to-r from-amber-400 to-orange-500 text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg animate-bounce-gentle mb-4">
+                    🎁 FREE GIFT 🎁
+                  </div>
 
-                <button
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 md:py-4 px-6 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-green-400/30 focus:ring-offset-2 border border-green-600/20 group"
-                  onClick={handleContinueCheckout}
-                >
-                  <span className="flex items-center justify-center gap-2 text-sm md:text-base">
-                    Continue & Claim Gift
-                    <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </span>
-                </button>
-              </div>
-
-              {/* Security badge */}
-              <div className="mt-4 md:mt-6 flex items-center justify-center gap-2 text-xs text-gray-400">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                </svg>
-                Secure Checkout • 100% Safe
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showExitWarningS && (
-        <div className="fixed inset-0 bg-gradient-to-br from-black/60 via-gray-900/40 to-blue-900/30 flex items-end justify-center z-50 md:items-center md:justify-center backdrop-blur-sm">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 transition-all duration-300 animate-fadeIn"
-            onClick={handleContinueCheckout}
-          />
-
-          {/* Survey Modal - Slides from bottom on mobile */}
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-t-2xl rounded-b-none md:rounded-2xl max-w-sm max-w-md w-full p-6 transform transition-all duration-400 ease-out animate-slideUpFromBottom shadow-xl border border-white/60">
-            {/* Mobile handle */}
-            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-gray-400/50 rounded-full md:hidden"></div>
-
-            {/* Compact Header */}
-            <div className="text-center mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md animate-bounce-gentle">
-                <span className="text-xl">😢</span>
-              </div>
-
-              <h1 className="text-xl font-bold text-gray-900 mb-2">
-                Wait! Don't Go
-              </h1>
-
-              {/* Dynamic High-Demand Message */}
-              <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold mb-2 inline-flex items-center gap-1 shadow-sm animate-pulse-slow">
-                ⚡ {getRandomHighDemandMessage()}
-              </div>
-            </div>
-
-            {/* Compact Survey Section */}
-            <div className="bg-white/80 rounded-xl p-4 border border-gray-200/50 backdrop-blur-sm">
-              <p className="text-gray-800 font-medium mb-3 text-center text-sm">
-                Quick feedback before you go:
-              </p>
-              {handleSaveAndExit.payload}
-              {/* Compact Reasons List */}
-              <form onSubmit={handleSaveAndExit} className="space-y-4">
-                <div className="max-h-48 overflow-y-auto pr-1 custom-scrollbar text-sm">
-                  {[
-                    "Don't want to share mobile number",
-                    "Need to modify cart",
-                    "Found better deal",
-                    "Changed my mind",
-                    "Technical issues",
-                    "Shipping costs",
-                    "Just browsing",
-                    "Others"
-                  ].map((reason, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center space-x-2 group cursor-pointer rounded-lg hover:bg-gray-100/50 transition-colors duration-200"
-                    >
-                      <input
-                        type="checkbox"
-                        id={`reason-${index}`}
-                        name="cancellationReasons"
-                        value={reason}
-                        onChange={handlereasondata}
-                        checked={selectedReasons.includes(reason)}
-                        className="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 transition-all duration-200"
-                      />
-                      <label
-                        htmlFor={`reason-${index}`}
-                        className="text-gray-600 text-xs leading-tight cursor-pointer select-none group-hover:text-gray-800 transition-colors flex-1"
-                      >
-                        {reason}
-                      </label>
+                  {/* Hourglass High Demand Section */}
+                  <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-3 mb-3 animate-pulse-slow">
+                    <div className="flex items-center justify-center w-6 h-6">
+                      <svg className="w-5 h-5 text-red-500 animate-hourglass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                     </div>
-                  ))}
+                    <span className="text-red-700 text-sm font-semibold">
+                      Products in huge demand might run Out of Stock
+                    </span>
+                  </div>
+
+                  <p className="text-gray-500 text-sm">
+                    Complete your purchase to claim this special offer
+                  </p>
                 </div>
 
-                {/* Submit Button */}
-                {selectedReasons.length > 0 ?
+                {/* Enhanced Buttons */}
+                <div className="space-y-3 md:space-y-4">
                   <button
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-4 rounded-lg font-semibold text-sm hover:from-green-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400/30 border border-green-600/20"
+                    className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 md:py-4 px-6 rounded-xl font-semibold hover:from-gray-800 hover:to-gray-600 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-gray-400/30 focus:ring-offset-2 border border-gray-700/20"
+                    onClick={handleExitButton}
                   >
-                    Save & Continue
-                  </button> : <button
-                    className="w-full bg-gradient-to-r cursor-pointer from-gray-500  text-white py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400/30 border border-green-600/20"
-                    disabled
-                  >
-                    Save & Continue
+                    <span className="flex items-center justify-center gap-2 text-sm md:text-base">
+                      Exit Anyway
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </span>
                   </button>
-                }
-              </form>
 
-              {/* Compact Others Input */}
-              {isOthersSelected && (
-                <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200 animate-fadeIn shadow-sm">
-                  <input
-                    value={othersText}
-                    onChange={handleOthersTextChange}
-                    placeholder="Your reason..."
-                    className="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  />
+                  <button
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 md:py-4 px-6 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-green-400/30 focus:ring-offset-2 border border-green-600/20 group"
+                    onClick={handleContinueCheckout}
+                  >
+                    <span className="flex items-center justify-center gap-2 text-sm md:text-base">
+                      Continue & Claim Gift
+                      <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </span>
+                  </button>
                 </div>
-              )}
 
-              {/* Compact Action Buttons */}
-              <div className="mt-4 space-y-2">
-                <button
-                  onClick={handleContinueCheckout}
-                  className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 px-4 rounded-lg font-medium text-sm hover:from-gray-800 hover:to-gray-600 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400/30 border border-gray-700/20"
-                >
-                  Keep Shopping
-                </button>
-              </div>
-
-              {/* Mini Trust Badges */}
-              <div className="mt-3 flex items-center justify-center gap-3 text-[10px] text-gray-500">
-                <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  Limited Stock
-                </div>
-                <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-full">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Free Shipping
+                {/* Security badge */}
+                <div className="mt-4 md:mt-6 flex items-center justify-center gap-2 text-xs text-gray-400">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  Secure Checkout • 100% Safe
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {showExitWarningS && (
+          <div className="fixed inset-0 bg-gradient-to-br from-black/60 via-gray-900/40 to-blue-900/30 flex items-end justify-center z-50 md:items-center md:justify-center backdrop-blur-sm">
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 transition-all duration-300 animate-fadeIn"
+              onClick={handleContinueCheckout}
+            />
+
+            {/* Survey Modal - Slides from bottom on mobile */}
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-t-2xl rounded-b-none md:rounded-2xl max-w-sm max-w-md w-full p-6 transform transition-all duration-400 ease-out animate-slideUpFromBottom shadow-xl border border-white/60">
+              {/* Mobile handle */}
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-gray-400/50 rounded-full md:hidden"></div>
+
+              {/* Compact Header */}
+              <div className="text-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md animate-bounce-gentle">
+                  <span className="text-xl">😢</span>
+                </div>
+
+                <h1 className="text-xl font-bold text-gray-900 mb-2">
+                  Wait! Don't Go
+                </h1>
+
+                {/* Dynamic High-Demand Message */}
+                <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold mb-2 inline-flex items-center gap-1 shadow-sm animate-pulse-slow">
+                  ⚡ {getRandomHighDemandMessage()}
+                </div>
+              </div>
+
+              {/* Compact Survey Section */}
+              <div className="bg-white/80 rounded-xl p-4 border border-gray-200/50 backdrop-blur-sm">
+                <p className="text-gray-800 font-medium mb-3 text-center text-sm">
+                  Quick feedback before you go:
+                </p>
+                {/* Compact Reasons List */}
+                <form onSubmit={handleSaveAndExit} className="space-y-4">
+                  <div className="max-h-48 overflow-y-auto pr-1 custom-scrollbar text-sm">
+                    {[
+                      "Don't want to share mobile number",
+                      "Need to modify cart",
+                      "Found better deal",
+                      "Changed my mind",
+                      "Technical issues",
+                      "Shipping costs",
+                      "Just browsing",
+                      "Others"
+                    ].map((reason, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center space-x-2 group cursor-pointer rounded-lg hover:bg-gray-100/50 transition-colors duration-200"
+                      >
+                        <input
+                          type="checkbox"
+                          id={`reason-${index}`}
+                          name="cancellationReasons"
+                          value={reason}
+                          onChange={handlereasondata}
+                          checked={selectedReasons.includes(reason)}
+                          className="w-3.5 h-3.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 transition-all duration-200"
+                        />
+                        <label
+                          htmlFor={`reason-${index}`}
+                          className="text-gray-600 text-xs leading-tight cursor-pointer select-none group-hover:text-gray-800 transition-colors flex-1"
+                        >
+                          {reason}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Submit Button */}
+                  {selectedReasons.length > 0 ?
+                    <button
+                      className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-4 rounded-lg font-semibold text-sm hover:from-green-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400/30 border border-green-600/20"
+                    >
+                      Save & Continue
+                    </button> : <button
+                      className="w-full bg-gradient-to-r cursor-pointer from-gray-500  text-white py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400/30 border border-green-600/20"
+                      disabled
+                    >
+                      Save & Continue
+                    </button>
+                  }
+                </form>
+
+                {/* Compact Others Input */}
+                {isOthersSelected && (
+                  <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200 animate-fadeIn shadow-sm">
+                    <input
+                      value={othersText}
+                      onChange={handleOthersTextChange}
+                      placeholder="Your reason..."
+                      className="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    />
+                  </div>
+                )}
+
+                {/* Compact Action Buttons */}
+                <div className="mt-4 space-y-2">
+                  <button
+                    onClick={handleContinueCheckout}
+                    className="w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white py-3 px-4 rounded-lg font-medium text-sm hover:from-gray-800 hover:to-gray-600 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400/30 border border-gray-700/20"
+                  >
+                    Keep Shopping
+                  </button>
+                </div>
+
+                {/* Mini Trust Badges */}
+                <div className="mt-3 flex items-center justify-center gap-3 text-[10px] text-gray-500">
+                  <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    Limited Stock
+                  </div>
+                  <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-full">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    Free Shipping
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -28,7 +28,8 @@ const shippingAddressSchema = new mongoose.Schema(
     pinCode: { type: String, required: true },
     landmark: { type: String, default: "" },
     addressType : {type: String , default: ""},
-    isDefault : {type: Boolean }
+    isDefault : {type: Boolean },
+    email: {type: String,required:true}
 
   },
   { _id: false },
@@ -93,6 +94,7 @@ const orderSchema = new mongoose.Schema(
     deliveryCharge: { type: Number, required: false, min: 0, default: 0 },
     discount: { type: Number, required: true, min: 0, default: 0 },
     total: { type: Number, required: true, min: 0 },
+    freediscount: {type: Number},
 
     pricing: {
       subtotal: Number,
