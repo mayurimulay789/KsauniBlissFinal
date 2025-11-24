@@ -854,31 +854,31 @@ const CheckoutPage = () => {
     }
     dispatch(createRazorpayOrder(orderData))
     setShowPaymentModal(false)
-  }, [validateOrder, calculateFinalPricing.total, createOrderData, dispatch ,calculateFinalPricing.freediscount])
+  }, [validateOrder, calculateFinalPricing.total, createOrderData, dispatch, calculateFinalPricing.freediscount])
 
   const handlePlaceCodOrder = useCallback((opts = {}) => {
-  if (rzpInstanceRef.current) {
-    rzpInstanceRef.current.close()
-    rzpInstanceRef.current = null
-  }
-  const deliveryCharge = Number(opts.deliveryCharge || 0)
-  const orderData = {
-    amount: Math.round((calculateFinalPricing.total || 0) + deliveryCharge),
-    deliveryCharge,
-    freediscount: calculateFinalPricing.freediscount,
-    ...createOrderData(),
-  }
-  if (!validateOrder()) return
-  dispatch(placeCodOrder(orderData)).then((result) => {
-    if (result.type === "order/placeCodOrder/fulfilled") {
-      clearBuyNowData()
-      navigate(`/order-confirmation/${result.payload.order.id}`)
-    } else {
-      console.error("COD Order failed:", result.error)
-      alert("Failed to place COD order. Please try again.")
+    if (rzpInstanceRef.current) {
+      rzpInstanceRef.current.close()
+      rzpInstanceRef.current = null
     }
-  })
-}, [validateOrder, createOrderData, dispatch, navigate, clearBuyNowData, calculateFinalPricing.total, calculateFinalPricing.freediscount])
+    const deliveryCharge = Number(opts.deliveryCharge || 0)
+    const orderData = {
+      amount: Math.round((calculateFinalPricing.total || 0) + deliveryCharge),
+      deliveryCharge,
+      freediscount: calculateFinalPricing.freediscount,
+      ...createOrderData(),
+    }
+    if (!validateOrder()) return
+    dispatch(placeCodOrder(orderData)).then((result) => {
+      if (result.type === "order/placeCodOrder/fulfilled") {
+        clearBuyNowData()
+        navigate(`/order-confirmation/${result.payload.order.id}`)
+      } else {
+        console.error("COD Order failed:", result.error)
+        alert("Failed to place COD order. Please try again.")
+      }
+    })
+  }, [validateOrder, createOrderData, dispatch, navigate, clearBuyNowData, calculateFinalPricing.total, calculateFinalPricing.freediscount])
 
   const handleRazorpayPayment = useCallback(() => {
     if (!razorpayOrder || !selectedAddress) return
@@ -1022,17 +1022,35 @@ const CheckoutPage = () => {
     setShowPaymentModal(true)
   }
 
+  // filterYCoupon[0]?.code
+
+  //   useEffect(() => {
+  //     setCongratulationsData({
+  //       couponCode: filterYCoupon[0]?.code,
+  //       savingsAmount: calculateFinalPricing.freediscount,
+  //     })
+  //     if (filterYCoupon[0]?.code!==null) {
+  //       setShowCongratulationsPopup(true)
+  //     }
+  //     const timer = setTimeout(() => {
+  //       setShowCongratulationsPopup(false)
+  //     }, 4000)
+  //     return () => clearTimeout(timer)
+  //   }, [filterYCoupon[0]?.code])
+
   useEffect(() => {
+    const couponCode = filterYCoupon[0]?.code;
     setCongratulationsData({
-      couponCode: filterYCoupon[0]?.code,
-      savingsAmount: calculateFinalPricing.freediscount,
-    })
-    setShowCongratulationsPopup(true)
+      couponCode: couponCode || "",
+      savingsAmount: couponCode ? calculateFinalPricing.freediscount : 0,
+    });
+    if (!couponCode) return;
+    setShowCongratulationsPopup(true);
     const timer = setTimeout(() => {
-      setShowCongratulationsPopup(false)
-    }, 4000)
-    return () => clearTimeout(timer)
-  }, [filterYCoupon[0]?.code])
+      setShowCongratulationsPopup(false);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [filterYCoupon[0]?.code]);
 
   const getRandomHighDemandMessage = () => {
     const messages = [
