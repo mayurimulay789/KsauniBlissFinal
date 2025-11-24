@@ -1021,23 +1021,7 @@ const CheckoutPage = () => {
     setshowExitWarning(false)
     setShowPaymentModal(true)
   }
-
-  // filterYCoupon[0]?.code
-
-  //   useEffect(() => {
-  //     setCongratulationsData({
-  //       couponCode: filterYCoupon[0]?.code,
-  //       savingsAmount: calculateFinalPricing.freediscount,
-  //     })
-  //     if (filterYCoupon[0]?.code!==null) {
-  //       setShowCongratulationsPopup(true)
-  //     }
-  //     const timer = setTimeout(() => {
-  //       setShowCongratulationsPopup(false)
-  //     }, 4000)
-  //     return () => clearTimeout(timer)
-  //   }, [filterYCoupon[0]?.code])
-
+  
   useEffect(() => {
     const couponCode = filterYCoupon[0]?.code;
     setCongratulationsData({

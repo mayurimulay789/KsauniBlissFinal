@@ -15,11 +15,9 @@ const CouponsManagement = () => {
     limit: 20,
     isActive: "",
   });
-
   const [showModal, setShowModal] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   // Regular coupon form data
   const [formData, setFormData] = useState({
     code: "",
@@ -34,12 +32,11 @@ const CouponsManagement = () => {
     isActive: true,
     isFreeCoupon: "N",
   });
-  
-  // Free coupon form data
+  // Free coupon form data - now editable but with constraints
   const [freeCouponFormData, setFreeCouponFormData] = useState({
     code: "",
     description: "",
-    discountType: "",
+    discountType: "percentage",
     discountValue: "100",
     minOrderValue: "0",
     maxDiscountAmount: "",
@@ -49,10 +46,8 @@ const CouponsManagement = () => {
     isActive: true,
     isFreeCoupon: "Y",
   });
-
   // Check if free coupon already exists
   const freeCouponExists = coupons.some(coupon => coupon.isFreeCoupon === "Y");
-
   useEffect(() => {
     dispatch(fetchAllCoupons(filters));
   }, [dispatch, filters]);
@@ -64,11 +59,9 @@ const CouponsManagement = () => {
       page: 1,
     }));
   };
-
   const handlePageChange = (newPage) => {
     setFilters((prev) => ({ ...prev, page: newPage }));
   };
-
   const handleAddCoupon = () => {
     setEditingCoupon(null);
     setFormData({
@@ -86,24 +79,42 @@ const CouponsManagement = () => {
     });
     setShowModal(true);
   };
-
   const handleEditCoupon = (coupon) => {
     console.log("Editing coupon:", coupon);
     setEditingCoupon(coupon);
-    setFormData({
-      code: coupon.code,
-      description: coupon.description || "",
-      discountType: coupon.discountType,
-      discountValue: coupon.discountValue?.toString() || "",
-      minOrderValue: coupon.minOrderValue?.toString() || "0",
-      maxDiscountAmount: coupon.maxDiscountAmount?.toString() || "",
-      maxUses: coupon.maxUses?.toString() || "",
-      maxUsesPerUser: coupon.maxUsesPerUser?.toString() || "1",
-      validUntil: coupon.validUntil ? new Date(coupon.validUntil).toISOString().split("T")[0] : "",
-      isActive: coupon.isActive,
-      isFreeCoupon: coupon.isFreeCoupon || "N",
-    });
-    setShowModal(true);
+    if (coupon.isFreeCoupon === "Y") {
+      // For free coupons, use the free coupon form
+      setFreeCouponFormData({
+        code: coupon.code,
+        description: coupon.description || "",
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue?.toString() || "100",
+        minOrderValue: coupon.minOrderValue?.toString() || "0",
+        maxDiscountAmount: coupon.maxDiscountAmount?.toString() || "",
+        maxUses: coupon.maxUses?.toString() || "1",
+        maxUsesPerUser: coupon.maxUsesPerUser?.toString() || "1",
+        validUntil: coupon.validUntil ? new Date(coupon.validUntil).toISOString().split("T")[0] : "",
+        isActive: coupon.isActive,
+        isFreeCoupon: "Y",
+      });
+      setShowFreeCouponModal(true);
+    } else {
+      // For regular coupons, use the regular form
+      setFormData({
+        code: coupon.code,
+        description: coupon.description || "",
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue?.toString() || "",
+        minOrderValue: coupon.minOrderValue?.toString() || "0",
+        maxDiscountAmount: coupon.maxDiscountAmount?.toString() || "",
+        maxUses: coupon.maxUses?.toString() || "",
+        maxUsesPerUser: coupon.maxUsesPerUser?.toString() || "1",
+        validUntil: coupon.validUntil ? new Date(coupon.validUntil).toISOString().split("T")[0] : "",
+        isActive: coupon.isActive,
+        isFreeCoupon: coupon.isFreeCoupon || "N",
+      });
+      setShowModal(true);
+    }
   };
 
   const handleDeleteCoupon = async (couponId) => {
@@ -160,7 +171,12 @@ const CouponsManagement = () => {
     setFreeCouponFormData(prev => ({
       ...prev,
       code: randomCode,
-      description: "100% Free Order Coupon - One Time Use",
+      description: "Free Order Coupon",
+      discountType: "percentage",
+      discountValue: "100",
+      minOrderValue: "0",
+      maxUses: "1",
+      maxUsesPerUser: "1",
       validUntil: defaultValidUntil.toISOString().split("T")[0],
     }));
     setShowFreeCouponModal(true);
@@ -173,7 +189,6 @@ const CouponsManagement = () => {
     try {
       const freeCouponData = {
         ...freeCouponFormData,
-        discountType: freeCouponFormData.discountType,
         discountValue: Number(freeCouponFormData.discountValue),
         minOrderValue: Number(freeCouponFormData.minOrderValue) || 0,
         maxDiscountAmount: freeCouponFormData.maxDiscountAmount ? Number(freeCouponFormData.maxDiscountAmount) : undefined,
@@ -182,16 +197,21 @@ const CouponsManagement = () => {
         isFreeCoupon: "Y",
       };
 
-      await dispatch(createCoupon(freeCouponData));
+      if (editingCoupon) {
+        await dispatch(updateCoupon({ couponId: editingCoupon._id, couponData: freeCouponData }));
+      } else {
+        await dispatch(createCoupon(freeCouponData));
+      }
+
       setShowFreeCouponModal(false);
 
       // Reset form
       setFreeCouponFormData({
         code: "",
         description: "",
-        discountType: "",
-        discountValue: "",
-        minOrderValue: "",
+        discountType: "percentage",
+        discountValue: "100",
+        minOrderValue: "0",
         maxDiscountAmount: "",
         maxUses: "1",
         maxUsesPerUser: "1",
@@ -201,13 +221,21 @@ const CouponsManagement = () => {
       });
 
       dispatch(fetchAllCoupons(filters)); // Refresh list
-      alert("Free coupon created successfully! It can be used only once.");
+      alert(editingCoupon ? "Free coupon updated successfully!" : "Free coupon created successfully!");
     } catch (error) {
       console.error("Failed to create free coupon:", error);
-      alert("Failed to create free coupon. Please try again.");
+      alert(`Failed to ${editingCoupon ? 'update' : 'create'} free coupon. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Handle free coupon form changes
+  const handleFreeCouponChange = (field, value) => {
+    setFreeCouponFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const formatDate = (dateString) => {
@@ -261,15 +289,15 @@ const CouponsManagement = () => {
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
           <button
             onClick={handleFreeCoupon}
-            disabled={freeCouponExists}
+            disabled={freeCouponExists && !editingCoupon}
             className={`inline-flex items-center justify-center px-4 py-3 text-sm font-medium rounded-md transition-colors flex-1 sm:flex-none ${
-              freeCouponExists
+              freeCouponExists && !editingCoupon
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-green-600 text-white hover:bg-green-700'
             }`}
           >
             <PlusIcon className="w-4 h-4 mr-2" />
-            {freeCouponExists ? 'Free Coupon Exists' : 'Create Free Coupon'}
+            {freeCouponExists && !editingCoupon ? 'Free Coupon Exists' : 'Create Free Coupon'}
           </button>
           <button
             onClick={handleAddCoupon}
@@ -279,7 +307,7 @@ const CouponsManagement = () => {
             Add Regular Coupon
           </button>
         </div>
-        {freeCouponExists && (
+        {freeCouponExists && !editingCoupon && (
           <p className="mt-2 text-xs text-green-600">
             A free coupon already exists. You can only have one free coupon at a time.
           </p>
@@ -310,7 +338,7 @@ const CouponsManagement = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-1">
                           <div className="text-base font-semibold text-gray-900 truncate">{coupon.code}</div>
-                          {coupon.isFreeCoupon && (
+                          {coupon.isFreeCoupon === "Y" && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 shrink-0">
                               Free
                             </span>
@@ -418,7 +446,7 @@ const CouponsManagement = () => {
                           <div>
                             <div className="flex items-center space-x-2">
                               <div className="text-sm font-semibold text-gray-900">{coupon.code}</div>
-                              {coupon.isFreeCoupon == "Y" && (
+                              {coupon.isFreeCoupon === "Y" && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                   Free
                                 </span>
@@ -713,14 +741,15 @@ const CouponsManagement = () => {
           </div>
         </div>
       )}
-
       {/* Free Coupon Modal */}
       {showFreeCouponModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-gray-500 bg-opacity-75 sm:p-4">
           <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex flex-col">
               <div className="flex items-center justify-between p-4 border-b">
-                <h3 className="text-lg font-medium text-gray-900 sm:text-xl">Create Free Coupon</h3>
+                <h3 className="text-lg font-medium text-gray-900 sm:text-xl">
+                  {editingCoupon ? "Edit Free Coupon" : "Create Free Coupon"}
+                </h3>
                 <button
                   type="button"
                   onClick={() => setShowFreeCouponModal(false)}
@@ -735,8 +764,8 @@ const CouponsManagement = () => {
               <div className="p-4">
                 <div className="p-3 mb-4 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-sm text-green-800">
-                    <strong>Free Coupon Information:</strong> This coupon provides 100% discount and can be used only once per user.
-                    Only one free coupon can exist at a time.
+                    <strong>Free Coupon Information:</strong> Free coupons provide special discounts for customers. 
+                    You can set either percentage or flat discount. Only one free coupon can exist at a time.
                   </p>
                 </div>
 
@@ -748,7 +777,7 @@ const CouponsManagement = () => {
                         <input
                           type="text"
                           value={freeCouponFormData.code}
-                          onChange={(e) => setFreeCouponFormData((prev) => ({ ...prev, code: e.target.value.toUpperCase() }))}
+                          onChange={(e) => handleFreeCouponChange("code", e.target.value.toUpperCase())}
                           required
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                           placeholder="FREE100"
@@ -759,20 +788,21 @@ const CouponsManagement = () => {
                         <input
                           type="text"
                           value={freeCouponFormData.description}
-                          onChange={(e) => setFreeCouponFormData((prev) => ({ ...prev, description: e.target.value }))}
+                          onChange={(e) => handleFreeCouponChange("description", e.target.value)}
                           required
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                          placeholder="100% Free Order Coupon"
+                          placeholder="Free Order Coupon"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Discount Type *</label>
                         <select
                           value={freeCouponFormData.discountType}
-                          onChange={(e) => setFreeCouponFormData((prev) => ({ ...prev, discountType: e.target.value }))}
+                          onChange={(e) => handleFreeCouponChange("discountType", e.target.value)}
+                          required
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         >
                           <option value="percentage">Percentage (%)</option>
@@ -784,13 +814,13 @@ const CouponsManagement = () => {
                         <input
                           type="number"
                           value={freeCouponFormData.discountValue}
-                          onChange={(e) => setFreeCouponFormData((prev) => ({ ...prev, discountValue: e.target.value }))}
+                          onChange={(e) => handleFreeCouponChange("discountValue", e.target.value)}
                           required
                           min="0"
                           step={freeCouponFormData.discountType === "percentage" ? "1" : "0.01"}
                           max={freeCouponFormData.discountType === "percentage" ? "100" : undefined}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                          placeholder="100"
+                          placeholder={freeCouponFormData.discountType === "percentage" ? "100" : "0"}
                         />
                       </div>
                     </div>
@@ -801,7 +831,7 @@ const CouponsManagement = () => {
                         <input
                           type="number"
                           value={freeCouponFormData.minOrderValue}
-                          onChange={(e) => setFreeCouponFormData((prev) => ({ ...prev, minOrderValue: e.target.value }))}
+                          onChange={(e) => handleFreeCouponChange("minOrderValue", e.target.value)}
                           min="0"
                           step="0.01"
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
@@ -809,17 +839,44 @@ const CouponsManagement = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Max Uses *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Max Discount Amount (₹)</label>
+                        <input
+                          type="number"
+                          value={freeCouponFormData.maxDiscountAmount}
+                          onChange={(e) => handleFreeCouponChange("maxDiscountAmount", e.target.value)}
+                          min="0"
+                          step="0.01"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          placeholder="No limit"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Max Total Uses</label>
                         <input
                           type="number"
                           value={freeCouponFormData.maxUses}
-                          onChange={(e) => setFreeCouponFormData((prev) => ({ ...prev, maxUses: e.target.value }))}
+                          onChange={(e) => handleFreeCouponChange("maxUses", e.target.value)}
+                          min="1"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          placeholder="1"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Typically 1 for one-time use free coupons</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Max Uses Per User *</label>
+                        <input
+                          type="number"
+                          value={freeCouponFormData.maxUsesPerUser}
+                          onChange={(e) => handleFreeCouponChange("maxUsesPerUser", e.target.value)}
                           required
                           min="1"
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                           placeholder="1"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Set to 1 for one-time use only</p>
+                        <p className="text-xs text-gray-500 mt-1">Typically 1 for free coupons</p>
                       </div>
                     </div>
 
@@ -828,7 +885,7 @@ const CouponsManagement = () => {
                       <input
                         type="date"
                         value={freeCouponFormData.validUntil}
-                        onChange={(e) => setFreeCouponFormData((prev) => ({ ...prev, validUntil: e.target.value }))}
+                        onChange={(e) => handleFreeCouponChange("validUntil", e.target.value)}
                         required
                         min={new Date().toISOString().split("T")[0]}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
@@ -840,7 +897,7 @@ const CouponsManagement = () => {
                         type="checkbox"
                         id="isActiveFree"
                         checked={freeCouponFormData.isActive}
-                        onChange={(e) => setFreeCouponFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
+                        onChange={(e) => handleFreeCouponChange("isActive", e.target.checked)}
                         className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
                       />
                       <label htmlFor="isActiveFree" className="ml-2 text-sm text-gray-900">
@@ -862,7 +919,7 @@ const CouponsManagement = () => {
                       disabled={isSubmitting}
                       className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
                     >
-                      {isSubmitting ? "Creating..." : "Create Free Coupon"}
+                      {isSubmitting ? "Saving..." : (editingCoupon ? "Update Free Coupon" : "Create Free Coupon")}
                     </button>
                   </div>
                 </form>
@@ -874,5 +931,4 @@ const CouponsManagement = () => {
     </div>
   );
 };
-
 export default CouponsManagement;
