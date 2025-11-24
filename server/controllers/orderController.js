@@ -18,7 +18,7 @@ const shapeOrder = (o) => {
   const discount = o.discount ?? (o.pricing && o.pricing.discount) ?? 0;
   const deliveryCharge = o.deliveryCharge ?? (o.pricing && o.pricing.deliveryCharge) ?? 0;
   const total = o.total ?? (o.pricing && o.pricing.total) ?? subtotal + shippingCharge - discount;
-  const freediscount=o.freediscount
+  const freediscount = o.freediscount ?? (o.pricing && o.pricing.freediscount) ?? 0
 
   return {
     ...o.toObject?.() ?? o,
