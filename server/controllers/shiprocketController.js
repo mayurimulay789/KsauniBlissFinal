@@ -5,12 +5,13 @@ const nodemailer = require("nodemailer")
 
 // Email transporter setup
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: process.env.SMTP_HOST,
+  port: process.env.SMTP_PORT,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
-})
+});
 
 // Send status update email
 const sendStatusUpdateEmail = async (order, newStatus) => {
@@ -180,7 +181,6 @@ const handleWebhook = async (req, res) => {
     ) {
       await sendStatusUpdateEmail(order, orderStatus)
     }
-
     res.status(200).json({
       message: "Webhook processed successfully",
       order_number: order.orderNumber,
@@ -192,7 +192,6 @@ const handleWebhook = async (req, res) => {
     res.status(500).json({ message: "Internal server error" })
   }
 }
-
 // Get webhook logs (for debugging)
 const getWebhookLogs = async (req, res) => {
   try {
@@ -209,7 +208,6 @@ const getWebhookLogs = async (req, res) => {
     })
   }
 }
-
 module.exports = {
   handleWebhook,
   getWebhookLogs,
