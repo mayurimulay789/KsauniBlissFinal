@@ -232,8 +232,8 @@ const OrderDetailsPage = () => {
               <button
                 onClick={() => setActiveSection("items")}
                 className={`flex-1 min-w-[150px] rounded-xl px-6 py-3 text-center text-base font-semibold transition-all duration-200 ${activeSection === "items"
-                    ? "bg-red-600 text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-100"
+                  ? "bg-red-600 text-white shadow-md"
+                  : "text-gray-700 hover:bg-gray-100"
                   }`}
               >
                 Order Items
@@ -241,8 +241,8 @@ const OrderDetailsPage = () => {
               <button
                 onClick={() => setActiveSection("address")}
                 className={`flex-1 min-w-[150px] rounded-xl px-6 py-3 text-center text-base font-semibold transition-all duration-200 ${activeSection === "address"
-                    ? "bg-red-600 text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-100"
+                  ? "bg-red-600 text-white shadow-md"
+                  : "text-gray-700 hover:bg-gray-100"
                   }`}
               >
                 Shipping & Payment
@@ -250,8 +250,8 @@ const OrderDetailsPage = () => {
               <button
                 onClick={() => setActiveSection("tracking")}
                 className={`flex-1 min-w-[150px] rounded-xl px-6 py-3 text-center text-base font-semibold transition-all duration-200 ${activeSection === "tracking"
-                    ? "bg-red-600 text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-100"
+                  ? "bg-red-600 text-white shadow-md"
+                  : "text-gray-700 hover:bg-gray-100"
                   }`}
               >
                 Tracking Info
@@ -329,11 +329,23 @@ const OrderDetailsPage = () => {
                         </span>
                       </div>
                       <div className="flex justify-between border-b border-gray-200 pb-2">
+                        <span>Free Discount:</span>
+                        <span className="font-semibold text-blue-600">
+                          - ₹{order.pricing?.freediscount || 0}
+                        </span>
+                      </div>
+                      <div className="flex justify-between border-b border-gray-200 pb-2">
                         <span>Discount:</span>
                         <span className="font-semibold text-green-600">
                           - ₹{order.pricing?.discount || 0}
                         </span>
                       </div>
+                      {Number(order.pricing?.deliveryCharge) > 0 && (
+                        <div className="flex justify-between">
+                          <span>Cash on Delivery charge</span>
+                          <span>₹{Number(order.pricing?.deliveryCharge)}</span>
+                        </div>
+                      )}
                       {order.couponCode && (
                         <div className="flex justify-between border-b border-gray-200 pb-2">
                           <span className="flex items-center">
@@ -429,8 +441,8 @@ const OrderDetailsPage = () => {
                         </span>{" "}
                         <span
                           className={`font-extrabold ${order.paymentInfo?.paymentStatus === "paid" || order.paymentInfo?.status === "PAID"
-                              ? "text-green-700"
-                              : "text-red-700"
+                            ? "text-green-700"
+                            : "text-red-700"
                             }`}
                         >
                           {order.paymentInfo?.paymentStatus || order.paymentInfo?.status || "N/A"}

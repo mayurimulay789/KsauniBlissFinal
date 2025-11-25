@@ -5,22 +5,23 @@ const createTransport = () => {
   if (process.env.NODE_ENV === "production") {
     // Production email service (e.g., SendGrid, AWS SES)
     return nodemailer.createTransport({
-      service: "gmail",
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
-    })
+    });
   } else {
     // Development - use Ethereal Email for testing
     return nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
       auth: {
-        user: process.env.ETHEREAL_USER || "ethereal.user@ethereal.email",
-        pass: process.env.ETHEREAL_PASS || "ethereal.pass",
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
-    })
+    });
   }
 }
 
@@ -117,7 +118,7 @@ const sendEmail = async ({ to, subject, template, data, html, text }) => {
     }
 
     const mailOptions = {
-      from: `"Fashion Store" <${process.env.EMAIL_FROM || "noreply@fashionstore.com"}>`,
+      from: `"Fashion Store" <${process.env.EMAIL_FROM || "noreply@ksaunibliss.com"}>`,
       to,
       ...emailContent,
     }
