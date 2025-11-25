@@ -951,7 +951,7 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #ec4899;">Order Confirmation - FashionHub</h2>
+        <h2 style="color: #ec4899;">Order Confirmation - KsauniBliss</h2>
         <p>Dear ${user?.name || "Customer"},</p>
         <p>Thank you for your order! Your order has been confirmed and is being processed.</p>
 
