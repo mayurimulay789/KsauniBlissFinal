@@ -951,7 +951,7 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #ec4899;">Order Confirmation - FashionHub</h2>
+        <h2 style="color: #ec4899;">Order Confirmation - Ksaunibliss</h2>
         <p>Dear ${user?.name || "Customer"},</p>
         <p>Thank you for your order! Your order has been confirmed and is being processed.</p>
 
@@ -983,7 +983,7 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
         </div>
 
         <p>We'll send you another email when your order ships.</p>
-        <p>Thank you for shopping with FashionHub!</p>
+        <p>Thank you for shopping with Ksaunibliss!</p>
       </div>
     `;
 
@@ -991,7 +991,7 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
   <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: #ffffff;">
     <!-- Admin Header -->
     <div style="background: #dc2626; color: white; padding: 20px; text-align: center;">
-      <h2 style="margin: 0; font-size: 24px;">🛎️ NEW ORDER RECEIVED - ADMIN NOTIFICATION</h2>
+      <h2 style="margin: 0; font-size: 24px;">🛎️ NEW ORDER RECEIVED - Ksaunibliss</h2>
       <p style="margin: 5px 0 0 0; opacity: 0.9;">Order requires processing and fulfillment</p>
     </div>
 
@@ -1112,7 +1112,7 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
       <!-- Footer -->
       <div style="text-align: center; padding: 20px; background: #f1f5f9; border-radius: 8px; margin-top: 20px;">
         <p style="margin: 0; color: #64748b; font-size: 14px;">
-          This is an automated notification from FashionHub Admin System.<br>
+          This is an automated notification from Ksaunibliss Admin System.<br>
           Order requires processing within 24 hours.
         </p>
         <p style="margin: 10px 0 0 0; color: #94a3b8; font-size: 12px;">

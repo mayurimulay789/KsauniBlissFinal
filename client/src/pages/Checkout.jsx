@@ -242,7 +242,7 @@ const CheckoutPage = () => {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: razorpayOrder.amount,
       currency: razorpayOrder.currency,
-      name: "FashionHub",
+      name: "Ksaunibliss",
       description: "Fashion Purchase",
       order_id: razorpayOrder.id,
       handler: (response) => {

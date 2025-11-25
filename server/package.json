@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "FashionHub E-commerce Backend",
+  "description": "Ksaunibliss E-commerce Backend",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -38,6 +38,6 @@
     "express",
     "mongodb"
   ],
-  "author": "FashionHub Team",
+  "author": "Ksaunibliss Team",
   "license": "MIT"
 }
