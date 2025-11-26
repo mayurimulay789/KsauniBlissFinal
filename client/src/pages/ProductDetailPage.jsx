@@ -79,7 +79,9 @@ const ProductDetailPage = () => {
     }
   }, [dispatch, id, slug])
 
-
+  useEffect(() => {
+    setSelectedSize("")
+  }, [currentProduct._id])
 
   useEffect(() => {
     if (currentProduct) {
@@ -87,22 +89,17 @@ const ProductDetailPage = () => {
       if (currentProduct.colors?.length > 0) setSelectedColor(currentProduct.colors[0].name)
     }
   }, [currentProduct])
-
-
   const getDiscountPercentage = () => {
     if (currentProduct?.originalPrice && currentProduct.originalPrice > currentProduct.price) {
       return Math.round(((currentProduct.originalPrice - currentProduct.price) / currentProduct.originalPrice) * 100)
     }
     return 0
   }
-
   const getSelectedSizeStock = () => {
     if (!selectedSize || !currentProduct?.sizes) return currentProduct?.stock || 0
     const sizeData = currentProduct.sizes.find((s) => s.size === selectedSize)
     return sizeData?.stock || 0
   }
-
-
   const tagText =
     (Array.isArray(currentProduct?.tags) && currentProduct.tags[0]) ||
     (currentProduct?.isTrending && "TRENDING") ||
@@ -354,8 +351,8 @@ const ProductDetailPage = () => {
             onClick={handleWishlistToggle}
             disabled={isAddingToWishlist || isRemovingFromWishlist}
             className={`absolute top-5 right-2 z-10 p-2 rounded-full transition-colors ${isInWishlist
-                ? "text-primary bg-primary/10 hover:bg-primary/20"
-                : "text-gray-400 hover:text-primary hover:bg-primary/10"
+              ? "text-primary bg-primary/10 hover:bg-primary/20"
+              : "text-gray-400 hover:text-primary hover:bg-primary/10"
               }`}
             aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
           >
@@ -579,8 +576,8 @@ const ProductDetailPage = () => {
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSelectedColor(color.name)}
                       className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${selectedColor === color.name
-                          ? "border-primary shadow-md"
-                          : "border-gray-200 hover:border-gray-300"
+                        ? "border-primary shadow-md"
+                        : "border-gray-200 hover:border-gray-300"
                         }`}
                       title={color.name}
                       aria-label={`Select color ${color.name}`}
@@ -624,10 +621,10 @@ const ProductDetailPage = () => {
                       onClick={() => setSelectedSize(s.size)}
                       disabled={s.stock === 0}
                       className={`px-4 py-2 border border-gray-300 rounded-xl font-medium text-sm ${selectedSize === s.size
-                          ? "border-primary rounded bg-primary/10 text-primary"
-                          : s.stock === 0
-                            ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
-                            : "border-gray-300 hover:border-primary hover:text-primary"
+                        ? "border-primary rounded bg-primary/10 text-primary"
+                        : s.stock === 0
+                          ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "border-gray-300 hover:border-primary hover:text-primary"
                         }`}
                     >
                       {s.size}
@@ -738,8 +735,8 @@ const ProductDetailPage = () => {
                     (selectedSize && getSelectedSizeStock() === 0)
                   }
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-1 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed ${selectedSize && getSelectedSizeStock() === 0
-                      ? "bg-gray-100 border-gray-300 text-gray-400"
-                      : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50"
+                    ? "bg-gray-100 border-gray-300 text-gray-400"
+                    : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50"
                     } ${isAddingToCart ? "opacity-50" : ""}`}
                 >
                   <ShoppingCart className="w-5 h-5" />
@@ -752,8 +749,8 @@ const ProductDetailPage = () => {
                     (selectedSize && getSelectedSizeStock() === 0)
                   }
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-1 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed ${selectedSize && getSelectedSizeStock() === 0
-                      ? "bg-gray-400 text-gray-200"
-                      : "bg-red-600 text-white hover:bg-red-700"
+                    ? "bg-gray-400 text-gray-200"
+                    : "bg-red-600 text-white hover:bg-red-700"
                     } ${isAddingToCart ? "opacity-50" : ""}`}
                 >
                   <img src="/buynow1.svg" className="w-8 h-8" />
@@ -863,10 +860,10 @@ const ProductDetailPage = () => {
                         onClick={() => setSelectedSize(s.size)}
                         disabled={s.stock === 0}
                         className={`px-3 py-3 border-2 rounded-lg font-medium text-sm transition-all ${selectedSize === s.size
-                            ? "border-red-500 bg-red-50 text-red-600"
-                            : s.stock === 0
-                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "border-gray-300 hover:border-red-400 hover:text-red-500"
+                          ? "border-red-500 bg-red-50 text-red-600"
+                          : s.stock === 0
+                            ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "border-gray-300 hover:border-red-400 hover:text-red-500"
                           }`}
                         whileHover={{ scale: s.stock === 0 ? 1 : 1.05 }}
                         whileTap={{ scale: s.stock === 0 ? 1 : 0.95 }}
@@ -884,10 +881,10 @@ const ProductDetailPage = () => {
                         onClick={() => setSelectedSize(s.size)}
                         disabled={s.stock === 0}
                         className={`px-3 py-3 border-2 rounded-lg font-medium text-sm transition-all ${selectedSize === s.size
-                            ? "border-red-500 bg-red-50 text-red-600"
-                            : s.stock === 0
-                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "border-gray-300 hover:border-red-400 hover:text-red-500"
+                          ? "border-red-500 bg-red-50 text-red-600"
+                          : s.stock === 0
+                            ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "border-gray-300 hover:border-red-400 hover:text-red-500"
                           }`}
                         whileHover={{ scale: s.stock === 0 ? 1 : 1.05 }}
                         whileTap={{ scale: s.stock === 0 ? 1 : 0.95 }}
@@ -919,8 +916,8 @@ const ProductDetailPage = () => {
                     onClick={handleProceedToCheckout}
                     disabled={!selectedSize}
                     className={`flex-1 px-4 py-3 font-semibold rounded-lg transition-colors ${!selectedSize
-                        ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                        : "bg-red-600 text-white hover:bg-red-700"
+                      ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                      : "bg-red-600 text-white hover:bg-red-700"
                       }`}
                   >
                     Buy Now
@@ -1002,10 +999,10 @@ const ProductDetailPage = () => {
                         onClick={() => setSelectedSize(s.size)}
                         disabled={s.stock === 0}
                         className={`px-3 py-3 border-2 rounded-lg font-medium text-sm transition-all ${selectedSize === s.size
-                            ? "border-red-500 bg-red-50 text-red-600"
-                            : s.stock === 0
-                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "border-gray-300 hover:border-red-400 hover:text-red-500"
+                          ? "border-red-500 bg-red-50 text-red-600"
+                          : s.stock === 0
+                            ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "border-gray-300 hover:border-red-400 hover:text-red-500"
                           }`}
                         whileHover={{ scale: s.stock === 0 ? 1 : 1.05 }}
                         whileTap={{ scale: s.stock === 0 ? 1 : 0.95 }}
@@ -1023,10 +1020,10 @@ const ProductDetailPage = () => {
                         onClick={() => setSelectedSize(s.size)}
                         disabled={s.stock === 0}
                         className={`px-3 py-3 border-2 rounded-lg font-medium text-sm transition-all ${selectedSize === s.size
-                            ? "border-red-500 bg-red-50 text-red-600"
-                            : s.stock === 0
-                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "border-gray-300 hover:border-red-400 hover:text-red-500"
+                          ? "border-red-500 bg-red-50 text-red-600"
+                          : s.stock === 0
+                            ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "border-gray-300 hover:border-red-400 hover:text-red-500"
                           }`}
                         whileHover={{ scale: s.stock === 0 ? 1 : 1.05 }}
                         whileTap={{ scale: s.stock === 0 ? 1 : 0.95 }}
@@ -1058,8 +1055,8 @@ const ProductDetailPage = () => {
                     onClick={handleProceedToAddToCart}
                     disabled={!selectedSize}
                     className={`flex-1 px-4 py-3 font-semibold rounded-lg transition-colors ${!selectedSize
-                        ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                        : "bg-red-600 text-white hover:bg-red-700"
+                      ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                      : "bg-red-600 text-white hover:bg-red-700"
                       }`}
                   >
                     Add to Cart
@@ -1145,7 +1142,7 @@ const ProductDetailPage = () => {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>      
+      </AnimatePresence>
 
       {/* Fixed Mobile Action Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 shadow-lg">
@@ -1158,8 +1155,8 @@ const ProductDetailPage = () => {
               (selectedSize && getSelectedSizeStock() === 0)
             }
             className={`flex-1 flex items-center justify-center gap-2 px-1 py-2 border-1 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed text-sm ${selectedSize && getSelectedSizeStock() === 0
-                ? "bg-gray-100 border-gray-300 text-gray-400"
-                : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50"
+              ? "bg-gray-100 border-gray-300 text-gray-400"
+              : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50"
               } ${isAddingToCart ? "opacity-50" : ""}`}
           >
             <ShoppingCart className="w-4 h-4" />
@@ -1173,8 +1170,8 @@ const ProductDetailPage = () => {
               (selectedSize && getSelectedSizeStock() === 0)
             }
             className={`flex-1 flex items-center justify-center gap-2 px-2 py-1 border-2 font-semibold rounded-xl transition-colors disabled:cursor-not-allowed text-sm ${selectedSize && getSelectedSizeStock() === 0
-                ? "bg-gray-400 text-gray-200"
-                : "bg-red-600 text-white hover:bg-red-700"
+              ? "bg-gray-400 text-gray-200"
+              : "bg-red-600 text-white hover:bg-red-700"
               } ${isAddingToCart ? "opacity-50" : ""}`}
           >
             <img src="/buynow1.svg" className="w-8 h-8 rounded-lg" />

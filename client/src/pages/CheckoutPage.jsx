@@ -1022,7 +1022,7 @@ const CheckoutPage = () => {
     setShowPaymentModal(true)
   }
   
-  useEffect(() => {
+   useEffect(() => {
     const couponCode = filterYCoupon[0]?.code;
     setCongratulationsData({
       couponCode: couponCode || "",

@@ -62,14 +62,10 @@ function AppContent() {
       console.error("❌ Application cannot start due to missing environment variables")
       return
     }
-
     debugEnvironment()
-
     dispatch(initializeAuth())
-
     // Load cart from localStorage for guest users
     dispatch(loadCartFromStorage())
-
     // Set up Firebase auth state listener
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
