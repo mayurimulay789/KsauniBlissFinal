@@ -81,7 +81,7 @@ const ProductDetailPage = () => {
 
   useEffect(() => {
     setSelectedSize("")
-  }, [currentProduct._id])
+  }, [currentProduct?._id])
 
   useEffect(() => {
     if (currentProduct) {
