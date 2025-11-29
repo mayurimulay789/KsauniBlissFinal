@@ -392,7 +392,7 @@ const sendReturnStatusUpdateEmail = async (returnRequest) => {
         </div>
         
         <p>You can track your return request status in your account dashboard.</p>
-        <p>For any queries, contact us at support@fashionhub.com</p>
+        <p>For any queries, contact us at support@ksaunibliss.com</p>
       </div>
     `
 
