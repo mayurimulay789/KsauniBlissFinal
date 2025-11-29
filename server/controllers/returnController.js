@@ -360,8 +360,8 @@ const sendReturnNotificationEmail = async (returnRequest, order) => {
     `
 
     await transporter.sendMail({
-      from: process.env.FROM_EMAIL,
-      to: process.env.SMTP_USER,
+      from: process.env.SMTP_USER,
+      to: process.env.ADMIN,
       subject: `New Return Request - ${returnRequest.returnNumber}`,
       html: emailHtml,
     })
@@ -397,7 +397,7 @@ const sendReturnStatusUpdateEmail = async (returnRequest) => {
     `
 
     await transporter.sendMail({
-      from: process.env.FROM_EMAIL,
+      from: process.env.SMTP_USER,
       to: returnRequest.user.email,
       subject: `Return Request Update - ${returnRequest.returnNumber}`,
       html: emailHtml,

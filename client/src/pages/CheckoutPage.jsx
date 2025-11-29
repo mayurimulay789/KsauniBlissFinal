@@ -984,16 +984,27 @@ const CheckoutPage = () => {
     setShowPaymentModal(false)
   }
 
+  useEffect(() => {
+    window.history.pushState({ page: 1 }, "", window.location.href);
+    const onBackButtonEvent = (e) => {
+      e.preventDefault();
+      handleBackButton();   
+      window.history.pushState({ page: 1 }, "", window.location.href);
+    };
+    window.addEventListener("popstate", onBackButtonEvent);
+    return () => {
+      window.removeEventListener("popstate", onBackButtonEvent);
+    };
+  }, []);
+
   const handleContinueCheckout = () => {
     setshowExitWarning(false)
     setshowExitWarningS(false)
   }
-
   const handleExitButton = () => {
     setshowExitWarningS(true)
     setshowExitWarning(false)
   }
-
   const handleSaveAndExit = async (e) => {
     e.preventDefault();
     setshowExitWarningS(false);
@@ -1021,8 +1032,8 @@ const CheckoutPage = () => {
     setshowExitWarning(false)
     setShowPaymentModal(true)
   }
-  
-   useEffect(() => {
+
+  useEffect(() => {
     const couponCode = filterYCoupon[0]?.code;
     setCongratulationsData({
       couponCode: couponCode || "",
