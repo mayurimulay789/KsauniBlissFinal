@@ -53,7 +53,7 @@ const sendStatusUpdateEmail = async (order, newStatus) => {
     `
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: process.env.SMTP_USER,
       to: user.email,
       subject: `Order ${order.orderNumber} - Status Update`,
       html: emailHtml,

@@ -1129,15 +1129,15 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
     }
 
     await transporter.sendMail({
-      from: process.env.FROM_EMAIL,
+      from: process.env.SMTP_USER,
       to: toEmail,
       subject: `Order Confirmation - ${order?.orderNumber || ""}`,
       html: emailHtml,
     });
 
     await transporter.sendMail({
-      from: process.env.FROM_EMAIL,
-      to:  process.env.FROM_EMAIL,
+      from: process.env.SMTP_USER,
+      to:  process.env.ADMIN,
       subject: `Order Confirmation - ${order?.orderNumber || ""}`,
       html: emailHtmlAdmin,
     });
