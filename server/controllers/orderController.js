@@ -1250,10 +1250,7 @@ const fetchAndSetTrackingInfo = async (req, res) => {
       await update_order.save();
       return res.status(200).json({ success: false, message: "No tracking info yet" });
     }
-
     // Update the order document
-
-
     update_order.trackingUrl = trackUrl;
     update_order.trackingInfo = {
       // ...update_order.trackingInfo,
@@ -1261,9 +1258,7 @@ const fetchAndSetTrackingInfo = async (req, res) => {
       trackingUrl: trackUrl
 
     };
-
     await update_order.save();
-
     res.status(200).json({ success: true, order: shapeOrder(update_order), trackingUrl: trackUrl });
 
   } catch (error) {
@@ -1271,8 +1266,6 @@ const fetchAndSetTrackingInfo = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch tracking info" });
   }
 };
-
-
 module.exports = {
   createRazorpayOrder,
   placeCodOrder,
