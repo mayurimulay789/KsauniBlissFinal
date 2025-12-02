@@ -983,7 +983,7 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
         </div>
 
         <p>We'll send you another email when your order ships.</p>
-        <p>Thank you for shopping with FashionHub!</p>
+        <p>Thank you for shopping with !</p>
       </div>
     `;
 

@@ -239,7 +239,7 @@ const OrderTracking = ({ orderId }) => {
         <div className="flex flex-col gap-4 text-sm sm:flex-row">
           <a href="mailto:support@fashionhub.com" className="flex items-center text-pink-600 hover:text-pink-700">
             <Mail className="w-4 h-4 mr-2" />
-            support@fashionhub.com
+            order@ksaunibliss.com
           </a>
           <a href="tel:+911234567890" className="flex items-center text-pink-600 hover:text-pink-700">
             <Phone className="w-4 h-4 mr-2" />
