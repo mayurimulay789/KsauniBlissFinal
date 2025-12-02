@@ -1067,7 +1067,6 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
           <div>
             <p style="margin: 8px 0;"><strong>Total Amount:</strong> <span style="color: #059669; font-weight: bold;">${fmt(totalNum)}</span></p>
             <p style="margin: 8px 0;"><strong>Payment Method:</strong> ${method}</p>
-            <p style="margin: 8px 0;"><strong>Payment Status:</strong> <span style="color: #059669; font-weight: bold;">${order?.paymentStatus || "PAID"}</span></p>
             <p style="margin: 8px 0;"><strong>Order Source:</strong> ${order?.source || "Web"}</p>
           </div>
         </div>
