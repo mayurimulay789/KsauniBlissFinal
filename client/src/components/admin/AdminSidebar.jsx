@@ -22,7 +22,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
     { name: "Banners", href: "/admin/banners", icon: PhotoIcon },
     { name: "Innovations", href: "/admin/innovations", icon: LightBulbIcon },
     { name: "Kasuni T-Shirt Style", href: "/admin/ksaunitshirtstyle", icon: SparklesIcon },
-    { name: "Feedback", href: "/admin/cancellation", icon: QuestionMarkCircleIcon } // Updated icon to SparklesIcon
+    { name: "Feedback", href: "/admin/cancellation", icon: QuestionMarkCircleIcon } 
   ];
   // Admin-only navigation items
   const adminOnlyNavigation = [

@@ -91,7 +91,6 @@ const orderSchema = new mongoose.Schema(
     // money fields
     subtotal: { type: Number, required: true, min: 0 },
     shippingCharge: { type: Number, required: true, min: 0, default: 0 },
-    deliveryCharge: { type: Number, required: false, min: 0, default: 0 },
     discount: { type: Number, required: true, min: 0, default: 0 },
     total: { type: Number, required: true, min: 0 },
     freediscount: {type: Number},
@@ -99,7 +98,6 @@ const orderSchema = new mongoose.Schema(
     pricing: {
       subtotal: Number,
       shippingCharges: Number,
-      deliveryCharge: Number,
       tax: Number,
       discount: Number,
       total: Number,

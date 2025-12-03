@@ -861,10 +861,8 @@ const CheckoutPage = () => {
       rzpInstanceRef.current.close()
       rzpInstanceRef.current = null
     }
-    const deliveryCharge = Number(opts.deliveryCharge || 0)
     const orderData = {
-      amount: Math.round((calculateFinalPricing.total || 0) + deliveryCharge),
-      deliveryCharge,
+      amount: Math.round((calculateFinalPricing.total || 0)),
       freediscount: calculateFinalPricing.freediscount,
       ...createOrderData(),
     }
