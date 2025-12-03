@@ -386,19 +386,16 @@ class ShiprocketService {
     this.token = null;
     this.tokenExpiry = null;
   }
-
   // 🔐 Authenticate
   async authenticate() {
     if (this.token && this.tokenExpiry && new Date() < this.tokenExpiry) {
       return this.token;
     }
-
     try {
       const response = await axios.post(`${this.baseURL}/auth/login`, {
         email: process.env.SHIPROCKET_EMAIL,
         password: process.env.SHIPROCKET_PASSWORD,
       });
-
       this.token = response.data.token;
       this.tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // valid for 24 hrs
       return this.token;
@@ -407,12 +404,10 @@ class ShiprocketService {
       throw new Error("Failed to authenticate with Shiprocket");
     }
   }
-
   // 📦 Create Order
   async createOrder(orderData) {
     try {
       const headers = await this.getHeaders();
-
       const totalWeight = orderData.items.reduce(
         (weight, item) => weight + item.quantity * 0.5,
         0.5
@@ -421,7 +416,7 @@ class ShiprocketService {
       const payload = {
         order_id: orderData.orderNumber,
         order_date: new Date(orderData.createdAt).toISOString().split("T")[0],
-        pickup_location: "Primary",
+        pickup_location: "work",
         billing_customer_name:
           orderData.shippingAddress.fullName.split(" ")[0],
         billing_last_name:
@@ -433,7 +428,7 @@ class ShiprocketService {
         billing_pincode: orderData.shippingAddress.pinCode,
         billing_state: orderData.shippingAddress.state,
         billing_country: "India",
-        billing_email: orderData.user?.email || "customer@fashionhub.com",
+        billing_email: orderData.user?.email || "customer@ksaunibliss.com" || orderData.shippingAddress.email,
         billing_phone: orderData.shippingAddress.phoneNumber
           .replace(/^\+91/, "")
           .replace(/\D/g, ""),
@@ -513,11 +508,6 @@ class ShiprocketService {
     });
     return data.data; // Array of pickup addresses
   }
-
-
-
-  
-
   // 🏷️ Assign AWB
   async assignAwb(shipmentId, courierCompanyId) {
     try {

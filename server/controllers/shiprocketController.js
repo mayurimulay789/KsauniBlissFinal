@@ -170,10 +170,7 @@ const handleWebhook = async (req, res) => {
     if (etd && !order.trackingInfo.estimatedDelivery) {
       order.trackingInfo.estimatedDelivery = new Date(etd)
     }
-
     await order.save()
-
-
     // Send email notification if status changed significantly
     if (
       previousStatus !== orderStatus &&

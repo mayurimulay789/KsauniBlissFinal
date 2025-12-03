@@ -16,7 +16,6 @@ const shapeOrder = (o) => {
   const subtotal = o.subtotal ?? (o.pricing && o.pricing.subtotal) ?? 0;
   const shippingCharge = o.shippingCharge ?? (o.pricing && (o.pricing.shippingCharges ?? o.pricing.shippingCharge)) ?? 0;
   const discount = o.discount ?? (o.pricing && o.pricing.discount) ?? 0;
-  const deliveryCharge = o.deliveryCharge ?? (o.pricing && o.pricing.deliveryCharge) ?? 0;
   const total = o.total ?? (o.pricing && o.pricing.total) ?? subtotal + shippingCharge - discount;
   const freediscount = o.freediscount ?? (o.pricing && o.pricing.freediscount) ?? 0
 
@@ -26,14 +25,12 @@ const shapeOrder = (o) => {
     pricing: {
       subtotal,
       shipping: shippingCharge,
-      deliveryCharge,
       discount,
       total,
       freediscount
     },
   };
 };
-
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -54,8 +51,6 @@ const transporter = nodemailer.createTransport({
 // Enhanced Shiprocket integration function (kept your original style)
 const createShiprocketOrder = async (order) => {
   try {
-
-
     // Check if Shiprocket service is properly configured
     if (
       !shiprocketService ||
@@ -64,17 +59,13 @@ const createShiprocketOrder = async (order) => {
     ) {
       return { success: false, error: "Shiprocket service not configured" };
     }
-
     // Create order on Shiprocket
     const shiprocketOrderResponse = await shiprocketService.createOrder(order);
-
     if (shiprocketOrderResponse.status_code === 1) {
       const shipmentId = shiprocketOrderResponse.shipment_id;
-
       // ✅ Just save shipmentId to the order
       order.shiprocketShipmentId = shipmentId;
       order.shiprocketOrderId = shiprocketOrderResponse.order_id
-
       // order["shiprocketShipmentId"] = 935898884;
       await order.save();
       return {
@@ -84,7 +75,6 @@ const createShiprocketOrder = async (order) => {
         order: order
       };
     }
-
     throw new Error("Failed to create shipment");
   } catch (error) {
     console.error("❌ Shiprocket integration failed:", error.message);
@@ -388,7 +378,6 @@ const verifyPaymentAndCreateOrder = async (req, res) => {
         pricing: {
           subtotal: order.subtotal,
           shipping: order.shippingCharge,
-          deliveryCharge: order.deliveryCharge || 0,
           discount: order.discount,
           total: order.total,
           freediscount: order.freediscount,
@@ -444,7 +433,7 @@ const verifyPaymentAndCreateOrder = async (req, res) => {
 const placeCodOrder = async (req, res) => {
   try {
       const userId = req.user?.userId || null; // ✅ allow guest
-      const { items, shippingAddress, couponCode, selectedShippingRate, amount, freediscount, deliveryCharge = 0 } = req.body;
+      const { items, shippingAddress, couponCode, selectedShippingRate, amount, freediscount,} = req.body;
 
     // Validate cart
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -527,9 +516,8 @@ const placeCodOrder = async (req, res) => {
       shippingCharge: shippingCharges,
       freediscount: freediscount,
       discount,
-      deliveryCharge: Number(deliveryCharge || 0),
       total: total,
-      pricing: { subtotal, shippingCharges, deliveryCharge: Number(deliveryCharge || 0), tax, discount, total, freediscount, selectedShippingRate },
+      pricing: { subtotal, shippingCharges, tax, discount, total, freediscount, selectedShippingRate },
       coupon: couponDetails,
       paymentInfo: {
         method: "COD",
@@ -565,7 +553,6 @@ const placeCodOrder = async (req, res) => {
         pricing: {
           subtotal: order.subtotal,
           shipping: order.shippingCharge,
-          deliveryCharge: order.deliveryCharge,
           discount: order.discount,
           total: order.total,
           freediscount: order.freediscount,
@@ -648,7 +635,6 @@ const getShippingRates = async (req, res) => {
     ) {
       try {
         const pickupPincode = process.env.PICKUP_PINCODE || "110001";
-
         const rates = await shiprocketService.getShippingRates(
           pickupPincode,
           deliveryPincode,
