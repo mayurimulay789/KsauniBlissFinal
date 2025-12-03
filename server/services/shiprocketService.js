@@ -72,7 +72,7 @@
 //         billing_pincode: orderData.shippingAddress.pinCode,
 //         billing_state: orderData.shippingAddress.state,
 //         billing_country: "India",
-//         billing_email: orderData.user?.email || "customer@fashionhub.com",
+//         billing_email: orderData.user?.email || "customer@ksaunibliss.com",
 //         billing_phone: orderData.shippingAddress.phoneNumber
 //           .replace(/^\+91/, "")
 //           .replace(/\D/g, ""),
@@ -433,7 +433,7 @@ class ShiprocketService {
         billing_pincode: orderData.shippingAddress.pinCode,
         billing_state: orderData.shippingAddress.state,
         billing_country: "India",
-        billing_email: orderData.user?.email || "customer@fashionhub.com",
+        billing_email: orderData.user?.email || "ksaunibliss@gmail.com",
         billing_phone: orderData.shippingAddress.phoneNumber
           .replace(/^\+91/, "")
           .replace(/\D/g, ""),

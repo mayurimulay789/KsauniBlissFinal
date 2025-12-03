@@ -16,7 +16,7 @@ const uploadToCloudinary = (buffer, folder, transformations = {}) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         resource_type: "auto",
-        folder: `fashionhub/${folder}`,
+        folder: `ksaunibliss/${folder}`,
         quality: "auto",
         fetch_format: "auto",
         ...transformations, // allows dynamic resizing, cropping etc.

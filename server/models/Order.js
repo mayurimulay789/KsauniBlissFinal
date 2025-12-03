@@ -29,7 +29,7 @@ const shippingAddressSchema = new mongoose.Schema(
     landmark: { type: String, default: "" },
     addressType : {type: String , default: ""},
     isDefault : {type: Boolean },
-    email: {type: String,required:true}
+    email: { type: String, default: "" }   // ← FIXED: Not required
 
   },
   { _id: false },
