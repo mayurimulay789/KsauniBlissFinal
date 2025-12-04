@@ -447,7 +447,7 @@ class ShiprocketService {
           orderData.shippingCharges ||
           0,
         total_discount:
-          orderData.pricing?.discount || orderData.discount || 0,
+         ( orderData.pricing?.discount || orderData.discount || 0 ) + (orderData.pricing.freediscount),
         sub_total: orderData.pricing?.subtotal || orderData.subtotal || 0,
         length: 15,
         breadth: 10,

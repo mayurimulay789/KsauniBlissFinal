@@ -391,7 +391,7 @@ const verifyPaymentAndCreateOrder = async (req, res) => {
       try {
         const populatedOrder = await Order.findById(order._id).populate(
           "user",
-          "name email phoneNumber"
+          "name email phoneNumber total"
         );
 
         const shiprocketResult = await createShiprocketOrder(populatedOrder);
@@ -503,7 +503,7 @@ const placeCodOrder = async (req, res) => {
 
     const shippingCharges = subtotal >= 399 ? 0 : 99;
     const tax = 0;
-    const total = Math.round(amount || (subtotal + shippingCharges - (discount || 0) + Number(deliveryCharge || 0)));
+    const total =  Math.round(amount);
 
     // Build order
     const orderNumber = `FH-${Date.now()}`;
