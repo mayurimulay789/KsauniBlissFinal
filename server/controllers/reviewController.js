@@ -269,53 +269,46 @@ const updateReview = async (req, res) => {
 }
 
 // Delete review
+
 const deleteReview = async (req, res) => {
   try {
-    const { reviewId } = req.params
-    const userId = req.user.userId
+    const { reviewId } = req.params;
 
-    const review = await Review.findOne({
-      _id: reviewId,
-      user: userId,
-    })
+    const review = await Review.findById(reviewId);
 
     if (!review) {
       return res.status(404).json({
         success: false,
-        message: "Review not found or unauthorized",
-      })
+        message: "Review not found",
+      });
     }
-
-    // Soft delete
-    review.status = "deleted"
-    await review.save()
-
+    //i dont want soft delete here
+    await Review.findByIdAndDelete(reviewId);
     // Recalculate product rating
     const allReviews = await Review.find({
       product: review.product,
       status: "active",
-    })
-
-    const totalRating = allReviews.reduce((sum, r) => sum + r.rating, 0)
-    const averageRating = allReviews.length > 0 ? totalRating / allReviews.length : 0
-
+    });
+    const totalRating = allReviews.reduce((sum, r) => sum + r.rating, 0);
+    const averageRating = allReviews.length > 0 ? totalRating / allReviews.length : 0;
     await Product.findByIdAndUpdate(review.product, {
       "rating.average": averageRating,
       "rating.count": allReviews.length,
-    })
+    });
 
     res.status(200).json({
       success: true,
       message: "Review deleted successfully",
-    })
+    });
   } catch (error) {
-    console.error("Delete review error:", error)
+    console.error("Delete review error:", error);
     res.status(500).json({
       success: false,
       message: "Failed to delete review",
-    })
+    });
   }
 }
+
 
 // Toggle helpful vote
 const toggleHelpful = async (req, res) => {
