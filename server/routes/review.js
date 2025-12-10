@@ -15,6 +15,8 @@ const upload = require("../middleware/upload");
 
 const router = express.Router();
 
+
+router.delete("/:reviewId", adminAuth, deleteReview);
 // Public routes
 router.get("/product/:productId", getProductReviews);
 
@@ -25,7 +27,7 @@ router.post("/", upload.array("images", 5), createReview);
 
 router.get("/user", getUserReviews);
 router.put("/:reviewId", upload.array("images", 5), updateReview);
-router.delete("/:reviewId", adminAuth, deleteReview);
+
 router.post("/:reviewId/helpful", toggleHelpful);
 router.post("/:reviewId/report", reportReview);
 

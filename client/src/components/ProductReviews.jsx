@@ -140,7 +140,7 @@ const ProductReviews = ({ productId }) => {
       if (data.success) {
 
         // ask are sure do you want to delete
-        if (window.confirm("Are you sure you want to delete this review?")) {
+        if (!window.confirm("Are you sure you want to delete this review?")) {
           return;
         }
         toast.success("Review deleted");
