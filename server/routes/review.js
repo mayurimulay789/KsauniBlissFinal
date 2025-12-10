@@ -16,7 +16,7 @@ const upload = require("../middleware/upload");
 const router = express.Router();
 
 
-router.delete("/:reviewId", adminAuth, deleteReview);
+router.delete("/:reviewId",protect, adminAuth, deleteReview);
 // Public routes
 router.get("/product/:productId", getProductReviews);
 
