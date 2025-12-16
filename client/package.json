@@ -13,7 +13,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
-    "fix": "node fix-lint.js"
+    "fix": "node fix-lint.js",
+    "test": "echo \"No client tests yet\""
+
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
