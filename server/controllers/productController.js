@@ -122,11 +122,11 @@ const getProducts = async (req, res) => {
 
       // If it's not a valid ObjectId, treat it as a slug:
       if (!mongoose.Types.ObjectId.isValid(category)) {
-        const catDoc = await Category.findOne({ slug: category, isActive: true }).select("_id,name");
+        const catDoc = await Category.findOne({ slug: category, isActive: true }).select("_id");
         if (!catDoc) {
           return res.status(404).json({ success: false, message: "Category not found" });
         }
-        categoryId = catDoc.name;
+        categoryId = catDoc._id;
       }
 
       query.category = categoryId;
