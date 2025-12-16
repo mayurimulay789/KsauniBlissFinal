@@ -4,11 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { fetchAllCoupons, createCoupon, updateCoupon, deleteCoupon } from "../../store/slices/adminSlice";
 import LoadingSpinner from "../LoadingSpinner";
+import adminAPI from "../../store/api/adminApi"
 
 const CouponsManagement = () => {
   const dispatch = useDispatch();
   const { coupons, couponsPagination, couponsLoading } = useSelector((state) => state.admin);
-
   const [showFreeCouponModal, setShowFreeCouponModal] = useState(false);
   const [filters, setFilters] = useState({
     page: 1,
@@ -16,6 +16,7 @@ const CouponsManagement = () => {
     isActive: "",
   });
   const [showModal, setShowModal] = useState(false);
+  const [categoriesdetails, setCategoriesdetails] = useState("");
   const [editingCoupon, setEditingCoupon] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Regular coupon form data
@@ -31,6 +32,7 @@ const CouponsManagement = () => {
     validUntil: "",
     isActive: true,
     isFreeCoupon: "N",
+    couponcategories: "",
   });
   // Free coupon form data - now editable but with constraints
   const [freeCouponFormData, setFreeCouponFormData] = useState({
@@ -76,6 +78,7 @@ const CouponsManagement = () => {
       validUntil: "",
       isActive: true,
       isFreeCoupon: "N",
+      couponcategories: "",
     });
     setShowModal(true);
   };
@@ -112,6 +115,7 @@ const CouponsManagement = () => {
         validUntil: coupon.validUntil ? new Date(coupon.validUntil).toISOString().split("T")[0] : "",
         isActive: coupon.isActive,
         isFreeCoupon: coupon.isFreeCoupon || "N",
+        couponcategories: coupon.couponcategories,
       });
       setShowModal(true);
     }
@@ -127,11 +131,20 @@ const CouponsManagement = () => {
       }
     }
   };
-
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await adminAPI.getAllCategories();
+        setCategoriesdetails(response.data.categories)
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchCategories();
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       const couponData = {
         ...formData,
@@ -141,6 +154,7 @@ const CouponsManagement = () => {
         maxUses: formData.maxUses ? Number(formData.maxUses) : undefined,
         maxUsesPerUser: Number(formData.maxUsesPerUser),
         isFreeCoupon: formData.isFreeCoupon,
+        couponcategories: formData.couponcategories,
       };
 
       if (editingCoupon) {
@@ -148,7 +162,6 @@ const CouponsManagement = () => {
       } else {
         await dispatch(createCoupon(couponData));
       }
-
       setShowModal(false);
       dispatch(fetchAllCoupons(filters)); // Refresh list
     } catch (error) {
@@ -259,7 +272,6 @@ const CouponsManagement = () => {
       </div>
     );
   }
-
   return (
     <div className="p-2 space-y-3 sm:p-4 sm:space-y-4">
       {/* Header Section */}
@@ -290,11 +302,10 @@ const CouponsManagement = () => {
           <button
             onClick={handleFreeCoupon}
             disabled={freeCouponExists && !editingCoupon}
-            className={`inline-flex items-center justify-center px-4 py-3 text-sm font-medium rounded-md transition-colors flex-1 sm:flex-none ${
-              freeCouponExists && !editingCoupon
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-green-600 text-white hover:bg-green-700'
-            }`}
+            className={`inline-flex items-center justify-center px-4 py-3 text-sm font-medium rounded-md transition-colors flex-1 sm:flex-none ${freeCouponExists && !editingCoupon
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-green-600 text-white hover:bg-green-700'
+              }`}
           >
             <PlusIcon className="w-4 h-4 mr-2" />
             {freeCouponExists && !editingCoupon ? 'Free Coupon Exists' : 'Create Free Coupon'}
@@ -399,11 +410,10 @@ const CouponsManagement = () => {
                         <span className="text-sm font-medium">{formatDate(coupon.validUntil)}</span>
                       </div>
                       <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                          coupon.isActive && new Date(coupon.validUntil) > new Date()
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${coupon.isActive && new Date(coupon.validUntil) > new Date()
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                          }`}
                       >
                         {coupon.isActive && new Date(coupon.validUntil) > new Date() ? "Active" : "Inactive"}
                       </span>
@@ -474,11 +484,10 @@ const CouponsManagement = () => {
                         </td>
                         <td className="px-4 py-4 sm:px-6">
                           <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              coupon.isActive && new Date(coupon.validUntil) > new Date()
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${coupon.isActive && new Date(coupon.validUntil) > new Date()
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                              }`}
                           >
                             {coupon.isActive && new Date(coupon.validUntil) > new Date() ? "Active" : "Inactive"}
                           </span>
@@ -704,21 +713,42 @@ const CouponsManagement = () => {
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
                       />
                     </div>
-
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="isActive"
-                        checked={formData.isActive}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
-                        className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-                      />
-                      <label htmlFor="isActive" className="ml-2 text-sm text-gray-900">
-                        Active Coupon
-                      </label>
+                    <div className="flex justify-between">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="isActive"
+                          checked={formData.isActive}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
+                          className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                        />
+                        <label htmlFor="isActive" className="ml-2 text-sm text-gray-900">
+                          Active Coupon
+                        </label>
+                      </div>
+                      <div>
+                        <select
+                          name="couponcategories"
+                          value={formData.couponcategories || ""}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              couponcategories: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="" disabled>
+                            Select Categories
+                          </option>
+                          {categoriesdetails.map((category) => (
+                            <option key={category._id} value={category.name}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   </div>
-
                   <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3 sm:justify-end pt-4 mt-4 border-t">
                     <button
                       type="button"
@@ -760,11 +790,10 @@ const CouponsManagement = () => {
                   </svg>
                 </button>
               </div>
-
               <div className="p-4">
                 <div className="p-3 mb-4 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-sm text-green-800">
-                    <strong>Free Coupon Information:</strong> Free coupons provide special discounts for customers. 
+                    <strong>Free Coupon Information:</strong> Free coupons provide special discounts for customers.
                     You can set either percentage or flat discount. Only one free coupon can exist at a time.
                   </p>
                 </div>

@@ -23,7 +23,11 @@ exports.getCart = async (req, res) => {
 
     const user = await User.findById(userId).populate({
       path: "cart.product",
-      select: "name price slug originalPrice images stock sizes colors isActive",
+      select: "name price slug originalPrice images stock sizes colors isActive category",
+      populate: {
+        path: "category",
+        select: "name"
+      }
     })
 
     if (!user) {
@@ -57,6 +61,10 @@ exports.getCart = async (req, res) => {
           stock: item.product.stock,
           sizes: item.product.sizes,
           colors: item.product.colors,
+          category: {
+            _id: item.product.category?._id,
+            name: item.product.category?.name,
+          },
         },
         quantity: item.quantity,
         size: item.size,
@@ -196,7 +204,7 @@ exports.addToCart = async (req, res) => {
       // Populate and return updated cart
       await user.populate({
         path: "cart.product",
-        select: "name price originalPrice images stock sizes colors",
+        select: "name price originalPrice images stock sizes colors category",
       })
 
       const addedItem = user.cart.find(

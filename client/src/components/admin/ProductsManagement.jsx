@@ -202,7 +202,7 @@ const ProductsManagement = () => {
 
     if (product.images && product.images.length > 0) {
       const existingImages = product.images.map((img, index) => ({
-        file: null, // No file object for existing images
+        file: null,
         name: `existing-image-${index}`,
         preview: img.url, // Use the existing image URL as preview
         sizeKB: 0, // Size unknown for existing images

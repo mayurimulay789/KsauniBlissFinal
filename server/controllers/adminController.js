@@ -420,6 +420,7 @@ const createCoupon = async (req, res) => {
       applicableCategories,
       applicableProducts,
       isFreeCoupon,
+      couponcategories,
     } = req.body
 
     // Validate required fields
@@ -453,6 +454,7 @@ const createCoupon = async (req, res) => {
       applicableProducts: applicableProducts || [],
       createdBy: req.user.userId,
       isFreeCoupon,
+      couponcategories,
     })
 
     await coupon.save()
@@ -483,6 +485,7 @@ const updateCoupon = async (req, res) => {
     if (updateData.maxUses) updateData.maxUses = Number(updateData.maxUses)
     if (updateData.maxUsesPerUser) updateData.maxUsesPerUser = Number(updateData.maxUsesPerUser)
     if (updateData.validUntil) updateData.validUntil = new Date(updateData.validUntil)
+    if (updateData.couponcategories) updateData.couponcategorieupdateData.couponcategories
 
     const coupon = await Coupon.findByIdAndUpdate(couponId, updateData, { new: true, runValidators: true }).populate(
       "createdBy",
