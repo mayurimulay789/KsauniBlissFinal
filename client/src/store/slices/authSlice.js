@@ -460,7 +460,8 @@ export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("tokenExpiry");
     localStorage.removeItem("fashionhub_token");
-    localStorage.removeItem("guestOrders"); // Clear guest orders on logout
+    localStorage.removeItem("guestOrders"); 
+    localStorage.removeItem("userAddresses")
     // Clean up reCAPTCHA
     cleanupRecaptcha();
     return { success: true };
@@ -674,6 +675,7 @@ const authSlice = createSlice({
       state.phoneNumber = null;
       localStorage.removeItem("user");
       localStorage.removeItem("authToken");
+      localStorage.removeItem("userAddresses")
     },
     clearPhoneAuthState: (state) => {
       // Renamed from resetOtpState

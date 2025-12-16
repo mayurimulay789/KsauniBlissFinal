@@ -83,6 +83,10 @@ const couponSchema = new mongoose.Schema(
       default: "N",
       required: true,
     },
+    couponcategories: {
+      type: String,
+      default: "",
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

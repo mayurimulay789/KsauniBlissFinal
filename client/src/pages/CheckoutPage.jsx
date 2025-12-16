@@ -186,7 +186,7 @@ const useAddressManagement = (user) => {
 const AddressPopup = ({ isOpen, onClose, onSave, editingAddress, user }) => {
   const [formData, setFormData] = useState({
     fullName: "",
-    email: "", // Added email field
+    email: "",
     phoneNumber: "",
     addressLine1: "",
     addressLine2: "",
@@ -203,7 +203,7 @@ const AddressPopup = ({ isOpen, onClose, onSave, editingAddress, user }) => {
     if (editingAddress) {
       setFormData({
         fullName: editingAddress.fullName || "",
-        email: editingAddress.email || "", // Prefill email
+        email: editingAddress.email || "",
         phoneNumber: editingAddress.phoneNumber || "",
         addressLine1: editingAddress.addressLine1 || "",
         addressLine2: editingAddress.addressLine2 || "",
@@ -218,7 +218,7 @@ const AddressPopup = ({ isOpen, onClose, onSave, editingAddress, user }) => {
       setFormData(prev => ({
         ...prev,
         fullName: user?.name || "",
-        email: user?.email || "", // Prefill user email
+        email: user?.email || "",
         phoneNumber: user?.phoneNumber?.replace("+91", "") || "",
       }))
     }
@@ -227,7 +227,7 @@ const AddressPopup = ({ isOpen, onClose, onSave, editingAddress, user }) => {
   const validateForm = () => {
     const newErrors = {}
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required"
-    if (!formData.email.trim()) newErrors.email = "Email is required" // Email validation
+    if (!formData.email.trim()) newErrors.email = "Email is required"
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address"
     }
@@ -568,7 +568,7 @@ const AddressList = ({
               </div>
               <div className="space-y-1 text-sm text-gray-600">
                 <p className="font-medium">{address.fullName}</p>
-                <p>{address.email}</p> {/* Added email display */}
+                <p>{address.email}</p>
                 <p>+91 {address.phoneNumber}</p>
                 <p>{address.addressLine1}</p>
                 {address.addressLine2 && <p>{address.addressLine2}</p>}
@@ -986,7 +986,7 @@ const CheckoutPage = () => {
     window.history.pushState({ page: 1 }, "", window.location.href);
     const onBackButtonEvent = (e) => {
       e.preventDefault();
-      handleBackButton();   
+      handleBackButton();
       window.history.pushState({ page: 1 }, "", window.location.href);
     };
     window.addEventListener("popstate", onBackButtonEvent);
@@ -1262,77 +1262,93 @@ const CheckoutPage = () => {
                           </div>
 
                           {/* Available Coupons - Professional Compact */}
-                          {filterNCoupon.length > 0 && (
-                            <div className="border-t pt-2">
-                              <p className="text-xs font-medium text-gray-600 mb-2">Available Offers</p>
-                              <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-                                {filterNCoupon.map((coupon, index) => {
-                                  const subtotal = calculateFinalPricing?.subtotal || 0
-                                  const min = coupon.minOrderValue || 0
-                                  const eligible = subtotal >= min
-                                  const shortBy = Math.max(0, min - subtotal)
+                          {displayItems.map((item) => {
+                            const matchedCoupons = filterNCoupon.filter(
+                              (coupon) => (item.product?.category?.name!="none") && item.product?.category?.name === coupon.couponcategories
+                            );
 
-                                  return (
-                                    <motion.div
-                                      key={coupon.code}
-                                      initial={{ opacity: 0, y: 5 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      transition={{ delay: index * 0.05 }}
-                                      className={`p-2 rounded-md border transition-all ${eligible
-                                        ? 'border-red-200 bg-red-50 hover:border-red-300'
-                                        : 'border-gray-200 bg-gray-50'
-                                        }`}
-                                    >
-                                      {/* Professional Description */}
-                                      <div className="mb-1.5">
-                                        <h3 className={`text-sm font-semibold leading-tight ${eligible ? 'text-gray-900' : 'text-gray-600'
-                                          }`}>
-                                          {coupon.description || "Special Discount"}
+                            if (matchedCoupons.length === 0) return null;
+
+                            return (
+                              <div key={item._id} className="border-t pt-2">
+                                <p className="text-xs font-medium text-gray-600 mb-2">
+                                  Available Offers
+                                </p>
+
+                                <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                                  {matchedCoupons.map((coupon, index) => {
+                                    const subtotal = calculateFinalPricing?.subtotal || 0;
+                                    const min = coupon.minOrderValue || 0;
+                                    const eligible = subtotal >= min;
+                                    const shortBy = Math.max(0, min - subtotal);
+
+                                    return (
+                                      <motion.div
+                                        key={coupon.code}
+                                        initial={{ opacity: 0, y: 5 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.05 }}
+                                        className={`p-2 rounded-md border transition-all ${eligible
+                                            ? 'border-red-200 bg-red-50 hover:border-red-300'
+                                            : 'border-gray-200 bg-gray-50'
+                                          }`}
+                                      >
+                                        {/* Description */}
+                                        <h3
+                                          className={`text-sm font-semibold leading-tight ${eligible ? 'text-gray-900' : 'text-gray-600'
+                                            }`}
+                                        >
+                                          {coupon.description || 'Special Discount'}
                                         </h3>
-                                      </div>
 
-                                      {/* Compact Details with Apply Now Button */}
-                                      <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-1.5">
-                                          <span className={`text-xs font-mono font-medium ${eligible ? 'text-red-700' : 'text-gray-500'
-                                            }`}>
-                                            {coupon.code}
-                                          </span>
-                                          {min > 0 && (
-                                            <span className="text-[10px] text-gray-500 bg-white px-1.5 py-0.5 rounded border">
-                                              Min ₹{min}
+                                        {/* Details */}
+                                        <div className="flex items-center justify-between mt-1">
+                                          <div className="flex items-center gap-1.5">
+                                            <span
+                                              className={`text-xs font-mono font-medium ${eligible ? 'text-red-700' : 'text-gray-500'
+                                                }`}
+                                            >
+                                              {coupon.code}
+                                            </span>
+
+                                            {min > 0 && (
+                                              <span className="text-[10px] text-gray-500 bg-white px-1.5 py-0.5 rounded border">
+                                                Min ₹{min}
+                                              </span>
+                                            )}
+                                          </div>
+
+                                          {eligible ? (
+                                            <button
+                                              onClick={() => {
+                                                setCouponCode(coupon.code);
+                                                dispatch(
+                                                  validateCoupon({
+                                                    code: coupon.code,
+                                                    cartTotal: subtotal,
+                                                  })
+                                                );
+                                              }}
+                                              className="px-2 py-1 text-[10px] font-bold text-white bg-red-600 rounded hover:bg-red-700"
+                                            >
+                                              APPLY NOW
+                                            </button>
+                                          ) : (
+                                            <span className="text-[10px] text-orange-600 font-medium">
+                                              +₹{shortBy}
                                             </span>
                                           )}
                                         </div>
-
-                                        {eligible ? (
-                                          <button
-                                            onClick={() => {
-                                              setCouponCode(coupon.code)
-                                              const orderValue = calculateFinalPricing?.subtotal || 0
-                                              dispatch(
-                                                validateCoupon({
-                                                  code: coupon.code,
-                                                  cartTotal: orderValue,
-                                                }),
-                                              )
-                                            }}
-                                            className="px-2 py-1 text-[10px] font-bold text-white bg-red-600 rounded hover:bg-red-700 transition-colors"
-                                          >
-                                            APPLY NOW
-                                          </button>
-                                        ) : (
-                                          <span className="text-[10px] text-orange-600 font-medium">
-                                            +₹{shortBy}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </motion.div>
-                                  )
-                                })}
+                                      </motion.div>
+                                    );
+                                  })}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            );
+                          })}
+
+
+
                         </div>
                       )}
                     </motion.div>

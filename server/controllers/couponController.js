@@ -50,10 +50,8 @@ const validateCoupon = async (req, res) => {
         message: `Minimum order value for this coupon is ₹${coupon.minOrderValue}`,
       });
     }
-
     // Calculate discount
     const discountAmount = coupon.calculateDiscount(cartTotal);
-
     res.status(200).json({
       success: true,
       message: "Coupon is valid",
@@ -65,6 +63,7 @@ const validateCoupon = async (req, res) => {
         discountAmount,
         minOrderValue: coupon.minOrderValue,
         isFreeCoupon: coupon.isFreeCoupon,
+        couponcategories: coupon.couponcategories,
       },
     });
   } catch (error) {
@@ -87,7 +86,7 @@ const getAvailableCoupons = async (req, res) => {
       validUntil: { $gte: now },
       $or: [{ maxUses: null }, { $expr: { $lt: ["$usedCount", "$maxUses"] } }],
     }).select(
-      "code description discountType discountValue minOrderValue maxDiscountAmount validUntil isFreeCoupon"
+      "code description discountType discountValue minOrderValue maxDiscountAmount validUntil isFreeCoupon couponcategories"
     );
 
     res.status(200).json({
