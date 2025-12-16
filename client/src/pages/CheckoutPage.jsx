@@ -1269,9 +1269,6 @@ const CheckoutPage = () => {
                             if (matchedCoupons.length === 0) return null;
                             return (
                               <div key={item._id} className="border-t pt-2">
-                                <p className="text-xs font-medium text-gray-600 mb-2">
-                                  Available Offers
-                                </p>
                                 <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
                                   {matchedCoupons.map((coupon, index) => {
                                     const subtotal = calculateFinalPricing?.subtotal || 0;
@@ -1286,8 +1283,8 @@ const CheckoutPage = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: index * 0.05 }}
                                         className={`p-2 rounded-md border transition-all ${eligible
-                                            ? 'border-red-200 bg-red-50 hover:border-red-300'
-                                            : 'border-gray-200 bg-gray-50'
+                                          ? 'border-red-200 bg-red-50 hover:border-red-300'
+                                          : 'border-gray-200 bg-gray-50'
                                           }`}
                                       >
                                         {/* Description */}
