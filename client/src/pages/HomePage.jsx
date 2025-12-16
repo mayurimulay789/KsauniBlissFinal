@@ -17,7 +17,7 @@ import Testimonials from "../components/Testimonials";
 import Popup from "../components/Popup";
 import BrandIndia from "../components/BrandIndia";
 import TopPicksShowcase from "../components/TopPicksShowCase";
-import FlatDiscount from "../components/FlatDiscount";
+// import FlatDiscount from "../components/FlatDiscount";
 import {
   fetchTrendingProducts,
   fetchNewArrivals,
@@ -128,7 +128,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <PromoBanners />
-      <FlatDiscount />
+      {/* <FlatDiscount /> */}
       <HeroBanner />
       <KsauniTshirtStyle />
       <PriceSelection />
