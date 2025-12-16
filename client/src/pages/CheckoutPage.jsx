@@ -1264,17 +1264,14 @@ const CheckoutPage = () => {
                           {/* Available Coupons - Professional Compact */}
                           {displayItems.map((item) => {
                             const matchedCoupons = filterNCoupon.filter(
-                              (coupon) => (item.product?.category?.name!="none") && item.product?.category?.name === coupon.couponcategories
-                            );
-
+                              (coupon) => item.product?.category?.name === coupon.couponcategories
+                            )
                             if (matchedCoupons.length === 0) return null;
-
                             return (
                               <div key={item._id} className="border-t pt-2">
                                 <p className="text-xs font-medium text-gray-600 mb-2">
                                   Available Offers
                                 </p>
-
                                 <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
                                   {matchedCoupons.map((coupon, index) => {
                                     const subtotal = calculateFinalPricing?.subtotal || 0;
@@ -1346,9 +1343,6 @@ const CheckoutPage = () => {
                               </div>
                             );
                           })}
-
-
-
                         </div>
                       )}
                     </motion.div>

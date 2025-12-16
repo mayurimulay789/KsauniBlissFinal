@@ -740,7 +740,6 @@ const CouponsManagement = () => {
                           <option value="" disabled>
                             Select Categories
                           </option>
-                          <option value="none">None</option>
                           {categoriesdetails.map((category) => (
                             <option key={category._id} value={category.name}>
                               {category.name}
