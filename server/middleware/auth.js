@@ -75,6 +75,8 @@ const protect = async (req, res, next) => {
 // 🔒 Admin-only Middleware
 // =============================
 const adminAuth = (req, res, next) => {
+    console.log("req.user:", req.user); // <- check this
+
   if (!req.user || req.user.role !== "admin") {
     return res.status(403).json({
       success: false,

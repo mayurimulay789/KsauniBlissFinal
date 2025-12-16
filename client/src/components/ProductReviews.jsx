@@ -130,6 +130,29 @@ const ProductReviews = ({ productId }) => {
     </div>
   );
 
+  const handleDeleteReview = async (reviewId) => {
+    if (!user || user.role !== "admin") {
+      toast.error("Only admins can delete reviews");
+      return;
+    }
+    try {
+      const { data } = await reviewAPI.deleteReview(reviewId);
+      if (data.success) {
+
+        // ask are sure do you want to delete
+        if (!window.confirm("Are you sure you want to delete this review?")) {
+          return;
+        }
+        toast.success("Review deleted");
+        dispatch(fetchProductReviews(productId));
+      }
+    } catch (error) {
+      console.error("Delete review error:", error);
+      toast.error("Failed to delete review");
+    }
+  };
+
+
   const renderRatingDistribution = () => {
     const { ratingDistribution, totalReviews } = reviewStats;
     return (
@@ -363,14 +386,19 @@ const ProductReviews = ({ productId }) => {
                       </div>
                       <p className="text-xs text-gray-600">{review.user?.name || "Anonymous"}</p>
                     </div>
+                    {/* i want here delete review option for admin only */}
+                    {/* crete delete review option for admin only */}
+
                   </div>
-                  {/* <button
-                    onClick={() => handleLikeReview(review._id)}
+                {user?.role === "admin" && (
+                  <button
+                    onClick={() => handleDeleteReview(review._id)}
                     className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                   >
-                    <ThumbsUp className="w-3 h-3" />
-                    {review.likes?.length || 0}
-                  </button> */}
+                    <X className="w-3 h-3" />
+                    Delete
+                  </button>
+                )}
                 </div>
 
                 {/* Review Content */}
