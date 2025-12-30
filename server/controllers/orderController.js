@@ -6,6 +6,7 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const shiprocketService = require("../services/shiprocketService");
+const { sendEmail } = require("../utils/emailService");
 
 // Unified order shaper for client responses
 const shapeOrder = (o) => {
@@ -904,12 +905,17 @@ const cancelOrder = async (req, res) => {
 };
 
 
-// Send order confirmation email (HARDENED)
+// Send order confirmation email using centralized email service
 const sendOrderConfirmationEmail = async (userArg, order) => {
   try {
     // Fallbacks in case caller passed null/lean docs
     const user = userArg || order?.user || {};
     const toEmail = user?.email || process.env.FALLBACK_TEST_EMAIL; // Optional fallback
+
+    if (!toEmail) {
+      console.warn("⚠️ No recipient email found; skip sending.");
+      return;
+    }
 
     // Resolve totals robustly (supports both "pricing.total" and root "total")
     const totalNum = Number(
@@ -922,7 +928,7 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
     const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
 
     // Resolve payment method (old/new field names)
-    const method =
+    const paymentMethod =
       (order && order.paymentInfo && (order.paymentInfo.method || order.paymentInfo.method)) || "—";
 
     // Resolve tracking details regardless of field name
@@ -931,201 +937,138 @@ const sendOrderConfirmationEmail = async (userArg, order) => {
     const estimatedDelivery =
       (order && order.trackingInfo && order.trackingInfo.estimatedDelivery) || null;
 
-    // Defensive address reads
-    const addr = order?.shippingAddress || {};
-    const addressLine2 = addr.addressLine2 ? `<p>${addr.addressLine2}</p>` : "";
+    // Format order items for email template
+    const formattedItems = order?.items ? order.items.map(item => ({
+      name: item.name || item.productName || "Product",
+      quantity: item.quantity || 1,
+      price: fmt(item.price || 0),
+      totalPrice: fmt((item.price || 0) * (item.quantity || 1)),
+      image: item.image || item.imageUrl,
+      size: item.size,
+      color: item.color,
+    })) : [];
 
-    const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #ec4899;">Order Confirmation - KsauniBliss</h2>
-        <p>Dear ${user?.name || "Customer"},</p>
-        <p>Thank you for your order! Your order has been confirmed and is being processed.</p>
+    // Prepare email data for customer
+    const emailData = {
+      customerName: user?.name || "Valued Customer",
+      orderNumber: order?.orderNumber || "—",
+      orderId: order?._id || order?.id,
+      orderDate: new Date(order?.createdAt || new Date()).toLocaleDateString(),
+      total: fmt(totalNum),
+      paymentMethod,
+      trackingNumber,
+      estimatedDelivery: estimatedDelivery ? new Date(estimatedDelivery).toLocaleDateString() : null,
+      items: formattedItems,
+      shippingAddress: order?.shippingAddress || {},
+    };
 
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3>Order Details</h3>
-          <p><strong>Order Number:</strong> ${order?.orderNumber || "—"}</p>
-          <p><strong>Total Amount:</strong> ${fmt(totalNum)}</p>
-          <p><strong>Payment Method:</strong> ${method}</p>
-          ${trackingNumber
-        ? `<p><strong>Tracking Number:</strong> ${trackingNumber}</p>`
-        : ""
-      }
-          ${estimatedDelivery
-        ? `<p><strong>Estimated Delivery:</strong> ${new Date(
-          estimatedDelivery
-        ).toLocaleDateString()}</p>`
-        : ""
-      }
+    // Send customer confirmation email using new template
+    await sendEmail({
+      to: toEmail,
+      template: 'orderConfirmation',
+      data: emailData
+    });
+
+    // Send admin notification email (using existing detailed template)
+    const adminEmailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: #ffffff;">
+        <!-- Admin Header -->
+        <div style="background: #dc2626; color: white; padding: 20px; text-align: center;">
+          <h2 style="margin: 0; font-size: 24px;">🛎️ NEW ORDER RECEIVED - ADMIN NOTIFICATION</h2>
+          <p style="margin: 5px 0 0 0; opacity: 0.9;">Order requires processing and fulfillment</p>
         </div>
 
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3>Shipping Address</h3>
-          <p>${addr.fullName || ""}</p>
-          <p>${addr.addressLine1 || ""}</p>
-          ${addressLine2}
-          <p>${addr.city || ""}, ${addr.state || ""} - ${addr.pinCode || ""}</p>
-          ${addr.phoneNumber ? `<p>Phone: ${addr.phoneNumber}</p>` : ""}
-          ${addr.email} <p>Email: ${addr.email}</p>
-        </div>
+        <div style="padding: 25px;">
+          <!-- Quick Action Buttons -->
+          <div style="background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc2626;">
+            <h3 style="color: #dc2626; margin-top: 0;">Quick Actions</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <a href="${process.env.ADMIN_DASHBOARD_URL || '#'}/orders/${order?.id}" 
+                 style="background: #dc2626; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 14px;">
+                📋 View Order in Dashboard
+              </a>
+              <a href="${process.env.ADMIN_DASHBOARD_URL || '#'}/orders/${order?.id}/process" 
+                 style="background: #059669; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 14px;">
+                🚚 Process Order
+              </a>
+            </div>
+          </div>
 
-        <p>We'll send you another email when your order ships.</p>
-        <p>Thank you for shopping with !</p>
+          <!-- Customer & Order Information -->
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="color: #1e293b; margin-top: 0;">👤 Customer & Order Information</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              <div>
+                <p style="margin: 8px 0;"><strong>Customer:</strong> ${user?.name || "—"}</p>
+                <p style="margin: 8px 0;"><strong>Email:</strong> ${user?.email || "—"}</p>
+                <p style="margin: 8px 0;"><strong>Phone:</strong> ${user?.phone || order?.shippingAddress?.phoneNumber || "—"}</p>
+              </div>
+              <div>
+                <p style="margin: 8px 0;"><strong>Order Number:</strong> ${order?.orderNumber || "—"}</p>
+                <p style="margin: 8px 0;"><strong>Total Amount:</strong> <span style="color: #059669; font-weight: bold;">${fmt(totalNum)}</span></p>
+                <p style="margin: 8px 0;"><strong>Payment Method:</strong> ${paymentMethod}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Items -->
+          ${formattedItems.length > 0 ? `
+            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="color: #1e293b; margin-top: 0;">🛍️ Order Items</h3>
+              ${formattedItems.map(item => `
+                <div style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">
+                  <p style="margin: 5px 0;"><strong>${item.name}</strong></p>
+                  <p style="margin: 5px 0; color: #6b7280;">Qty: ${item.quantity} × ${item.price} = ${item.totalPrice}</p>
+                  ${item.size || item.color ? `<p style="margin: 5px 0; color: #9ca3af; font-size: 14px;">${item.size || ""} ${item.color || ""}</p>` : ""}
+                </div>
+              `).join("")}
+            </div>
+          ` : ""}
+
+          <!-- Shipping Address -->
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="color: #1e293b; margin-top: 0;">🏠 Shipping Address</h3>
+            <p style="margin: 5px 0;">${order?.shippingAddress?.fullName || ""}</p>
+            <p style="margin: 5px 0;">${order?.shippingAddress?.addressLine1 || ""}</p>
+            ${order?.shippingAddress?.addressLine2 ? `<p style="margin: 5px 0;">${order.shippingAddress.addressLine2}</p>` : ""}
+            <p style="margin: 5px 0;">${order?.shippingAddress?.city || ""}, ${order?.shippingAddress?.state || ""} - ${order?.shippingAddress?.pinCode || ""}</p>
+            ${order?.shippingAddress?.phoneNumber ? `<p style="margin: 5px 0;">📞 ${order.shippingAddress.phoneNumber}</p>` : ""}
+          </div>
+
+          <!-- Tracking Info -->
+          ${trackingNumber ? `
+            <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0369a1;">
+              <h4 style="color: #0369a1; margin-top: 0;">🚚 Tracking Information</h4>
+              <p style="margin: 0; color: #0369a1;"><strong>Tracking Number:</strong> ${trackingNumber}</p>
+              ${estimatedDelivery ? `<p style="margin: 5px 0 0 0; color: #0369a1;"><strong>Estimated Delivery:</strong> ${new Date(estimatedDelivery).toLocaleDateString()}</p>` : ""}
+            </div>
+          ` : `
+            <div style="background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc2626;">
+              <p style="margin: 0; color: #dc2626;"><strong>⚠️ Tracking not yet assigned - Please process for shipping</strong></p>
+            </div>
+          `}
+
+          <!-- Footer -->
+          <div style="text-align: center; padding: 20px; background: #f1f5f9; border-radius: 8px; margin-top: 20px;">
+            <p style="margin: 0; color: #64748b; font-size: 14px;">
+              Order received: ${new Date().toLocaleString()}<br>
+              Please process within 24 hours for timely delivery.
+            </p>
+          </div>
+        </div>
       </div>
     `;
 
-    const emailHtmlAdmin = `
-  <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: #ffffff;">
-    <!-- Admin Header -->
-    <div style="background: #dc2626; color: white; padding: 20px; text-align: center;">
-      <h2 style="margin: 0; font-size: 24px;">🛎️ NEW ORDER RECEIVED - ADMIN NOTIFICATION</h2>
-      <p style="margin: 5px 0 0 0; opacity: 0.9;">Order requires processing and fulfillment</p>
-    </div>
-
-    <div style="padding: 25px;">
-      <!-- Quick Action Buttons -->
-      <div style="background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc2626;">
-        <h3 style="color: #dc2626; margin-top: 0;">Quick Actions</h3>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <a href="${process.env.ADMIN_DASHBOARD_URL || '#'}/orders/${order?.id}" 
-             style="background: #dc2626; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 14px;">
-            📋 View Order in Dashboard
-          </a>
-          <a href="${process.env.ADMIN_DASHBOARD_URL || '#'}/orders/${order?.id}/process" 
-             style="background: #059669; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 14px;">
-            🚚 Process Order
-          </a>
-          <a href="${process.env.ADMIN_DASHBOARD_URL || '#'}/orders/${order?.id}/contact" 
-             style="background: #2563eb; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 14px;">
-            📞 Contact Customer
-          </a>
-        </div>
-      </div>
-
-      <!-- Order Priority & Status -->
-      <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
-        <div style="flex: 1; min-width: 200px;">
-          <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; border-left: 4px solid #0369a1;">
-            <h4 style="margin: 0 0 8px 0; color: #0369a1;">Order Status</h4>
-            <p style="margin: 0; font-weight: bold; color: #0369a1;">📦 CONFIRMED</p>
-          </div>
-        </div>
-        <div style="flex: 1; min-width: 200px;">
-          <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #059669;">
-            <h4 style="margin: 0 0 8px 0; color: #059669;">Priority</h4>
-            <p style="margin: 0; font-weight: bold; color: #059669;">${order?.priority || 'STANDARD'}</p>
-          </div>
-        </div>
-        <div style="flex: 1; min-width: 200px;">
-          <div style="background: #fef7ed; padding: 15px; border-radius: 8px; border-left: 4px solid #ea580c;">
-            <h4 style="margin: 0 0 8px 0; color: #ea580c;">Order Time</h4>
-            <p style="margin: 0; font-weight: bold; color: #ea580c;">${new Date().toLocaleString()}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Customer Information -->
-      <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h3 style="color: #1e293b; margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">👤 Customer Information</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-          <div>
-            <p style="margin: 8px 0;"><strong>Name:</strong> ${user?.name || "—"}</p>
-            <p style="margin: 8px 0;"><strong>Email:</strong> ${user?.email || "—"}</p>
-            <p style="margin: 8px 0;"><strong>User ID:</strong> ${user?.id || "—"}</p>
-          </div>
-          <div>
-            <p style="margin: 8px 0;"><strong>Phone:</strong> ${user?.phone || addr?.phoneNumber || "—"}</p>
-            <p style="margin: 8px 0;"><strong>Account Type:</strong> ${user?.accountType || "Customer"}</p>
-            <p style="margin: 8px 0;"><strong>Loyalty Tier:</strong> ${user?.loyaltyTier || "Standard"}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Order Details -->
-      <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h3 style="color: #1e293b; margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">📦 Order Details</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-          <div>
-            <p style="margin: 8px 0;"><strong>Order Number:</strong> ${order?.orderNumber || "—"}</p>
-            <p style="margin: 8px 0;"><strong>Order ID:</strong> ${order?.id || "—"}</p>
-            <p style="margin: 8px 0;"><strong>Order Date:</strong> ${new Date(order?.createdAt || new Date()).toLocaleDateString()}</p>
-            <p style="margin: 8px 0;"><strong>Items Count:</strong> ${order?.items?.length || "—"}</p>
-          </div>
-          <div>
-            <p style="margin: 8px 0;"><strong>Total Amount:</strong> <span style="color: #059669; font-weight: bold;">${fmt(totalNum)}</span></p>
-            <p style="margin: 8px 0;"><strong>Payment Method:</strong> ${method}</p>
-            <p style="margin: 8px 0;"><strong>Order Source:</strong> ${order?.source || "Web"}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Shipping & Fulfillment -->
-      <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h3 style="color: #1e293b; margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">🚚 Shipping & Fulfillment</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-          <div>
-            <h4 style="color: #475569; margin-bottom: 10px;">Shipping Address</h4>
-            <p style="margin: 5px 0;">${addr.fullName || ""}</p>
-            <p style="margin: 5px 0;">${addr.addressLine1 || ""}</p>
-            ${addr.addressLine2 ? `<p style="margin: 5px 0;">${addr.addressLine2}</p>` : ""}
-            <p style="margin: 5px 0;">${addr.city || ""}, ${addr.state || ""} - ${addr.pinCode || ""}</p>
-            ${addr.phoneNumber ? `<p style="margin: 5px 0;">📞 ${addr.phoneNumber}</p>` : ""}
-          </div>
-          <div>
-            <h4 style="color: #475569; margin-bottom: 10px;">Delivery Information</h4>
-            ${trackingNumber
-              ? `<p style="margin: 8px 0;"><strong>Tracking Number:</strong> ${trackingNumber}</p>`
-              : `<p style="margin: 8px 0; color: #dc2626;"><strong>Tracking Number:</strong> PENDING</p>`
-            }
-            ${estimatedDelivery
-              ? `<p style="margin: 8px 0;"><strong>Estimated Delivery:</strong> ${new Date(estimatedDelivery).toLocaleDateString()}</p>`
-              : `<p style="margin: 8px 0; color: #dc2626;"><strong>Estimated Delivery:</strong> NOT SET</p>`
-            }
-            <p style="margin: 8px 0;"><strong>Shipping Method:</strong> ${order?.shippingMethod || "Standard"}</p>
-            <p style="margin: 8px 0;"><strong>Shipping Cost:</strong> ${order?.shippingCost ? fmt(order.shippingCost) : "—"}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Admin Notes & Internal Information -->
-      ${order?.internalNotes ? `
-        <div style="background: #fff7ed; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ea580c;">
-          <h4 style="color: #ea580c; margin-top: 0;">📝 Internal Notes</h4>
-          <p style="margin: 0; color: #7c2d12;">${order.internalNotes}</p>
-        </div>
-      ` : ""}
-
-      <!-- Footer -->
-      <div style="text-align: center; padding: 20px; background: #f1f5f9; border-radius: 8px; margin-top: 20px;">
-        <p style="margin: 0; color: #64748b; font-size: 14px;">
-          This is an automated notification from FashionHub Admin System.<br>
-          Order requires processing within 24 hours.
-        </p>
-        <p style="margin: 10px 0 0 0; color: #94a3b8; font-size: 12px;">
-          Order received: ${new Date().toLocaleString()}
-        </p>
-      </div>
-    </div>
-  </div>
-`;
-
-    if (!toEmail) {
-      console.warn("⚠️ No recipient email found; skip sending.");
-      return;
+    // Send admin notification
+    if (process.env.ADMIN) {
+      await sendEmail({
+        to: process.env.ADMIN,
+        subject: `🛎️ NEW ORDER: ${order?.orderNumber || "Unknown"} - ${fmt(totalNum)}`,
+        html: adminEmailHtml
+      });
     }
 
-    await transporter.sendMail({
-      from: process.env.SMTP_USER,
-      to: toEmail,
-      subject: `Order Confirmation - ${order?.orderNumber || ""}`,
-      html: emailHtml,
-    });
-
-    await transporter.sendMail({
-      from: process.env.SMTP_USER,
-      to:  process.env.ADMIN,
-      subject: `Order Confirmation - ${order?.orderNumber || ""}`,
-      html: emailHtmlAdmin,
-    });
+    console.log("✅ Order confirmation emails sent successfully");
 
   } catch (error) {
     console.error("❌ Failed to send order confirmation email:", error);

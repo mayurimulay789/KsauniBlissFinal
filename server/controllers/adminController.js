@@ -4,6 +4,125 @@ const Category = require("../models/Category")
 const Order = require("../models/Order")
 const Banner = require("../models/Banner")
 const Coupon = require("../models/Coupon")
+const { sendEmail } = require("../utils/emailService")
+
+// Send order status update email to customer
+const sendOrderStatusUpdateEmail = async (order, status) => {
+  try {
+    const customerName = order.user?.name || order.shippingAddress?.fullName || "Customer";
+    const customerEmail = order.user?.email || order.shippingAddress?.email;
+    
+    if (!customerEmail) {
+      console.warn("⚠️ No customer email found for status update notification");
+      return;
+    }
+
+    const statusMessages = {
+      shipped: "Great news! Your order has been shipped and is on its way to you.",
+      delivered: "Your order has been delivered successfully! We hope you love your purchase.",
+      cancelled: "Your order has been cancelled. If you have any questions, please contact our support team.",
+      processing: "Your order is being processed and will be shipped soon.",
+      confirmed: "Your order has been confirmed and is being prepared for shipment."
+    };
+
+    const statusColors = {
+      shipped: "#0369a1",
+      delivered: "#059669", 
+      cancelled: "#dc2626",
+      processing: "#ea580c",
+      confirmed: "#7c3aed"
+    };
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #ec4899, #be185d); padding: 30px; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">📦 Order Status Update</h1>
+          <p style="color: white; margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Your KsauniBliss order has been updated</p>
+        </div>
+
+        <!-- Main Content -->
+        <div style="padding: 30px; background: #f9fafb;">
+          <h2 style="color: #1f2937; margin-bottom: 20px;">Hello ${customerName}!</h2>
+          
+          <p style="color: #4b5563; line-height: 1.6; margin-bottom: 25px; font-size: 16px;">
+            ${statusMessages[status] || `Your order status has been updated to: ${status.replace('_', ' ').toUpperCase()}`}
+          </p>
+
+          <!-- Status Update Card -->
+          <div style="background: white; border-radius: 12px; border: 2px solid ${statusColors[status] || '#6b7280'}; padding: 25px; margin: 25px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h3 style="color: ${statusColors[status] || '#6b7280'}; margin-top: 0; margin-bottom: 20px; font-size: 20px; text-align: center;">📋 Order Details</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+              <div>
+                <p style="margin: 8px 0; color: #374151;"><strong>Order Number:</strong><br><span style="color: #ec4899; font-weight: bold;">${order.orderNumber || "—"}</span></p>
+                <p style="margin: 8px 0; color: #374151;"><strong>Order Date:</strong><br>${new Date(order.createdAt || new Date()).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p style="margin: 8px 0; color: #374151;"><strong>New Status:</strong><br><span style="color: ${statusColors[status] || '#6b7280'}; font-weight: bold; font-size: 18px;">${status.replace('_', ' ').toUpperCase()}</span></p>
+                <p style="margin: 8px 0; color: #374151;"><strong>Total Amount:</strong><br><span style="color: #059669; font-weight: bold;">₹${(order.total || 0).toFixed(2)}</span></p>
+              </div>
+            </div>
+
+            ${order.trackingInfo?.trackingNumber ? `
+              <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; border-left: 4px solid #0369a1; margin: 15px 0;">
+                <p style="margin: 0; color: #0369a1;"><strong>🚚 Tracking Number:</strong> ${order.trackingInfo.trackingNumber}</p>
+                ${order.trackingInfo.trackingUrl ? `<p style="margin: 5px 0 0 0;"><a href="${order.trackingInfo.trackingUrl}" style="color: #0369a1; text-decoration: underline;">Track your package</a></p>` : ""}
+              </div>
+            ` : ""}
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.FRONTEND_URL || "http://localhost:3000"}/orders/${order._id}" 
+               style="background: #ec4899; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-right: 15px; display: inline-block;">
+              📋 View Order Details
+            </a>
+            ${order.trackingInfo?.trackingUrl ? `
+              <a href="${order.trackingInfo.trackingUrl}" 
+                 style="background: white; color: #ec4899; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; border: 2px solid #ec4899; display: inline-block;">
+                🚚 Track Package
+              </a>
+            ` : ""}
+          </div>
+
+          <!-- Support -->
+          <div style="background: #fefce8; padding: 20px; border-radius: 8px; border-left: 4px solid #eab308; margin: 25px 0;">
+            <p style="margin: 0; color: #92400e; font-size: 14px;">
+              <strong>Need Help?</strong> Contact our customer support team at 
+              <a href="mailto:support@ksaunibliss.com" style="color: #92400e; text-decoration: underline;">support@ksaunibliss.com</a>
+              or call us at <strong>+91-XXXXXXXXXX</strong>
+            </p>
+          </div>
+
+          <p style="color: #6b7280; font-size: 16px; text-align: center; margin-top: 30px;">
+            Thank you for choosing <strong style="color: #ec4899;">KsauniBliss</strong>! ❤️
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background: #1f2937; padding: 25px; text-align: center;">
+          <p style="color: #9ca3af; margin: 0 0 10px 0; font-size: 14px;">
+            © 2024 KsauniBliss. All rights reserved.
+          </p>
+          <p style="color: #6b7280; margin: 0; font-size: 12px;">
+            You received this email because your order status was updated.
+          </p>
+        </div>
+      </div>
+    `;
+
+    await sendEmail({
+      to: customerEmail,
+      subject: `Order ${order.orderNumber} - ${status.replace('_', ' ').toUpperCase()}`,
+      html: emailHtml
+    });
+
+  } catch (error) {
+    console.error("❌ Failed to send order status update email:", error);
+    throw error; // Re-throw to be caught by caller
+  }
+};
 
 // Normalize order document for admin table
 const shapeOrderForAdmin = (o) => {
@@ -350,6 +469,20 @@ const updateOrderStatus = async (req, res) => {
         success: false,
         message: "Order not found",
       })
+    }
+
+    // Send customer notification email for significant status changes
+    if (['shipped', 'delivered', 'cancelled'].includes(status)) {
+      try {
+        const customerEmail = order.user?.email || order.shippingAddress?.email;
+        if (customerEmail) {
+          await sendOrderStatusUpdateEmail(order, status);
+          console.log(`✅ Status update email sent to customer: ${customerEmail}`);
+        }
+      } catch (emailError) {
+        console.error('❌ Failed to send status update email:', emailError.message);
+        // Don't fail the status update if email fails
+      }
     }
 
     res.status(200).json({
