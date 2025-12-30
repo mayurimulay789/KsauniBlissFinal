@@ -122,7 +122,7 @@ const LoginPage = () => {
       // Clear error in Redux (keeps your existing behavior)
       dispatch(clearError())
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [message, error, dispatch, lastAuthAttempt])
 
   // OTP Timer Effect

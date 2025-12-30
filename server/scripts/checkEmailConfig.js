@@ -1,7 +1,5 @@
 require('dotenv').config();
-
 console.log('🔧 Email Configuration Check\n');
-
 // Check all required environment variables
 const requiredEnvVars = {
   'SMTP_HOST': process.env.SMTP_HOST,
@@ -13,18 +11,15 @@ const requiredEnvVars = {
   'FROM_NAME': process.env.FROM_NAME,
   'SMTP_SECURE': process.env.SMTP_SECURE
 };
-
 console.log('📋 Environment Variables:');
 Object.entries(requiredEnvVars).forEach(([key, value]) => {
   const status = value ? '✅' : '❌';
   console.log(`   ${key}: ${status} ${value || 'NOT SET'}`);
 });
-
 console.log('\n🧪 Testing Email Service Import...');
 try {
   const { sendEmail } = require('../utils/emailService');
   console.log('✅ Email service imported successfully');
-  
   console.log('\n📧 Testing Simple Email Send...');
   sendEmail({
     to: process.env.ADMIN || 'ksaunibliss@gmail.com',
@@ -51,7 +46,6 @@ try {
   }).catch((error) => {
     console.error('❌ Simple email test failed:', error.message);
   });
-
 } catch (error) {
   console.error('❌ Failed to import email service:', error.message);
 }
